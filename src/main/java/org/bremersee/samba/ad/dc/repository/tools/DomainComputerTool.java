@@ -7,6 +7,6 @@ public interface DomainComputerTool {
 
   DomainComputer moveComputer(DomainComputer domainComputer, Dn newOu);
 
-  void deleteComputer(String name);
+  void deleteComputer(DomainComputer domainComputer);
 
 }

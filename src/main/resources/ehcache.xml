@@ -11,8 +11,9 @@
   </service>
   -->
 
+  <!-- TODO -->
   <!-- <persistence directory="${java.io.tmpdir}"/> -->
-  <persistence directory="/Users/cbr/cache"/>
+  <persistence directory="/Users/cbr/cache/ad-dc-manager"/>
 
   <cache-template name="default">
     <expiry>

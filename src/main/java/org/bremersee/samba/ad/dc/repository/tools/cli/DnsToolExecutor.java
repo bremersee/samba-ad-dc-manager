@@ -94,7 +94,7 @@ class DnsToolExecutor extends SambaToolExecutor implements DnsTool {
     commands.add(entry.getName());
     commands.add(entry.getType().name());
     commands.add(entry.getType().getToSambaToolValueTransformer().apply(entry.getValue()));
-    execute(commands, DnsEntryAddValidator.getInstance());
+    execute(commands, new DnsEntryAddValidator());
   }
 
   @Override
@@ -107,7 +107,7 @@ class DnsToolExecutor extends SambaToolExecutor implements DnsTool {
     commands.add(entry.getType().name());
     commands.add(entry.getType().getToSambaToolValueTransformer().apply(entry.getValue()));
     commands.add(entry.getType().getToSambaToolValueTransformer().apply(newValue));
-    execute(commands, DnsEntryUpdateValidator.getInstance());
+    execute(commands, new DnsEntryUpdateValidator());
   }
 
   @Override
@@ -119,7 +119,7 @@ class DnsToolExecutor extends SambaToolExecutor implements DnsTool {
     commands.add(entry.getName());
     commands.add(entry.getType().name());
     commands.add(entry.getType().getToSambaToolValueTransformer().apply(entry.getValue()));
-    execute(commands, DnsEntryDeleteValidator.getInstance());
+    execute(commands, new DnsEntryDeleteValidator());
   }
 
 }

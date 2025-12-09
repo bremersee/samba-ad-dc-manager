@@ -80,7 +80,7 @@ public interface DnsZoneParser extends CommandExecutorResponseParser<DnsZone> {
 
     public static DnsZoneParser getInstance() {
       if (instance == null) {
-        instance = defaultParser();
+        instance = new Default();
       }
       return instance;
     }

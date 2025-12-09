@@ -147,11 +147,12 @@ public class DomainComputerRepositoryImpl extends AbstractSamAccountRepository
   @Override
   public boolean delete(String name) {
     log.debug("delete({})", name);
-    if (findOne(name, null, null).isEmpty()) {
-      return false;
-    }
-    domainComputerTool.deleteComputer(name);
-    return findOne(name, null, null).isEmpty();
+    return findOne(name, null, null)
+        .map(domainComputer -> {
+          domainComputerTool.deleteComputer(domainComputer);
+          return findOne(name, null, null).isEmpty();
+        })
+        .orElse(false);
   }
 
   Dn getNewDn(DomainComputer oldDomainComputer, DomainComputer newDomainComputer, Dn newOu) {

@@ -6,6 +6,7 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.tools.DomainComputerTool;
 import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DomainComputerDeleteValidator;
+import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DomainComputerMoveValidator;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,7 @@ class DomainComputerToolExecutor extends SambaToolExecutor implements DomainComp
     commands.add("move");
     commands.add(quote(domainComputer.getSamAccountNameWithoutTrailingDollarSign()));
     commands.add(quote(ou));
+    execute(commands, new DomainComputerMoveValidator(domainComputer, newOu));
     Dn newDn = new Dn(domainComputer.getDn().getRDn());
     newDn.add(newOu);
     domainComputer.setDn(getProperties().getBaseDn(newDn));
@@ -37,13 +39,8 @@ class DomainComputerToolExecutor extends SambaToolExecutor implements DomainComp
   }
 
   @Override
-  public void deleteComputer(String name) {
-    String samAccountName;
-    if (name.endsWith("$")) {
-      samAccountName = name.substring(0, name.length() - 1);
-    } else {
-      samAccountName = name;
-    }
+  public void deleteComputer(DomainComputer domainComputer) {
+    String samAccountName = domainComputer.getSamAccountNameWithoutTrailingDollarSign();
     List<String> commands = getCommands();
     commands.add("delete");
     commands.add(quote(samAccountName));

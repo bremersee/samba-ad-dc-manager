@@ -48,15 +48,16 @@ class CommandExecutor {
     if (getProperties().getCli().getSudo().isUsingSudo()) {
       extendedCommands.add(properties.getCli().getSudo().getSudoCommand());
     }
-    extendedCommands.addAll(parseCommands(commands));
+    extendedCommands.addAll(commands);
+    List<String> commandTokens = parseCommands(extendedCommands);
     try {
-      ProcessBuilder pb = new ProcessBuilder(extendedCommands);
+      ProcessBuilder pb = new ProcessBuilder(commandTokens);
       if (!isEmpty(properties.getCli().getExecDir())) {
         pb.directory(new File(properties.getCli().getExecDir()));
       }
 
       if (log.isDebugEnabled()) {
-        log.debug("Executing commands = {}", String.join(" ", extendedCommands));
+        log.debug("Executing commands = {}", String.join(" ", commandTokens));
       }
       Process p = pb.start();
       StringWriter out = new StringWriter();
@@ -77,7 +78,7 @@ class CommandExecutor {
           "Running commands failed.",
           ErrorCode.prefixErrorCode("6fa0f473-6204-4f75-9130-a1049910d8fd"),
           e);
-      log.error("Executing commands [{}] failed.", extendedCommands, se);
+      log.error("Executing commands [{}] failed.", commandTokens, se);
       if (e instanceof InterruptedException) {
         Thread.currentThread().interrupt();
       }
