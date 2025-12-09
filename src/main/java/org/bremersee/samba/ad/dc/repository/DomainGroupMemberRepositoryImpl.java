@@ -1,0 +1,270 @@
+/*
+ * Copyright 2019-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupMember;
+import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupMemberLdapMapper;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.SubstringFilter;
+import org.springframework.stereotype.Component;
+
+/**
+ * The domain group member repository.
+ *
+ * @author Christian Bremer
+ */
+@Component("domainGroupMemberRepository")
+@Slf4j
+public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepository
+    implements DomainGroupMemberRepository {
+
+  private final DomainGroupRepository domainGroupRepository;
+
+  private final DomainGroupMemberLdapMapper domainGroupMemberLdapMapper;
+
+  /**
+   * Instantiates a new domain group repository.
+   *
+   * @param properties the properties
+   * @param ldapTemplate the ldap template
+   */
+  public DomainGroupMemberRepositoryImpl(
+      DomainControllerProperties properties,
+      LdaptiveTemplate ldapTemplate,
+      DomainGroupRepository domainGroupRepository) {
+    super(properties, ldapTemplate);
+    this.domainGroupRepository = domainGroupRepository;
+    this.domainGroupMemberLdapMapper = new DomainGroupMemberLdapMapper();
+  }
+
+  @Override
+  Dn getDefaultOu() {
+    return getProperties().getGroup().getDefaultOu();
+  }
+
+  @Override
+  String getObjectClassValue() {
+    return AdConstants.OBJECT_CLASS_GROUP;
+  }
+
+  @Override
+  String[] getBinaryAttributes() {
+    return domainGroupMemberLdapMapper.getBinaryAttributeNames();
+  }
+
+  @Override
+  String[] getReturnAttributes() {
+    return domainGroupMemberLdapMapper.getMappedAttributeNames();
+  }
+
+  @Override
+  public Stream<DomainGroup> resolveMemberships(
+      String samAccountName, Dn ou, TreeSearchScope searchScope) {
+    log.debug("resolveMemberships({}, {}, {})", samAccountName, ou, searchScope);
+    Set<Dn> groupDns = new HashSet<>();
+    return getMemberships(samAccountName, ou, searchScope)
+        .filter(group -> !groupDns.contains(new Dn(group.getDistinguishedName())))
+        .peek(group -> groupDns.add(new Dn(group.getDistinguishedName())))
+        .flatMap(group -> Stream
+            .concat(Stream.of(group), resolveMemberships(group.getMemberships(), groupDns)));
+  }
+
+  private Stream<DomainGroup> resolveMemberships(List<String> memberOf, Set<Dn> groupDns) {
+    return memberOf.stream()
+        .filter(dn -> !groupDns.contains(new Dn(dn)))
+        .flatMap(dn -> domainGroupRepository.findOne(dn, null, null).stream())
+        .peek(group -> groupDns.add(new Dn(group.getDistinguishedName())))
+        .flatMap(nextGroup -> Stream
+            .concat(Stream.of(nextGroup),
+                resolveMemberships(nextGroup.getMemberships(), groupDns)));
+  }
+
+  @Override
+  public Stream<DomainGroup> getMemberships(
+      String samAccountName, Dn ou, TreeSearchScope searchScope) {
+
+    log.debug("getMemberships({}, {}, {})", samAccountName, ou, searchScope);
+    SamAccount samAccount = findSamAccount(samAccountName, ou, searchScope)
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            SamAccount.class.getSimpleName(), samAccountName, EC_SAM_ACCOUNT_NOT_FOUND));
+    Stream<DomainGroup> groups = samAccount.getMemberships().stream()
+        .flatMap(dn -> domainGroupRepository.findOne(dn, null, null).stream())
+        .sorted();
+    Optional<DomainGroup> primaryGroup = domainGroupRepository
+        .findOneByPrimaryGroupId(samAccount.getPrimaryGroupId());
+    if (primaryGroup.isPresent() && equals(primaryGroup.get(), samAccount)) {
+      return groups;
+    }
+    return Stream.concat(primaryGroup.stream(), groups);
+  }
+
+  private boolean equals(SamAccount samAccount1, SamAccount samAccount2) {
+    boolean result = Objects.equals(samAccount1, samAccount2);
+    if (result) {
+      return true;
+    }
+    result = Objects.equals(samAccount1.getSamAccountName(), samAccount2.getSamAccountName());
+    if (result) {
+      return true;
+    }
+    return Objects.equals(
+        samAccount1.getSamAccountName().toLowerCase(),
+        samAccount2.getSamAccountName().toLowerCase());
+  }
+
+  @Override
+  public Stream<DomainGroupMember> findPossibleMembers(
+      String groupName, Dn ou, TreeSearchScope searchScope) {
+    log.debug("findPossibleMembers({}, {}, {})", groupName, ou, searchScope);
+    return findPossibleMembers(groupName, ou, searchScope, null);
+  }
+
+  @Override
+  public Stream<DomainGroupMember> queryPossibleMembers(String groupName, Dn ou,
+      TreeSearchScope searchScope, String query) {
+    log.debug("queryPossibleMembers({}, {}, {}, {})", groupName, ou, searchScope, query);
+    if (isEmpty(query) || query.length() <= 2) {
+      return Stream.empty();
+    }
+    return findPossibleMembers(groupName, ou, searchScope, query);
+  }
+
+  Stream<DomainGroupMember> findPossibleMembers(
+      String groupName,
+      Dn ou,
+      TreeSearchScope searchScope,
+      String query) {
+
+    DomainGroup group = domainGroupRepository.findOne(groupName, ou, searchScope)
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            DomainGroup.class.getSimpleName(), groupName, EC_SAM_ACCOUNT_NOT_FOUND));
+    Set<String> memberDns = group.getMembers().stream()
+        .map(Dn::new)
+        .map(Dn::format)
+        .collect(Collectors.toSet());
+    if (isEmpty(query)) {
+      return Stream.concat(
+          findMembers(memberDns),
+          findPossibleMembers(memberDns, group.getPrimaryGroupId(), null)
+      );
+    }
+    return findPossibleMembers(memberDns, group.getPrimaryGroupId(), query);
+  }
+
+  @Override
+  public Stream<DomainGroupMember> getMembers(String groupName, Dn ou,
+      TreeSearchScope searchScope) {
+    DomainGroup group = domainGroupRepository.findOne(groupName, ou, searchScope)
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            DomainGroup.class.getSimpleName(), groupName, EC_SAM_ACCOUNT_NOT_FOUND));
+    return findMembers(new HashSet<>(group.getMembers()));
+  }
+
+  Stream<DomainGroupMember> findMembers(Set<String> memberDnSet) {
+    log.debug("findMembers({})", memberDnSet);
+    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
+    return memberDnSet.stream()
+        .flatMap(dn -> getLdapTemplate()
+            .findOne(SearchRequest.objectScopeSearchRequest(dn, returnAttributes))
+            .stream())
+        .map(domainGroupMemberLdapMapper::map)
+        .peek(member -> member.setSelected(true));
+  }
+
+  Stream<DomainGroupMember> findPossibleMembers(Set<String> excludedDns, Integer groupId,
+      String query) {
+    log.debug("findPossibleMembers({})", excludedDns);
+    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
+    Filter findAllMembersFilter;
+    Filter objectClassFilter = new OrFilter(
+        new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_GROUP),
+        new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_USER)
+        // computers are also users
+    );
+    if (isEmpty(query) || query.length() <= 2) {
+      findAllMembersFilter = objectClassFilter;
+    } else {
+      Filter queryFilter = new OrFilter(
+          new SubstringFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), null, null, query),
+          new SubstringFilter(AdConstants.USER_GIVEN_NAME.getName(), null, null, query),
+          new SubstringFilter(AdConstants.USER_SN.getName(), null, null, query),
+          new SubstringFilter(AdConstants.USER_DISPLAY_NAME.getName(), null, null, query),
+          new SubstringFilter(AdConstants.NAME.getName(), null, null, query)
+      );
+      findAllMembersFilter = new AndFilter(objectClassFilter, queryFilter);
+    }
+    SearchRequest searchRequest = searchAllRequest(getProperties().getBaseDn(),
+        findAllMembersFilter, SearchScope.SUBTREE, returnAttributes);
+    return getLdapTemplate().findAll(searchRequest)
+        .stream()
+        .filter(getIgnoredEntryFilter())
+        .filter(ldapEntry -> !excludedDns.contains(new Dn(ldapEntry.getDn()).format()))
+        .map(domainGroupMemberLdapMapper::map)
+        .peek(member -> member.setSelected(false))
+        .filter(member -> isEmpty(groupId)
+            || !groupId.equals(member.getPrimaryGroupId()));
+  }
+
+  Optional<SamAccount> findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
+    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
+    SearchRequest searchRequest;
+    if (getProperties().isDn(samAccountName)) {
+      searchRequest = SearchRequest.objectScopeSearchRequest(samAccountName, returnAttributes);
+    } else {
+      Dn ouDn;
+      SearchScope scope;
+      if (isEmpty(ou) || ou.isEmpty()) {
+        ouDn = getProperties().getBaseDn();
+        scope = SearchScope.SUBTREE;
+      } else {
+        ouDn = getProperties().getBaseDn(ou);
+        scope = requireNonNullElse(TreeSearchScopeConverter
+            .toSearchScope(searchScope), SearchScope.SUBTREE);
+      }
+      Filter filter = new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName);
+      searchRequest = searchOneRequest(samAccountName, ouDn, filter, scope, returnAttributes);
+    }
+    return getLdapTemplate().findOne(searchRequest)
+        .filter(getIgnoredEntryFilter(ou, TreeSearchScopeConverter.toSearchScope(searchScope)))
+        .map(domainGroupMemberLdapMapper::map);
+  }
+
+}

@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.bremersee</groupId>
+    <artifactId>common-service-parent</artifactId>
+    <version>5.0.0-SNAPSHOT</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
+  <artifactId>samba-ad-dc-manager</artifactId>
+  <version>3.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Samba AD DC Manager</name>
+  <description>Management application for Samba AD DC</description>
+  <url>https://github.com/bremersee/samba-ad-dc-manager</url>
+
+  <properties>
+    <github.repo>samba-ad-dc-manager</github.repo>
+    <gh-pages-staging-dir>${project.build.directory}/staging</gh-pages-staging-dir>
+
+    <start-class>org.bremersee.samba.ad.dc.Application</start-class>
+
+    <dc-con-api-spring.version>3.0.0-SNAPSHOT</dc-con-api-spring.version>
+
+    <!--suppress UnresolvedMavenProperty -->
+    <debBaseName>
+      dc-con_${project.version}-${maven.build.timestamp}+${buildNumber}_all
+    </debBaseName>
+    <debName>${debBaseName}.deb</debName>
+    <debChangesName>${debBaseName}.changes</debChangesName>
+
+    <dockerfile.image>samba-ad-dc-manager</dockerfile.image>
+  </properties>
+
+  <developers>
+    <developer>
+      <id>bremersee</id>
+      <name>Christian Bremer</name>
+      <organization>bremersee.org</organization>
+      <organizationUrl>https://bremersee.org</organizationUrl>
+      <email>christian@bremersee.org</email>
+      <timezone>+1</timezone>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <organization>
+    <name>bremersee.org</name>
+    <url>https://bremersee.org</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:ssh://git@github.com:bremersee/samba-ad-dc-manager.git</connection>
+    <developerConnection>
+      scm:git:ssh://git@github.com:bremersee/samba-ad-dc-manager.git
+    </developerConnection>
+    <url>https://github.com/bremersee/samba-ad-dc-manager</url>
+  </scm>
+
+  <issueManagement>
+    <url>https://github.com/bremersee/samba-ad-dc-manager/issues</url>
+    <system>GitHub Issues</system>
+  </issueManagement>
+
+  <distributionManagement>
+    <repository>
+      <id>bremersee-releases</id>
+      <url>https://nexus.bremersee.org/repository/maven-releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>bremersee-snapshots</id>
+      <url>https://nexus.bremersee.org/repository/maven-snapshots</url>
+    </snapshotRepository>
+    <site>
+      <id>bremersee-sites</id>
+      <url>
+        dav:https://nexus.bremersee.org/repository/maven-sites/samba-ad-dc-manager/${project.version}
+      </url>
+    </site>
+  </distributionManagement>
+
+  <dependencies>
+    <!--
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>dc-con-api-spring</artifactId>
+      <version>${dc-con-api-spring.version}</version>
+    </dependency>
+    -->
+
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>spring-integration-boot-autoconfigure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>spring-integration-web</artifactId>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>spring-integration-thymeleaf</artifactId>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>spring-integration-security-ldaptive</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>common-exception-spring-boot-web-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-tracing-bridge-brave</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.thymeleaf.extras</groupId>
+      <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-commons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>pagebuilder</artifactId>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+    </dependency>
+    -->
+    <!--
+    <dependency>
+      <groupId>de.codecentric</groupId>
+      <artifactId>spring-boot-admin-starter-client</artifactId>
+    </dependency>
+    -->
+
+    <!--
+     JMX-Bean Management for Spring Boot Admin Server:
+     1) Only for servlet based applications
+     2) Set spring.jmx.enabled=true
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-core</artifactId>
+    </dependency>
+   -->
+
+    <!--
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>common-base-web-starter</artifactId>
+      <version>${common-base.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>common-base-webmvc-starter</artifactId>
+      <version>${common-base.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>common-base-security-starter</artifactId>
+      <version>${common-base.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>common-base-thymeleaf-starter</artifactId>
+      <version>${common-base.version}</version>
+    </dependency>
+    -->
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <classifier>jakarta</classifier>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <classifier>jakarta</classifier>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <!-- Config client -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.retry</groupId>
+      <artifactId>spring-retry</artifactId>
+    </dependency>
+
+    <!-- Sleuth and Zipkin -->
+    <!--
+    <dependency>
+      <groupId>io.zipkin.reporter2</groupId>
+      <artifactId>zipkin-reporter-brave</artifactId>
+    </dependency>
+    -->
+
+    <!-- Eureka client -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+
+    <!-- OpenAPI -->
+    <!--
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+    </dependency>
+    -->
+
+    <!--
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mustache</artifactId>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>com.samskivert</groupId>
+      <artifactId>jmustache</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.unboundid</groupId>
+      <artifactId>unboundid-ldapsdk</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>dc-con</finalName>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>jdeb</artifactId>
+          <groupId>org.vafer</groupId>
+          <version>1.5</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>debian11</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <assembly-config>debian11.xml</assembly-config>
+      </properties>
+      <build>
+        <finalName>dc-con</finalName>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <executable>true</executable>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+              <descriptors>
+                <descriptor>${basedir}/src/assembly/${assembly-config}</descriptor>
+              </descriptors>
+            </configuration>
+            <executions>
+              <execution>
+                <id>debian11-archive</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>jdeb</artifactId>
+            <groupId>org.vafer</groupId>
+            <executions>
+              <execution>
+                <id>debian11-deb</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jdeb</goal>
+                </goals>
+                <configuration>
+                  <verbose>true</verbose>
+                  <deb>${project.build.directory}/${debName}</deb>
+                  <changesOut>${project.build.directory}/${debChangesName}</changesOut>
+                  <controlDir>${basedir}/src/assembly/debian11/control</controlDir>
+                  <dataSet>
+                    <data>
+                      <src>${project.build.directory}/dc-con-debian11.tar.gz</src>
+                      <type>archive</type>
+                      <mapper>
+                        <type>perm</type>
+                        <prefix>/</prefix>
+                      </mapper>
+                    </data>
+                  </dataSet>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>deploy-to-repo-debian-bullseye</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <!--+
+              | wagon-http only supports http method put
+              | uploading to nexus apt works only with a workaround in haproxy
+              +-->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>upload-to-debian-bullseye</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>upload-single</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-apt</serverId>
+                  <fromFile>${project.build.directory}/${debName}</fromFile>
+                  <url>https://nexus.bremersee.org/repository/debian-bullseye</url>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>apt-get-on-dc3</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>install-on-dc3</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>sshexec</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-dpkg</serverId>
+                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <commands>
+                    <command>sudo -n /usr/bin/apt-get update</command>
+                    <command>sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get
+                      -yq install spring-config-server
+                    </command>
+                  </commands>
+                  <displayCommandOutputs>true</displayCommandOutputs>
+                  <failOnError>false</failOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>copy-to-and-install-on-dc3</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-to-dc3</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>upload-single</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-dpkg</serverId>
+                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <fromFile>${project.build.directory}/${debName}</fromFile>
+                  <toFile>dc-con.deb</toFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>dpkg-on-dc3</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>sshexec</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-dpkg</serverId>
+                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <commands>
+                    <command>sudo -n /usr/bin/dpkg -i /home/giacomo/dc-con.deb</command>
+                    <command>rm /home/giacomo/dc-con.deb</command>
+                  </commands>
+                  <displayCommandOutputs>true</displayCommandOutputs>
+                  <failOnError>true</failOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+</project>

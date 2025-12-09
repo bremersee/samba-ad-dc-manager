@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en"
+      data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title>Users</title>
+  <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
+        th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
+        th:href="@{/lib/bootstrap-social/5.1.1/bootstrap-social.css}"/>
+  <link rel="stylesheet" href="../../static/lib/fontawesome/6.5.2/css/fontawesome.min.css"
+        th:href="@{/lib/fontawesome/6.5.2/css/fontawesome.css}"/>
+  <link rel="stylesheet" href="../../static/lib/fontawesome/6.5.2/css/brands.min.css"
+        th:href="@{/lib/fontawesome/6.5.2/css/brands.min.css}"/>
+  <link rel="stylesheet" href="../../static/lib/fontawesome/6.5.2/css/solid.min.css"
+        th:href="@{/lib/fontawesome/6.5.2/css/solid.min.css}"/>
+  <link rel="stylesheet" href="../../static/css/app.css"
+        th:href="@{/css/app.css}"/>
+  <link rel="stylesheet" href="../../static/css/glyphicons.css"
+        th:href="@{/css/glyphicons.css}"/>
+  <script src="../../static/lib/jquery/jquery-3.7.1.min.js"
+          th:src="@{/lib/jquery/jquery-3.7.1.min.js}"></script>
+  <script src="../../static/lib/popper/2.11.8/popper.min.js"
+          th:src="@{/lib/popper/2.11.8/popper.min.js}"></script>
+  <script src="../../static/lib/bootstrap/5.3.3/js/bootstrap.min.js"
+          th:src="@{/lib/bootstrap/5.3.3/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
+     th:replace="~{fragments/header :: header}">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">bremersee.org</a>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNavbar">
+    </div>
+  </div>
+</nav>
+<main role="main" class="container">
+
+  <div th:replace="~{fragments/loading-spinner :: loading-spinner}"></div>
+
+  <div class="row mb-4">
+    <div class="col-1">
+      <a class="btn btn-outline-secondary" href="groups.html"
+         th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+        <span class="fa fa-backward"></span>
+      </a>
+    </div>
+    <div class="col d-flex justify-content-center">
+      <h3>Add group</h3>
+    </div>
+    <div class="col-1"></div>
+  </div>
+
+  <div>
+    <form th:action="@{group-add}" th:object="${groupAddRequest}" action="#" method="post">
+      <input type="hidden" name="page" th:value="${page}"/>
+      <input type="hidden" name="size" th:value="${size}"/>
+      <input type="hidden" name="sort" th:value="${sort}"/>
+      <input type="hidden" name="q" th:value="${q}"/>
+      <input type="hidden" name="ou" th:value="${ou}"/>
+      <input type="hidden" name="scope" th:value="${scope}"/>
+
+      <div class="mb-3">
+        <label for="newOu" class="form-label">Organizational Unit</label>
+        <select id="newOu" class="form-select" aria-label="Organizational Unit"
+                aria-describedby="newOuValidation"
+                th:classappend="${#fields.hasErrors('newOu')} ? 'is-invalid' : ''"
+                th:field="*{newOu}">
+          <option th:each="o : ${ous}" th:value="${o.distinguishedName}" th:text="${o.nameTree}">
+            Users
+          </option>
+        </select>
+        <div id="newOuValidation" class="invalid-feedback"
+             th:text="${#fields.hasErrors('newOu')} ? ${#fields.errors('newOu')[0]} : ''">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="samAccountName" class="form-label">Group name</label>
+        <input type="text" class="form-control" id="samAccountName" name="samAccountName"
+               aria-describedby="samAccountNameValidation" required
+               th:field="*{samAccountName}"
+               th:classappend="${#fields.hasErrors('samAccountName')} ? 'is-invalid' : ''"/>
+        <div id="samAccountNameValidation" class="invalid-feedback"
+             th:text="${#fields.hasErrors('samAccountName')} ? ${#fields.errors('samAccountName')[0]} : ''">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="groupScope" class="form-label">Group Scope</label>
+        <select id="groupScope" class="form-select" aria-label="Group Scope"
+                aria-describedby="groupScopeValidation"
+                th:classappend="${#fields.hasErrors('groupScope')} ? 'is-invalid' : ''"
+                th:field="*{groupScope}">
+          <option th:each="t : ${groupScopes}" th:value="${t.value}" th:text="${t.displayValue}">
+            Global
+          </option>
+        </select>
+        <div id="groupScopeValidation" class="invalid-feedback"
+             th:text="${#fields.hasErrors('groupScope')} ? ${#fields.errors('groupScope')[0]} : ''">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="groupType" class="form-label">Group Type</label>
+        <select id="groupType" class="form-select" aria-label="Group Type"
+                aria-describedby="groupTypeValidation"
+                th:classappend="${#fields.hasErrors('groupPurpose')} ? 'is-invalid' : ''"
+                th:field="*{groupPurpose}">
+          <option th:each="t : ${groupPurposes}" th:value="${t.value}" th:text="${t.displayValue}">
+            Security
+          </option>
+        </select>
+        <div id="groupTypeValidation" class="invalid-feedback"
+             th:text="${#fields.hasErrors('groupPurpose')} ? ${#fields.errors('groupPurpose')[0]} : ''">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email"
+               aria-describedby="emailValidation" th:field="*{email}"
+               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"/>
+        <div id="emailValidation" class="invalid-feedback"
+             th:text="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : ''">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" class="form-control" id="description" name="description"
+               th:field="*{description}" />
+      </div>
+
+      <div th:if="${rfc2307Enabled}">
+        <div class="mb-3">
+          <label for="gidNumber" class="form-label">
+            Group's Unix/RFC2307 GID number
+          </label>
+          <input type="number" class="form-control" id="gidNumber" name="gidNumber"
+                 aria-describedby="gidNumberValidation" th:field="*{gidNumber}"
+                 th:classappend="${#fields.hasErrors('gidNumber')} ? 'is-invalid' : ''"/>
+          <div id="gidNumberValidation" class="invalid-feedback"
+               th:text="${#fields.hasErrors('gidNumber')} ? ${#fields.errors('gidNumber')[0]} : ''">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="nisDomain" class="form-label">
+            Group's Unix/RFC2307 NIS domain
+          </label>
+          <input type="text" class="form-control" id="nisDomain"
+                 name="nisDomain" th:field="*{nisDomain}" />
+        </div>
+      </div> <!-- end of rfc2307Enabled -->
+
+      <button type="submit" class="btn btn-primary mt-3">
+        Add
+      </button>
+      <a href="groups.html" th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
+         class="btn btn-secondary ml-3 mt-3" role="button">
+        Cancel
+      </a>
+    </form>
+  </div>
+</main>
+<script type="text/javascript" th:inline="javascript">
+  //<![CDATA[
+  "use strict";
+  $(document).ready(function () {
+    const loadingSpinnerModal = new bootstrap.Modal('#loadingSpinnerModal');
+    $('a.show-spinner').on('click', function () {
+      loadingSpinnerModal.show();
+    });
+  });
+  //]]>
+</script>
+</body>
+</html>

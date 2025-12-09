@@ -1,0 +1,103 @@
+/*
+ * Copyright 2024 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.admin;
+
+import lombok.Getter;
+import org.bremersee.comparator.model.SortOrder;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitNavigationComponent;
+import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
+import org.bremersee.samba.ad.dc.model.DomainUserPage;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+
+/**
+ * The type UsersController.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class UsersController extends AbstractController
+    implements PageableComponent, OrganizationalUnitNavigationComponent {
+
+  private final SortMapper sortMapper;
+
+  private final DomainUserService domainUserService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  public UsersController(
+      DomainControllerProperties properties,
+      LocaleResolver localeResolver,
+      SortMapper sortMapper,
+      DomainUserService domainUserService,
+      OrganizationalUnitService organizationalUnitService) {
+    super(properties, localeResolver);
+    this.sortMapper = sortMapper;
+    this.domainUserService = domainUserService;
+    this.organizationalUnitService = organizationalUnitService;
+  }
+
+  @Override
+  public TreeSearchScope getDefaultSearchScope() {
+    return getProperties().getUser().getDefaultSearchScope();
+  }
+
+  @Override
+  public String getDefaultSort() {
+    return USER_SORT;
+  }
+
+  @Override
+  public String getCurrentPageName() {
+    return "users";
+  }
+
+  @RequestMapping(path = "/admin/users", method = RequestMethod.GET)
+  public String displayUsers(
+      @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
+      @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
+      @RequestParam(name = SORT, defaultValue = USER_SORT) SortOrder sort,
+      @RequestParam(name = QUERY, required = false) String query,
+      @RequestParam(name = OU, required = false) Dn ou,
+      @RequestParam(name = SCOPE, required = false) TreeSearchScope scope,
+      ModelMap model) {
+
+    OrganizationalUnitDropdown ouDropdown = getOrganizationalUnitDropdown(ou, scope);
+    addOrganizationalUnitDropdown(model, ouDropdown);
+    Pageable pageable = PageRequest.of(page, size, sortMapper.toSort(sort));
+    DomainUserPage userPage = new DomainUserPage(
+        domainUserService.getUsers(pageable, query, ou, ouDropdown.getSelectedScope()));
+    model.addAttribute("users", userPage);
+    return "admin/users";
+  }
+
+}

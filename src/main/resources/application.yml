@@ -1,0 +1,225 @@
+bremersee:
+  exception-mapping:
+    api-paths:
+      - /api/**
+    default-exception-mapping-config:
+      include-message: true
+      include-exception: true
+      include-application-name: true
+      include-path: true
+      include-handler: true
+      include-stack-trace: true
+      include-cause: true
+
+  comparator:
+    converter:
+      argument-separator: ","
+      chain-separator: ";"
+
+  domain-controller:
+    company-name: ${COMPANY_NAME:bremersee.org}
+    company-url: ${COMPANY_URL:https://bremersee.org}
+    base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
+    group-base-dn: ${LDAP_GROUP_DN:cn=users,dc=eixe,dc=bremersee,dc=org}
+    user-base-dn: ${LDAP_USER_DN:cn=users,dc=eixe,dc=bremersee,dc=org}
+    name-server-host: ${NAME_SERVER_HOST:dc1.eixe.bremersee.org}
+    dns-zone-base-dn: ${LDAP_ZONE_DN:CN=MicrosoftDNS,DC=DomainDnsZones,DC=eixe,DC=bremersee,DC=org}
+    dns-node-base-dn: DC={zoneName},${bremersee.domain-controller.dns-zone-base-dn}
+    default-zone: ${DEFAULT_ZONE:eixe.bremersee.org}
+    mail-with-credentials:
+      sender: ${spring.mail.username:no-reply@bremersee.org}
+      login-url: http://localhost:4200/change-password
+
+eureka:
+  client:
+    enabled: false
+
+spring:
+  profiles:
+    default: mock,in-memory
+  application:
+    name: ${APPLICATION_NAME:dc-con-app}
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+  cloud:
+    config:
+      enabled: ${CONFIG_CLIENT_ENABLED:false}
+      uri: ${CONFIG_URI:https://configserver.example.org}
+      username: ${CONFIG_USER:user}
+      password: ${CONFIG_PASSWORD:changeit}
+      fail-fast: ${CONFIG_CLIENT_FAIL_FAST:true}
+      retry:
+        initial-interval: ${CONFIG_RETRY_INIT_INTERVAL:3000}
+        max-interval: ${CONFIG_RETRY_MAX_INTERVAL:4000}
+        max-attempts: ${CONFIG_RETRY_MAX_ATTEMPTS:8}
+        multiplier: ${CONFIG_RETRY_MULTIPLIER:1.1}
+  messages:
+    use-code-as-default-message: true
+    fallback-to-system-locale: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-headers: "*"
+        allowed-methods: "*"
+        allowed-origins: "*"
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    mail:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    ROOT: info
+    com.netflix.eureka.registry: warn
+    com.netflix.discovery.shared.resolver: warn
+    org.bremersee.dccon: debug
+    org.springframework.cloud.configclient: warn
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: jwt
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/certs
+bremersee:
+  authentication:
+    jwt-converter:
+      name-json-path: $.preferred_username
+      first-name-json-path: $.given_name
+      last-name-json-path: $.family_name
+      roles-json-path: $.realm_access.roles
+      roles-value-list: true
+      role-prefix: "ROLE_"
+      role-case-transformation: to_upper_case
+      role-string-replacements:
+        - regex: "[- ]"
+          replacement: "_"
+        - regex: "_ADMINS"
+          replacement: "_ADMIN"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mock
+
+bremersee:
+  domain-controller:
+    host-name: localhost
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: in-memory
+
+  security:
+    user:
+      name: testuser
+      password: changeit
+      roles:
+        - "LOCAL_USER"
+        - "ADMIN"
+        - "ACTUATOR_ADMINS"
+
+bremersee:
+  domain-controller:
+    host-name: localhost
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: ldap
+
+bremersee:
+  ldaptive:
+    ldaptive-template-class: org.bremersee.ldaptive.LdaptiveSambaTemplate
+    immutable: true
+    ldap-url: ${LDAP_URL:ldaps://dc1.eixe.bremersee.org:636}
+    use-start-tls: ${LDAP_START_TLS:false}
+    bind-dn: ${LDAP_BIND_DN:admin@example.org}
+    bind-credentials: ${LDAP_BIND_PASSWORD:changeit}
+    pooled: ${LDAP_POOLED:false}
+    connection-validator:
+      search-request:
+        base-dn: ${LDAP_BASE_DN:${bremersee.domain-controller.user-base-dn}}
+    connection-pool:
+      min-pool-size: 3
+      max-pool-size: 10
+      validate-on-check-in: false
+      validate-on-check-out: false
+      validate-periodically: true
+      validator:
+        search-request:
+          base-dn: ${LDAP_BASE_DN:${bremersee.domain-controller.user-base-dn}}
+  authentication:
+    remember-me:
+      key: "M#iyRKR@ZoLAN!rSxhT%dM636!y"
+    ldaptive:
+      template: active_directory
+      user-base-dn: ${LDAP_USER_BASE_DN:${bremersee.domain-controller.user-base-dn}}
+      role-prefix: "ROLE_"
+      role-case-transformation: to_upper_case
+      role-string-replacements:
+        - regex: "[- ]"
+          replacement: "_"
+        - regex: "_ADMINS"
+          replacement: "_ADMIN"
+      default-roles:
+        - "ROLE_LOCAL_USER"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: cli
+
+bremersee:
+  domain-controller:
+    cli:
+      samba-tool-credentials-options: "-UAdministrator --password='${bremersee.ldaptive.bind-credentials}'"
+      #samba-tool-credentials-options: "--simple-bind-dn='${bremersee.ldaptive.bind-dn}' --password='${bremersee.ldaptive.bind-credentials}'"
+      ssh:
+        using-ssh: true
+        ssh-command: ${SSH_COMMAND:ssh root@dc1}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: debian
+
+logging:
+  file:
+    name: /var/log/dc-con/dc-con.log
+  logback:
+    rollingpolicy:
+      max-history: 25
+
+server:
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /var/log/dc-con
+      prefix: access_log
+
