@@ -20,8 +20,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupMember;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.DomainGroupMembers;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
@@ -58,6 +61,14 @@ public interface DomainGroupService {
 
   Stream<DomainGroup> getMemberships(
       @NotEmpty String samAccountName,
+      @Nullable Dn ou,
+      @Nullable TreeSearchScope searchScope);
+
+  Page<DomainGroupMember> getPossibleMembers(
+      @NotNull Pageable pageable,
+      @Nullable String query,
+      @Nullable Set<DomainGroupMemberType> memberTypes,
+      @NotEmpty String groupName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 

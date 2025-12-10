@@ -16,12 +16,14 @@
 
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.isNull;
 
-import java.time.OffsetDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.Hidden;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,41 +34,28 @@ import lombok.ToString;
  *
  * @author Christian Bremer
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class SamAccount extends AdEntry implements NameProvider {
 
-  String samAccountName;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-  Sid sid;
+  private String samAccountName;
 
-  boolean criticalSystemObject;
+  private Sid sid;
 
-  Integer primaryGroupId;
+  private boolean criticalSystemObject;
 
-  List<String> memberships;
+  private Integer primaryGroupId;
+
+  private List<String> memberships;
 
   public SamAccount() {
     super();
-  }
-
-  public SamAccount(
-      String distinguishedName,
-      OffsetDateTime created,
-      OffsetDateTime modified,
-      String samAccountName,
-      Sid sid,
-      boolean criticalSystemObject,
-      Integer primaryGroupId,
-      List<String> memberships) {
-    super(distinguishedName, created, modified);
-    this.samAccountName = requireNonNull(samAccountName, "samAccountName is required.");
-    this.criticalSystemObject = criticalSystemObject;
-    this.sid = sid;
-    this.primaryGroupId = primaryGroupId;
-    this.memberships = memberships;
   }
 
   /**
@@ -75,12 +64,14 @@ public class SamAccount extends AdEntry implements NameProvider {
    * @return the group memberships
    */
   public List<String> getMemberships() {
-    if (Objects.isNull(memberships)) {
+    if (isNull(memberships)) {
       memberships = new ArrayList<>();
     }
     return memberships;
   }
 
+  @Hidden
+  @JsonIgnore
   @Override
   public String getName() {
     return getSamAccountName();

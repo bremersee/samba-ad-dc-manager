@@ -73,7 +73,7 @@ public class OrganizationalUnitEditController extends AbstractEditController
     Stream<OrganizationalUnit> baseStream = Stream.of(organizationalUnitService.getBase());
     Stream<OrganizationalUnit> otherParentsStream = organizationalUnitService
         .getOrganizationalUnits()
-        .filter(ou -> !ou.getSystemOu());
+        .filter(ou -> !ou.isSystemOu());
     return Stream.concat(baseStream, otherParentsStream).toList();
   }
 

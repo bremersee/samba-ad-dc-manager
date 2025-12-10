@@ -69,7 +69,7 @@ public class OrganizationalUnitAddController extends AbstractController
     Stream<OrganizationalUnit> baseStream = Stream.of(organizationalUnitService.getBase());
     Stream<OrganizationalUnit> otherParentsStream = organizationalUnitService
         .getOrganizationalUnits()
-        .filter(ou -> !ou.getSystemOu());
+        .filter(ou -> !ou.isSystemOu());
     return Stream.concat(baseStream, otherParentsStream).toList();
   }
 

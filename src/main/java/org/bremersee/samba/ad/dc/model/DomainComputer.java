@@ -22,11 +22,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -41,22 +41,33 @@ import lombok.ToString;
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
 public class DomainComputer extends SamAccount {
 
-  String name;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-  String dnsHostName;
+  private String name;
 
-  List<String> networkAddresses;
+  private String dnsHostName;
 
-  String operatingSystem;
+  private List<String> networkAddresses;
 
-  String operatingSystemVersion;
+  private String operatingSystem;
 
-  String description;
+  private String operatingSystemVersion;
 
-  List<String> servicePrincipalNames;
+  private String description;
+
+  private List<String> servicePrincipalNames;
+
+  public DomainComputer() {
+    super();
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
 
   public List<String> getNetworkAddresses() {
     if (isNull(networkAddresses)) {
@@ -75,9 +86,10 @@ public class DomainComputer extends SamAccount {
   @Hidden
   @JsonIgnore
   public String getSamAccountNameWithoutTrailingDollarSign() {
-    if (isNull(samAccountName) || samAccountName.isEmpty()) {
+    String tmpName = getSamAccountName();
+    if (isNull(tmpName) || tmpName.isEmpty()) {
       return null;
     }
-    return samAccountName.substring(0, samAccountName.length() - 1);
+    return tmpName.substring(0, tmpName.length() - 1);
   }
 }

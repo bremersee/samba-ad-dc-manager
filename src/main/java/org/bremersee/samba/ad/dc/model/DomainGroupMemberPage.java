@@ -29,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 /**
- * The dns node page.
+ * The domain group page.
  *
  * @author Christian Bremer
  */
@@ -37,24 +37,24 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "A page of dns nodes.")
-public class DnsNodePage extends JsonPageDto<DnsNode> {
+@Schema(description = "A page of domain group members.")
+public class DomainGroupMemberPage extends JsonPageDto<DomainGroupMember> {
 
   /**
-   * Instantiates a new dns node page.
+   * Instantiates a new domain group page.
    *
    * @param content the content
    * @param number the number
    * @param size the size
    * @param totalElements the total elements
    */
-  public DnsNodePage(List<? extends DnsNode> content, int number, int size,
+  public DomainGroupMemberPage(List<? extends DomainGroupMember> content, int number, int size,
       long totalElements) {
     super(content, number, size, totalElements);
   }
 
   /**
-   * Instantiates a new dns node page.
+   * Instantiates a new domain group page.
    *
    * @param content the content
    * @param number the number
@@ -62,13 +62,13 @@ public class DnsNodePage extends JsonPageDto<DnsNode> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DnsNodePage(List<? extends DnsNode> content, int number, int size, long totalElements,
-      SortOrder sort) {
+  public DomainGroupMemberPage(List<? extends DomainGroupMember> content, int number, int size,
+      long totalElements, SortOrder sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new dns node page.
+   * Instantiates a new domain group page.
    *
    * @param content the content
    * @param number the number
@@ -76,17 +76,17 @@ public class DnsNodePage extends JsonPageDto<DnsNode> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DnsNodePage(List<? extends DnsNode> content, int number, int size, long totalElements,
-      Sort sort) {
+  public DomainGroupMemberPage(List<? extends DomainGroupMember> content, int number, int size,
+      long totalElements, Sort sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new dns node page.
+   * Instantiates a new domain group page.
    *
    * @param page the page
    */
-  public DnsNodePage(Page<? extends DnsNode> page) {
+  public DomainGroupMemberPage(Page<? extends DomainGroupMember> page) {
     super(page);
   }
 }

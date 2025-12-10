@@ -20,7 +20,9 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -32,18 +34,21 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.ldaptive.dn.DefaultAttributeValueEscaper;
+import org.ldaptive.dn.DefaultRDnNormalizer;
 import org.ldaptive.dn.Dn;
 
 /**
- * Common attributes.
+ * The active directory base entry.
  *
  * @author Christian Bremer
  */
+@Schema(description = "Active directory base entry.")
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 @ToString(exclude = {"dn"})
 @EqualsAndHashCode(exclude = {"dn"})
-//@SuperBuilder(toBuilder = true)
 public class AdEntry implements Serializable, DistinguishedNameProvider {
 
   @Serial
@@ -56,19 +61,29 @@ public class AdEntry implements Serializable, DistinguishedNameProvider {
   @JsonIgnore
   transient Dn dn;
 
+  /**
+   * The distinguished name in the active directory.
+   */
+  @Schema(description = "The distinguished name.")
   String distinguishedName;
 
   /**
    * The creation date.
    */
+  @Schema(description = "The creation date.")
   OffsetDateTime created;
 
   /**
    * The last modification date.
    */
+  @Schema(description = "The last modification date.")
   OffsetDateTime modified;
 
+  /**
+   * Instantiates a new active directory base entry.
+   */
   public AdEntry() {
+    super();
   }
 
   /**
@@ -88,16 +103,11 @@ public class AdEntry implements Serializable, DistinguishedNameProvider {
     setModified(modified);
   }
 
-  public AdEntry(
-      Dn dn,
-      OffsetDateTime created,
-      OffsetDateTime modified) {
-
-    setDn(dn);
-    setCreated(created);
-    setModified(modified);
-  }
-
+  /**
+   * Gets dn.
+   *
+   * @return the dn
+   */
   @Hidden
   @JsonIgnore
   public Dn getDn() {
@@ -107,6 +117,11 @@ public class AdEntry implements Serializable, DistinguishedNameProvider {
     return dn;
   }
 
+  /**
+   * Sets dn.
+   *
+   * @param dn the dn
+   */
   @Hidden
   @JsonIgnore
   public void setDn(Dn dn) {
@@ -119,10 +134,16 @@ public class AdEntry implements Serializable, DistinguishedNameProvider {
     }
   }
 
+  @Override
   public String getDistinguishedName() {
     return isNull(getDn()) ? null : getDn().format();
   }
 
+  /**
+   * Sets distinguished name.
+   *
+   * @param distinguishedName the distinguished name
+   */
   public void setDistinguishedName(String distinguishedName) {
     if (isNull(distinguishedName) || distinguishedName.isEmpty()) {
       this.dn = null;
@@ -132,12 +153,26 @@ public class AdEntry implements Serializable, DistinguishedNameProvider {
     }
   }
 
+  /**
+   * Gets distinguished name unformatted.
+   *
+   * @return the distinguished name unformatted
+   */
   @Hidden
   @JsonIgnore
   public String getDistinguishedNameUnformatted() {
-    return isNull(getDn()) ? null : getDn().format(rdn -> rdn);
+    return isNull(getDn()) ? null : getDn()
+        .format(new DefaultRDnNormalizer(
+            new DefaultAttributeValueEscaper(),
+            name -> name,
+            value -> value));
   }
 
+  /**
+   * Gets parent distinguished name.
+   *
+   * @return the parent distinguished name
+   */
   @Hidden
   @JsonIgnore
   public String getParentDistinguishedName() {
@@ -147,6 +182,11 @@ public class AdEntry implements Serializable, DistinguishedNameProvider {
         .orElse(null);
   }
 
+  /**
+   * Gets name tree.
+   *
+   * @return the name tree
+   */
   @Hidden
   @JsonIgnore
   public String getNameTree() { // ou is reverse

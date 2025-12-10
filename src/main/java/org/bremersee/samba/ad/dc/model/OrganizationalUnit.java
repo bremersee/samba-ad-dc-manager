@@ -18,17 +18,14 @@ package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.ldaptive.dn.Dn;
@@ -44,7 +41,6 @@ import org.springframework.lang.NonNull;
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
 public class OrganizationalUnit extends AdEntry
     implements Comparable<OrganizationalUnit> {
 
@@ -52,20 +48,10 @@ public class OrganizationalUnit extends AdEntry
 
   private String name;
 
-  private Boolean systemOu;  // TODO rename criticalSystemObject
+  private boolean systemOu;
 
-  @Builder(toBuilder = true)
-  public OrganizationalUnit(Dn dn, OffsetDateTime created,
-      OffsetDateTime modified, String description, String name,
-      Boolean systemOu) {
-    super(dn, created, modified);
-    this.description = description;
-    this.name = name;
-    this.systemOu = systemOu;
-  }
-
-  public Boolean getSystemOu() {
-    return Boolean.TRUE.equals(systemOu);
+  public OrganizationalUnit() {
+    super();
   }
 
   @Hidden

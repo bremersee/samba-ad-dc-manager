@@ -215,7 +215,7 @@ class OrganizationalUnitRepositoryImpl extends AbstractOrganizedEntryRepository
             organizationalUnit.getDistinguishedName(),
             EC_OU_NOT_FOUND));
 
-    if (Boolean.TRUE.equals(existing.getSystemOu())) {
+    if (Boolean.TRUE.equals(existing.isSystemOu())) {
       existing.setDescription(organizationalUnit.getDescription());
       return getLdapTemplate().save(existing, ouLdapMapper);
     }
@@ -265,7 +265,7 @@ class OrganizationalUnitRepositoryImpl extends AbstractOrganizedEntryRepository
   }
 
   boolean isDeletable(OrganizationalUnit o) {
-    return !o.getSystemOu();
+    return !o.isSystemOu();
   }
 
   boolean doDelete(Dn ou) {

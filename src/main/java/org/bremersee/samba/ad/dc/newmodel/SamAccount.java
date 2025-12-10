@@ -17,7 +17,7 @@ import org.immutables.value.Value;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableSamAccount.class)
 @JsonDeserialize(as = ImmutableSamAccount.class)
-public interface SamAccount extends CommonAttributes {
+public interface SamAccount extends AdEntry {
 
   String getSamAccountName();
 

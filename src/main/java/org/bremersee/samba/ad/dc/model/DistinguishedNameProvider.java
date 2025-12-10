@@ -16,15 +16,18 @@
 
 package org.bremersee.samba.ad.dc.model;
 
-import java.util.Objects;
-
 /**
  * The interface DistinguishedNameProvider.
  *
  * @author Christian Bremer
  */
-public interface DistinguishedNameProvider  {
+public interface DistinguishedNameProvider {
 
+  /**
+   * Gets distinguished name.
+   *
+   * @return the distinguished name
+   */
   String getDistinguishedName();
 
 }

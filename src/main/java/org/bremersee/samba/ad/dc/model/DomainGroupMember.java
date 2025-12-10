@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.Base64;
@@ -48,6 +49,9 @@ import org.springframework.lang.NonNull;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class DomainGroupMember extends SamAccount implements Comparable<DomainGroupMember> {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Hidden
   @JsonIgnore

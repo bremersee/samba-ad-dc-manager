@@ -18,9 +18,9 @@ import org.springframework.lang.Nullable;
 @Value.Immutable
 @Value.Modifiable
 @Serial.Version(1L)
-@JsonSerialize(as = ImmutableCommonAttributes.class)
-@JsonDeserialize(as = ImmutableCommonAttributes.class)
-public interface CommonAttributes {
+@JsonSerialize(as = ImmutableAdEntry.class)
+@JsonDeserialize(as = ImmutableAdEntry.class)
+public interface AdEntry {
 
   @JsonProperty("distinguishedName")
   @Nullable
@@ -33,11 +33,12 @@ public interface CommonAttributes {
     return OffsetDateTime.now();
   }
 
+
   static Builder builder() {
     return new Builder();
   }
 
-  class Builder extends ImmutableCommonAttributes.Builder {
+  class Builder extends ImmutableAdEntry.Builder {
 
   }
 

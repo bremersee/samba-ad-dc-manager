@@ -17,11 +17,14 @@
 package org.bremersee.samba.ad.dc.service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupMember;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.DomainGroupMembers;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.DomainGroupMemberRepository;
@@ -79,6 +82,22 @@ public class DomainGroupServiceImpl implements DomainGroupService {
   public Stream<DomainGroup> getMemberships(String samAccountName, Dn ou,
       TreeSearchScope searchScope) {
     return domainGroupMemberRepository.getMemberships(samAccountName, ou, searchScope);
+  }
+
+  @Override
+  public Page<DomainGroupMember> getPossibleMembers(
+      Pageable pageable,
+      String query,
+      Set<DomainGroupMemberType> memberTypes,
+      String groupName,
+      Dn ou,
+      TreeSearchScope searchScope) {
+
+    return new PageBuilder<DomainGroupMember, DomainGroupMember>()
+        .sourceEntries(domainGroupMemberRepository
+            .getPossibleMembers(groupName, ou, searchScope, query, memberTypes))
+        .pageable(sortMapper.applyDefaults(pageable, null, true, null))
+        .build();
   }
 
   @Override
