@@ -1,0 +1,112 @@
+package org.bremersee.samba.ad.dc.newmodel;
+
+import static java.util.Objects.isNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.util.UUID;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
+
+@Schema(description = "DNS entry.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDnsEntry.class)
+@JsonDeserialize(as = ImmutableDnsEntry.class)
+public interface DnsEntry extends AdEntry {
+
+  String CONFLICT_IDENTIFIER = "CNF";
+
+  String CONFLICT_NAME_PART = "\\0A" + CONFLICT_IDENTIFIER + ':';
+
+  @Schema(description = "The zone name of this dns entry.")
+  @Nullable
+  String getZoneName();
+
+  @Schema(description = "The name of this dns entry.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "name", required = true)
+  String getName();
+
+  @Schema(description = "The type of this dns entry.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "type", required = true)
+  DnsEntryType getType();
+
+  @Schema(description = "The value of this dns entry.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "value", required = true)
+  String getValue();
+
+  @Schema(description = "The flags of this dns entry.")
+  @Nullable
+  String getFlags();
+
+  @Schema(description = "The serial of this dns entry.")
+  @Nullable
+  Integer getSerial();
+
+  @Schema(description = "The ttl seconds of this dns entry.")
+  @Nullable
+  Integer getTtlSeconds();
+
+  @Schema(description = "The display name of this dns entry.", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "displayName", access = Access.READ_ONLY)
+  @Value.Lazy
+  default String getDisplayName() {
+    if (isNull(getName())) {
+      return null;
+    }
+    int index = getName().indexOf(CONFLICT_NAME_PART);
+    return index > 0 ? getName().substring(0, index) : getName();
+  }
+
+  @Schema(description = "Determines whether this DNS entry is marked as conflict or not.",
+      defaultValue = "false", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "conflict", defaultValue = "false", access = Access.READ_ONLY)
+  @Value.Lazy
+  default boolean isConflict() {
+    if (isNull(getName())) {
+      return false;
+    }
+    int index = getName().indexOf(CONFLICT_NAME_PART);
+    if (index < 0) {
+      return false;
+    }
+    String guid = getName().substring(index + CONFLICT_NAME_PART.length());
+    try {
+      UUID.fromString(guid);
+      return true;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDnsEntry.Builder {
+
+  }
+
+}

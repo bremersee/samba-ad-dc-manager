@@ -19,7 +19,6 @@ package org.bremersee.samba.ad.dc.model;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
@@ -49,14 +48,11 @@ public enum DomainGroupType {
 
   UNIVERSAL_DISTRIBUTION(Scope.UNIVERSAL, Purpose.DISTRIBUTION, 8);
 
-  @Getter
   private final Scope scope;
 
-  @Getter
   private final Purpose purpose;
 
-  @JsonIgnore
-  private final Integer value;
+  private final int value;
 
   DomainGroupType(Scope scope, Purpose purpose, Integer value) {
     this.scope = scope;

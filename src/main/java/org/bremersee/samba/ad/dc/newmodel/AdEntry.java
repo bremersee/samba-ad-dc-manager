@@ -1,13 +1,31 @@
 package org.bremersee.samba.ad.dc.newmodel;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.model.DistinguishedNameProvider;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.ldaptive.dn.DefaultAttributeValueEscaper;
+import org.ldaptive.dn.DefaultRDnNormalizer;
+import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
 
+/**
+ * The active directory base entry.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = "Active directory base entry.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
@@ -16,28 +34,114 @@ import org.springframework.lang.Nullable;
     get = {"get*", "is*"},
     withUnaryOperator = "with*")
 @Value.Immutable
-@Value.Modifiable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableAdEntry.class)
 @JsonDeserialize(as = ImmutableAdEntry.class)
-public interface AdEntry {
+public interface AdEntry extends DistinguishedNameProvider {
 
-  @JsonProperty("distinguishedName")
+  /**
+   * The distinguished name in the active directory.
+   *
+   * @return the distinguished name
+   */
+  @Schema(description = "The distinguished name.")
   @Nullable
+  @Override
   String getDistinguishedName();
 
-  @JsonProperty("created")
-  @Value.Default
-  @Value.Auxiliary
-  default OffsetDateTime getCreated() {
-    return OffsetDateTime.now();
+  /**
+   * Gets distinguished name unformatted.
+   *
+   * @return the distinguished name unformatted
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default String getDistinguishedNameUnformatted() {
+    return isEmpty(getDn()) ? null : getDn()
+        .format(new DefaultRDnNormalizer(
+            new DefaultAttributeValueEscaper(),
+            name -> name,
+            value -> value));
   }
 
+  /**
+   * Gets parent distinguished name.
+   *
+   * @return the parent distinguished name
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default String getParentDistinguishedName() {
+    return Optional.ofNullable(getDn())
+        .map(Dn::getParent)
+        .map(Dn::format)
+        .orElse(null);
+  }
 
+  /**
+   * Gets name tree.
+   *
+   * @return the name tree
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default String getNameTree() { // ou is reverse
+    return Stream.ofNullable(getDn())
+        .map(Dn::getRDns)
+        .flatMap(Collection::stream)
+        .filter(rdn -> !rdn.getNameValue().hasName("dc"))
+        .map(rdn -> rdn.getNameValue().getStringValue())
+        .collect(Collectors.joining(" → "));
+  }
+
+  /**
+   * Gets the creation date.
+   *
+   * @return the creation date
+   */
+  @Schema(description = "The creation date.")
+  @Nullable
+  OffsetDateTime getCreated();
+
+  /**
+   * The last modification date.
+   *
+   * @return the last modification date
+   */
+  @Schema(description = "The last modification date.")
+  @Nullable
+  OffsetDateTime getModified();
+
+  /**
+   * Gets dn.
+   *
+   * @return the dn
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default Dn getDn() {
+    if (isEmpty(getDistinguishedName())) {
+      return null;
+    }
+    return new Dn(getDistinguishedName());
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
   static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * The immutable builder.
+   */
   class Builder extends ImmutableAdEntry.Builder {
 
   }
