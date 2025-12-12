@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.tools.cli.parser;
+package org.bremersee.samba.ad.dc.dns.repository.cli.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;

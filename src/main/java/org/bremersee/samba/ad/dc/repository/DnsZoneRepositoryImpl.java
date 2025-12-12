@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
-import org.bremersee.samba.ad.dc.repository.tools.DnsTool;
+import org.bremersee.samba.ad.dc.dns.repository.SambaToolDns;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.springframework.cache.annotation.CacheEvict;
@@ -49,12 +49,12 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
 
   private final AdEntryLdapMapper adEntryMapper;
 
-  private final DnsTool dnsTool;
+  private final SambaToolDns dnsTool;
 
   public DnsZoneRepositoryImpl(
       LdaptiveTemplate ldapTemplate,
       DomainRepository domainRepository,
-      DnsTool dnsTool) {
+      SambaToolDns dnsTool) {
     this.ldapTemplate = ldapTemplate;
     this.domainRepository = domainRepository;
     this.dnsTool = dnsTool;

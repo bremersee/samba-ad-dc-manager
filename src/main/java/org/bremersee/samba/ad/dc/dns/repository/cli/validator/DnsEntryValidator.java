@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository.tools.cli.validator;
+package org.bremersee.samba.ad.dc.dns.repository.cli.validator;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.repository;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.bremersee.samba.ad.dc.repository.tools.DhcpTool;
+import org.bremersee.samba.ad.dc.dns.repository.DhcpLeaseListTool;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DhcpRepositoryImpl implements DhcpRepository {
 
-  private final DhcpTool dhcpTool;
+  private final DhcpLeaseListTool dhcpTool;
 
-  public DhcpRepositoryImpl(DhcpTool dhcpTool) {
+  public DhcpRepositoryImpl(DhcpLeaseListTool dhcpTool) {
     this.dhcpTool = dhcpTool;
   }
 

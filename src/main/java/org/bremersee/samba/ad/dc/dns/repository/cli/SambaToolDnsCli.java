@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository.tools.cli;
+package org.bremersee.samba.ad.dc.dns.repository.cli;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,22 +9,22 @@ import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
-import org.bremersee.samba.ad.dc.repository.tools.DnsTool;
-import org.bremersee.samba.ad.dc.repository.tools.cli.parser.DnsEntriesParser;
-import org.bremersee.samba.ad.dc.repository.tools.cli.parser.DnsZoneListParser;
-import org.bremersee.samba.ad.dc.repository.tools.cli.parser.DnsZoneParser;
-import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DnsEntryAddValidator;
-import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DnsEntryDeleteValidator;
-import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DnsEntryUpdateValidator;
-import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DnsZoneCreateValidator;
-import org.bremersee.samba.ad.dc.repository.tools.cli.validator.DnsZoneDeleteValidator;
+import org.bremersee.samba.ad.dc.dns.repository.SambaToolDns;
+import org.bremersee.samba.ad.dc.dns.repository.cli.parser.DnsEntriesParser;
+import org.bremersee.samba.ad.dc.dns.repository.cli.parser.DnsZoneListParser;
+import org.bremersee.samba.ad.dc.dns.repository.cli.parser.DnsZoneParser;
+import org.bremersee.samba.ad.dc.dns.repository.cli.validator.DnsEntryAddValidator;
+import org.bremersee.samba.ad.dc.dns.repository.cli.validator.DnsEntryDeleteValidator;
+import org.bremersee.samba.ad.dc.dns.repository.cli.validator.DnsEntryUpdateValidator;
+import org.bremersee.samba.ad.dc.dns.repository.cli.validator.DnsZoneCreateValidator;
+import org.bremersee.samba.ad.dc.dns.repository.cli.validator.DnsZoneDeleteValidator;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-class DnsToolExecutor extends SambaToolCli implements DnsTool {
+class SambaToolDnsCli extends SambaToolCli implements SambaToolDns {
 
-  DnsToolExecutor(DomainControllerProperties properties) {
+  SambaToolDnsCli(DomainControllerProperties properties) {
     super(properties);
   }
 

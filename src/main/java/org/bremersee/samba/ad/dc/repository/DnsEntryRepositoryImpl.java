@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
-import org.bremersee.samba.ad.dc.repository.tools.DnsTool;
+import org.bremersee.samba.ad.dc.dns.repository.SambaToolDns;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.dn.Dn;
@@ -49,14 +49,14 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
 
   private final DnsZoneRepository dnsZoneRepository;
 
-  private final DnsTool dnsTool;
+  private final SambaToolDns dnsTool;
 
   public DnsEntryRepositoryImpl(
       DomainControllerProperties properties,
       LdaptiveTemplate ldapTemplate,
       DomainRepository domainRepository,
       DnsZoneRepository dnsZoneRepository,
-      DnsTool dnsTool) {
+      SambaToolDns dnsTool) {
     super(properties, ldapTemplate);
     this.domainRepository = domainRepository;
     this.dnsZoneRepository = dnsZoneRepository;

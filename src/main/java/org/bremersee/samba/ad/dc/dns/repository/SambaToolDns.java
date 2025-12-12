@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository.tools;
+package org.bremersee.samba.ad.dc.dns.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 
-public interface DnsTool {
+public interface SambaToolDns {
 
   String ZONE_ENTRIES_NODE_NAME = "@";
 
