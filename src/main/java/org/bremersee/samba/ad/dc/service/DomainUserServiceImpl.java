@@ -26,7 +26,6 @@ import org.bremersee.samba.ad.dc.samaccount.user.model.Password;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.AvatarRepository;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.DomainUserRepository;
-import org.bremersee.samba.ad.dc.service.validator.DomainUserValidator;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.ldaptive.dn.Dn;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,19 +54,15 @@ public class DomainUserServiceImpl implements DomainUserService {
 
   private final EmailService emailService;
 
-  private DomainUserValidator domainUserValidator;
-
   public DomainUserServiceImpl(
       SortMapper sortMapper,
       DomainUserRepository domainUserRepository,
       AvatarRepository avatarRepository,
-      EmailService emailService,
-      DomainUserValidator domainUserValidator) {
+      EmailService emailService) {
     this.sortMapper = sortMapper;
     this.domainUserRepository = domainUserRepository;
     this.avatarRepository = avatarRepository;
     this.emailService = emailService;
-    this.domainUserValidator = domainUserValidator;
   }
 
   @Autowired(required = false)
