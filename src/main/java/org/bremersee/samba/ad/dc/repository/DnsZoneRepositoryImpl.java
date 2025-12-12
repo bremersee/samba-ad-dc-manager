@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
+import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;

@@ -22,7 +22,7 @@ import org.bremersee.samba.ad.dc.controller.DomainControllerPropertiesProvider;
 import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.MessageProvider;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;

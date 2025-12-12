@@ -14,8 +14,9 @@ import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.mapper.DomainComputerLdapMapper;
-import org.bremersee.samba.ad.dc.repository.tools.DomainComputerTool;
+import org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper.DomainComputerLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.computer.repository.SambaToolComputer;
+import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -29,16 +30,16 @@ import org.springframework.stereotype.Component;
 
 @Component("domainComputerRepository")
 @Slf4j
-public class DomainComputerRepositoryImpl extends AbstractSamAccountRepository
+public class DomainComputerRepositoryImpl extends SamAccountRepository
     implements DomainComputerRepository {
 
   private final LdaptiveEntryMapper<DomainComputer> domainComputerLdapMapper;
 
-  private final DomainComputerTool domainComputerTool;
+  private final SambaToolComputer domainComputerTool;
 
   DomainComputerRepositoryImpl(
       DomainControllerProperties properties,
-      DomainComputerTool domainComputerTool,
+      SambaToolComputer domainComputerTool,
       LdaptiveTemplate ldapTemplate) {
     super(properties, ldapTemplate);
     this.domainComputerLdapMapper = new DomainComputerLdapMapper();

@@ -36,9 +36,10 @@ import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
-import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupMemberLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.group.repository.mapper.DomainGroupMemberLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -56,7 +57,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("domainGroupMemberRepository")
 @Slf4j
-public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepository
+public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     implements DomainGroupMemberRepository {
 
   private final DomainGroupRepository domainGroupRepository;

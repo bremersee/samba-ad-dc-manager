@@ -1,7 +1,7 @@
 package org.bremersee.samba.ad.dc.controller.ui.components;
 
 import java.util.List;
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.springframework.web.bind.annotation.ModelAttribute;
 

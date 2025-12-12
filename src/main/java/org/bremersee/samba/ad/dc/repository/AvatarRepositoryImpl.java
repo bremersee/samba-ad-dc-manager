@@ -19,7 +19,8 @@ import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.tools.ImageTool;
+import org.bremersee.samba.ad.dc.samaccount.user.repository.ImageTool;
+import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;
 import org.ldaptive.LdapAttribute;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 @Component("avatarRepository")
 @Slf4j
-public class AvatarRepositoryImpl extends AbstractSamAccountRepository
+public class AvatarRepositoryImpl extends SamAccountRepository
     implements AvatarRepository {
 
   private final List<AvatarProvider> avatarProviders;

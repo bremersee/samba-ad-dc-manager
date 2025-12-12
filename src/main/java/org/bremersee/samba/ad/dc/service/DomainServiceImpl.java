@@ -16,8 +16,8 @@
 
 package org.bremersee.samba.ad.dc.service;
 
-import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
+import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
+import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.springframework.stereotype.Component;
 
 /**

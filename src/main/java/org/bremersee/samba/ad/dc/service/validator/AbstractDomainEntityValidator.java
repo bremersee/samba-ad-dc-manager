@@ -21,8 +21,8 @@ import static org.bremersee.samba.ad.dc.ErrorCode.EC_SAM_ACCOUNT_ALREADY_EXISTS;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.model.SamAccount;
-import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
+import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
+import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.exception.ServiceException;
 
 /**

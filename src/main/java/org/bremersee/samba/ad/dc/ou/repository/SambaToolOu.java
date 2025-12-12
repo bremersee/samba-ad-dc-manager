@@ -1,6 +1,6 @@
 package org.bremersee.samba.ad.dc.ou.repository;
 
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.ldaptive.dn.Dn;
 
  public interface SambaToolOu {

@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.ldaptive.transcoder.ValueTranscoderFactory;
-import org.bremersee.samba.ad.dc.model.Sid;
+import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
 import org.bremersee.samba.ad.dc.repository.transcoder.SidValueTranscoder;
 import org.ldaptive.dn.Dn;
 

@@ -27,7 +27,7 @@ import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitAddRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Controller;

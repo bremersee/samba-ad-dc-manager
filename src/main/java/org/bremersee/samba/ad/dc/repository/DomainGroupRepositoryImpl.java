@@ -25,13 +25,14 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
+import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupLdapMapper;
-import org.bremersee.samba.ad.dc.repository.tools.DomainGroupTool;
+import org.bremersee.samba.ad.dc.samaccount.group.repository.mapper.DomainGroupLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.group.repository.SambaToolGroup;
+import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -51,14 +52,14 @@ import org.springframework.stereotype.Component;
  */
 @Component("domainGroupRepository")
 @Slf4j
-public class DomainGroupRepositoryImpl extends AbstractSamAccountRepository
+public class DomainGroupRepositoryImpl extends SamAccountRepository
     implements DomainGroupRepository {
 
   private final DomainGroupLdapMapper domainGroupLdapMapper;
 
   private final DomainRepository domainRepository;
 
-  private final DomainGroupTool domainGroupTool;
+  private final SambaToolGroup domainGroupTool;
 
   /**
    * Instantiates a new domain group repository.
@@ -70,7 +71,7 @@ public class DomainGroupRepositoryImpl extends AbstractSamAccountRepository
       DomainControllerProperties properties,
       LdaptiveTemplate ldapTemplate,
       DomainRepository domainRepository,
-      DomainGroupTool domainGroupTool) {
+      SambaToolGroup domainGroupTool) {
     super(properties, ldapTemplate);
     this.domainRepository = domainRepository;
     this.domainGroupTool = domainGroupTool;

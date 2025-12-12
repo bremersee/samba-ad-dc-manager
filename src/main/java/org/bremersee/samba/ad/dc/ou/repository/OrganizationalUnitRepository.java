@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.ou.repository;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;

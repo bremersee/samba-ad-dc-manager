@@ -27,7 +27,7 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.repository.tools.ImageTool;
+import org.bremersee.samba.ad.dc.samaccount.user.repository.ImageTool;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;

@@ -17,6 +17,7 @@
 package org.bremersee.samba.ad.dc.model;
 
 import org.bremersee.pagebuilder.model.JsonPageDto;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.springframework.data.domain.Page;
 
 /**
