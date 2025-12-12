@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.controller.rest;
+package org.bremersee.samba.ad.dc.samaccount.user.controller.rest;
 
 import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
