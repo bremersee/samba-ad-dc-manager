@@ -1,8 +1,9 @@
 package org.bremersee.samba.ad.dc.repository.tools.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
@@ -20,7 +21,7 @@ public class DomainComputerMoveValidator extends SambaToolValidator {
   }
 
   @Override
-  String getExceptionReason(CommandExecutorResponse response) {
+  protected String getExceptionReason(CommandExecutorResponse response) {
     return String.format("Moving computer '%s' to '%s' failed. %s",
         domainComputer.getSamAccountName(),
         newOu.format(),
@@ -28,7 +29,7 @@ public class DomainComputerMoveValidator extends SambaToolValidator {
   }
 
   @Override
-  String getErrorCode() {
+  protected String getErrorCode() {
     return ErrorCode.EC_UPDATING_COMPUTER_FAILED;
   }
 

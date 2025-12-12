@@ -2,6 +2,7 @@ package org.bremersee.samba.ad.dc.repository.tools.cli;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.tools.DomainComputerTool;
@@ -12,14 +13,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-class DomainComputerToolExecutor extends SambaToolExecutor implements DomainComputerTool {
+class DomainComputerToolExecutor extends SambaToolCli implements DomainComputerTool {
 
   DomainComputerToolExecutor(DomainControllerProperties properties) {
     super(properties);
   }
 
   @Override
-  String getSubCommand() {
+  protected String getSubCommand() {
     return "computer";
   }
 

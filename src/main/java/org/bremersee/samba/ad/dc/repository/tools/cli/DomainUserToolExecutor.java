@@ -6,6 +6,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.NisDomainMember;
@@ -19,14 +20,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DomainUserToolExecutor extends SambaToolExecutor implements DomainUserTool {
+public class DomainUserToolExecutor extends SambaToolCli implements DomainUserTool {
 
   public DomainUserToolExecutor(DomainControllerProperties properties) {
     super(properties);
   }
 
   @Override
-  String getSubCommand() {
+  protected String getSubCommand() {
     return "user";
   }
 

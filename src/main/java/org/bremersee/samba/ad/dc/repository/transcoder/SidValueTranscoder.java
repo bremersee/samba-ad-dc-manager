@@ -29,7 +29,8 @@ import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
  */
 @Slf4j
 public class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
-
+  // belongs to samaccount, but AdConstants? Replace with
+  SecurityIdentifier securityIdentifier;
   @Override
   public Sid decodeBinaryValue(byte[] value) {
     return Optional.ofNullable(value)

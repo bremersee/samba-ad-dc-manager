@@ -25,10 +25,11 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupLdapMapper;
 import org.bremersee.samba.ad.dc.repository.tools.DomainGroupTool;
 import org.ldaptive.SearchRequest;
@@ -77,22 +78,22 @@ public class DomainGroupRepositoryImpl extends AbstractSamAccountRepository
   }
 
   @Override
-  Dn getDefaultOu() {
+  protected Dn getDefaultOu() {
     return getProperties().getGroup().getDefaultOu();
   }
 
   @Override
-  String getObjectClassValue() {
+  protected String getObjectClassValue() {
     return AdConstants.OBJECT_CLASS_GROUP;
   }
 
   @Override
-  String[] getBinaryAttributes() {
+  protected String[] getBinaryAttributes() {
     return domainGroupLdapMapper.getBinaryAttributeNames();
   }
 
   @Override
-  String[] getReturnAttributes() {
+  protected String[] getReturnAttributes() {
     return domainGroupLdapMapper.getMappedAttributeNames();
   }
 
@@ -265,7 +266,8 @@ public class DomainGroupRepositoryImpl extends AbstractSamAccountRepository
   Dn getNewDn(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newOu) {
     Dn newParentDn;
     if (!isEmpty(newOu) && !newOu.isEmpty()) {
-      newParentDn = getProperties().getBaseDn(validateOu(newOu));
+      // TODO newParentDn = getProperties().getBaseDn(validateOu(newOu));
+      newParentDn = getProperties().getBaseDn(newOu);
     } else {
       newParentDn = oldDomainGroup.getDn().getParent();
     }

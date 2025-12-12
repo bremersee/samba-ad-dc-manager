@@ -15,10 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.tools.ImageTool;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;
@@ -54,22 +54,22 @@ public class AvatarRepositoryImpl extends AbstractSamAccountRepository
   }
 
   @Override
-  Dn getDefaultOu() {
+  protected Dn getDefaultOu() {
     return getProperties().getUser().getDefaultOu();
   }
 
   @Override
-  String getObjectClassValue() {
+  protected String getObjectClassValue() {
     return AdConstants.OBJECT_CLASS_USER;
   }
 
   @Override
-  String[] getBinaryAttributes() {
+  protected String[] getBinaryAttributes() {
     return new String[]{AdConstants.USER_JPEG_PHOTO.getName()};
   }
 
   @Override
-  String[] getReturnAttributes() {
+  protected String[] getReturnAttributes() {
     return new String[]{
         AdConstants.USER_JPEG_PHOTO.getName(),
         AdConstants.MAIL.getName(),

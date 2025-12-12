@@ -205,10 +205,14 @@ public class DomainUserEditRequest {
           .orElse(null);
     }
 
+    // TODO
+    /*
     @Mapping(source = "enabled", target = "accountControl.enabled")
     @Mapping(
         source = "passwordExpirationEnabled",
         target = "accountControl.passwordExpirationEnabled")
+
+     */
     void update(@MappingTarget DomainUser existingDomainUser,
         DomainUserEditRequest domainUserEditRequest);
 

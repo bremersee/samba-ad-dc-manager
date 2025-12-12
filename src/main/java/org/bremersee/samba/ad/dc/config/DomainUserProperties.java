@@ -20,7 +20,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 
 /**

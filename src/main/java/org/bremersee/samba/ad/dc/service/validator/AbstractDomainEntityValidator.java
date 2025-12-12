@@ -22,7 +22,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.SamAccount;
-import org.bremersee.samba.ad.dc.repository.DomainRepository;
+import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
 import org.bremersee.exception.ServiceException;
 
 /**

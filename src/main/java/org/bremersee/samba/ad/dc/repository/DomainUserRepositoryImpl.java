@@ -29,10 +29,11 @@ import org.bremersee.ldaptive.AbstractLdaptiveErrorHandler;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainUserLdapMapper;
 import org.bremersee.samba.ad.dc.repository.tools.DomainUserTool;
 import org.ldaptive.AttributeModification;
@@ -89,27 +90,27 @@ public class DomainUserRepositoryImpl extends AbstractSamAccountRepository
   }
 
   @Override
-  Dn getDefaultOu() {
+  protected Dn getDefaultOu() {
     return getProperties().getUser().getDefaultOu();
   }
 
   @Override
-  String getObjectClassValue() {
+  protected String getObjectClassValue() {
     return AdConstants.OBJECT_CLASS_USER;
   }
 
   @Override
-  String[] getBinaryAttributes() {
+  protected String[] getBinaryAttributes() {
     return domainUserLdapMapper.getBinaryAttributeNames();
   }
 
   @Override
-  String[] getReturnAttributes() {
+  protected String[] getReturnAttributes() {
     return domainUserLdapMapper.getMappedAttributeNames();
   }
 
   @Override
-  Filter objectClassFilter() {
+  protected Filter objectClassFilter() {
     Filter objectClassFilter = new EqualityFilter(
         AdConstants.OBJECT_CLASS.getName(), getObjectClassValue());
     Filter noComputerFilter = new NotFilter(
@@ -356,7 +357,8 @@ public class DomainUserRepositoryImpl extends AbstractSamAccountRepository
   Dn getNewDn(DomainUser oldDomainUser, DomainUser newDomainUser, Dn newOu) {
     Dn newParentDn;
     if (!isEmpty(newOu) && !newOu.isEmpty()) {
-      newParentDn = getProperties().getBaseDn(validateOu(newOu));
+      // TODO newParentDn = getProperties().getBaseDn(validateOu(newOu));
+      newParentDn = getProperties().getBaseDn(newOu);
     } else {
       newParentDn = oldDomainUser.getDn().getParent();
     }

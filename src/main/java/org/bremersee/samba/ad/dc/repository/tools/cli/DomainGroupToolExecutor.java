@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupType;
@@ -21,14 +22,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-class DomainGroupToolExecutor extends SambaToolExecutor implements DomainGroupTool {
+class DomainGroupToolExecutor extends SambaToolCli implements DomainGroupTool {
 
   DomainGroupToolExecutor(DomainControllerProperties properties) {
     super(properties);
   }
 
   @Override
-  String getSubCommand() {
+  protected String getSubCommand() {
     return "group";
   }
 

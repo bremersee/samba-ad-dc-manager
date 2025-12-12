@@ -21,8 +21,9 @@ import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.model.DnsZone;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponseParser;
 
 /**
  * The interface DnsZoneListParser.

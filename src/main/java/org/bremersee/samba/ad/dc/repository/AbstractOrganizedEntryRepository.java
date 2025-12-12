@@ -23,6 +23,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.NisDomainMember;
 import org.ldaptive.SearchRequest;
@@ -38,7 +39,7 @@ import org.ldaptive.filter.Filter;
  * @author Christian Bremer
  */
 @Slf4j
-abstract class AbstractOrganizedEntryRepository extends AbstractRepository {
+abstract class AbstractOrganizedEntryRepository extends AdRepository {
 
   /**
    * Instantiates a new abstract repository.
@@ -60,7 +61,7 @@ abstract class AbstractOrganizedEntryRepository extends AbstractRepository {
 
   abstract String[] getReturnAttributes();
 
-  String getUniqueNameAttributeName() {
+  protected String getUniqueNameAttributeName() {
     return AdConstants.SAM_ACCOUNT_NAME.getName();
   }
 
@@ -84,23 +85,23 @@ abstract class AbstractOrganizedEntryRepository extends AbstractRepository {
         : getProperties().getDomain().getDefaultNisDomain();
   }
 
-  Filter objectClassFilter() {
+  protected Filter objectClassFilter() {
     return new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue());
   }
 
-  Filter findOneFilter(String uniqueName) {
+  protected Filter findOneFilter(String uniqueName) {
     return new AndFilter(
         objectClassFilter(),
         new EqualityFilter(getUniqueNameAttributeName(), uniqueName));
   }
 
-  SearchRequest searchOneRequest(
+  protected SearchRequest searchOneRequest(
       String uniqueName,
       String... returnAttributes) {
     return searchOneRequest(uniqueName, null, null, returnAttributes);
   }
 
-  SearchRequest searchOneRequest(
+  protected SearchRequest searchOneRequest(
       String uniqueName,
       Dn ouRdn,
       SearchScope scope,
@@ -108,7 +109,7 @@ abstract class AbstractOrganizedEntryRepository extends AbstractRepository {
     return searchOneRequest(uniqueName, ouRdn, null, scope, returnAttributes);
   }
 
-  SearchRequest searchOneRequest(
+  protected SearchRequest searchOneRequest(
       String uniqueName,
       Dn ouRdn,
       Filter filter,
@@ -138,7 +139,7 @@ abstract class AbstractOrganizedEntryRepository extends AbstractRepository {
         .build();
   }
 
-  SearchRequest searchAllRequest(
+  protected SearchRequest searchAllRequest(
       Dn ouRdn,
       Filter filter,
       SearchScope scope,

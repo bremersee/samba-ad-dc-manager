@@ -32,12 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.SamAccount;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupMemberLdapMapper;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
@@ -79,22 +79,22 @@ public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepositor
   }
 
   @Override
-  Dn getDefaultOu() {
+  protected Dn getDefaultOu() {
     return getProperties().getGroup().getDefaultOu();
   }
 
   @Override
-  String getObjectClassValue() {
+  protected String getObjectClassValue() {
     return AdConstants.OBJECT_CLASS_GROUP;
   }
 
   @Override
-  String[] getBinaryAttributes() {
+  protected String[] getBinaryAttributes() {
     return domainGroupMemberLdapMapper.getBinaryAttributeNames();
   }
 
   @Override
-  String[] getReturnAttributes() {
+  protected String[] getReturnAttributes() {
     return domainGroupMemberLdapMapper.getMappedAttributeNames();
   }
 

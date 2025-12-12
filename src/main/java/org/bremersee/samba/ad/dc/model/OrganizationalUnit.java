@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.common.model.AdEntry;
+import org.bremersee.samba.ad.dc.common.model.NameProvider;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.ldaptive.dn.Dn;

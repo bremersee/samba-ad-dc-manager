@@ -1,8 +1,9 @@
 package org.bremersee.samba.ad.dc.repository.tools.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.springframework.util.Assert;
 
 public class DomainUserRenameValidator extends SambaToolValidator {
@@ -19,7 +20,7 @@ public class DomainUserRenameValidator extends SambaToolValidator {
   }
 
   @Override
-  String getExceptionReason(CommandExecutorResponse response) {
+  protected String getExceptionReason(CommandExecutorResponse response) {
     return String.format("Renaming user '%s' to '%s' failed. %s",
         oldDomainUser.getSamAccountName(),
         newDomainUser.getSamAccountName(),
@@ -27,7 +28,7 @@ public class DomainUserRenameValidator extends SambaToolValidator {
   }
 
   @Override
-  String getErrorCode() {
+  protected String getErrorCode() {
     return ErrorCode.EC_UPDATING_USER_FAILED;
   }
 

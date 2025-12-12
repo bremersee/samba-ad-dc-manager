@@ -3,8 +3,8 @@ package org.bremersee.samba.ad.dc.repository.tools.cli.validator;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponse;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponseValidator;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponseValidator;
 import org.bremersee.exception.ServiceException;
 
 abstract class DnsEntryValidator implements CommandExecutorResponseValidator {

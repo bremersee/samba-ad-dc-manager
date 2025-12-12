@@ -2,6 +2,7 @@ package org.bremersee.samba.ad.dc.repository.tools.cli;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.repository.tools.DomainTool;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class DomainToolExecutor extends SambaToolExecutor implements DomainTool {
+public class DomainToolExecutor extends SambaToolCli implements DomainTool {
 
   private final PasswordInformationParser passwordInformationParser;
 
@@ -20,7 +21,7 @@ public class DomainToolExecutor extends SambaToolExecutor implements DomainTool 
   }
 
   @Override
-  String getSubCommand() {
+  protected String getSubCommand() {
     return "domain";
   }
 

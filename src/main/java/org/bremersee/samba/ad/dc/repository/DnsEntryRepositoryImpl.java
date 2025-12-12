@@ -21,9 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.repository.AdRepository;
+import org.bremersee.samba.ad.dc.common.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
-import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;
+import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.repository.tools.DnsTool;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
@@ -39,7 +41,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("dnsEntryRepository")
 @Slf4j
-public class DnsEntryRepositoryImpl extends AbstractRepository implements DnsEntryRepository {
+public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepository {
 
   private final AdEntryLdapMapper adEntryMapper;
 

@@ -10,10 +10,10 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainComputerLdapMapper;
 import org.bremersee.samba.ad.dc.repository.tools.DomainComputerTool;
 import org.ldaptive.SearchRequest;
@@ -46,22 +46,22 @@ public class DomainComputerRepositoryImpl extends AbstractSamAccountRepository
   }
 
   @Override
-  Dn getDefaultOu() {
+  protected Dn getDefaultOu() {
     return getProperties().getComputer().getDefaultOu();
   }
 
   @Override
-  String getObjectClassValue() {
+  protected String getObjectClassValue() {
     return AdConstants.OBJECT_CLASS_COMPUTER;
   }
 
   @Override
-  String[] getBinaryAttributes() {
+  protected String[] getBinaryAttributes() {
     return domainComputerLdapMapper.getBinaryAttributeNames();
   }
 
   @Override
-  String[] getReturnAttributes() {
+  protected String[] getReturnAttributes() {
     return domainComputerLdapMapper.getMappedAttributeNames();
   }
 
@@ -163,7 +163,8 @@ public class DomainComputerRepositoryImpl extends AbstractSamAccountRepository
         .getRDn().getNameValue().getName();
     String rdnValue = newDomainComputer.getName();
     Dn newDn = new Dn(new RDn(new NameValue(rdnName, rdnValue)));
-    newDn.add(getProperties().getBaseDn(validateOu(newOu)));
+    // TODO newDn.add(getProperties().getBaseDn(validateOu(newOu)));
+    newDn.add(getProperties().getBaseDn(newOu));
     return newDn;
   }
 

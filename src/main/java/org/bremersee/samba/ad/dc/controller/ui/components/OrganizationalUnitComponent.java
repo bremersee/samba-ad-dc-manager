@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.controller.ui.components;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.controller.ui.ControllerConstants;
 import org.bremersee.samba.ad.dc.controller.ui.LoggerProvider;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;

@@ -28,7 +28,7 @@ import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
-import org.bremersee.samba.ad.dc.repository.OrganizationalUnitRepository;
+import org.bremersee.samba.ad.dc.ou.repository.OrganizationalUnitRepository;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
@@ -95,20 +95,20 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
 
   @Override
   public Stream<OrganizationalUnit> getOrganizationalUnits() {
-    return repository.findAll().sorted(Comparator.comparing(OrganizationalUnit::getNameTree));
+    return repository.findCustomOus().sorted(Comparator.comparing(OrganizationalUnit::getNameTree));
   }
 
   @Override
   public Stream<OrganizationalUnit> getOrganizationalUnitsWithBase() {
     return Stream.concat(
         Stream.of(base),
-        repository.findAll()
+        repository.findCustomOus()
             .sorted(Comparator.comparing(OrganizationalUnit::getNameTree)));
   }
 
   @Override
   public Stream<OrganizationalUnit> getOrganizationalUnitsWithSystemOus() {
-    return repository.findAllWithSystemOus()
+    return repository.findAll()
         .sorted(Comparator.comparing(OrganizationalUnit::getNameTree));
   }
 

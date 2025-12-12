@@ -1,7 +1,8 @@
 package org.bremersee.samba.ad.dc.repository.tools.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
 
 public class DomainComputerDeleteValidator extends SambaToolValidator {
 
@@ -12,14 +13,14 @@ public class DomainComputerDeleteValidator extends SambaToolValidator {
   }
 
   @Override
-  String getExceptionReason(CommandExecutorResponse response) {
+  protected String getExceptionReason(CommandExecutorResponse response) {
     return String.format("Deleting computer '%s' failed. %s",
         samAccountName,
         CommandExecutorResponse.toExceptionMessage(response));
   }
 
   @Override
-  String getErrorCode() {
+  protected String getErrorCode() {
     return ErrorCode.EC_DELETING_COMPUTER_FAILED;
   }
 }

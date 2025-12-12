@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.repository;
 
+import static java.util.Objects.requireNonNullElseGet;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
@@ -23,12 +24,16 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.SamAccount;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.PresenceFilter;
 
 /**
@@ -37,7 +42,7 @@ import org.ldaptive.filter.PresenceFilter;
  * @author Christian Bremer
  */
 @Slf4j
-abstract class AbstractSamAccountRepository extends AbstractOrganizedEntryRepository {
+abstract class AbstractSamAccountRepository extends AdRepository {
 
   private static final Pattern samAccountNamePattern = Pattern
       .compile("^[^/\\\\\\[\\]:;|=,+?<>@â€\u009D]+$");
@@ -53,6 +58,94 @@ abstract class AbstractSamAccountRepository extends AbstractOrganizedEntryReposi
       LdaptiveTemplate ldapTemplate) {
     super(properties, ldapTemplate);
   }
+
+  protected abstract Dn getDefaultOu();
+
+  protected abstract String getObjectClassValue();
+
+  protected abstract String[] getBinaryAttributes();
+
+  protected abstract String[] getReturnAttributes();
+
+  // protected abstract Filter objectClassFilter();
+
+  protected String getUniqueNameAttributeName() {
+    return AdConstants.SAM_ACCOUNT_NAME.getName();
+  }
+
+  protected Filter objectClassFilter() {
+    return new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue());
+  }
+
+  protected Filter findOneFilter(String uniqueName) {
+    return new AndFilter(
+        objectClassFilter(),
+        new EqualityFilter(getUniqueNameAttributeName(), uniqueName));
+  }
+
+  protected SearchRequest searchOneRequest(
+      String uniqueName,
+      String... returnAttributes) {
+    return searchOneRequest(uniqueName, null, null, returnAttributes);
+  }
+
+  protected SearchRequest searchOneRequest(
+      String uniqueName,
+      Dn ouRdn,
+      SearchScope scope,
+      String... returnAttributes) {
+    return searchOneRequest(uniqueName, ouRdn, null, scope, returnAttributes);
+  }
+
+  protected SearchRequest searchOneRequest(
+      String uniqueName,
+      Dn ouRdn,
+      Filter filter,
+      SearchScope scope,
+      String... returnAttributes) {
+
+    if (getProperties().isDn(uniqueName)) {
+      return SearchRequest.builder()
+          .dn(uniqueName)
+          .filter(objectClassFilter())
+          .scope(SearchScope.OBJECT)
+          .binaryAttributes(getBinaryAttributes())
+          .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
+          .sizeLimit(1)
+          .build();
+    }
+    Dn ouDn = getProperties().getBaseDn(ouRdn);
+    return SearchRequest.builder()
+        .dn(ouDn.format())
+        .filter(requireNonNullElseGet(filter, () -> findOneFilter(uniqueName)))
+        .scope(Optional.ofNullable(scope)
+            .filter(searchScope -> !ouDn.isSame(getProperties().getBaseDn()))
+            .orElse(SearchScope.SUBTREE))
+        .binaryAttributes(getBinaryAttributes())
+        .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
+        .sizeLimit(1)
+        .build();
+  }
+
+  protected SearchRequest searchAllRequest(
+      Dn ouRdn,
+      Filter filter,
+      SearchScope scope,
+      String... returnAttributes) {
+    Dn ouDn = getProperties().getBaseDn(ouRdn);
+    return SearchRequest.builder()
+        .dn(ouDn.format())
+        .filter(filter)
+        .scope(Optional.ofNullable(scope)
+            .filter(searchScope -> !ouDn.isSame(getProperties().getBaseDn()))
+            .orElse(SearchScope.SUBTREE))
+        .binaryAttributes(getBinaryAttributes())
+        .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
+        .build();
+  }
+
+
+
 
   void validateSamAccountName(SamAccount samAccount) {
     if (isEmpty(samAccount.getSamAccountName())) {
