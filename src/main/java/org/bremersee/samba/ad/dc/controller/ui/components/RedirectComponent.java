@@ -30,7 +30,7 @@ import java.util.Optional;
 import org.bremersee.ldaptive.converter.StringToDnConverter;
 import org.bremersee.samba.ad.dc.controller.ui.ControllerConstants;
 import org.bremersee.samba.ad.dc.controller.ui.LoggerProvider;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.group.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 /**
- * The domain user page.
+ * The domain group page.
  *
  * @author Christian Bremer
  */
@@ -37,24 +37,24 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "A page of domain users.")
-public class DomainUserPage extends JsonPageDto<DomainUser> {
+@Schema(description = "A page of domain groups.")
+public class DomainGroupPage extends JsonPageDto<DomainGroup> {
 
   /**
-   * Instantiates a new domain user page.
+   * Instantiates a new domain group page.
    *
    * @param content the content
    * @param number the number
    * @param size the size
    * @param totalElements the total elements
    */
-  public DomainUserPage(List<? extends DomainUser> content, int number, int size,
+  public DomainGroupPage(List<? extends DomainGroup> content, int number, int size,
       long totalElements) {
     super(content, number, size, totalElements);
   }
 
   /**
-   * Instantiates a new domain user page.
+   * Instantiates a new domain group page.
    *
    * @param content the content
    * @param number the number
@@ -62,14 +62,13 @@ public class DomainUserPage extends JsonPageDto<DomainUser> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DomainUserPage(List<? extends DomainUser> content, int number, int size,
-      long totalElements,
-      SortOrder sort) {
+  public DomainGroupPage(List<? extends DomainGroup> content, int number, int size,
+      long totalElements, SortOrder sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new domain user page.
+   * Instantiates a new domain group page.
    *
    * @param content the content
    * @param number the number
@@ -77,18 +76,17 @@ public class DomainUserPage extends JsonPageDto<DomainUser> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DomainUserPage(List<? extends DomainUser> content, int number, int size,
-      long totalElements,
-      Sort sort) {
+  public DomainGroupPage(List<? extends DomainGroup> content, int number, int size,
+      long totalElements, Sort sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new domain user page.
+   * Instantiates a new domain group page.
    *
    * @param page the page
    */
-  public DomainUserPage(Page<? extends DomainUser> page) {
+  public DomainGroupPage(Page<? extends DomainGroup> page) {
     super(page);
   }
 }

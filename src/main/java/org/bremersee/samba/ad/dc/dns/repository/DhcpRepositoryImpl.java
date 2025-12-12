@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.dns.repository;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.model.DhcpLease;
+import org.bremersee.samba.ad.dc.dns.model.DhcpLease;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 

@@ -26,7 +26,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Component;

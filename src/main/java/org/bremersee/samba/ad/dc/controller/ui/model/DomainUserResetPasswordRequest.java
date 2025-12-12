@@ -20,7 +20,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 
 @Data
 @NoArgsConstructor

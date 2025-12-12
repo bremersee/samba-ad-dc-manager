@@ -34,7 +34,7 @@ import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserAddRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;

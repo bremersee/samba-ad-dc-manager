@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.ldaptive.dn.Dn;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

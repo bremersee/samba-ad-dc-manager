@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;

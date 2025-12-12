@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.dns.model;
 
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;

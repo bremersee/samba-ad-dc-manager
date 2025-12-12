@@ -20,7 +20,7 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.model.OrganizationUnitPage;
+import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnitPage;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +68,7 @@ public class OrganizationUnitsController extends AbstractController
       ModelMap model) {
 
     Pageable pageable = PageRequest.of(page, size);
-    OrganizationUnitPage ouPage = new OrganizationUnitPage(
+    OrganizationalUnitPage ouPage = new OrganizationalUnitPage(
         organizationalUnitService.getOrganizationalUnits(pageable, query));
     model.put("ouPage", ouPage);
     return "admin/organizational-units";

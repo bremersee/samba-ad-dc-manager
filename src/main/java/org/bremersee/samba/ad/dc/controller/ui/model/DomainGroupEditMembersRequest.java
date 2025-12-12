@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 
 /**
  * The type DomainGroupAddRequest.

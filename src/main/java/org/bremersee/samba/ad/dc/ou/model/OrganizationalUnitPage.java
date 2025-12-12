@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.ou.model;
 
 import org.bremersee.pagebuilder.model.JsonPageDto;
-import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.springframework.data.domain.Page;
 
 /**
@@ -25,12 +24,12 @@ import org.springframework.data.domain.Page;
  *
  * @author Christian Bremer
  */
-public class OrganizationUnitPage extends JsonPageDto<OrganizationalUnit> {
+public class OrganizationalUnitPage extends JsonPageDto<OrganizationalUnit> {
 
-  public OrganizationUnitPage() {
+  public OrganizationalUnitPage() {
   }
 
-  public OrganizationUnitPage(
+  public OrganizationalUnitPage(
       Page<? extends OrganizationalUnit> page) {
     super(page);
   }

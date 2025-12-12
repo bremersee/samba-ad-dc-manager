@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.dns.model;
 
 import static java.util.Objects.isNull;
 

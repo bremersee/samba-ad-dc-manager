@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.user.model;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
 import java.util.Locale;
+import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -19,14 +20,13 @@ import org.springframework.lang.Nullable;
 
 @Schema(description = "The domain user.")
 @Value.Style(
-    visibility = ImplementationVisibility.PUBLIC,
+    visibility = ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
     withUnaryOperator = "with*")
 @Value.Immutable
-@Value.Modifiable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainUser.class)
 @JsonDeserialize(as = ImmutableDomainUser.class)

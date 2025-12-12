@@ -21,7 +21,7 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.dns.model.DnsZone;
 import org.bremersee.samba.ad.dc.service.DnsService;
 import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Controller;

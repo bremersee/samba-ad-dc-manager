@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.group.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.List;
 import java.util.Optional;
+import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
 import org.immutables.serial.Serial;

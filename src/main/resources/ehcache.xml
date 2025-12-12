@@ -39,7 +39,7 @@
   </cache-template>
 
   <cache alias="dnsZoneCache" uses-template="default">
-    <value-type>org.bremersee.samba.ad.dc.model.DnsZone</value-type>
+    <value-type>org.bremersee.samba.ad.dc.dns.model.DnsZone</value-type>
   </cache>
 
   <cache alias="dnsZoneListCache" uses-template="default">

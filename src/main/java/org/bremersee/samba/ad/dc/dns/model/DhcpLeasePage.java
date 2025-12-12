@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.dns.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 /**
- * The domain group page.
+ * The dhcp lease page.
  *
  * @author Christian Bremer
  */
@@ -37,24 +37,24 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "A page of domain groups.")
-public class DomainGroupPage extends JsonPageDto<DomainGroup> {
+@Schema(description = "A page of dhcp leases.")
+public class DhcpLeasePage extends JsonPageDto<DhcpLease> {
 
   /**
-   * Instantiates a new domain group page.
+   * Instantiates a new dhcp lease page.
    *
    * @param content the content
    * @param number the number
    * @param size the size
    * @param totalElements the total elements
    */
-  public DomainGroupPage(List<? extends DomainGroup> content, int number, int size,
+  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size,
       long totalElements) {
     super(content, number, size, totalElements);
   }
 
   /**
-   * Instantiates a new domain group page.
+   * Instantiates a new dhcp lease page.
    *
    * @param content the content
    * @param number the number
@@ -62,13 +62,13 @@ public class DomainGroupPage extends JsonPageDto<DomainGroup> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DomainGroupPage(List<? extends DomainGroup> content, int number, int size,
-      long totalElements, SortOrder sort) {
+  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size, long totalElements,
+      SortOrder sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new domain group page.
+   * Instantiates a new dhcp lease page.
    *
    * @param content the content
    * @param number the number
@@ -76,17 +76,17 @@ public class DomainGroupPage extends JsonPageDto<DomainGroup> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DomainGroupPage(List<? extends DomainGroup> content, int number, int size,
-      long totalElements, Sort sort) {
+  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size, long totalElements,
+      Sort sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new domain group page.
+   * Instantiates a new dhcp lease page.
    *
    * @param page the page
    */
-  public DomainGroupPage(Page<? extends DomainGroup> page) {
+  public DhcpLeasePage(Page<? extends DhcpLease> page) {
     super(page);
   }
 }

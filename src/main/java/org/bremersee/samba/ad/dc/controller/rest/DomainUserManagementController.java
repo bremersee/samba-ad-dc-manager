@@ -1,6 +1,6 @@
 package org.bremersee.samba.ad.dc.controller.rest;
 
-import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

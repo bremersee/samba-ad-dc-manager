@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.service.validator;
 
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 
 /**
  * The domain user validator interface.

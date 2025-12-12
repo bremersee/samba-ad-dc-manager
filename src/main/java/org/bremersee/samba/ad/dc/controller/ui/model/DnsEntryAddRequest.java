@@ -22,8 +22,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.model.DnsEntry;
-import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.dns.model.DnsEntry;
+import org.bremersee.samba.ad.dc.dns.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.service.DnsService;
 
 /**

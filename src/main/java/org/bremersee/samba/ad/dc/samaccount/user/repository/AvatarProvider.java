@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.samaccount.user.repository;
 
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 

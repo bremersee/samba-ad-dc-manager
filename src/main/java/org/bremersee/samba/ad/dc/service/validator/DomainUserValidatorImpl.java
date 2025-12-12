@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.service.validator;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.springframework.stereotype.Component;
 

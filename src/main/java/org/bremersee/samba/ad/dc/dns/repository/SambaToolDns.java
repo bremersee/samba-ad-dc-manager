@@ -2,9 +2,9 @@ package org.bremersee.samba.ad.dc.dns.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.model.DnsEntry;
-import org.bremersee.samba.ad.dc.model.DnsZone;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.dns.model.DnsEntry;
+import org.bremersee.samba.ad.dc.dns.model.DnsZone;
+import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 
 public interface SambaToolDns {
 

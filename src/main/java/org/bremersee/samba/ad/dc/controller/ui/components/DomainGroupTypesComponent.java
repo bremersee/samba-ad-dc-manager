@@ -19,9 +19,9 @@ package org.bremersee.samba.ad.dc.controller.ui.components;
 import java.util.List;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.controller.ui.MessageProvider;
-import org.bremersee.samba.ad.dc.model.DomainGroupType.Purpose;
-import org.bremersee.samba.ad.dc.model.DomainGroupType.Scope;
-import org.bremersee.samba.ad.dc.model.SelectOption;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Purpose;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Scope;
+import org.bremersee.samba.ad.dc.controller.ui.model.SelectOption;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**

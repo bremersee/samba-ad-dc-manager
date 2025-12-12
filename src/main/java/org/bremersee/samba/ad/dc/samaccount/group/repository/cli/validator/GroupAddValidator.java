@@ -2,7 +2,7 @@ package org.bremersee.samba.ad.dc.samaccount.group.repository.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
-import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.springframework.util.Assert;
 

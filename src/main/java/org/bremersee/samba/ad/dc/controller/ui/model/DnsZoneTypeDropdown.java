@@ -24,7 +24,7 @@ import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 
 /**
  * The type DnsZoneTypeDropdown.

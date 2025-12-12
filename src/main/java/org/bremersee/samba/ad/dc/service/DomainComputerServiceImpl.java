@@ -2,7 +2,7 @@ package org.bremersee.samba.ad.dc.service;
 
 import java.util.Optional;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.computer.repository.DomainComputerRepository;
 import org.bremersee.pagebuilder.PageBuilder;

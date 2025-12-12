@@ -21,7 +21,7 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeNavigationComponent;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.service.DnsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;

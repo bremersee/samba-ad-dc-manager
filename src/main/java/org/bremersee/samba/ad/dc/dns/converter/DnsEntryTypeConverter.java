@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.dns.converter;
 
-import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.dns.model.DnsEntryType;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;

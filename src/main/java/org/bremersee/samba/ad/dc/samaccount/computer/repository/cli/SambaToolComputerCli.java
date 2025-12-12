@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.samaccount.computer.repository.SambaToolComputer;
 import org.bremersee.samba.ad.dc.samaccount.computer.repository.cli.validator.ComputerDeleteValidator;
 import org.bremersee.samba.ad.dc.samaccount.computer.repository.cli.validator.ComputerMoveValidator;

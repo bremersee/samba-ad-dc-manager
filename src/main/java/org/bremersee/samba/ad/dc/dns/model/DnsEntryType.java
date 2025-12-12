@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.dns.model;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 

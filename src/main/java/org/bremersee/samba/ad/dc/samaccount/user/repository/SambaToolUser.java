@@ -1,6 +1,6 @@
 package org.bremersee.samba.ad.dc.samaccount.user.repository;
 
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.ldaptive.dn.Dn;
 
 public interface SambaToolUser {

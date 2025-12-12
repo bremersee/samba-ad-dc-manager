@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.service.validator;
 
-import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 
 /**
  * The domain group validator interface.

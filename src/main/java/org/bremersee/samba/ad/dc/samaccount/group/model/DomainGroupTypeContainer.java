@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.group.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutor;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.model.DhcpLease;
+import org.bremersee.samba.ad.dc.dns.model.DhcpLease;
 import org.bremersee.samba.ad.dc.dns.repository.DhcpLeaseListTool;
 import org.bremersee.samba.ad.dc.dns.repository.cli.parser.DhcpLeaseParser;
 import org.springframework.stereotype.Component;

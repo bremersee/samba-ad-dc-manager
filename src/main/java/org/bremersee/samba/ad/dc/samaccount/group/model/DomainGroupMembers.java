@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.group.model;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

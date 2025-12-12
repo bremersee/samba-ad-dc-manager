@@ -24,7 +24,7 @@ import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitNavigationComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
-import org.bremersee.samba.ad.dc.model.DomainGroupPage;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupPage;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;

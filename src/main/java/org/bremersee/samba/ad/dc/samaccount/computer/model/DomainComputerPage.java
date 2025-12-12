@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.computer.model;
 
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;

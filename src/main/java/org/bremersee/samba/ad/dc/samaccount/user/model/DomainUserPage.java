@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.model;
+package org.bremersee.samba.ad.dc.samaccount.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
 /**
- * The dhcp lease page.
+ * The domain user page.
  *
  * @author Christian Bremer
  */
@@ -37,24 +37,24 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "A page of dhcp leases.")
-public class DhcpLeasePage extends JsonPageDto<DhcpLease> {
+@Schema(description = "A page of domain users.")
+public class DomainUserPage extends JsonPageDto<DomainUser> {
 
   /**
-   * Instantiates a new dhcp lease page.
+   * Instantiates a new domain user page.
    *
    * @param content the content
    * @param number the number
    * @param size the size
    * @param totalElements the total elements
    */
-  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size,
+  public DomainUserPage(List<? extends DomainUser> content, int number, int size,
       long totalElements) {
     super(content, number, size, totalElements);
   }
 
   /**
-   * Instantiates a new dhcp lease page.
+   * Instantiates a new domain user page.
    *
    * @param content the content
    * @param number the number
@@ -62,13 +62,14 @@ public class DhcpLeasePage extends JsonPageDto<DhcpLease> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size, long totalElements,
+  public DomainUserPage(List<? extends DomainUser> content, int number, int size,
+      long totalElements,
       SortOrder sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new dhcp lease page.
+   * Instantiates a new domain user page.
    *
    * @param content the content
    * @param number the number
@@ -76,17 +77,18 @@ public class DhcpLeasePage extends JsonPageDto<DhcpLease> {
    * @param totalElements the total elements
    * @param sort the sort
    */
-  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size, long totalElements,
+  public DomainUserPage(List<? extends DomainUser> content, int number, int size,
+      long totalElements,
       Sort sort) {
     super(content, number, size, totalElements, sort);
   }
 
   /**
-   * Instantiates a new dhcp lease page.
+   * Instantiates a new domain user page.
    *
    * @param page the page
    */
-  public DhcpLeasePage(Page<? extends DhcpLease> page) {
+  public DomainUserPage(Page<? extends DomainUser> page) {
     super(page);
   }
 }

@@ -1,6 +1,6 @@
 package org.bremersee.samba.ad.dc.samaccount.group.repository;
 
-import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.ldaptive.dn.Dn;
 
 public interface SambaToolGroup {

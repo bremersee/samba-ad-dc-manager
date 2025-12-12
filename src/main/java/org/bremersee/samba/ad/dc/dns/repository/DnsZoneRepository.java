@@ -19,8 +19,8 @@ package org.bremersee.samba.ad.dc.dns.repository;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import org.bremersee.samba.ad.dc.model.DnsZone;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.dns.model.DnsZone;
+import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 import org.springframework.validation.annotation.Validated;
 
 /**
