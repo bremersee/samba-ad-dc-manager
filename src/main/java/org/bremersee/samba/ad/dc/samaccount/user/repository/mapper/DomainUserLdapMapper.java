@@ -33,7 +33,7 @@ import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.mapper.SamAccountLdapMapper;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;

@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository;
+package org.bremersee.samba.ad.dc.common.repository;
 
 import static org.bremersee.ldaptive.LdaptiveAttribute.define;
 

@@ -6,7 +6,7 @@ import java.util.List;
 import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.ou.repository.SambaToolOu;
 import org.bremersee.samba.ad.dc.ou.repository.cli.validator.OuAddValidator;
 import org.bremersee.samba.ad.dc.ou.repository.cli.validator.OuDeleteValidator;

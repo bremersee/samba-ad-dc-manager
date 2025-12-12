@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository;
+package org.bremersee.samba.ad.dc.samaccount.computer.repository;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -9,13 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper.DomainComputerLdapMapper;
-import org.bremersee.samba.ad.dc.samaccount.computer.repository.SambaToolComputer;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;

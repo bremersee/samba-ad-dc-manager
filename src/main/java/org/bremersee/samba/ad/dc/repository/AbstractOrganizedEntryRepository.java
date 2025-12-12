@@ -23,6 +23,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.NisDomainMember;

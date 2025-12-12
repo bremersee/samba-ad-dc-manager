@@ -28,7 +28,7 @@ import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.stereotype.Component;

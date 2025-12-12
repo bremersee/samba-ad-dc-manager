@@ -14,7 +14,7 @@ import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;

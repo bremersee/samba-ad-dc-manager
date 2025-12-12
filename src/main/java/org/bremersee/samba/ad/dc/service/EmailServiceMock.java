@@ -20,7 +20,7 @@ import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.repository.DomainUserRepository;
+import org.bremersee.samba.ad.dc.samaccount.user.repository.DomainUserRepository;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

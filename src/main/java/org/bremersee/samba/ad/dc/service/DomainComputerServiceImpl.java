@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.DomainComputerRepository;
+import org.bremersee.samba.ad.dc.samaccount.computer.repository.DomainComputerRepository;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;

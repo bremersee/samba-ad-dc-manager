@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository;
+package org.bremersee.samba.ad.dc.samaccount.group.repository;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -25,13 +25,13 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.mapper.DomainGroupLdapMapper;
-import org.bremersee.samba.ad.dc.samaccount.group.repository.SambaToolGroup;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;

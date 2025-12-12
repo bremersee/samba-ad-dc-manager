@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository;
+package org.bremersee.samba.ad.dc.samaccount.user.repository;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -29,13 +29,13 @@ import org.bremersee.ldaptive.AbstractLdaptiveErrorHandler;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.mapper.DomainUserLdapMapper;
-import org.bremersee.samba.ad.dc.samaccount.user.repository.SambaToolUser;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;

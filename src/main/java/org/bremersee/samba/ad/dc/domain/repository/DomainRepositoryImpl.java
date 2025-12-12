@@ -29,7 +29,7 @@ import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.ad.SecurityIdentifier;
