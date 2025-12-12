@@ -23,7 +23,7 @@ import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComp
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;

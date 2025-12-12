@@ -24,7 +24,7 @@ import java.util.Map;
  * @author Christian Bremer
  */
 public interface TemplateEngine {
-
+  // belongs to controller -> field template component (user)
   String compileAndExecute(String template, Map<String, Object> model);
 
 }

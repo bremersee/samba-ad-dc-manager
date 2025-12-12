@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.samaccount.user.service;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -27,6 +27,7 @@ import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.AvatarRepository;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.DomainUserRepository;
 import org.bremersee.pagebuilder.PageBuilder;
+import org.bremersee.samba.ad.dc.service.EmailService;
 import org.ldaptive.dn.Dn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.dns.servive;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

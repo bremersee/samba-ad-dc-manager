@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.samaccount.computer.service;
 
 import java.util.Optional;
 import org.bremersee.comparator.spring.mapper.SortMapper;

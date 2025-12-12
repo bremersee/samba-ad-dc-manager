@@ -21,8 +21,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.ChangePasswordRequest;
-import org.bremersee.samba.ad.dc.service.DomainService;
-import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.bremersee.samba.ad.dc.domain.service.DomainService;
+import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.bremersee.exception.ServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;

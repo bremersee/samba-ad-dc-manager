@@ -24,7 +24,7 @@ import org.bremersee.samba.ad.dc.controller.ui.MessageProvider;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;

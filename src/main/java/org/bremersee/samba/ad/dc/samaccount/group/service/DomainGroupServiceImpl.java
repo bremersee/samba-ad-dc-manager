@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.samaccount.group.service;
 
 import java.util.Optional;
 import java.util.Set;

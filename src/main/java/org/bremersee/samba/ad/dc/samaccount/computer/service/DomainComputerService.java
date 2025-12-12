@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.samaccount.computer.service;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

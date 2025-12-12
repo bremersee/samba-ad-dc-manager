@@ -21,7 +21,7 @@ import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnitPage;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;

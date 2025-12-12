@@ -14,22 +14,35 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.domain.service;
+
+import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
 
 /**
- * The authentication service.
+ * The domain service interface.
  *
  * @author Christian Bremer
  */
-public interface AuthenticationService {
+public interface DomainService {
 
   /**
-   * Checks whether password matches or not.
-   *
-   * @param userName the user name
-   * @param clearPassword the clear password
-   * @return {@code true} if the password matches, otherwise {@code false}
+   * Specifies whether NIS extensions (rfc2307) are installed on the AD Domain Controller. See <a
+   * href="https://wiki.samba.org/index.php/Setting_up_RFC2307_in_AD">Setting up RFC2307 in AD</a>
    */
-  boolean passwordMatches(String userName, String clearPassword);
+  boolean isRfc2307Enabled();
+
+  /**
+   * Gets password information.
+   *
+   * @return the password information
+   */
+  PasswordInformation getPasswordInformation();
+
+  /**
+   * Create random password.
+   *
+   * @return the random password
+   */
+  String createRandomPassword();
 
 }

@@ -28,7 +28,7 @@ import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitEditReque
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.bremersee.exception.ServiceException;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.NameValue;

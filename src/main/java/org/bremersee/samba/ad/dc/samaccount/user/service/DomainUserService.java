@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.samaccount.user.service;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

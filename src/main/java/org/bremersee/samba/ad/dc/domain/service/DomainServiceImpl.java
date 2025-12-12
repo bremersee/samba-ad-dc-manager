@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.domain.service;
 
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;

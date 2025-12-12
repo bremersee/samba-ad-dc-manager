@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.ou.service;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;

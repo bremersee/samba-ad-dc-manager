@@ -29,7 +29,7 @@ import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntry;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntryType;
-import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.dns.servive.DnsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;

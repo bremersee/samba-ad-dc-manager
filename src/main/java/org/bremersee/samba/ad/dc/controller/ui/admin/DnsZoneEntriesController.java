@@ -23,7 +23,7 @@ import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntryPage;
-import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.dns.servive.DnsService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
