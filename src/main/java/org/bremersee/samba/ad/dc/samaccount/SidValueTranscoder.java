@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.transcoder;
+package org.bremersee.samba.ad.dc.samaccount;
 
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +29,7 @@ import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
  */
 @Slf4j
 public class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
+  // TODO use ldaptive stuff
   // belongs to samaccount, but AdConstants? Replace with
   SecurityIdentifier securityIdentifier;
   @Override

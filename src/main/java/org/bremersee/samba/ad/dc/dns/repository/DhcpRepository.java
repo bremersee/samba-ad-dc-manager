@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,25 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository;
+package org.bremersee.samba.ad.dc.dns.repository;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The interface DnsRepository.
+ * The dhcp repository.
  *
  * @author Christian Bremer
  */
 @Validated
-public interface DnsEntryRepository {
+public interface DhcpRepository {
 
-  String ZONE_ENTRIES_NODE_NAME = "@";
-
-  List<DnsEntry> getDnsEntries(@NotEmpty String zoneName);
-
-  DnsEntry addCommonAttributes(@NotNull DnsEntry entry);
-
-  void addDnsEntry(@NotNull DnsEntry entry);
-
-  void updateDnsEntry(@NotNull DnsEntry entry, @NotEmpty String newValue);
-
-  void deleteDnsEntry(@NotNull DnsEntry entry);
+  /**
+   * Find active dhcp leases.
+   *
+   * @return the dhcp leases
+   */
+  List<DhcpLease> findActive();
 
 }
