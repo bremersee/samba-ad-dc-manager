@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DnsEntryRepositoryImpl extends AbstractRepository implements DnsEntryRepository {
 
-  private final AdEntryLdapMapper<DnsEntry> adEntryMapper;
+  private final AdEntryLdapMapper adEntryMapper;
 
   private final DomainRepository domainRepository;
 
@@ -59,7 +59,7 @@ public class DnsEntryRepositoryImpl extends AbstractRepository implements DnsEnt
     this.domainRepository = domainRepository;
     this.dnsZoneRepository = dnsZoneRepository;
     this.dnsTool = dnsTool;
-    this.adEntryMapper = new AdEntryLdapMapper<>(DnsEntry::new);
+    this.adEntryMapper = new AdEntryLdapMapper();
   }
 
   @Cacheable(value = "dnsEntryListCache", key = "{ #p0 }")

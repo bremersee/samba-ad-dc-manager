@@ -60,13 +60,14 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
     this.properties = properties;
     this.sortMapper = sortMapper;
     this.repository = repository;
-    this.base = new OrganizationalUnit();
-    this.base.setDn(properties.getBaseDn());
-    this.base.setCreated(OffsetDateTime.now());
-    this.base.setModified(OffsetDateTime.now());
-    this.base.setName("Base");
-    this.base.setDescription("Base of Active Directory");
-    this.base.setSystemOu(true);
+    this.base = OrganizationalUnit.builder()
+        .distinguishedName(properties.getBaseDn().format())
+        .created(OffsetDateTime.now())
+        .modified(OffsetDateTime.now())
+        .name("Base")
+        .description("Base of Active Directory")
+        .systemOu(true)
+        .build();
   }
 
   boolean contains(OrganizationalUnit ou, String query) {

@@ -30,17 +30,12 @@ import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
 @Slf4j
 public class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
 
-  private static final String DEFAULT_SID_PREFIX = "S-1-5-21-";
-
-  private static final int MAX_SYSTEM_SID_SUFFIX = 999;
-
   @Override
   public Sid decodeBinaryValue(byte[] value) {
     return Optional.ofNullable(value)
         .map(SecurityIdentifier::toString)
         .map(objectSid -> Sid.builder()
             .value(objectSid)
-            .systemEntity(isSystemEntity(objectSid))
             .build())
         .orElse(null);
   }
@@ -58,18 +53,4 @@ public class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
     return Sid.class;
   }
 
-  private boolean isSystemEntity(final String objectSid) {
-    if (!objectSid.startsWith(DEFAULT_SID_PREFIX)) {
-      return true;
-    }
-    final int index = objectSid.lastIndexOf('-');
-    if (index > -1) {
-      try {
-        return MAX_SYSTEM_SID_SUFFIX >= Integer.parseInt(objectSid.substring(index + 1));
-      } catch (RuntimeException ignored) {
-        // ignored
-      }
-    }
-    return false;
-  }
 }

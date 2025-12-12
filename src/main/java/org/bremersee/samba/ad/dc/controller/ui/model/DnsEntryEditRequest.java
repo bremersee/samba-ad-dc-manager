@@ -60,12 +60,12 @@ public class DnsEntryEditRequest {
   }
 
   public DnsEntry toNewDnsEntry(String zoneName) {
-    DnsEntry dnsEntry = new DnsEntry();
-    dnsEntry.setZoneName(zoneName);
-    dnsEntry.setName(newName);
-    dnsEntry.setType(newType);
-    dnsEntry.setValue(newValue);
-    return dnsEntry;
+    return DnsEntry.builder()
+        .zoneName(zoneName)
+        .name(newName)
+        .type(newType)
+        .value(newValue)
+        .build();
   }
 
 }

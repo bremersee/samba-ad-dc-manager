@@ -34,8 +34,10 @@ class DomainComputerToolExecutor extends SambaToolExecutor implements DomainComp
     execute(commands, new DomainComputerMoveValidator(domainComputer, newOu));
     Dn newDn = new Dn(domainComputer.getDn().getRDn());
     newDn.add(newOu);
-    domainComputer.setDn(getProperties().getBaseDn(newDn));
-    return domainComputer;
+    return DomainComputer.builder()
+        .from(domainComputer)
+        .distinguishedName(getProperties().getBaseDn(newDn).format(rdn -> rdn))
+        .build();
   }
 
   @Override

@@ -1,44 +1,75 @@
-/*
- * Copyright 2025 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
 
-/**
- * The type DomainGroupTypeContainer.
- *
- * @author Christian Bremer
- */
-@Data
-@NoArgsConstructor
-public class DomainGroupTypeContainer {
+@Schema(description = "The domain group type container.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainGroupTypeContainer.class)
+@JsonDeserialize(as = ImmutableDomainGroupTypeContainer.class)
+public interface DomainGroupTypeContainer {
 
-  private Integer groupTypeValue;
-
-  private DomainGroupType groupType;
-
-  public DomainGroupTypeContainer(Integer groupTypeValue) {
-    this.groupTypeValue = groupTypeValue;
-    this.groupType = DomainGroupType.fromValue(groupTypeValue);
+  @Schema(description = "The domain group type value. "
+      + "Well known group types have the following values: "
+      + "Global security: -2147483646, "
+      + "global distribution: 2, "
+      + "domain local security: -2147483644, "
+      + "domain local distribution: 4, "
+      + "universal security: -2147483640, "
+      + "universal distribution: 8",
+      defaultValue = "-2147483646", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "groupTypeValue", defaultValue = "-2147483646", required = true)
+  @Value.Default
+  default int getGroupTypeValue() {
+    return DomainGroupType.GLOBAL_SECURITY.getValue();
   }
 
-  public DomainGroupTypeContainer(DomainGroupType groupType) {
-    this.groupTypeValue = groupType.getValue();
-    this.groupType = groupType;
+  @Schema(description = "The domain group type.",
+      defaultValue = "global_security", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "groupType",
+      defaultValue = "global_security", access = Access.READ_ONLY)
+  @Value.Lazy
+  default DomainGroupType getGroupType() { // TODO rename groupTypeName
+    return DomainGroupType.fromValue(getGroupTypeValue());
   }
+
+  static DomainGroupTypeContainer defaultContainer() {
+    return containerWithGroupTypeValue(DomainGroupType.GLOBAL_SECURITY.getValue());
+  }
+
+  static DomainGroupTypeContainer containerWithGroupTypeValue(int groupTypeValue) {
+    return builder().groupTypeValue(groupTypeValue).build();
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainGroupTypeContainer.Builder {
+
+  }
+
 }

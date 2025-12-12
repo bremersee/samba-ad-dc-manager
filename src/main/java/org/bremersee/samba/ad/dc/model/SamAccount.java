@@ -1,80 +1,117 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.isNull;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
-import java.io.Serial;
-import java.util.ArrayList;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.Objects;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
- * The interface SamAccount.
+ * The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.
  *
  * @author Christian Bremer
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class SamAccount extends AdEntry implements NameProvider {
+@Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableSamAccount.class)
+@JsonDeserialize(as = ImmutableSamAccount.class)
+public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  /**
+   * Gets sam account name.
+   *
+   * @return the sam account name
+   */
+  @Schema(description = "The unique name of the sam account.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "samAccountName", required = true)
+  String getSamAccountName();
 
-  private String samAccountName;
+  /**
+   * Gets sid.
+   *
+   * @return the sid
+   */
+  @Schema(description = "The SID of the sam account.")
+  @Nullable
+  Sid getSid();
 
-  private Sid sid;
-
-  private boolean criticalSystemObject;
-
-  private Integer primaryGroupId;
-
-  private List<String> memberships;
-
-  public SamAccount() {
-    super();
+  /**
+   * Determines whether this sam account is a critical system object or not.
+   *
+   * @return the {@code true}, if this sam account is a critical system object, otherwise
+   *     {@code false}
+   */
+  @Schema(description = "Determines whether this sam account is a critical system object or not.",
+      defaultValue = "false")
+  @JsonProperty(value = "criticalSystemObject", defaultValue = "false")
+  @Value.Default
+  default boolean isCriticalSystemObject() {
+    return false;
   }
 
   /**
-   * User's group memberships.
+   * Gets primary group id.
    *
-   * @return the group memberships
+   * @return the primary group id
    */
-  public List<String> getMemberships() {
-    if (isNull(memberships)) {
-      memberships = new ArrayList<>();
-    }
-    return memberships;
+  @Nullable
+  Integer getPrimaryGroupId();
+
+  /**
+   * Gets memberships.
+   *
+   * @return the memberships
+   */
+  @Value.Default
+  default List<String> getMemberships() {
+    return List.of();
   }
 
   @Hidden
   @JsonIgnore
+  @Value.Lazy
   @Override
-  public String getName() {
+  default String getName() {
     return getSamAccountName();
+  }
+
+  @Override
+  default int compareTo(@NonNull SamAccount o) {
+    String s1 = Objects.requireNonNullElse(getSamAccountName(), "");
+    String s2 = Objects.requireNonNullElse(o.getSamAccountName(), "");
+    return s1.compareToIgnoreCase(s2);
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableSamAccount.Builder {
+
   }
 
 }

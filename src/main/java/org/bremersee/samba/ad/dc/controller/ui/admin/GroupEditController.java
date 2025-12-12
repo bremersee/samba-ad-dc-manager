@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNullElse;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComponent;
@@ -33,7 +34,6 @@ import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.exception.ServiceException;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -156,8 +156,11 @@ public class GroupEditController extends AbstractEditController implements Pagea
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);
-      existingGroup.setSamAccountName(oldSamAccountName);
-      model.addAttribute("group", existingGroup);
+      // TODO immutable
+      //existingGroup.setSamAccountName(oldSamAccountName);
+      model.addAttribute("group", DomainGroup.builder()
+              .samAccountName(oldSamAccountName)
+          .build());
       return "admin/group-edit";
     }
   }

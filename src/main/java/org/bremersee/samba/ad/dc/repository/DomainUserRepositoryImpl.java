@@ -289,10 +289,9 @@ public class DomainUserRepositoryImpl extends AbstractSamAccountRepository
     }
     domainUserTool.addUser(domainUser, ou, useUsernameAsCn, domainRepository.isRfc2307Enabled());
     return findDnOfSamAccount(domainUser)
-        .map(dn -> {
-          domainUser.setDistinguishedName(dn);
-          return getLdapTemplate().save(domainUser, domainUserLdapMapper);
-        })
+        .map(dn -> getLdapTemplate().save(
+            DomainUser.builder().from(domainUser).distinguishedName(dn).build(),
+            domainUserLdapMapper))
         .orElseThrow(() -> ServiceException
             .internalServerError(
                 String.format("Adding user '%s' failed.", domainUser.getSamAccountName()),

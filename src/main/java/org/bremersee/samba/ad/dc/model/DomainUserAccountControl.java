@@ -1,95 +1,96 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Objects;
 import java.util.Optional;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
 
-/**
- * The domain user's account control.
- *
- * @author Christian Bremer
- */
 @Schema(description = "Domain user's account control.")
-@ToString
-@Setter
-@EqualsAndHashCode
-@NoArgsConstructor
-public class DomainUserAccountControl {
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainUserAccountControl.class)
+@JsonDeserialize(as = ImmutableDomainUserAccountControl.class)
+public interface DomainUserAccountControl {
 
   @Schema(
       description = "Specifies whether the account of the domain user is a normal one or not.",
       defaultValue = "true")
   @JsonProperty(value = "normalAccount", defaultValue = "true")
-  private Boolean normalAccount = true;
+  @Value.Default
+  default boolean isNormalAccount() {
+    return true;
+  }
 
   @Schema(
       description = "Specifies whether the domain user is enabled or not.",
       defaultValue = "true")
   @JsonProperty(value = "enabled", defaultValue = "true")
-  private Boolean enabled = true;
+  @Value.Default
+  default boolean isEnabled() {
+    return true;
+  }
 
   @Schema(
       description = "Specifies whether the password expiration is enabled or not.",
       defaultValue = "false")
   @JsonProperty(value = "passwordExpirationEnabled", defaultValue = "false")
-  private Boolean passwordExpirationEnabled = false;
-
-  @Builder(toBuilder = true)
-  public DomainUserAccountControl(
-      Boolean normalAccount,
-      Boolean enabled,
-      Boolean passwordExpirationEnabled) {
-    this.normalAccount = normalAccount;
-    this.enabled = enabled;
-    this.passwordExpirationEnabled = passwordExpirationEnabled;
+  @Value.Default
+  default boolean isPasswordExpirationEnabled() {
+    return false;
   }
 
-  public Boolean getEnabled() {
-    return Optional.ofNullable(enabled).orElse(true);
-  }
-
-  public Boolean getPasswordExpirationEnabled() {
-    return Boolean.TRUE.equals(passwordExpirationEnabled);
-  }
-
-  public UserAccountControl toUserAccountControl() {
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default UserAccountControl getUserAccountControl() {
     UserAccountControl userAccountControl = new UserAccountControl();
-    userAccountControl.setNormalAccount(normalAccount);
-    userAccountControl.setEnabled(enabled);
-    userAccountControl.setPasswordExpirationEnabled(passwordExpirationEnabled);
+    userAccountControl.setNormalAccount(isNormalAccount());
+    userAccountControl.setEnabled(isEnabled());
+    userAccountControl.setPasswordExpirationEnabled(isPasswordExpirationEnabled());
     return userAccountControl;
   }
 
-  public static DomainUserAccountControl from(UserAccountControl userAccountControl) {
-    if (Objects.isNull(userAccountControl)) {
-      return new DomainUserAccountControl();
-    }
-    return new DomainUserAccountControl(
-        userAccountControl.isNormalAccount(),
-        userAccountControl.isEnabled(),
-        userAccountControl.isPasswordExpirationEnabled());
+  static DomainUserAccountControl defaultAccountControl() {
+    return builder().build();
   }
+
+  static DomainUserAccountControl from(UserAccountControl userAccountControl) {
+    return Optional.ofNullable(userAccountControl)
+        .map(accountControl -> builder()
+            .normalAccount(accountControl.isNormalAccount())
+            .enabled(accountControl.isEnabled())
+            .passwordExpirationEnabled(accountControl.isPasswordExpirationEnabled())
+            .build())
+        .orElseGet(DomainUserAccountControl::defaultAccountControl);
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainUserAccountControl.Builder {
+
+  }
+
 }

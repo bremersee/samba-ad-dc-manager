@@ -174,14 +174,14 @@ public interface DhcpLeaseParser extends CommandExecutorResponseParser<List<Dhcp
         final String end = findDhcpLeasePart(line, END, MANUFACTURER);
         final String manufacturer = findDhcpLeasePart(line, MANUFACTURER, null);
         if (mac != null && ip != null && hostname != null && begin != null && end != null) {
-          final DhcpLease lease = new DhcpLease(
-              mac.replace("-", ":").trim().toLowerCase(),
-              ip,
-              hostname,
-              parseDhcpLeaseTime(begin),
-              parseDhcpLeaseTime(end),
-              manufacturer);
-          leases.add(lease);
+          leases.add(DhcpLease.builder()
+              .mac(mac.replace("-", ":").trim().toLowerCase())
+              .ip(ip)
+              .hostname(hostname)
+              .begin(parseDhcpLeaseTime(begin))
+              .end(parseDhcpLeaseTime(end))
+              .manufacturer(manufacturer)
+              .build());
         }
       }
       return leases;

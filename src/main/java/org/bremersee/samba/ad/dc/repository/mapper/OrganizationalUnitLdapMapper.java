@@ -17,36 +17,40 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValue;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
+import org.springframework.util.Assert;
 
 /**
  * The organizational unit ldap mapper.
  *
  * @author Christian Bremer
  */
-public class OrganizationalUnitLdapMapper extends AdEntryLdapMapper<OrganizationalUnit> {
+public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<OrganizationalUnit> {
 
-  @Getter(AccessLevel.PROTECTED)
+  private final AdEntryLdapMapper adEntryLdapMapper;
+
+  @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public OrganizationalUnitLdapMapper() {
-    super(OrganizationalUnit::new);
+    adEntryLdapMapper = new AdEntryLdapMapper();
     mappedAttributes = initMappedAttributesOfOrganizationalUnit();
   }
 
   private Set<LdaptiveAttribute<?>> initMappedAttributesOfOrganizationalUnit() {
-    Set<LdaptiveAttribute<?>> attributeNames = new LinkedHashSet<>(super.getMappedAttributes());
+    var attributeNames = new LinkedHashSet<>(adEntryLdapMapper.getMappedAttributes());
     attributeNames.add(AdConstants.DESCRIPTION);
     attributeNames.add(AdConstants.IS_CRITICAL_SYSTEM_OBJECT);
     attributeNames.add(AdConstants.NAME);
@@ -54,22 +58,48 @@ public class OrganizationalUnitLdapMapper extends AdEntryLdapMapper<Organization
   }
 
   @Override
-  public void map(LdapEntry source, OrganizationalUnit destination) {
-    if (isNull(source) || isNull(destination)) {
-      return;
+  public String[] getObjectClasses() {
+    return new String[0];
+  }
+
+  @Override
+  public String[] getMappedAttributeNames() {
+    return getMappedAttributes().stream()
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+    return getMappedAttributes().stream()
+        .filter(LdaptiveAttribute::isBinary)
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String mapDn(OrganizationalUnit domainObject) {
+    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    return domainObject.getDistinguishedName();
+  }
+
+  @Override
+  public OrganizationalUnit map(LdapEntry source) {
+    if (isEmpty(source)) {
+      return null;
     }
-    super.map(source, destination);
-
-    String description = getAttributeValue(
-        source, AdConstants.DESCRIPTION, null);
-    destination.setDescription(description);
-
-    boolean isCriticalSystemObject = getAttributeValue(
-        source, AdConstants.IS_CRITICAL_SYSTEM_OBJECT, false);
-    destination.setSystemOu(isCriticalSystemObject);
-
-    String name = getAttributeValue(source, AdConstants.NAME, null);
-    destination.setName(name);
+    OrganizationalUnit.Builder builder = OrganizationalUnit.builder()
+        .from(adEntryLdapMapper.map(source));
+    AdConstants.DESCRIPTION
+        .getValue(source)
+        .ifPresent(builder::description);
+    AdConstants.IS_CRITICAL_SYSTEM_OBJECT
+        .getValue(source, false)
+        .ifPresent(builder::systemOu);
+    AdConstants.NAME
+        .getValue(source)
+        .ifPresent(builder::name);
+    return builder.build();
   }
 
   @Override
@@ -80,25 +110,20 @@ public class OrganizationalUnitLdapMapper extends AdEntryLdapMapper<Organization
     if (isNull(source) || isNull(destination)) {
       return new AttributeModification[0];
     }
-    var modifications = toNewList(super.mapAndComputeModifications(source, destination));
-
-    setAttribute(
-        destination,
-        AdConstants.DESCRIPTION,
-        source.getDescription(),
-        modifications);
-
-    boolean isSystemOu = getAttributeValue(
-        destination, AdConstants.IS_CRITICAL_SYSTEM_OBJECT, false);
+    var modifications = new ArrayList<>(Arrays.asList(adEntryLdapMapper
+        .mapAndComputeModifications(source, destination)));
+    AdConstants.DESCRIPTION
+        .setValue(destination, source.getName())
+        .ifPresent(modifications::add);
+    boolean isSystemOu = AdConstants.IS_CRITICAL_SYSTEM_OBJECT
+        .getValue(destination, source.isSystemOu())
+        .orElse(false);
     if (!isSystemOu) {
-      setAttribute(
-          destination,
-          AdConstants.NAME,
-          source.getName(),
-          modifications);
+      AdConstants.NAME
+          .setValue(destination, source.getName())
+          .ifPresent(modifications::add);
     }
-
-    return modifications.toArray(new AttributeModification[0]);
+    return modifications.toArray(AttributeModification[]::new);
   }
 
 }

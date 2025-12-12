@@ -97,8 +97,10 @@ public class DomainUserToolExecutor extends SambaToolExecutor implements DomainU
       commands.add(quote(ou));
       execute(commands, new DomainUserMoveValidator(newDomainUser, newParentDn));
     }
-    newDomainUser.setDistinguishedName(newDn.format());
-    return newDomainUser;
+    return DomainUser.builder()
+        .from(newDomainUser)
+        .distinguishedName(newDn.format(rdn -> rdn))
+        .build();
   }
 
   @Override

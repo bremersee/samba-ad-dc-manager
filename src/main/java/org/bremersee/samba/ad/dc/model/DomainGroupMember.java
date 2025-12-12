@@ -1,154 +1,72 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNullElse;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.Hidden;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serial;
-import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
-import java.util.Base64;
-import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
 
-/**
- * The domain group member.
- *
- * @author Christian Bremer
- */
-@Schema(description = "A member of a domain group.")
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-public class DomainGroupMember extends SamAccount implements Comparable<DomainGroupMember> {
+@Schema(description = "The domain group.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainGroupMember.class)
+@JsonDeserialize(as = ImmutableDomainGroupMember.class)
+public interface DomainGroupMember extends SamAccount {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Schema(description = "The type of the member.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "memberType", required = true)
+  DomainGroupMemberType getMemberType();
 
-  @Hidden
-  @JsonIgnore
-  private String distinguishedNameBase64;
+  @Schema(description = "The display name of the member.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "displayName", required = true)
+  String getDisplayName();
 
-  @Schema(description = "The type of the member.")
-  @JsonProperty(value = "memberType", defaultValue = "unknown")
-  private DomainGroupMemberType memberType;
-
-  @Schema(description = "The display name of the member.")
-  @JsonProperty("displayName")
-  private String displayName;
-
-  private boolean selected;
-
-  public DomainGroupMember(
-      String distinguishedName,
-      OffsetDateTime created,
-      OffsetDateTime modified,
-      String samAccountName,
-      Sid sid,
-      Integer primaryGroupId,
-      List<String> memberships,
-      DomainGroupMemberType objectClass,
-      String displayName,
-      boolean selected) {
-    super(); // TODO
-    this.distinguishedNameBase64 = Base64.getEncoder()
-        .encodeToString(getDistinguishedName().getBytes(StandardCharsets.UTF_8));
-    this.memberType = requireNonNullElse(objectClass, DomainGroupMemberType.UNKNOWN);
-    this.displayName = displayName;
-    this.selected = selected;
-  }
-
-  public DomainGroupMember(DomainUser domainUser, boolean selected) {
-    this(
-        domainUser.getDistinguishedName(),
-        domainUser.getCreated(),
-        domainUser.getModified(),
-        domainUser.getSamAccountName(),
-        domainUser.getSid(),
-        domainUser.getPrimaryGroupId(),
-        domainUser.getMemberships(),
-        DomainGroupMemberType.USER,
-        domainUser.getName(),
-        selected);
-  }
-
-  public DomainGroupMember(DomainGroup domainGroup, boolean selected) {
-    this(
-        domainGroup.getDistinguishedName(),
-        domainGroup.getCreated(),
-        domainGroup.getModified(),
-        domainGroup.getSamAccountName(),
-        domainGroup.getSid(),
-        domainGroup.getPrimaryGroupId(),
-        domainGroup.getMemberships(),
-        DomainGroupMemberType.GROUP,
-        domainGroup.getName(),
-        selected);
-  }
-
-  // TODO add computer
-
-  @Override
-  public void setDistinguishedName(String distinguishedName) {
-    super.setDistinguishedName(distinguishedName);
-    if (nonNull(distinguishedName)) {
-      this.distinguishedNameBase64 = Base64.getEncoder()
-          .encodeToString(distinguishedName.getBytes(StandardCharsets.UTF_8));
-    } else {
-      this.distinguishedNameBase64 = null;
-    }
-  }
-
-  @Hidden
-  @JsonIgnore
-  public String getDistinguishedNameBase64() {
-    return distinguishedNameBase64;
+  @Schema(description = "The display name of the member.", defaultValue = "false")
+  @JsonProperty(value = "selected", defaultValue = "false")
+  @Value.Default
+  default boolean isSelected() {
+    return false;
   }
 
   @Override
-  public int compareTo(@NonNull DomainGroupMember selectOption) {
-    String s0 = requireNonNullElse(getDisplayName(), "");
-    String s1 = requireNonNullElse(selectOption.getDisplayName(), "");
-    int c = s0.compareTo(s1);
-    if (c != 0) {
-      return c;
+  default int compareTo(@NonNull SamAccount o) {
+    if (o instanceof DomainGroupMember other) {
+      String s0 = requireNonNullElse(getDisplayName(), "");
+      String s1 = requireNonNullElse(other.getDisplayName(), "");
+      int c = s0.compareToIgnoreCase(s1);
+      if (c != 0) {
+        return c;
+      }
     }
-    s0 = requireNonNullElse(getSamAccountName(), "");
-    s1 = requireNonNullElse(selectOption.getSamAccountName(), "");
-    c = s0.compareTo(s1);
-    if (c != 0) {
-      return c;
-    }
-    s0 = requireNonNullElse(getSamAccountName(), "");
-    s1 = requireNonNullElse(selectOption.getSamAccountName(), "");
-    return s0.compareTo(s1);
+    return SamAccount.super.compareTo(o);
   }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainGroupMember.Builder {
+
+  }
+
 }

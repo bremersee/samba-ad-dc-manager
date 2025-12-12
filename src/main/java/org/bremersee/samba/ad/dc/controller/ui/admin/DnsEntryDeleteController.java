@@ -71,7 +71,12 @@ public class DnsEntryDeleteController extends AbstractEditController implements 
       ModelMap model) {
 
     log.debug("displayDeleteDnsEntry({}, {}, {}, {})", zoneName, name, type, value);
-    DnsEntry dnsEntry = new DnsEntry(zoneName, name, type, value);
+    DnsEntry dnsEntry = DnsEntry.builder()
+        .zoneName(zoneName)
+        .name(name)
+        .type(type)
+        .value(value)
+        .build();
     model.addAttribute("dnsEntry", dnsEntry);
     DnsEntryDeleteRequest deleteRequest = new DnsEntryDeleteRequest();
     boolean mayHaveReverseEntry = mayHaveReverseEntry(dnsEntry);
@@ -94,7 +99,12 @@ public class DnsEntryDeleteController extends AbstractEditController implements 
 
     log.debug("deleteDnsEntry({}, {}, {}, {}, {})", zoneName, name, type, value, deleteRequest);
 
-    DnsEntry dnsEntry = new DnsEntry(zoneName, name, type, value);
+    DnsEntry dnsEntry = DnsEntry.builder()
+        .zoneName(zoneName)
+        .name(name)
+        .type(type)
+        .value(value)
+        .build();
     if (!name.equalsIgnoreCase(deleteRequest.getVerificationName())) {
       bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
       model.addAttribute("dnsEntry", dnsEntry);

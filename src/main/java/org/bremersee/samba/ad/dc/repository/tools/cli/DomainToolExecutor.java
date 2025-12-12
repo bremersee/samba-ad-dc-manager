@@ -35,7 +35,7 @@ public class DomainToolExecutor extends SambaToolExecutor implements DomainTool 
         passwordInformationParser);
     int minLength = raw.getMinimumPasswordLength();
     int maxLength = Math.max(getProperties().getMaximumPasswordLength(), minLength);
-    return raw.toBuilder()
+    return PasswordInformation.builder().from(raw)
         .maximumPasswordLength(maxLength)
         .simplePasswordRegexTemplate(getProperties().getSimplePasswordRegexTemplate())
         .complexPasswordRegexTemplate(getProperties().getComplexPasswordRegexTemplate())

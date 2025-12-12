@@ -1,241 +1,273 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
 import java.util.Locale;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
+import org.springframework.lang.Nullable;
 
-/**
- * A domain (Active Directory) user may represent physical entities, such as people or may be used
- * as service accounts for applications. User accounts are also referred to as security principals
- * and are assigned a security identifier (SID).
- *
- * <p>A user account enables a user to logon to a computer and domain with an identity that can be
- * authenticated. To maximize security, each user should have their own unique user account and
- * password. A user's access to domain resources is based on permissions assigned to the user
- * account.
- *
- * @author Christian Bremer
- */
-@Getter
-@Setter
-@ToString(callSuper = true, exclude = {"password"})
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-public class DomainUser extends SamAccount implements NisDomainMember {
+@Schema(description = "The domain user.")
+@Value.Style(
+    visibility = ImplementationVisibility.PUBLIC,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Value.Modifiable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainUser.class)
+@JsonDeserialize(as = ImmutableDomainUser.class)
+public interface DomainUser extends SamAccount, NisDomainMember {
 
-  /**
-   * User's account control.
-   */
-  DomainUserAccountControl accountControl = DomainUserAccountControl.builder().build();
+  @Schema(description = "User's account control.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "accountControl", required = true)
+  @Value.Default
+  default DomainUserAccountControl getAccountControl() {
+    return DomainUserAccountControl.defaultAccountControl();
+  }
 
-  /**
-   * User's last logon time.
-   */
-  OffsetDateTime accountExpires;
+  @Nullable
+  OffsetDateTime getAccountExpires();
 
   /**
    * User's company.
    */
-  String company;
+  @Nullable
+  String getCompany();
 
   /**
    * User's department.
    */
-  String department;
+  @Nullable
+  String getDepartment();
 
   /**
    * A description of the user.
    */
-  String description;
+  @Nullable
+  String getDescription();
 
   /**
    * User's display name.
    */
-  String displayName;
+  @Nullable
+  String getDisplayName();
 
   /**
    * User's email address.
    */
-  String email;
+  @Nullable
+  String getEmail();
 
   /**
    * User's first name.
    */
-  String firstName;
+  @Nullable
+  String getFirstName();
 
   /**
    * User's Unix/RFC2307 GECOS field.
    */
-  String gecos;
+  @Nullable
+  String getGecos();
 
   /**
    * User's Unix/RFC2307 primary GID number.
    */
-  Integer gidNumber;
+  @Nullable
+  Integer getGidNumber();
 
   /**
    * User's home directory path.
    */
-  String homeDirectory;
+  @Nullable
+  String getHomeDirectory();
 
   /**
    * User's home drive letter.
    */
-  String homeDrive;
+  @Nullable
+  String getHomeDrive();
 
   /**
    * User's initials.
    */
-  String initials;
+  @Nullable
+  String getInitials();
 
   /**
    * User's last logon time.
    */
-  OffsetDateTime lastLogon;
+  @Nullable
+  OffsetDateTime getLastLogon();
 
   /**
    * User's last name.
    */
-  String lastName;
+  @Nullable
+  String getLastName();
 
-  /**
-   * User's Unix/RFC2307 login shell.
-   */
-  String loginShell;
-
-  /**
-   * User's logon count.
-   */
-  Integer logonCount;
-
-  /**
-   * User's mobile phone number.
-   */
-  String mobile;
-
-  /**
-   * User's Unix/RFC2307 NIS domain.
-   */
-  String nisDomain;
-
-  /**
-   * User's password.
-   */
-  String password;
-
-  /**
-   * Timestamp of the last password change.
-   */
-  OffsetDateTime passwordLastSet;
-
-  /**
-   * User's office location.
-   */
-  String physicalDeliveryOfficeName;
-
-  /**
-   * User's preferred language. ISO 639-1 language codes. The combinations like de-DE and en-US with
-   * ISO-639 and ISO-3166 also work.
-   */
-  String preferredLanguage;
-
-  /**
-   * User's profile path.
-   */
-  String profilePath;
-
-  /**
-   * User's logon script path.
-   */
-  String scriptPath;
-
-  /**
-   * User's telephone number.
-   */
-  String telephoneNumber;
-
-  /**
-   * User's job title.
-   */
-  String title;
-
-  /**
-   * User's Unix/RFC2307 username.
-   */
-  String uid; // TODO unique
-
-  /**
-   * User's Unix/RFC2307 numeric UID.
-   */
-  Integer uidNumber; // TODO unique; beim adden weglassen und samba-tool benutzen, wenn gesetzt?
-
-  /**
-   * User's Unix/RFC2307 home directory.
-   */
-  String unixHomeDirectory;
-
-  /**
-   * User's principal name.
-   */
-  String userPrincipalName; // TODO unique, added -> other samAccountName
-
+  @Hidden
   @JsonIgnore
-  @Override
-  public String getName() {
-    if (nonNull(getFirstName()) && !getFirstName().isBlank()
-        && nonNull(getLastName()) && !getLastName().isBlank()) {
-      return getFirstName() + " " + getLastName();
-    }
-    if (nonNull(getDisplayName()) && !getDisplayName().isBlank()) {
-      return getDisplayName();
-    }
-    return getSamAccountName();
+  @Value.Lazy
+  default Locale getLocale() {
+    return getLocale(Locale.GERMANY);
   }
 
-  public Locale getLocale(Locale defaultLocale) {
-    if (isNull(getPreferredLanguage()) || getPreferredLanguage().isEmpty()) {
+  default Locale getLocale(Locale defaultLocale) {
+    if (isEmpty(getPreferredLanguage())) {
       return defaultLocale;
     }
     Locale locale = Locale.forLanguageTag(getPreferredLanguage());
-    if (isNull(locale) || locale.getLanguage().isEmpty()) {
+    if (isEmpty(locale) || locale.getLanguage().isEmpty()) {
       return defaultLocale;
     }
     return locale;
   }
 
   /**
-   * Sets user's account control.
-   *
-   * @param accountControl user's account control
+   * User's Unix/RFC2307 login shell.
    */
-  public void setAccountControl(DomainUserAccountControl accountControl) {
-    if (nonNull(accountControl)) {
-      this.accountControl = accountControl;
+  @Nullable
+  String getLoginShell();
+
+  /**
+   * User's logon count.
+   */
+  @Nullable
+  Integer getLogonCount();
+
+  /**
+   * User's mobile phone number.
+   */
+  @Nullable
+  String getMobile();
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default String getName() {
+    if (!isEmpty(getFirstName()) && !isEmpty(getLastName())) {
+      return getFirstName() + " " + getLastName();
     }
+    if (!isEmpty(getDisplayName())) {
+      return getDisplayName();
+    }
+    return getSamAccountName();
+  }
+
+  /**
+   * User's Unix/RFC2307 NIS domain.
+   */
+  @Nullable
+  @Override
+  String getNisDomain();
+
+  /**
+   * User's password.
+   */
+  @Nullable
+  String getPassword();
+
+  /**
+   * Timestamp of the last password change.
+   */
+  @Nullable
+  OffsetDateTime getPasswordLastSet();
+
+  /**
+   * User's office location.
+   */
+  @Nullable
+  String getPhysicalDeliveryOfficeName();
+
+  /**
+   * User's preferred language. ISO 639-1 language codes. The combinations like de-DE and en-US with
+   * ISO-639 and ISO-3166 also work.
+   */
+  @Schema(description = "User's preferred language. ISO 639-1 language codes. The combinations "
+      + "like de-DE and en-US with ISO-639 and ISO-3166 also work.", defaultValue = "de-DE")
+  @JsonProperty(value = "preferredLanguage", defaultValue = "de-DE")
+  @Value.Default
+  default String getPreferredLanguage() {
+    return "de-DE";
+  }
+
+  /**
+   * User's profile path.
+   */
+  @Nullable
+  String getProfilePath();
+
+  /**
+   * User's logon script path.
+   */
+  @Nullable
+  String getScriptPath();
+
+  /**
+   * User's telephone number.
+   */
+  @Nullable
+  String getTelephoneNumber();
+
+  /**
+   * User's job title.
+   */
+  @Nullable
+  String getTitle();
+
+  /**
+   * User's Unix/RFC2307 username.
+   */
+  @Nullable
+  String getUid();
+
+  /**
+   * User's Unix/RFC2307 numeric UID.
+   */
+  @Nullable
+  Integer getUidNumber();
+
+  /**
+   * User's Unix/RFC2307 home directory.
+   */
+  @Nullable
+  String getUnixHomeDirectory();
+
+  /**
+   * User's principal name.
+   */
+  @Nullable
+  String getUserPrincipalName();
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainUser.Builder {
+
   }
 
 }

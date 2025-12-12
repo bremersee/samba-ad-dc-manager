@@ -20,6 +20,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
@@ -29,7 +30,6 @@ import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.service.DnsService;
-import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,7 +73,12 @@ public class DnsEntryEditController extends AbstractEditController implements Pa
       RedirectAttributes redirectAttributes) {
 
     log.debug("displayEditDnsEntry({}, {}, {}, {})", zoneName, name, type, value);
-    return dnsService.findDnsEntry(new DnsEntry(zoneName, name, type, value))
+    return dnsService.findDnsEntry(DnsEntry.builder()
+            .zoneName(zoneName)
+            .name(name)
+            .type(type)
+            .value(value)
+            .build())
         .map(entry -> {
           if (entry.isConflict()) {
             Map<String, Object> parameters = getParamterMap();
@@ -123,7 +128,12 @@ public class DnsEntryEditController extends AbstractEditController implements Pa
     Map<String, Object> parameters = getParamterMap();
 
     try {
-      DnsEntry dnsEntry = new DnsEntry(zoneName, name, type, value);
+      DnsEntry dnsEntry = DnsEntry.builder()
+          .zoneName(zoneName)
+          .name(name)
+          .type(type)
+          .value(value)
+          .build();
       DnsEntry updatedDnsEntry = dnsEntryEditRequest.toNewDnsEntry(zoneName);
       if (name.equals(dnsEntryEditRequest.getNewName())
           && type.equals(dnsEntryEditRequest.getNewType())) {
@@ -137,16 +147,22 @@ public class DnsEntryEditController extends AbstractEditController implements Pa
           && !isEmpty(dnsEntryEditRequest.getNewNameOfReverseEntry())
           && !isEmpty(dnsEntryEditRequest.getNewValueOfReverseEntry())
           && type.equals(updatedDnsEntry.getType())) {
-        DnsEntry reverseDnsEntry = new DnsEntry(
-            reverseZoneName, reverseName, reverseType, reverseValue);
+        DnsEntry reverseDnsEntry = DnsEntry.builder()
+            .zoneName(reverseZoneName)
+            .name(reverseName)
+            .type(reverseType)
+            .value(reverseValue)
+            .build();
         if (reverseName.equals(dnsEntryEditRequest.getNewNameOfReverseEntry())) {
           dnsService.updateDnsEntry(
               reverseDnsEntry, dnsEntryEditRequest.getNewValueOfReverseEntry());
         } else {
           dnsService.deleteDnsEntry(reverseDnsEntry);
-          reverseDnsEntry.setName(dnsEntryEditRequest.getNewNameOfReverseEntry());
-          reverseDnsEntry.setValue(dnsEntryEditRequest.getNewValueOfReverseEntry());
-          dnsService.addDnsEntry(reverseDnsEntry);
+          dnsService.addDnsEntry(DnsEntry.builder()
+              .from(reverseDnsEntry)
+              .name(dnsEntryEditRequest.getNewNameOfReverseEntry())
+              .value(dnsEntryEditRequest.getNewValueOfReverseEntry())
+              .build());
         }
       }
 

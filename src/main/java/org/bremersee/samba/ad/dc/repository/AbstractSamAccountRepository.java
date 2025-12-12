@@ -29,6 +29,7 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.PresenceFilter;
 
 /**
  * The type AbstractSamAccountRepository.
@@ -85,13 +86,22 @@ abstract class AbstractSamAccountRepository extends AbstractOrganizedEntryReposi
       log.debug("Dn of '{}' does not exist", samAccountName);
       return Optional.empty();
     }
-    SearchRequest searchRequest = SearchRequest.builder()
-        .dn(getProperties().getBaseDn().format())
-        .filter(new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName))
-        .scope(SearchScope.SUBTREE)
-        .returnAttributes(AdConstants.DN.getName())
-        .sizeLimit(1)
-        .build();
+    String[] returnAttributes = new String[]{AdConstants.DN.getName()};
+    SearchRequest searchRequest;
+    if (getProperties().isDn(samAccountName)) {
+      searchRequest = SearchRequest.objectScopeSearchRequest(
+          samAccountName,
+          returnAttributes,
+          new PresenceFilter(AdConstants.SAM_ACCOUNT_NAME.getName()));
+    } else {
+      searchRequest = SearchRequest.builder()
+          .dn(getProperties().getBaseDn().format())
+          .filter(new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName))
+          .scope(SearchScope.SUBTREE)
+          .returnAttributes(returnAttributes)
+          .sizeLimit(1)
+          .build();
+    }
     log.debug("findDnOfSamAccountName, searchRequest = {}", searchRequest);
     return getLdapTemplate().findOne(searchRequest)
         .map(LdapEntry::getDn)

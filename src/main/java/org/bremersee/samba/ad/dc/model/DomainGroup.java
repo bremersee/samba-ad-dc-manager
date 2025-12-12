@@ -1,123 +1,104 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.isNull;
-
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.springframework.lang.NonNull;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
-/**
- * A domain (Active Directory) group may contain user and computer accounts as well as other
- * groups.
- *
- * <p>Groups may also be used to establish email distribution lists.
- *
- * <p>See: <a
- * href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups">Active
- * Directory security groups</a>
- *
- * @author Christian Bremer
- */
-@Getter
-@Setter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-public class DomainGroup extends SamAccount implements NisDomainMember, Comparable<DomainGroup> {
+@Schema(description = "The domain group.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainGroup.class)
+@JsonDeserialize(as = ImmutableDomainGroup.class)
+public interface DomainGroup extends SamAccount, NisDomainMember {
 
   /**
-   * A description of the domain group.
+   * The description of the domain group.
    */
-  private String description;
+  @Schema(description = "The description of the domain group.")
+  @Nullable
+  String getDescription();
 
   /**
-   * The email address of the group.
+   * The email address of the domain group.
    */
-  private String email;
+  @Schema(description = "The email address of the domain group.")
+  @Nullable
+  String getEmail();
 
   /**
    * Group's Unix/RFC2307 GID number.
    */
-  private Integer gidNumber;
+  @Schema(description = "Group's Unix/RFC2307 GID number.")
+  @Nullable
+  Integer getGidNumber();
 
   /**
    * The type of the domain group.
    */
-  private DomainGroupTypeContainer groupType;
+  @Schema(description = "The type of the domain group.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "groupType", required = true)
+  @Value.Default
+  default DomainGroupTypeContainer getGroupType() {
+    return DomainGroupTypeContainer.defaultContainer();
+  }
 
   /**
    * The members of the domain group.
    */
-  private List<String> members;
+  @Schema(description = "The members of the domain group.")
+  @Value.Default
+  default List<String> getMembers() {
+    return List.of();
+  }
 
   /**
    * Group's Unix/RFC2307 NIS domain.
    */
-  private String nisDomain;
+  @Schema(description = "Group's Unix/RFC2307 NIS domain.")
+  @Nullable
+  String getNisDomain();
 
-  /**
-   * Returns the type of the domain group.
-   *
-   * @return the domain group type.
-   */
-  public DomainGroupTypeContainer getGroupType() {
-    if (isNull(groupType) || isNull(groupType.getGroupTypeValue())) {
-      return new DomainGroupTypeContainer(DomainGroupType.GLOBAL_SECURITY);
-    }
-    return groupType;
-  }
-
-  /**
-   * The members of the domain group.
-   *
-   * @return the members
-   */
-  public List<String> getMembers() {
-    if (members == null) {
-      members = new ArrayList<>();
-    }
-    return members;
-  }
-
+  @Schema(description = "The primary group id of this domain group.",
+      accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "primaryGroupId", access = Access.READ_ONLY)
+  @Value.Lazy
   @Override
-  public Integer getPrimaryGroupId() {
+  default Integer getPrimaryGroupId() {
     return Optional.ofNullable(getSid())
         .map(Sid::getSuffix)
-        .orElse(super.getPrimaryGroupId());
+        .orElse(null);
   }
 
-  @Override
-  public void setPrimaryGroupId(Integer primaryGroupId) {
-    // ignored
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
   }
 
-  @Override
-  public int compareTo(@NonNull DomainGroup o) {
-    String s1 = Objects.requireNonNullElse(getSamAccountName(), "");
-    String s2 = Objects.requireNonNullElse(o.getSamAccountName(), "");
-    return s1.compareToIgnoreCase(s2);
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainGroup.Builder {
+
   }
+
 }

@@ -16,18 +16,12 @@
 
 package org.bremersee.samba.ad.dc.repository.mapper;
 
-import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
-import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
@@ -39,17 +33,12 @@ import org.springframework.util.Assert;
  *
  * @author Christian Bremer
  */
-public class AdEntryLdapMapper<T extends AdEntry>
-    implements LdaptiveEntryMapper<T> {
+public class AdEntryLdapMapper extends LdaptiveEntryImmutableMapper<AdEntry> {
 
-  @Getter(AccessLevel.PROTECTED)
-  private final Supplier<T> destinationSupplier;
-
-  @Getter(AccessLevel.PROTECTED)
+  @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
-  public AdEntryLdapMapper(Supplier<T> destinationSupplier) {
-    this.destinationSupplier = destinationSupplier;
+  public AdEntryLdapMapper() {
     mappedAttributes = Set.of(
         AdConstants.DN,
         AdConstants.WHEN_CREATED,
@@ -78,45 +67,30 @@ public class AdEntryLdapMapper<T extends AdEntry>
   }
 
   @Override
-  public String mapDn(T domainObject) {
+  public String mapDn(AdEntry domainObject) {
     Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
     return domainObject.getDistinguishedName();
   }
 
   @Override
-  public T map(LdapEntry ldapEntry) {
-    if (isEmpty(ldapEntry)) {
+  public AdEntry map(LdapEntry source) {
+    if (isEmpty(source)) {
       return null;
     }
-    T destination = getDestinationSupplier().get();
-    map(ldapEntry, destination);
-    return destination;
-  }
-
-  @Override
-  public void map(LdapEntry source, T destination) {
-    if (isNull(source) || isNull(destination)) {
-      return;
-    }
-    destination.setDistinguishedName(source.getDn());
+    AdEntry.Builder builder = AdEntry.builder();
+    builder.distinguishedName(source.getDn());
     AdConstants.WHEN_CREATED
         .getValue(source)
-        .consume(destination::setCreated);
+        .ifPresent(builder::created);
     AdConstants.WHEN_CHANGED
         .getValue(source)
-        .consume(destination::setModified);
+        .ifPresent(builder::modified);
+    return builder.build();
   }
 
   @Override
-  public AttributeModification[] mapAndComputeModifications(T source, LdapEntry destination) {
+  public AttributeModification[] mapAndComputeModifications(AdEntry source, LdapEntry destination) {
     return new AttributeModification[0];
-  }
-
-  protected List<AttributeModification> toNewList(AttributeModification[] modifications) {
-    if (isEmpty(modifications)) {
-      return new ArrayList<>();
-    }
-    return new ArrayList<>(Arrays.asList(modifications));
   }
 
 }

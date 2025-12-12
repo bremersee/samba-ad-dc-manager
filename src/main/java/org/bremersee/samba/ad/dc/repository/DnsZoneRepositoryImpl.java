@@ -46,7 +46,7 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
 
   private final DomainRepository domainRepository;
 
-  private final AdEntryLdapMapper<DnsZone> adEntryMapper;
+  private final AdEntryLdapMapper adEntryMapper;
 
   private final DnsTool dnsTool;
 
@@ -57,7 +57,7 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
     this.ldapTemplate = ldapTemplate;
     this.domainRepository = domainRepository;
     this.dnsTool = dnsTool;
-    this.adEntryMapper = new AdEntryLdapMapper<>(DnsZone::new);
+    this.adEntryMapper = new AdEntryLdapMapper();
   }
 
   @Cacheable(value = "dnsZoneListCache", key = "{ #p0 }")

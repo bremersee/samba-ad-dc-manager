@@ -16,8 +16,6 @@
 
 package org.bremersee.samba.ad.dc.repository.tools.cli.parser;
 
-import static java.util.Objects.nonNull;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import lombok.AccessLevel;
@@ -91,78 +89,77 @@ public interface DnsZoneParser extends CommandExecutorResponseParser<DnsZone> {
     }
 
     protected DnsZone doParse(BufferedReader reader) throws IOException {
-      DnsZone zone = new DnsZone();
+      DnsZone.Builder zone = DnsZone.builder();
       String line;
       while ((line = reader.readLine()) != null) {
         line = line.trim();
         log.debug("Parsing line: {}", line);
         int index = line.indexOf(':');
         if (lineContains(line, ZONE_NAME, index)) {
-          zone.setName(line.substring(index + 1).trim());
+          zone.name(line.substring(index + 1).trim());
         }
         if (lineContains(line, ZONE_TYPE, index)) {
-          zone.setZoneType(line.substring(index + 1).trim());
+          zone.zoneType(line.substring(index + 1).trim());
         }
         if (lineContains(line, IS_REVERSE, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setReverseZone(Boolean.parseBoolean(value));
+          zone.reverseZone(Boolean.parseBoolean(value));
         }
         if (lineContains(line, ALLOW_UPDATE, index)) {
-          zone.setAllowUpdate(line.substring(index + 1).trim());
+          zone.allowUpdate(line.substring(index + 1).trim());
         }
         if (lineContains(line, IS_PAUSED, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setPaused(Boolean.parseBoolean(value));
+          zone.paused(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_SHUTDOWN, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setShutdown(Boolean.parseBoolean(value));
+          zone.shutdown(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_AUTO_CREATED, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setAutoCreated(Boolean.parseBoolean(value));
+          zone.autoCreated(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_USING_DATABASE, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setUseDatabase(Boolean.parseBoolean(value));
+          zone.useDatabase(Boolean.parseBoolean(value));
         }
         if (lineContains(line, DATA_FILE, index)) {
-          zone.setDataFile(line.substring(index + 1).trim());
+          zone.dataFile(line.substring(index + 1).trim());
         }
         if (lineContains(line, IS_USING_WINS, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setUseWins(Boolean.parseBoolean(value));
+          zone.useWins(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_USING_NBSTAT, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setUseNbstat(Boolean.parseBoolean(value));
+          zone.useNbstat(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_AGING, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setAging(Boolean.parseBoolean(value));
+          zone.aging(Boolean.parseBoolean(value));
         }
         if (lineContains(line, FQDN, index)) {
-          zone.setFqdn(line.substring(index + 1).trim());
+          zone.fqdn(line.substring(index + 1).trim());
         }
         if (lineContains(line, ZONE_DN, index)) {
           String dn = line.substring(index + 1).trim();
-          zone.setDistinguishedName(dn);
+          zone.distinguishedName(dn);
         }
         if (lineContains(line, IS_QUEUED_FOR_BACKGROUND_LOAD, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setQueuedForBackgroundLoad(Boolean.parseBoolean(value));
+          zone.queuedForBackgroundLoad(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_BACKGROUND_LOAD_IN_PRPGRESS, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setBackgroundLoadInProgress(Boolean.parseBoolean(value));
+          zone.backgroundLoadInProgress(Boolean.parseBoolean(value));
         }
         if (lineContains(line, IS_READ_ONLY_ZONE, index)) {
           String value = line.substring(index + 1).trim();
-          zone.setReadOnlyZone(Boolean.parseBoolean(value));
+          zone.readOnlyZone(Boolean.parseBoolean(value));
         }
       }
-      log.debug("Parsed zone: {}", zone);
-      return nonNull(zone.getName()) ? zone : null;
+      return zone.build();
     }
 
     private static boolean lineContains(String line, String name, int index) {

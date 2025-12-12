@@ -215,9 +215,13 @@ class OrganizationalUnitRepositoryImpl extends AbstractOrganizedEntryRepository
             organizationalUnit.getDistinguishedName(),
             EC_OU_NOT_FOUND));
 
-    if (Boolean.TRUE.equals(existing.isSystemOu())) {
-      existing.setDescription(organizationalUnit.getDescription());
-      return getLdapTemplate().save(existing, ouLdapMapper);
+    if (existing.isSystemOu()) {
+      return getLdapTemplate().save(
+          OrganizationalUnit.builder()
+              .from(existing)
+              .description(organizationalUnit.getDescription())
+              .build(),
+          ouLdapMapper);
     }
 
     Dn existingDn = new Dn(existing.getDistinguishedName());
@@ -252,8 +256,12 @@ class OrganizationalUnitRepositoryImpl extends AbstractOrganizedEntryRepository
       currentDn = organizationalUnitTool
           .renameOrganizationalUnit(currentDn, organizationalUnit.getName());
     }
-    organizationalUnit.setDistinguishedName(currentDn.format());
-    return getLdapTemplate().save(organizationalUnit, ouLdapMapper);
+    return getLdapTemplate().save(
+        OrganizationalUnit.builder()
+            .distinguishedName(currentDn.format())
+            .description(organizationalUnit.getDescription())
+            .build(),
+        ouLdapMapper);
   }
 
   @Override

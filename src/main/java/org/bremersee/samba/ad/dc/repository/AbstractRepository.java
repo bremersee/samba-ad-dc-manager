@@ -126,7 +126,8 @@ abstract class AbstractRepository implements ErrorCode {
 
   String validateDn(AdEntry object, String dn) {
     if (isEmpty(object.getDistinguishedName())) {
-      object.setDistinguishedName(dn);
+      // TODO
+      //object.setDistinguishedName(dn);
       return dn;
     }
     try {

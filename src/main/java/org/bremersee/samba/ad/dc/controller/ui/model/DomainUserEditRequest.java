@@ -22,6 +22,8 @@ import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.ModifiableDomainUser;
+import org.immutables.value.Value.Modifiable;
 import org.ldaptive.dn.Dn;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -209,6 +211,12 @@ public class DomainUserEditRequest {
         target = "accountControl.passwordExpirationEnabled")
     void update(@MappingTarget DomainUser existingDomainUser,
         DomainUserEditRequest domainUserEditRequest);
+
+    default DomainUser updateExisting(DomainUser target, DomainUserEditRequest source) {
+      ModifiableDomainUser user = ModifiableDomainUser.create().from(target);
+      update(user, source);
+      return user;
+    }
   }
 
 }

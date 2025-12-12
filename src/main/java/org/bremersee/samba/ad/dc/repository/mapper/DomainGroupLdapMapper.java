@@ -17,25 +17,25 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValue;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValuesAsList;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttributes;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupTypeContainer;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
+import org.springframework.util.Assert;
 
 /**
  * The domain group ldap mapper.
@@ -43,7 +43,9 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Slf4j
-public class DomainGroupLdapMapper extends SamAccountLdapMapper<DomainGroup> {
+public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGroup> {
+
+  private final SamAccountLdapMapper samAccountLdapMapper;
 
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
@@ -51,13 +53,13 @@ public class DomainGroupLdapMapper extends SamAccountLdapMapper<DomainGroup> {
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public DomainGroupLdapMapper(Supplier<Boolean> rfc2307EnabledSupplier) {
-    super(DomainGroup::new);
+    samAccountLdapMapper = new SamAccountLdapMapper();
     this.rfc2307EnabledSupplier = rfc2307EnabledSupplier;
     mappedAttributes = initMappedAttributesOfDomainGroup();
   }
 
   private Set<LdaptiveAttribute<?>> initMappedAttributesOfDomainGroup() {
-    Set<LdaptiveAttribute<?>> attributeNames = new LinkedHashSet<>(super.getMappedAttributes());
+    var attributeNames = new LinkedHashSet<>(samAccountLdapMapper.getMappedAttributes());
     attributeNames.add(AdConstants.GROUP_TYPE);
     attributeNames.add(AdConstants.DESCRIPTION);
     attributeNames.add(AdConstants.GID_NUMBER);
@@ -68,30 +70,59 @@ public class DomainGroupLdapMapper extends SamAccountLdapMapper<DomainGroup> {
   }
 
   @Override
-  public void map(LdapEntry source, DomainGroup destination) {
+  public String[] getObjectClasses() {
+    return new String[0];
+  }
 
-    if (isNull(source) || isNull(destination)) {
-      return;
+  @Override
+  public String[] getMappedAttributeNames() {
+    return getMappedAttributes().stream()
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+    return getMappedAttributes().stream()
+        .filter(LdaptiveAttribute::isBinary)
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String mapDn(DomainGroup domainObject) {
+    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    return domainObject.getDistinguishedName();
+  }
+
+  @Override
+  public DomainGroup map(LdapEntry source) {
+    if (isEmpty(source)) {
+      return null;
     }
-    super.map(source, destination);
-
-    Integer groupType = getAttributeValue(source, AdConstants.GROUP_TYPE, null);
-    destination.setGroupType(new DomainGroupTypeContainer(groupType));
-
-    String description = getAttributeValue(source, AdConstants.DESCRIPTION, null);
-    destination.setDescription(description);
-
-    Integer gidNumber = getAttributeValue(source, AdConstants.GID_NUMBER, null);
-    destination.setGidNumber(gidNumber);
-
-    String mail = getAttributeValue(source, AdConstants.MAIL, null);
-    destination.setEmail(mail);
-
-    List<Dn> members = getAttributeValuesAsList(source, AdConstants.GROUP_MEMBER);
-    destination.setMembers(members.stream().map(Dn::format).toList());
-
-    String nisDomain = getAttributeValue(source, AdConstants.NIS_DOMAIN, null);
-    destination.setNisDomain(nisDomain);
+    DomainGroup.Builder builder = DomainGroup.builder()
+        .from(samAccountLdapMapper.map(source));
+    AdConstants.GROUP_TYPE
+        .getValue(source)
+        .ifPresent(groupTypeValue -> builder
+            .groupType(DomainGroupTypeContainer.containerWithGroupTypeValue(groupTypeValue)));
+    AdConstants.DESCRIPTION
+        .getValue(source)
+        .ifPresent(builder::description);
+    AdConstants.GID_NUMBER
+        .getValue(source)
+        .ifPresent(builder::gidNumber);
+    AdConstants.MAIL
+        .getValue(source)
+        .ifPresent(builder::email);
+    builder.members(AdConstants.GROUP_MEMBER
+        .getValues(source)
+        .map(dn -> dn.format(rdn -> rdn))
+        .toList());
+    AdConstants.NIS_DOMAIN
+        .getValue(source)
+        .ifPresent(builder::nisDomain);
+    return builder.build();
   }
 
   @Override
@@ -102,55 +133,43 @@ public class DomainGroupLdapMapper extends SamAccountLdapMapper<DomainGroup> {
     if (isNull(source) || isNull(destination)) {
       return new AttributeModification[0];
     }
-    var modifications = toNewList(super.mapAndComputeModifications(source, destination));
+    var modifications = new ArrayList<>(Arrays.asList(samAccountLdapMapper
+        .mapAndComputeModifications(source, destination)));
+    AdConstants.DESCRIPTION
+        .setValue(destination, source.getDescription())
+        .ifPresent(modifications::add);
+    AdConstants.MAIL
+        .setValue(destination, source.getEmail())
+        .ifPresent(modifications::add);
+    AdConstants.GROUP_MEMBER
+        .setValues(destination, source.getMembers().stream().map(Dn::new).toList())
+        .ifPresent(modifications::add);
 
-    setAttribute(
-        destination,
-        AdConstants.DESCRIPTION,
-        source.getDescription(),
-        modifications);
-    setAttribute(
-        destination,
-        AdConstants.MAIL,
-        source.getEmail(),
-        modifications);
-    setAttributes(
-        destination,
-        AdConstants.GROUP_MEMBER,
-        source.getMembers().stream().map(Dn::new).toList(),
-        modifications);
+    boolean isCriticalSystemObject = AdConstants.IS_CRITICAL_SYSTEM_OBJECT
+        .getValue(destination, source.isCriticalSystemObject())
+        .orElse(false);
 
-    boolean isCriticalSystemObject = getAttributeValue(
-        destination, AdConstants.IS_CRITICAL_SYSTEM_OBJECT, false);
     if (!isCriticalSystemObject) {
       // TODO verify
       // NOT_ALLOWED_ON_RDN, diagnosticMessage=00002016: Modify of 'name' not permitted, must use 'rename' operation instead
-      setAttribute(
-          destination,
-          AdConstants.NAME,
-          source.getSamAccountName(),
-          modifications);
+      AdConstants.NAME
+          .setValue(destination, source.getName())
+          .ifPresent(modifications::add);
     }
 
     if (Boolean.TRUE.equals(rfc2307EnabledSupplier.get())) {
-      setAttribute(
-          destination,
-          AdConstants.GID_NUMBER,
-          source.getGidNumber(),
-          modifications);
-      setAttribute(
-          destination,
-          AdConstants.NIS_DOMAIN,
-          source.getNisDomain(),
-          modifications);
-      setAttribute(
-          destination,
-          AdConstants.NIS_NAME,
-          source.getSamAccountName(),
-          modifications);
+      AdConstants.GID_NUMBER
+          .setValue(destination, source.getGidNumber())
+          .ifPresent(modifications::add);
+      AdConstants.NIS_DOMAIN
+          .setValue(destination, source.getNisDomain())
+          .ifPresent(modifications::add);
+      AdConstants.NIS_NAME
+          .setValue(destination, source.getSamAccountName())
+          .ifPresent(modifications::add);
     }
 
-    return modifications.toArray(new AttributeModification[0]);
+    return modifications.toArray(AttributeModification[]::new);
   }
 
 }

@@ -63,8 +63,9 @@ public class OrganizationalUnitEditRequest implements Serializable {
     if (isEmpty(ou)) {
       return;
     }
-    ou.setName(getName());
-    ou.setDescription(getDescription());
+    // TODO immutable
+    //ou.setName(getName());
+    //ou.setDescription(getDescription());
   }
 
 }

@@ -1,142 +1,105 @@
-/*
- * Copyright 2019-2020 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-import java.io.Serial;
-import java.io.Serializable;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
- * The dhcp lease.
+ * The dhcp lease of the dhcp server.
  *
  * @author Christian Bremer
  */
-@Schema(description = "A dhcp lease of the dhcp server.")
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Data
-@NoArgsConstructor
-public class DhcpLease implements Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  /**
-   * The constant MAC.
-   */
-  public static final String MAC = "mac";
+@Schema(description = "The dhcp lease of the dhcp server.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDhcpLease.class)
+@JsonDeserialize(as = ImmutableDhcpLease.class)
+public interface DhcpLease {
 
   /**
    * Gets mac.
+   *
+   * @return the mac
    */
-  @Schema(description = "The mac of the client.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(MAC)
-  private String mac;
-
-  /**
-   * The constant IP.
-   */
-  public static final String IP = "ip";
+  @Schema(description = "The mac of the client.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "mac", required = true)
+  String getMac();
 
   /**
    * Gets ip.
+   *
+   * @return the ip
    */
-  @Schema(description = "The ip of the client.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(IP)
-  private String ip;
-
-  /**
-   * The constant HOSTNAME.
-   */
-  public static final String HOSTNAME = "hostname";
+  @Schema(description = "The ip of the client.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "ip", required = true)
+  String getIp();
 
   /**
    * Gets hostname.
+   *
+   * @return the hostname
    */
-  @Schema(description = "The host name of the client.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(HOSTNAME)
-  private String hostname;
+  @Schema(description = "The host name of the client.", defaultValue = "-NA-")
+  @JsonProperty(value = "hostname", defaultValue = "-NA")
+  @Value.Default
+  default String getHostname() {
+    return "-NA-";
+  }
 
   /**
-   * The constant BEGIN.
+   * Gets the beginning.
+   *
+   * @return the beginning
    */
-  public static final String BEGIN = "begin";
-
-  /**
-   * Gets begin.
-   */
-  @Schema(description = "The start time of the lease.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(BEGIN)
-  private OffsetDateTime begin;
-
-  /**
-   * The constant END.
-   */
-  public static final String END = "end";
+  @Schema(description = "The start time of the lease.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "begin", required = true)
+  OffsetDateTime getBegin();
 
   /**
    * Gets end.
+   *
+   * @return the end
    */
-  @Schema(description = "The end time of the lease.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(END)
-  private OffsetDateTime end;
-
-  /**
-   * The constant MANUFACTURER.
-   */
-  public static final String MANUFACTURER = "manufacturer";
+  @Schema(description = "The end time of the lease.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "end", required = true)
+  OffsetDateTime getEnd();
 
   /**
    * Gets manufacturer.
+   *
+   * @return the manufacturer
    */
-  @Schema(description = "The manufacturer of the client.", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(MANUFACTURER)
-  private String manufacturer;
+  @Schema(description = "The manufacturer of the client.")
+  @Nullable
+  String getManufacturer();
 
   /**
-   * Instantiates a new dhcp lease.
+   * Gets the immutable builder.
    *
-   * @param mac the mac
-   * @param ip the ip
-   * @param hostname the hostname
-   * @param begin the beginning
-   * @param end the end
-   * @param manufacturer the manufacturer
+   * @return the builder
    */
-  @Builder(toBuilder = true)
-  public DhcpLease(
-      String mac,
-      String ip,
-      String hostname,
-      OffsetDateTime begin,
-      OffsetDateTime end,
-      String manufacturer) {
-    this.mac = mac;
-    this.ip = ip;
-    this.hostname = hostname;
-    this.begin = begin;
-    this.end = end;
-    this.manufacturer = manufacturer;
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDhcpLease.Builder {
+
   }
 
 }

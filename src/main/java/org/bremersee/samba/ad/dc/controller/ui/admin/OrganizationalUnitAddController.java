@@ -91,9 +91,10 @@ public class OrganizationalUnitAddController extends AbstractController
 
     getLogger().debug("addOrganizationalUnit({})", ouAddRequest);
 
-    OrganizationalUnit organizationalUnit = new OrganizationalUnit();
-    organizationalUnit.setName(ouAddRequest.getName());
-    organizationalUnit.setDescription(ouAddRequest.getDescription());
+    OrganizationalUnit organizationalUnit = OrganizationalUnit.builder()
+        .name(ouAddRequest.getName())
+        .description(ouAddRequest.getDescription())
+        .build();
 
     OrganizationalUnit addedOu;
     try {

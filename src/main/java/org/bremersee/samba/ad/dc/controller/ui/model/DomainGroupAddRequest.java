@@ -104,7 +104,7 @@ public class DomainGroupAddRequest implements Serializable {
     DomainGroupType groupType = DomainGroupType.fromScopeAndPurpose(
         getSelectedGroupScope(),
         getSelectedGroupPurpose());
-    return new DomainGroupTypeContainer(groupType);
+    return DomainGroupTypeContainer.containerWithGroupTypeValue(groupType.getValue());
   }
 
   @Mapper

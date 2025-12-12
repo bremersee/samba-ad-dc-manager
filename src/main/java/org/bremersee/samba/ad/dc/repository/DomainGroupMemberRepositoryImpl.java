@@ -19,8 +19,9 @@ package org.bremersee.samba.ad.dc.repository;
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +33,6 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.converter.TreeSearchScopeConverter;
-import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
@@ -199,12 +199,10 @@ public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepositor
         .flatMap(dn -> getLdapTemplate()
             .findOne(SearchRequest.objectScopeSearchRequest(dn, returnAttributes))
             .stream())
-        .map(ldapEntry -> {
-          DomainGroupMember member = new DomainGroupMember();
-          domainGroupMemberLdapMapper.map(ldapEntry, member);
-          member.setSelected(true);
-          return member;
-        })
+        .map(ldapEntry -> DomainGroupMember.builder()
+            .from(domainGroupMemberLdapMapper.map(ldapEntry))
+            .selected(true)
+            .build())
         .filter(member -> query(member, query));
   }
 
@@ -274,12 +272,10 @@ public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepositor
         .stream()
         .filter(getIgnoredEntryFilter())
         .filter(ldapEntry -> !excludedDns.contains(new Dn(ldapEntry.getDn()).format()))
-        .map(ldapEntry -> {
-          DomainGroupMember member = new DomainGroupMember();
-          domainGroupMemberLdapMapper.map(ldapEntry, member);
-          member.setSelected(false);
-          return member;
-        })
+        .map(ldapEntry -> DomainGroupMember.builder()
+            .from(domainGroupMemberLdapMapper.map(ldapEntry))
+            .selected(false)
+            .build())
         .filter(member -> isEmpty(groupId)
             || !groupId.equals(member.getPrimaryGroupId()));
   }
@@ -308,6 +304,7 @@ public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepositor
         .map(domainGroupMemberLdapMapper::map);
   }
 
+  @Override
   public DomainGroup modifyMembers(
       String groupName,
       Dn ou,
@@ -316,56 +313,60 @@ public class DomainGroupMemberRepositoryImpl extends AbstractSamAccountRepositor
       Set<String> membersToRemove) {
 
     return domainGroupRepository.findOne(groupName, ou, searchScope)
-        .map(group -> addMembers(group, membersToAdd))
-        .map(group -> removeMembers(group, membersToRemove))
-        .map(group -> domainGroupRepository
-            .update(group.getSamAccountName(), group, null))
+        .map(group -> modifyMembers(group, membersToAdd, membersToRemove))
+        .map(domainGroupRepository::save)
         .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
             DomainGroup.class.getSimpleName(),
             groupName,
             EC_SAM_ACCOUNT_NOT_FOUND));
   }
 
-  private DomainGroup addMembers(DomainGroup domainGroup, Set<String> members) {
-    if (!isEmpty(members)) {
-      members.forEach(member -> addMember(domainGroup, member));
+  private DomainGroup modifyMembers(
+      DomainGroup group,
+      Set<String> membersToAdd,
+      Set<String> membersToRemove) {
+
+    if (isEmpty(membersToAdd) && isEmpty(membersToRemove)) {
+      return group;
     }
-    return domainGroup;
+    Set<DnPair> members = group.getMembers().stream()
+        .map(dn -> new DnPair(dn, new Dn(dn).format()))
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+    Set<DnPair> add = Stream.ofNullable(membersToAdd)
+        .flatMap(Collection::stream)
+        .filter(member -> !isEmpty(member))
+        .flatMap(member -> findDnOfSamAccountName(member).stream())
+        .map(dn -> new DnPair(dn, new Dn(dn).format()))
+        .collect(Collectors.toSet());
+    members.addAll(add);
+    Set<DnPair> remove = Stream.ofNullable(membersToRemove)
+        .flatMap(Collection::stream)
+        .filter(member -> !isEmpty(member))
+        .flatMap(member -> findDnOfSamAccountName(member).stream())
+        .map(dn -> new DnPair(dn, new Dn(dn).format()))
+        .collect(Collectors.toSet());
+    members.removeAll(remove);
+    return DomainGroup.builder()
+        .from(group)
+        .members(members.stream().map(DnPair::dn).toList())
+        .build();
   }
 
-  private void addMember(DomainGroup domainGroup, String member) {
-    findSamAccount(member, null, TreeSearchScope.SUBTREE)
-        .map(AdEntry::getDn)
-        .filter(memberDn -> !isMember(domainGroup, memberDn))
-        .ifPresent(memberDn -> {
-          List<String> members = new ArrayList<>(domainGroup.getMembers());
-          members.add(member);
-          domainGroup.setMembers(members);
-        });
-  }
+  private record DnPair(String dn, String formattedDn) {
 
-  private DomainGroup removeMembers(DomainGroup domainGroup, Set<String> members) {
-    if (!isEmpty(members)) {
-      members.forEach(member -> removeMember(domainGroup, member));
+    @Override
+    public boolean equals(Object o) {
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      DnPair dnPair = (DnPair) o;
+      return Objects.equals(formattedDn, dnPair.formattedDn);
     }
-    return domainGroup;
-  }
 
-  private void removeMember(DomainGroup domainGroup, String member) {
-    findSamAccount(member, null, TreeSearchScope.SUBTREE)
-        .map(AdEntry::getDn)
-        .ifPresent(memberDn -> {
-          List<String> members = new ArrayList<>(domainGroup.getMembers());
-          if (members.removeIf(existingMember -> memberDn.isSame(new Dn(existingMember)))) {
-            domainGroup.setMembers(members);
-          }
-        });
-  }
-
-  private boolean isMember(DomainGroup domainGroup, Dn memberDn) {
-    return domainGroup.getMembers().stream()
-        .map(Dn::new)
-        .anyMatch(dn -> dn.isSame(memberDn));
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(formattedDn);
+    }
   }
 
 }

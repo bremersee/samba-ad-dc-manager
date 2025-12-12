@@ -1,33 +1,17 @@
-/*
- * Copyright 2019-2020 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-import java.io.Serial;
-import java.io.Serializable;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.Optional;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
 
 /**
  * The windows/samba SID. Well known (system) SIDs are listed <a
@@ -36,67 +20,59 @@ import lombok.NoArgsConstructor;
  * @author Christian Bremer
  */
 @Schema(description = "The SID of the entity.")
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Data
-@NoArgsConstructor
-public class Sid implements Serializable {
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableSid.class)
+@JsonDeserialize(as = ImmutableSid.class)
+public interface Sid {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
+  String DEFAULT_SID_PREFIX = "S-1-5-21-";
 
-  /**
-   * The constant VALUE.
-   */
-  public static final String VALUE = "value";
-
-  /**
-   * The value of this SID.
-   */
-  @Schema(
-      description = "The SID of the entity.",
-      accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(value = VALUE, required = true)
-  private String value = null;
+  int MAX_SYSTEM_SID_SUFFIX = 999;
 
   /**
-   * The constant SYSTEM_ENTITY.
-   */
-  public static final String SYSTEM_ENTITY = "systemEntity";
-
-  /**
-   * Specifies whether this SID belongs to a system entity or not.
-   */
-  @JsonProperty(value = SYSTEM_ENTITY)
-  private Boolean systemEntity;
-
-  /**
-   * Instantiates a new SID.
+   * Gets the string value of this SID.
    *
-   * @param value the value
-   * @param systemEntity the system entity
+   * @return the value
    */
-  @Builder(toBuilder = true)
-  public Sid(String value, Boolean systemEntity) {
-    setValue(value);
-    setSystemEntity(systemEntity);
+  @Schema(description = "The SID of the entity.", requiredMode = RequiredMode.REQUIRED)
+  String getValue();
+
+  /**
+   * Determines whether this SID belongs to a system entity or not.
+   *
+   * @return the {@code true}, if this SID belongs to a system entity, otherwise {@code false}
+   */
+  @Schema(description = "Determines whether this SID belongs to a system entity or not.",
+      defaultValue = "false", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "systemEntity", defaultValue = "false", access =  Access.READ_ONLY)
+  @Value.Lazy
+  default boolean isSystemEntity() {
+    if (!getValue().startsWith(DEFAULT_SID_PREFIX)) {
+      return true;
+    }
+    return Optional.ofNullable(getSuffix())
+        .map(suffix -> MAX_SYSTEM_SID_SUFFIX >= suffix)
+        .orElse(false);
   }
 
   /**
-   * Specifies whether this SID belongs to a system entity or not.
+   * Gets the suffix of this SID.
    *
-   * @return {@code true}, if this SID belongs to a system entity, otherwise {@code false}
+   * @return the suffix
    */
-  @Schema(
-      description = "Specifies whether this SID belongs to a system entity or not.",
-      accessMode = AccessMode.READ_ONLY)
-  public Boolean getSystemEntity() {
-    return Boolean.TRUE.equals(systemEntity);
-  }
-
   @Hidden
   @JsonIgnore
-  public Integer getSuffix() {
-    return Optional.ofNullable(value)
+  @Value.Lazy
+  default Integer getSuffix() {
+    return Optional.ofNullable(getValue())
         .map(v -> {
           int index = v.lastIndexOf('-');
           if (index == -1) {
@@ -109,6 +85,22 @@ public class Sid implements Serializable {
           }
         })
         .orElse(null);
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableSid.Builder {
+
   }
 
 }

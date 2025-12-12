@@ -80,10 +80,13 @@ public abstract class AbstractEmailService implements EmailService {
         .filter(user -> !isEmpty(user.getEmail()))
         .ifPresentOrElse(
             domainUser -> {
+              // TODO
+              /*
               domainUser.setPassword(clearPassword);
               if (isEmpty(domainUser.getDisplayName())) {
                 domainUser.setDisplayName(domainUser.getSamAccountName());
               }
+              */
               Locale locale = domainUser.getLocale(Locale.ENGLISH);
               final Context ctx = new Context(locale);
               ctx.setVariable("user", domainUser);

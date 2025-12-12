@@ -17,26 +17,26 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValue;
 import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
-import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
+import org.springframework.util.Assert;
 
 /**
  * The domain user ldap mapper.
@@ -44,22 +44,23 @@ import org.ldaptive.LdapEntry;
  * @author Christian Bremer
  */
 @Slf4j
-public class DomainUserLdapMapper extends SamAccountLdapMapper<DomainUser>
-    implements LdaptiveEntryMapper<DomainUser> {
+public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUser> {
 
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
-  @Getter(AccessLevel.PROTECTED)
+  private final SamAccountLdapMapper samAccountLdapMapper;
+
+  @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public DomainUserLdapMapper(Supplier<Boolean> rfc2307EnabledSupplier) {
-    super(DomainUser::new);
     this.rfc2307EnabledSupplier = rfc2307EnabledSupplier;
+    samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainUser();
   }
 
   private Set<LdaptiveAttribute<?>> initMappedAttributesOfDomainUser() {
-    Set<LdaptiveAttribute<?>> attributeNames = new LinkedHashSet<>(super.getMappedAttributes());
+    var attributeNames = new LinkedHashSet<>(samAccountLdapMapper.getMappedAttributes());
     attributeNames.add(AdConstants.USER_ACCOUNT_EXPIRES);
     attributeNames.add(AdConstants.USER_COMPANY);
     attributeNames.add(AdConstants.USER_DEPARTMENT);
@@ -95,115 +96,130 @@ public class DomainUserLdapMapper extends SamAccountLdapMapper<DomainUser>
   }
 
   @Override
-  public void map(LdapEntry source, DomainUser destination) {
+  public String[] getObjectClasses() {
+    return new String[0];
+  }
 
-    if (isNull(source) || isNull(destination)) {
-      return;
+  @Override
+  public String[] getMappedAttributeNames() {
+    return getMappedAttributes().stream()
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+    return getMappedAttributes().stream()
+        .filter(LdaptiveAttribute::isBinary)
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String mapDn(DomainUser domainObject) {
+    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    return domainObject.getDistinguishedName();
+  }
+
+  @Override
+  public DomainUser map(LdapEntry source) {
+    if (isEmpty(source)) {
+      return null;
     }
-    super.map(source, destination);
-
-    OffsetDateTime accountExpires = getAttributeValue(
-        source, AdConstants.USER_ACCOUNT_EXPIRES, null);
-    destination.setAccountExpires(accountExpires);
-
-    String company = getAttributeValue(source, AdConstants.USER_COMPANY, null);
-    destination.setCompany(company);
-
-    String department = getAttributeValue(source, AdConstants.USER_DEPARTMENT, null);
-    destination.setDepartment(department);
-
-    String description = getAttributeValue(source, AdConstants.DESCRIPTION, null);
-    destination.setDescription(description);
-
-    String displayName = getAttributeValue(
-        source, AdConstants.USER_DISPLAY_NAME, null);
-    destination.setDisplayName(displayName);
-
-    String gecos = getAttributeValue(source, AdConstants.USER_GECOS, null);
-    destination.setGecos(gecos);
-
-    Integer gidNumber = getAttributeValue(source, AdConstants.GID_NUMBER, null);
-    destination.setGidNumber(gidNumber);
-
-    String firstName = getAttributeValue(source, AdConstants.USER_GIVEN_NAME, null);
-    destination.setFirstName(firstName);
-
-    String homeDirectory = getAttributeValue(source, AdConstants.USER_HOME_DIRECTORY,
-        null);
-    destination.setHomeDirectory(homeDirectory);
-
-    String homeDrive = getAttributeValue(source, AdConstants.USER_HOME_DRIVE, null);
-    destination.setHomeDrive(homeDrive);
-
-    String initials = getAttributeValue(source, AdConstants.USER_INITIALS, null);
-    destination.setInitials(initials);
-
-    OffsetDateTime lastLogon = getAttributeValue(
-        source, AdConstants.USER_LAST_LOGON, null);
-    destination.setLastLogon(lastLogon);
-
-    String loginShell = getAttributeValue(source, AdConstants.USER_LOGIN_SHELL, null);
-    destination.setLoginShell(loginShell);
-
-    Integer logonCount = getAttributeValue(source, AdConstants.USER_LOGON_COUNT, null);
-    destination.setLogonCount(logonCount);
-
-    String email = getAttributeValue(source, AdConstants.MAIL, null);
-    destination.setEmail(email);
-
-    String mobile = getAttributeValue(source, AdConstants.USER_MOBILE, null);
-    destination.setMobile(mobile);
-
-    String nisDomain = getAttributeValue(source, AdConstants.NIS_DOMAIN, null);
-    destination.setNisDomain(nisDomain);
-
-    String officeName = getAttributeValue(source, AdConstants.USER_OFFICE_NAME, null);
-    destination.setPhysicalDeliveryOfficeName(officeName);
-
-    String preferredLanguage = getAttributeValue(
-        source, AdConstants.USER_PREFERRED_LANGUAGE, null);
-    destination.setPreferredLanguage(preferredLanguage);
-
-    String profilePath = getAttributeValue(
-        source, AdConstants.USER_PROFILE_PATH, null);
-    destination.setProfilePath(profilePath);
-
-    OffsetDateTime pwdLastSet = getAttributeValue(
-        source, AdConstants.USER_PWD_LAST_SET, null);
-    destination.setPasswordLastSet(pwdLastSet);
-
-    String scriptPath = getAttributeValue(source, AdConstants.USER_SCRIPT_PATH, null);
-    destination.setScriptPath(scriptPath);
-
-    String lastName = getAttributeValue(source, AdConstants.USER_SN, null);
-    destination.setLastName(lastName);
-
-    String telephoneNumber = getAttributeValue(source,
-        AdConstants.USER_TELEPHONE_NUMBER, null);
-    destination.setTelephoneNumber(telephoneNumber);
-
-    String title = getAttributeValue(source, AdConstants.USER_TITLE, null);
-    destination.setTitle(title);
-
-    String uid = getAttributeValue(source, AdConstants.USER_UID, null);
-    String nisName = getAttributeValue(source, AdConstants.NIS_NAME, uid);
-    destination.setUid(nisName);
-
+    DomainUser.Builder builder = DomainUser.builder()
+        .from(samAccountLdapMapper.map(source));
+    AdConstants.USER_ACCOUNT_EXPIRES
+        .getValue(source)
+        .ifPresent(builder::accountExpires);
+    AdConstants.USER_COMPANY
+        .getValue(source)
+        .ifPresent(builder::company);
+    AdConstants.USER_DEPARTMENT
+        .getValue(source)
+        .ifPresent(builder::department);
+    AdConstants.DESCRIPTION
+        .getValue(source)
+        .ifPresent(builder::description);
+    AdConstants.USER_DISPLAY_NAME
+        .getValue(source)
+        .ifPresent(builder::displayName);
+    AdConstants.USER_GECOS
+        .getValue(source)
+        .ifPresent(builder::gecos);
+    AdConstants.GID_NUMBER
+        .getValue(source)
+        .ifPresent(builder::gidNumber);
+    AdConstants.USER_GIVEN_NAME
+        .getValue(source)
+        .ifPresent(builder::firstName);
+    AdConstants.USER_HOME_DIRECTORY
+        .getValue(source)
+        .ifPresent(builder::homeDirectory);
+    AdConstants.USER_HOME_DRIVE
+        .getValue(source)
+        .ifPresent(builder::homeDrive);
+    AdConstants.USER_INITIALS
+        .getValue(source)
+        .ifPresent(builder::initials);
+    AdConstants.USER_LAST_LOGON
+        .getValue(source)
+        .ifPresent(builder::lastLogon);
+    AdConstants.USER_LOGIN_SHELL
+        .getValue(source)
+        .ifPresent(builder::loginShell);
+    AdConstants.USER_LOGON_COUNT
+        .getValue(source)
+        .ifPresent(builder::logonCount);
+    AdConstants.MAIL
+        .getValue(source)
+        .ifPresent(builder::email);
+    AdConstants.USER_MOBILE
+        .getValue(source)
+        .ifPresent(builder::mobile);
+    AdConstants.NIS_DOMAIN
+        .getValue(source)
+        .ifPresent(builder::nisDomain);
+    AdConstants.USER_OFFICE_NAME
+        .getValue(source)
+        .ifPresent(builder::physicalDeliveryOfficeName);
+    AdConstants.USER_PREFERRED_LANGUAGE
+        .getValue(source)
+        .ifPresent(builder::preferredLanguage);
+    AdConstants.USER_PROFILE_PATH
+        .getValue(source)
+        .ifPresent(builder::profilePath);
+    AdConstants.USER_PWD_LAST_SET
+        .getValue(source)
+        .ifPresent(builder::passwordLastSet);
+    AdConstants.USER_SCRIPT_PATH
+        .getValue(source)
+        .ifPresent(builder::scriptPath);
+    AdConstants.USER_SN
+        .getValue(source)
+        .ifPresent(builder::lastName);
+    AdConstants.USER_TELEPHONE_NUMBER
+        .getValue(source)
+        .ifPresent(builder::telephoneNumber);
+    AdConstants.USER_TITLE
+        .getValue(source)
+        .ifPresent(builder::title);
+    AdConstants.USER_UID
+        .getValue(source, AdConstants.NIS_NAME.getValue(source).orElse(null))
+        .ifPresent(builder::uid);
     AdConstants.USER_UID_NUMBER
         .getValue(source)
-        .consume(destination::setUidNumber);
-
-    String unixHomeDirectory = getAttributeValue(
-        source, AdConstants.USER_UNIX_HOME_DIRECTORY, null);
-    destination.setUnixHomeDirectory(unixHomeDirectory);
-
-    String userPrincipalName = getAttributeValue(source,
-        AdConstants.USER_PRINCIPAL_NAME, null);
-    destination.setUserPrincipalName(userPrincipalName);
-
-    UserAccountControl accountControl = getAttributeValue(
-        source, AdConstants.USER_USER_ACCOUNT_CONTROL, new UserAccountControl());
-    destination.setAccountControl(DomainUserAccountControl.from(accountControl));
+        .ifPresent(builder::uidNumber);
+    AdConstants.USER_UNIX_HOME_DIRECTORY
+        .getValue(source)
+        .ifPresent(builder::unixHomeDirectory);
+    AdConstants.USER_PRINCIPAL_NAME
+        .getValue(source)
+        .ifPresent(builder::userPrincipalName);
+    AdConstants.USER_USER_ACCOUNT_CONTROL
+        .getValue(source)
+        .ifPresent(accountControl -> builder
+            .accountControl(DomainUserAccountControl.from(accountControl)));
+    return builder.build();
   }
 
   @Override
@@ -214,7 +230,8 @@ public class DomainUserLdapMapper extends SamAccountLdapMapper<DomainUser>
     if (isNull(source) || isNull(destination)) {
       return new AttributeModification[0];
     }
-    var modifications = toNewList(super.mapAndComputeModifications(source, destination));
+    var modifications = new ArrayList<>(Arrays.asList(samAccountLdapMapper
+        .mapAndComputeModifications(source, destination)));
 
     // TODO can I set it?
     // OffsetDateTime accountExpires = source.getAccountExpires();
@@ -295,7 +312,7 @@ public class DomainUserLdapMapper extends SamAccountLdapMapper<DomainUser>
         modifications);
 
     UserAccountControl userAccountControl = Optional.ofNullable(source.getAccountControl())
-        .map(DomainUserAccountControl::toUserAccountControl)
+        .map(DomainUserAccountControl::getUserAccountControl)
         .orElseGet(UserAccountControl::new);
     setAttribute(
         destination,

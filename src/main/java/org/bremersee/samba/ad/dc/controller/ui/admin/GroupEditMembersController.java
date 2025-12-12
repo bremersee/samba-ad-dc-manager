@@ -121,9 +121,13 @@ public class GroupEditMembersController extends AbstractEditController implement
     return Optional.ofNullable(groupName)
         .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
         .map(existingGroup -> {
-          existingGroup.setMembers(editRequest.getMembers());
-          DomainGroup updatedGroup = domainGroupService
-              .updateGroup(existingGroup.getSamAccountName(), existingGroup, null);
+          DomainGroup updatedGroup = domainGroupService.updateGroup(
+              existingGroup.getSamAccountName(),
+              DomainGroup.builder()
+                  .from(existingGroup)
+                  .members(editRequest.getMembers())
+                  .build(),
+              null);
           model.clear();
           String msg = String.format("Members of group '%s' were successfully updated.",
               updatedGroup.getName());

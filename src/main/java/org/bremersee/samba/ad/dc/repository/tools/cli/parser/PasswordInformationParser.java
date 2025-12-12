@@ -111,7 +111,7 @@ public interface PasswordInformationParser
       if (!response.stdoutHasText()) {
         log.warn("Password information command did not produce output. Error is [{}].",
             response.getStderr());
-        return new PasswordInformation();
+        return PasswordInformation.builder().build();
       }
       final String output = response.getStdout();
       try (final BufferedReader reader = new BufferedReader(new StringReader(output))) {
@@ -119,35 +119,43 @@ public interface PasswordInformationParser
 
       } catch (IOException e) {
         log.error("Parsing password information failed:\n{}\n", output, e);
-        return new PasswordInformation();
+        return PasswordInformation.builder().build();
       }
     }
 
     private PasswordInformation parse(final BufferedReader reader) throws IOException {
-      final PasswordInformation info = new PasswordInformation();
+      final PasswordInformation.Builder info = PasswordInformation.builder();
       String line;
       while ((line = reader.readLine()) != null) {
         line = line.trim();
         findValue(line, PASSWORD_COMPLEXITY)
-            .ifPresent(s -> info.setPasswordComplexity(PasswordComplexity.fromValue(s)));
+            .ifPresent(s -> info.passwordComplexity(PasswordComplexity.fromValue(s)));
         findValue(line, STORE_PLAINTEXT_PASSWORD)
-            .ifPresent(s -> info.setStorePlaintextPasswords(parseBoolean(s)));
+            .flatMap(this::parseBoolean)
+            .ifPresent(info::storePlaintextPasswords);
         findValue(line, PASSWORD_HISTORY_LENGTH)
-            .ifPresent(s -> info.setPasswordHistoryLength(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::passwordHistoryLength);
         findValue(line, MINIMUM_PASSWORD_LENGTH)
-            .ifPresent(s -> info.setMinimumPasswordLength(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::minimumPasswordLength);
         findValue(line, MINIMUM_PASSWORD_AGE)
-            .ifPresent(s -> info.setMinimumPasswordAgeInDays(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::minimumPasswordAgeInDays);
         findValue(line, MAXIMUM_PASSWORD_AGE)
-            .ifPresent(s -> info.setMaximumPasswordAgeInDays(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::maximumPasswordAgeInDays);
         findValue(line, ACCOUNT_LOCKOUT_DURATION)
-            .ifPresent(s -> info.setAccountLockoutDurationInMinutes(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::accountLockoutDurationInMinutes);
         findValue(line, ACCOUNT_LOCKOUT_THRESHOLD)
-            .ifPresent(s -> info.setAccountLockoutThreshold(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::accountLockoutThreshold);
         findValue(line, RESET_ACCOUNT_LOCKOUT_AFTER)
-            .ifPresent(s -> info.setResetAccountLockoutAfter(parseInt(s)));
+            .flatMap(this::parseInt)
+            .ifPresent(info::resetAccountLockoutAfter);
       }
-      return info;
+      return info.build();
     }
 
     private Optional<String> findValue(final String line, final String label) {
@@ -161,19 +169,19 @@ public interface PasswordInformationParser
       return Optional.empty();
     }
 
-    private boolean parseBoolean(final String value) {
+    private Optional<Boolean> parseBoolean(final String value) {
       try {
-        return Boolean.parseBoolean(value);
+        return Optional.of(Boolean.parseBoolean(value));
       } catch (Exception ignored) {
-        return false;
+        return Optional.empty();
       }
     }
 
-    private Integer parseInt(String value) {
+    private Optional<Integer> parseInt(String value) {
       try {
-        return Integer.parseInt(value);
+        return Optional.of(Integer.parseInt(value));
       } catch (Exception ignored) {
-        return null;
+        return Optional.empty();
       }
     }
 

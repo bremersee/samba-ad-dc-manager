@@ -1,63 +1,53 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.RDn;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
-/**
- * The type OrganisationUnit.
- *
- * @author Christian Bremer
- */
-@Getter
-@Setter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class OrganizationalUnit extends AdEntry
-    implements Comparable<OrganizationalUnit> {
+@Schema(description = "The organizational unit in an active directory.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableOrganizationalUnit.class)
+@JsonDeserialize(as = ImmutableOrganizationalUnit.class)
+public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<OrganizationalUnit> {
 
-  private String description;
+  @Nullable
+  String getDescription();
 
-  private String name;
-
-  private boolean systemOu;
-
-  public OrganizationalUnit() {
-    super();
-  }
+  @Schema(description = "The name of this organizational unit.",
+      requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "name", required = true)
+  @Override
+  String getName();
 
   @Hidden
   @JsonIgnore
+  @Value.Lazy
   @Override
-  public String getNameTree() {
+  default String getNameTree() {
     String nameTree = Stream.ofNullable(getDn())
         .map(Dn::getRDns)
         .flatMap(rdnList -> {
@@ -74,10 +64,35 @@ public class OrganizationalUnit extends AdEntry
     return nameTree;
   }
 
+  @Schema(description = "Determines whether this organizational unit is a system one or not.",
+      defaultValue = "false")
+  @JsonProperty(value = "systemOu", defaultValue = "false")
+  @Value.Default
+  default boolean isSystemOu() {
+    return false;
+  }
+
   @Override
-  public int compareTo(@NonNull OrganizationalUnit o) {
+  default int compareTo(@NonNull OrganizationalUnit o) {
     String s0 = Objects.requireNonNullElse(getDistinguishedName(), "");
     String s1 = Objects.requireNonNullElse(o.getDistinguishedName(), "");
     return s0.compareToIgnoreCase(s1);
   }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableOrganizationalUnit.Builder {
+
+  }
+
 }

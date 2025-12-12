@@ -74,7 +74,12 @@ public class DnsEntryConflictController extends AbstractEditController implement
       RedirectAttributes redirectAttributes) {
 
     log.debug("displayDnsEntryConflict({}, {}, {}, {})", zoneName, name, type, value);
-    return dnsService.findDnsEntry(new DnsEntry(zoneName, name, type, value))
+    return dnsService.findDnsEntry(DnsEntry.builder()
+            .zoneName(zoneName)
+            .name(name)
+            .type(type)
+            .value(value)
+            .build())
         .map(entry -> {
           if (!entry.isConflict()) {
             Map<String, Object> parameters = getParamterMap();
@@ -110,7 +115,12 @@ public class DnsEntryConflictController extends AbstractEditController implement
     log.debug("deleteDnsEntryConflict({}, {}, {}, {}, {})",
         zoneName, name, type, value, deleteRequest);
 
-    return dnsService.findDnsEntry(new DnsEntry(zoneName, name, type, value))
+    return dnsService.findDnsEntry(DnsEntry.builder()
+            .zoneName(zoneName)
+            .name(name)
+            .type(type)
+            .value(value)
+            .build())
         .map(entry -> {
           if (!entry.getDisplayName().equals(deleteRequest.getVerificationName())) {
             bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");

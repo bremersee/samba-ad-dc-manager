@@ -91,7 +91,10 @@ public interface DnsEntriesParser
           if (currentName.isEmpty()) {
             currentName = this.name;
           }
-          currentEntry = new DnsEntry(zoneName, currentName);
+          currentEntry = DnsEntry.builder()
+              .zoneName(zoneName)
+              .name(currentName)
+              .build();
         } else if (nonNull(currentEntry)) {
           int i0 = line.indexOf(RECORD_LINE_INDICATOR);
           if (i0 > 0) {
@@ -105,15 +108,21 @@ public interface DnsEntriesParser
               } else {
                 sb.append(line.substring(i0 + 1).trim());
               }
-              currentEntry.setName(sb.toString());
+              currentEntry = DnsEntry.builder()
+                  .from(currentEntry)
+                  .name(sb.toString())
+                  .build();
             } else {
-              parseDnsRecord(line, currentEntry);
+              currentEntry = parseDnsRecord(line, currentEntry);
               String currentName = currentEntry.getName();
               if (!isEmpty(currentName) && !isEmpty(currentEntry.getType())
                   && !DnsEntryType.ALL.equals(currentEntry.getType())
                   && !isEmpty(currentEntry.getValue())) {
                 entries = Stream.concat(entries, Stream.of(currentEntry));
-                currentEntry = new DnsEntry(zoneName, currentEntry.getName());
+                currentEntry = DnsEntry.builder()
+                    .zoneName(zoneName)
+                    .name(currentEntry.getName())
+                    .build();
               }
             }
           }
@@ -122,25 +131,26 @@ public interface DnsEntriesParser
       return entries;
     }
 
-    private void parseDnsRecord(String line, DnsEntry currentEntry) {
+    private DnsEntry parseDnsRecord(String line, DnsEntry currentEntry) {
+      DnsEntry.Builder dnsEntryBuilder = DnsEntry.builder().from(currentEntry);
       int i0 = line.indexOf(RECORD_LINE_INDICATOR);
       if (i0 > 0) {
-        currentEntry.setType(DnsEntryType.fromValue(line.substring(0, i0).trim(), null));
+        dnsEntryBuilder.type(DnsEntryType.fromValue(line.substring(0, i0).trim(), null));
         int i1 = line.indexOf(FLAGS, i0 + 1);
         if (i1 > i0) {
           String value = line.substring(i0 + 1, i1).trim();
-          currentEntry.setValue(value);
+          dnsEntryBuilder.value(value);
           i0 = i1 + FLAGS.length();
           i1 = line.indexOf(SERIAL, i0);
           if (i1 > i0) {
             String flags = line.substring(i0, i1).trim();
-            currentEntry.setFlags(flags);
+            dnsEntryBuilder.flags(flags);
             i0 = i1 + SERIAL.length();
             i1 = line.indexOf(TTL, i0);
             if (i1 > i0) {
               String serial = line.substring(i0, i1).trim();
               try {
-                currentEntry.setSerial(Integer.parseInt(serial));
+                dnsEntryBuilder.serial(Integer.parseInt(serial));
               } catch (NumberFormatException ignored) {
                 // ignored
               }
@@ -149,7 +159,7 @@ public interface DnsEntriesParser
               if (i1 > i0) {
                 String ttl = line.substring(i0, i1).trim();
                 try {
-                  currentEntry.setTtlSeconds(Integer.parseInt(ttl));
+                  dnsEntryBuilder.ttlSeconds(Integer.parseInt(ttl));
                 } catch (NumberFormatException ignored) {
                   // ignored
                 }
@@ -158,6 +168,7 @@ public interface DnsEntriesParser
           }
         }
       }
+      return dnsEntryBuilder.build();
     }
 
   }

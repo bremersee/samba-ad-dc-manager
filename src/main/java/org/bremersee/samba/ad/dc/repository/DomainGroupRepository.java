@@ -78,4 +78,7 @@ public interface DomainGroupRepository {
    */
   boolean delete(@NotEmpty String groupName);
 
+  @NotNull
+  DomainGroup save(@NotNull DomainGroup domainGroup);
+
 }

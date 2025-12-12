@@ -1,95 +1,91 @@
-/*
- * Copyright 2024 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serial;
-import java.util.ArrayList;
 import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
-/**
- * The type DomainComputer.
- *
- * @author Christian Bremer
- */
-@Schema(description = "Domain computer.")
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class DomainComputer extends SamAccount {
+@Schema(description = "The domain computer.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainComputer.class)
+@JsonDeserialize(as = ImmutableDomainComputer.class)
+public interface DomainComputer extends SamAccount {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  private String name;
-
-  private String dnsHostName;
-
-  private List<String> networkAddresses;
-
-  private String operatingSystem;
-
-  private String operatingSystemVersion;
-
-  private String description;
-
-  private List<String> servicePrincipalNames;
-
-  public DomainComputer() {
-    super();
-  }
-
+  @Schema(description = "The name of the computer.")
+  @JsonProperty(value = "name")
+  @Nullable
   @Override
-  public String getName() {
-    return name;
+  String getName();
+
+  @Schema(description = "The dns host name of the computer.")
+  @Nullable
+  String getDnsHostName();
+
+  @Schema(description = "The network addresses of the computer.")
+  @Value.Default
+  default List<String> getNetworkAddresses() {
+    return List.of();
   }
 
-  public List<String> getNetworkAddresses() {
-    if (isNull(networkAddresses)) {
-      networkAddresses = new ArrayList<>();
-    }
-    return networkAddresses;
-  }
+  @Schema(description = "The operating system of the computer.")
+  @Nullable
+  String getOperatingSystem();
 
-  public List<String> getServicePrincipalNames() {
-    if (isNull(servicePrincipalNames)) {
-      servicePrincipalNames = new ArrayList<>();
-    }
-    return servicePrincipalNames;
+  @Schema(description = "The version operating system.")
+  @Nullable
+  String getOperatingSystemVersion();
+
+  @Schema(description = "The description of the computer.")
+  @Nullable
+  String getDescription();
+
+  @Schema(description = "The service principal names of the computer.")
+  @Value.Default
+  default List<String> getServicePrincipalNames() {
+    return List.of();
   }
 
   @Hidden
   @JsonIgnore
-  public String getSamAccountNameWithoutTrailingDollarSign() {
+  @Value.Lazy
+  default String getSamAccountNameWithoutTrailingDollarSign() {
     String tmpName = getSamAccountName();
     if (isNull(tmpName) || tmpName.isEmpty()) {
       return null;
     }
     return tmpName.substring(0, tmpName.length() - 1);
   }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainComputer.Builder {
+
+  }
+
 }

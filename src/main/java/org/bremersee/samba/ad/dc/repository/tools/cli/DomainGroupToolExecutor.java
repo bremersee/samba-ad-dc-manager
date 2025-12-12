@@ -101,8 +101,10 @@ class DomainGroupToolExecutor extends SambaToolExecutor implements DomainGroupTo
       commands.add(quote(ou));
       execute(commands, new DomainGroupMoveValidator(newDomainGroup, newParentDn));
     }
-    newDomainGroup.setDistinguishedName(newDn.format());
-    return newDomainGroup;
+    return DomainGroup.builder()
+        .from(newDomainGroup)
+        .distinguishedName(newDn.format(rdn -> rdn))
+        .build();
   }
 
   @Override

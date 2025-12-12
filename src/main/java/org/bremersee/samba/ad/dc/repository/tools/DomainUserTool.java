@@ -1,7 +1,6 @@
 package org.bremersee.samba.ad.dc.repository.tools;
 
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.ldaptive.dn.Dn;
 
 public interface DomainUserTool {

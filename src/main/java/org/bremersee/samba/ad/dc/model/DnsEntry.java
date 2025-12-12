@@ -1,97 +1,89 @@
-/*
- * Copyright 2025 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.isNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.UUID;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
-/**
- * The type DnsEntry.
- *
- * @author Christian Bremer
- */
-@Schema(description = "DNS Entry")
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-@NoArgsConstructor
-//@SuperBuilder(toBuilder = true)
-@Slf4j
-public class DnsEntry extends AdEntry {
+@Schema(description = "DNS entry.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDnsEntry.class)
+@JsonDeserialize(as = ImmutableDnsEntry.class)
+public interface DnsEntry extends AdEntry {
 
-  public static final String CONFLICT_IDENTIFIER = "CNF";
+  String CONFLICT_IDENTIFIER = "CNF";
 
-  public static final String CONFLICT_NAME_PART =
-      "\\0A" + CONFLICT_IDENTIFIER + ':'; // TODO is it json conform?
+  String CONFLICT_NAME_PART = "\\0A" + CONFLICT_IDENTIFIER + ':';
 
-  private String zoneName;
+  @Schema(description = "The zone name of this dns entry.")
+  @Nullable
+  String getZoneName();
 
-  private String name;
+  @Schema(description = "The name of this dns entry.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "name", required = true)
+  String getName();
 
-  private DnsEntryType type;
+  @Schema(description = "The type of this dns entry.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "type", required = true)
+  DnsEntryType getType();
 
-  private String value;
+  @Schema(description = "The value of this dns entry.", requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = "value", required = true)
+  String getValue();
 
-  private String flags;
+  @Schema(description = "The flags of this dns entry.")
+  @Nullable
+  String getFlags();
 
-  private Integer serial;
+  @Schema(description = "The serial of this dns entry.")
+  @Nullable
+  Integer getSerial();
 
-  private Integer ttlSeconds;
+  @Schema(description = "The ttl seconds of this dns entry.")
+  @Nullable
+  Integer getTtlSeconds();
 
-  public DnsEntry(String zoneName, String name) {
-    this.zoneName = zoneName;
-    this.name = name;
-  }
-
-  public DnsEntry(String zoneName, String name, DnsEntryType type, String value) {
-    this.zoneName = zoneName;
-    this.name = name;
-    this.type = type;
-    this.value = value;
-  }
-
-  public String getDisplayName() {
-    if (isNull(name)) {
+  @Schema(description = "The display name of this dns entry.", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "displayName", access = Access.READ_ONLY)
+  @Value.Lazy
+  default String getDisplayName() {
+    if (isNull(getName())) {
       return null;
     }
-    int index = name.indexOf(CONFLICT_NAME_PART);
-    return index > 0 ? name.substring(0, index) : name;
+    int index = getName().indexOf(CONFLICT_NAME_PART);
+    return index > 0 ? getName().substring(0, index) : getName();
   }
 
-  public boolean isConflict() {
-    if (isNull(name)) {
+  @Schema(description = "Determines whether this DNS entry is marked as conflict or not.",
+      defaultValue = "false", accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "conflict", defaultValue = "false", access = Access.READ_ONLY)
+  @Value.Lazy
+  default boolean isConflict() {
+    if (isNull(getName())) {
       return false;
     }
-    int index = name.indexOf(CONFLICT_NAME_PART);
+    int index = getName().indexOf(CONFLICT_NAME_PART);
     if (index < 0) {
       return false;
     }
-    String guid = name.substring(index + CONFLICT_NAME_PART.length());
+    String guid = getName().substring(index + CONFLICT_NAME_PART.length());
     try {
       UUID.fromString(guid);
       return true;
@@ -100,52 +92,20 @@ public class DnsEntry extends AdEntry {
     }
   }
 
-  /*
-  @Hidden
-  @JsonIgnore
-  public final String getInternalId() {
-    String nameStr = requireNonNullElse(getName(), "");
-    String conflictStr = isConflict().toString();
-    String guidStr = requireNonNullElse(getObjectGuid(), "");
-    String typeStr = Optional.ofNullable(getType()).map(DnsEntryType::name).orElse("");
-    String valueStr = requireNonNullElse(getValue(), "");
-    String id = nameStr + ':' + conflictStr + ':' + guidStr + ':' + typeStr + ':' + valueStr;
-    log.debug("====> id = {}", id);
-    return Base64.getEncoder().encodeToString(id.getBytes(StandardCharsets.UTF_8));
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
   }
 
-  public static DnsEntry fromInternalId(String internalId) {
-    if (isNull(internalId) || internalId.isBlank()) {
-      return null;
-    }
-    String id = new String(Base64.getDecoder().decode(internalId), StandardCharsets.UTF_8);
-    log.debug("====> id = {}", id);
-    DnsEntry entry = new DnsEntry();
-    String[] parts = id.split(Pattern.quote(":"));
-    if (parts.length > 0) {
-      entry.setName(parts[0]);
-    }
-    if (parts.length > 1) {
-      entry.setConflict(Boolean.parseBoolean(parts[1]));
-    }
-    if (parts.length > 2) {
-      entry.setObjectGuid(parts[2].isBlank() ? null : parts[1]);
-    }
-    if (parts.length > 3) {
-      entry.setType(DnsEntryType.fromValue(parts[3], null));
-    }
-    if (parts.length > 4) {
-      entry.setValue(parts[4]);
-    }
-    if (parts.length > 5) {
-      if (parts.length > 6) {
-        entry.setValue(Arrays.stream(parts, 5, parts.length).collect(Collectors.joining(":")));
-      } else {
-        entry.setValue(parts[5]);
-      }
-    }
-    return entry;
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDnsEntry.Builder {
+
   }
-  */
 
 }

@@ -56,12 +56,12 @@ public class DnsEntryAddRequest {
   }
 
   public DnsEntry toDnsEntry(String zoneName) {
-    DnsEntry dnsEntry = new DnsEntry();
-    dnsEntry.setZoneName(zoneName);
-    dnsEntry.setName(name);
-    dnsEntry.setType(type);
-    dnsEntry.setValue(value);
-    return dnsEntry;
+    return DnsEntry.builder()
+        .zoneName(zoneName)
+        .name(name)
+        .type(type)
+        .value(value)
+        .build();
   }
 
   public Optional<DnsEntry> toReverseDnsEntry() {
@@ -70,11 +70,12 @@ public class DnsEntryAddRequest {
         || !(DnsEntryType.A.equals(type) || DnsEntryType.AAAA.equals(type))) {
       return Optional.empty();
     }
-    DnsEntry dnsEntry = new DnsEntry();
-    dnsEntry.setZoneName(reverseZoneName);
-    dnsEntry.setName(nameOfReverseEntry);
-    dnsEntry.setType(DnsEntryType.PTR);
-    dnsEntry.setValue(valueOfReverseEntry);
+    DnsEntry dnsEntry = DnsEntry.builder()
+        .zoneName(reverseZoneName)
+        .name(nameOfReverseEntry)
+        .type(DnsEntryType.PTR)
+        .value(valueOfReverseEntry)
+        .build();
     return Optional.of(dnsEntry);
   }
 }

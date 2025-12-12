@@ -216,10 +216,9 @@ public class DomainGroupRepositoryImpl extends AbstractSamAccountRepository
     }
     domainGroupTool.addGroup(domainGroup, ou, domainRepository.isRfc2307Enabled());
     return findDnOfSamAccount(domainGroup)
-        .map(dn -> {
-          domainGroup.setDistinguishedName(dn);
-          return getLdapTemplate().save(domainGroup, domainGroupLdapMapper);
-        })
+        .map(dn -> getLdapTemplate().save(
+            DomainGroup.builder().from(domainGroup).distinguishedName(dn).build(),
+            domainGroupLdapMapper))
         .orElseThrow(() -> ServiceException
             .internalServerError(
                 String.format("Adding group '%s' failed.", domainGroup.getSamAccountName()),
@@ -294,6 +293,11 @@ public class DomainGroupRepositoryImpl extends AbstractSamAccountRepository
           return true;
         })
         .orElse(false);
+  }
+
+  @Override
+  public DomainGroup save(DomainGroup domainGroup) {
+    return getLdapTemplate().save(domainGroup, domainGroupLdapMapper);
   }
 
 }

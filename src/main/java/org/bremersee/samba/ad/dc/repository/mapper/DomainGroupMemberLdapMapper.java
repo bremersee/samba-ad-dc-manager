@@ -1,13 +1,13 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
-import static java.util.Objects.isNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
@@ -15,19 +15,22 @@ import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
+import org.springframework.util.Assert;
 
-public class DomainGroupMemberLdapMapper extends SamAccountLdapMapper<DomainGroupMember> {
+public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<DomainGroupMember> {
 
-  @Getter(AccessLevel.PROTECTED)
+  private final SamAccountLdapMapper samAccountLdapMapper;
+
+  @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public DomainGroupMemberLdapMapper() {
-    super(DomainGroupMember::new);
+    samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainGroupMember();
   }
 
   private Set<LdaptiveAttribute<?>> initMappedAttributesOfDomainGroupMember() {
-    Set<LdaptiveAttribute<?>> attributeNames = new LinkedHashSet<>(super.getMappedAttributes());
+    var attributeNames = new LinkedHashSet<>(samAccountLdapMapper.getMappedAttributes());
     attributeNames.add(AdConstants.OBJECT_CLASS);
     attributeNames.add(AdConstants.USER_GIVEN_NAME);
     attributeNames.add(AdConstants.USER_SN);
@@ -37,18 +40,45 @@ public class DomainGroupMemberLdapMapper extends SamAccountLdapMapper<DomainGrou
   }
 
   @Override
-  public void map(LdapEntry source, DomainGroupMember destination) {
+  public String[] getObjectClasses() {
+    return new String[0];
+  }
 
-    if (isNull(source) || isNull(destination)) {
-      return;
+  @Override
+  public String[] getMappedAttributeNames() {
+    return getMappedAttributes().stream()
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+    return getMappedAttributes().stream()
+        .filter(LdaptiveAttribute::isBinary)
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String mapDn(DomainGroupMember domainObject) {
+    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    return domainObject.getDistinguishedName();
+  }
+
+  @Override
+  public DomainGroupMember map(LdapEntry source) {
+    if (isEmpty(source)) {
+      return null;
     }
-    super.map(source, destination);
-    destination.setMemberType(Optional
+    DomainGroupMember.Builder builder = DomainGroupMember.builder()
+        .from(samAccountLdapMapper.map(source));
+    builder.memberType(Optional
         .ofNullable(source.getAttribute(AdConstants.OBJECT_CLASS.getName()))
         .map(LdapAttribute::getStringValues)
         .map(DomainGroupMemberType::fromObjectClasses)
         .orElse(DomainGroupMemberType.UNKNOWN));
-    destination.setDisplayName(getMemberDisplayName(source));
+    builder.displayName(getMemberDisplayName(source));
+    return builder.build();
   }
 
   private String getMemberDisplayName(LdapEntry member) {

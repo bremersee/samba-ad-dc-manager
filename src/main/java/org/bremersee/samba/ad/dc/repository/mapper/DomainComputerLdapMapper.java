@@ -1,33 +1,35 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValue;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValuesAsList;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
+import org.springframework.util.Assert;
 
-public class DomainComputerLdapMapper extends SamAccountLdapMapper<DomainComputer> {
+public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<DomainComputer> {
 
-  @Getter(AccessLevel.PROTECTED)
+  private final SamAccountLdapMapper samAccountLdapMapper;
+
+  @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public DomainComputerLdapMapper() {
-    super(DomainComputer::new);
+    samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainComputer();
   }
 
   private Set<LdaptiveAttribute<?>> initMappedAttributesOfDomainComputer() {
-    Set<LdaptiveAttribute<?>> attributeNames = new LinkedHashSet<>(super.getMappedAttributes());
+    var attributeNames = new LinkedHashSet<>(samAccountLdapMapper.getMappedAttributes());
     attributeNames.add(AdConstants.NAME);
     attributeNames.add(AdConstants.COMPUTER_DNS_HOST_NAME);
     attributeNames.add(AdConstants.COMPUTER_NETWORK_ADDRESS);
@@ -39,54 +41,75 @@ public class DomainComputerLdapMapper extends SamAccountLdapMapper<DomainCompute
   }
 
   @Override
-  public void map(LdapEntry source, DomainComputer destination) {
-    if (isNull(source) || isNull(destination)) {
-      return;
-    }
-    super.map(source, destination);
-
-    String name = getAttributeValue(source, AdConstants.NAME, null);
-    destination.setName(name);
-
-    String dnsHostName = getAttributeValue(
-        source, AdConstants.COMPUTER_DNS_HOST_NAME, null);
-    destination.setDnsHostName(dnsHostName);
-
-    List<String> networkAddresses = getAttributeValuesAsList(
-        source, AdConstants.COMPUTER_NETWORK_ADDRESS);
-    destination.setNetworkAddresses(networkAddresses);
-
-    String operatingSystem = getAttributeValue(
-        source, AdConstants.COMPUTER_OPERATING_SYSTEM, null);
-    destination.setOperatingSystem(operatingSystem);
-
-    String operatingSystemVersion = getAttributeValue(
-        source, AdConstants.COMPUTER_OPERATING_SYSTEM_VERSION, null);
-    destination.setOperatingSystemVersion(operatingSystemVersion);
-
-    String description = getAttributeValue(source, AdConstants.DESCRIPTION, null);
-    destination.setDescription(description);
-
-    List<String> servicePrincipalNames = getAttributeValuesAsList(
-        source, AdConstants.COMPUTER_SERVICE_PRINCIPAL_NAME);
-    destination.setServicePrincipalNames(servicePrincipalNames);
+  public String[] getObjectClasses() {
+    return new String[0];
   }
 
   @Override
-  public AttributeModification[] mapAndComputeModifications(DomainComputer source,
+  public String[] getMappedAttributeNames() {
+    return getMappedAttributes().stream()
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+    return getMappedAttributes().stream()
+        .filter(LdaptiveAttribute::isBinary)
+        .map(LdaptiveAttribute::getName)
+        .toArray(String[]::new);
+  }
+
+  @Override
+  public String mapDn(DomainComputer domainObject) {
+    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    return domainObject.getDistinguishedName();
+  }
+
+  @Override
+  public DomainComputer map(LdapEntry source) {
+    if (isEmpty(source)) {
+      return null;
+    }
+    DomainComputer.Builder builder = DomainComputer.builder()
+        .from(samAccountLdapMapper.map(source));
+    AdConstants.NAME
+        .getValue(source)
+        .ifPresent(builder::name);
+    AdConstants.COMPUTER_DNS_HOST_NAME
+        .getValue(source)
+        .ifPresent(builder::dnsHostName);
+    builder.networkAddresses(AdConstants.COMPUTER_NETWORK_ADDRESS
+        .getValues(source)
+        .toList());
+    AdConstants.COMPUTER_OPERATING_SYSTEM
+        .getValue(source)
+        .ifPresent(builder::operatingSystem);
+    AdConstants.COMPUTER_OPERATING_SYSTEM_VERSION
+        .getValue(source)
+        .ifPresent(builder::operatingSystemVersion);
+    AdConstants.DESCRIPTION
+        .getValue(source)
+        .ifPresent(builder::description);
+    builder.servicePrincipalNames(AdConstants.COMPUTER_SERVICE_PRINCIPAL_NAME
+        .getValues(source)
+        .toList());
+    return builder.build();
+  }
+
+  @Override
+  public AttributeModification[] mapAndComputeModifications(
+      DomainComputer source,
       LdapEntry destination) {
 
     if (isNull(source) || isNull(destination)) {
       return new AttributeModification[0];
     }
-    var modifications = toNewList(super.mapAndComputeModifications(source, destination));
-
-    setAttribute(
-        destination,
-        AdConstants.DESCRIPTION,
-        source.getDescription(),
-        modifications);
-
+    var modifications = new ArrayList<>(Arrays.asList(samAccountLdapMapper
+        .mapAndComputeModifications(source, destination)));
+    AdConstants.DESCRIPTION
+        .setValue(destination, source.getDescription())
+        .ifPresent(modifications::add);
     return modifications.toArray(new AttributeModification[0]);
   }
 }
