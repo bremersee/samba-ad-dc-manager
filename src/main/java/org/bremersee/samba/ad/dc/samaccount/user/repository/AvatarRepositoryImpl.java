@@ -56,7 +56,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
 
   @Override
   protected Dn getDefaultOu() {
-    return getProperties().getUser().getDefaultOu();
+    return new Dn(getProperties().getUser().getDefaultOu());
   }
 
   @Override

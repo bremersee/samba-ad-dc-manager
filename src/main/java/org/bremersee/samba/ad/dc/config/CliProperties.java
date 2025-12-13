@@ -16,6 +16,8 @@
 
 package org.bremersee.samba.ad.dc.config;
 
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +34,10 @@ import lombok.ToString;
 @ToString(exclude = {"sambaToolCredentialsOptions"})
 @EqualsAndHashCode
 @NoArgsConstructor
-public class CliProperties {
+public class CliProperties implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private String execDir = System.getProperty("java.io.tmpdir");
 
@@ -46,8 +51,6 @@ public class CliProperties {
 
   private String dhcpLeaseListBinary = "/usr/sbin/dhcp-lease-list";
 
-  private KinitProperties kinit = new KinitProperties();
-
   private SudoProperties sudo = new SudoProperties();
 
   private SshProperties ssh = new SshProperties();
@@ -57,23 +60,10 @@ public class CliProperties {
   @ToString
   @EqualsAndHashCode
   @NoArgsConstructor
-  public static class KinitProperties {
+  public static class SudoProperties implements Serializable {
 
-    private boolean usingKinit = false;
-
-    private String kinitBinary = "/usr/bin/kinit";
-
-    private String kinitAdministratorName = "Administrator";
-
-    private String kinitPasswordFile = "/var/lib/dc-con/dc-pass.txt";
-  }
-
-  @Getter
-  @Setter
-  @ToString
-  @EqualsAndHashCode
-  @NoArgsConstructor
-  public static class SudoProperties {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private boolean usingSudo = true;
 
@@ -85,7 +75,10 @@ public class CliProperties {
   @ToString
   @EqualsAndHashCode
   @NoArgsConstructor
-  public static class SshProperties {
+  public static class SshProperties implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private boolean usingSsh = false;
 

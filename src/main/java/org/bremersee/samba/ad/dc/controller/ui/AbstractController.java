@@ -23,6 +23,8 @@ import java.util.Locale;
 import lombok.Getter;
 import lombok.Setter;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.DefaultDnTool;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.DomainControllerPropertiesProvider;
 import org.springframework.context.MessageSource;
@@ -41,6 +43,9 @@ public abstract class AbstractController implements DomainControllerPropertiesPr
   private final DomainControllerProperties properties;
 
   @Getter
+  private final DnTool dnTool;
+
+  @Getter
   private final LocaleResolver localeResolver;
 
   @Getter
@@ -51,6 +56,7 @@ public abstract class AbstractController implements DomainControllerPropertiesPr
       DomainControllerProperties properties,
       LocaleResolver localeResolver) {
     this.properties = properties;
+    this.dnTool = new DefaultDnTool(properties);
     this.localeResolver = localeResolver;
     Assert.notNull(getLogger(), "Logger is required.");
   }

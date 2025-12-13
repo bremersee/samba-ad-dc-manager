@@ -9,14 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper.DomainComputerLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
+import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
+import org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper.DomainComputerLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -48,7 +48,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
 
   @Override
   protected Dn getDefaultOu() {
-    return getProperties().getComputer().getDefaultOu();
+    return new Dn(getProperties().getComputer().getDefaultOu());
   }
 
   @Override

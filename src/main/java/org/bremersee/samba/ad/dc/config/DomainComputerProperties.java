@@ -17,9 +17,10 @@
 package org.bremersee.samba.ad.dc.config;
 
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.ldaptive.dn.Dn;
 
 /**
  * The type DomainGroupProperties.
@@ -27,12 +28,15 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Data
-public class DomainComputerProperties {
+public class DomainComputerProperties implements Serializable {
 
-  public static final Dn DEFAULT_OU = new Dn("CN=Computers");
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  public static final String DEFAULT_COMPUTER_OU = "CN=Computers";
 
   @NotNull
-  private Dn defaultOu = DEFAULT_OU;
+  private String defaultOu = DEFAULT_COMPUTER_OU;
 
   @NotNull
   private TreeSearchScope defaultSearchScope = TreeSearchScope.ONELEVEL;

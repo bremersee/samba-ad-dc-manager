@@ -288,48 +288,21 @@ public class DomainControllerProperties implements Serializable {
     return dn;
   }
 
-  /**
-   * Gets reverse zone suffix list.
-   *
-   * @return the reverse zone suffix list
-   */
-  public List<String> getReverseZoneSuffixList() {
-    return Arrays.asList(reverseZoneSuffixIp4, reverseZoneSuffixIp6);
-  }
-
-  /**
-   * Determines whether the given zone is a reverse zone or not.
-   *
-   * @param zoneName the zone name
-   * @return {@code true} if the zone is a reverse zone, otherwise {@code false}
-   */
-  public boolean isReverseZone(final String zoneName) {
-    return zoneName != null && getReverseZoneSuffixList().stream()
-        .anyMatch(suffix -> zoneName.toLowerCase().endsWith(suffix.toLowerCase()));
-  }
-
-  /**
-   * Build dns node base dn string.
-   *
-   * @param zoneName the zone name
-   * @return the string
-   */
-  public String buildDnsNodeBaseDn(String zoneName) {
-    return dnsNodeBaseDn.replace("{zoneName}", zoneName);
-  }
-
   @Data
-  public static class DomainProperties {
+  public static class DomainProperties implements Serializable {
 
-    public static final Dn DEFAULT_DOMAIN_CONTROLLERS_OU = new Dn("OU=Domain Controllers");
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    public static final Dn DEFAULT_SYSTEM_OU = new Dn("CN=System");
+    public static final String DEFAULT_DOMAIN_CONTROLLERS_OU = "OU=Domain Controllers";
 
-    private Dn defaultSystemOu = DEFAULT_SYSTEM_OU;
+    public static final String DEFAULT_SYSTEM_OU = "CN=System";
+
+    private String defaultSystemOu = DEFAULT_SYSTEM_OU;
 
     private SearchScope defaultComputerSearchScope = SearchScope.ONELEVEL;
 
-    String defaultNisDomain;
+    private String defaultNisDomain;
   }
 
   /**
@@ -338,7 +311,10 @@ public class DomainControllerProperties implements Serializable {
    * @author Christian Bremer
    */
   @Data
-  public static class MailWithCredentialsProperties {
+  public static class MailWithCredentialsProperties implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String sender = "no-reply@example.org";
 
@@ -353,7 +329,10 @@ public class DomainControllerProperties implements Serializable {
    * The mail inline attachment.
    */
   @Data
-  public static class MailInlineAttachment {
+  public static class MailInlineAttachment implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String contentId;
 

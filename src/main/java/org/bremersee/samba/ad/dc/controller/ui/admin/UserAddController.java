@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.service.TemplateEngine;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
 import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
@@ -34,12 +36,10 @@ import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserAddRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
-import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.common.service.TemplateEngine;
-import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -173,7 +173,7 @@ public class UserAddController extends AbstractController
     DomainUser user = DomainUserAddRequest.MAPPER.mapToDomainUser(userAddRequest);
     Dn ou = Optional.ofNullable(userAddRequest.getNewOu())
         .map(Dn::new)
-        .orElseGet(() -> getProperties().getUser().getDefaultOu());
+        .orElseGet(() -> new Dn(getProperties().getUser().getDefaultOu()));
     boolean useUsernameAsCn = userAddRequest.isUseUsernameAsCn();
     boolean sendEmail = userAddRequest.isSendEmail();
 
@@ -259,7 +259,7 @@ public class UserAddController extends AbstractController
     addRequest.setNewOu(Optional.ofNullable(ou)
         .filter(dn -> !dn.isEmpty())
         .filter(dn -> !dn.isSame(getProperties().getBaseDn()))
-        .orElseGet(() -> getProperties().getBaseDn(getProperties().getUser().getDefaultOu()))
+        .orElseGet(() -> getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()))
         .format());
     return addRequest;
   }

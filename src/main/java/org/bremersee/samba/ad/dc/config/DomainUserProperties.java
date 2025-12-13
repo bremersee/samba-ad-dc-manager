@@ -16,12 +16,11 @@
 
 package org.bremersee.samba.ad.dc.config;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import jakarta.validation.constraints.NotNull;
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.ldaptive.dn.Dn;
 
 /**
  * The type DomainUserProperties.
@@ -29,12 +28,15 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Data
-public class DomainUserProperties {
+public class DomainUserProperties implements Serializable {
 
-  public static final Dn DEFAULT_OU = new Dn("CN=Users");
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  public static final String DEFAULT_USER_OU = "CN=Users";
 
   @NotNull
-  private Dn defaultOu = DEFAULT_OU;
+  private String defaultOu = DEFAULT_USER_OU;
 
   @NotNull
   private TreeSearchScope defaultSearchScope = TreeSearchScope.ONELEVEL;

@@ -82,7 +82,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
 
   @Override
   protected Dn getDefaultOu() {
-    return getProperties().getGroup().getDefaultOu();
+    return new Dn(getProperties().getGroup().getDefaultOu());
   }
 
   @Override
