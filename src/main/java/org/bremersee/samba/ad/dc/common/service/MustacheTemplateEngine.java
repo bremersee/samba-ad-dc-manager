@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.common.service;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.MustacheException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
-import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,13 +38,13 @@ public class MustacheTemplateEngine implements TemplateEngine {
 
   private final DomainControllerProperties properties;
 
-  private final DomainRepository domainRepository;
+  private final List<TemplateEngineContextSupplier> contextSuppliers;
 
   public MustacheTemplateEngine(
       DomainControllerProperties properties,
-      DomainRepository domainRepository) {
+      List<TemplateEngineContextSupplier> contextSuppliers) {
     this.properties = properties;
-    this.domainRepository = domainRepository;
+    this.contextSuppliers = contextSuppliers;
   }
 
   @Override
@@ -53,8 +53,12 @@ public class MustacheTemplateEngine implements TemplateEngine {
       return template;
     }
     Map<String, Object> map = isEmpty(model) ? new HashMap<>() : new HashMap<>(model);
+    if (!isEmpty(contextSuppliers)) {
+      contextSuppliers.forEach(contextSupplier -> map
+          .putAll(contextSupplier.getTemplateEngineContext()));
+    }
     map.put("properties", properties);
-    map.put("domain", domainRepository);
+
     try {
       return Mustache
           .compiler()

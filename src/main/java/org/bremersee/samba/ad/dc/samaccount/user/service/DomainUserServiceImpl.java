@@ -27,7 +27,7 @@ import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.AvatarRepository;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.DomainUserRepository;
 import org.bremersee.pagebuilder.PageBuilder;
-import org.bremersee.samba.ad.dc.service.EmailService;
+import org.bremersee.samba.ad.dc.email.EmailService;
 import org.ldaptive.dn.Dn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

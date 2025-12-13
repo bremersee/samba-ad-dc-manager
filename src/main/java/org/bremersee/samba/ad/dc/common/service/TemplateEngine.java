@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
+package org.bremersee.samba.ad.dc.common.service;
+
+import java.util.Map;
+
 /**
- * The service package.
+ * The interface TemplateEngine.
  *
  * @author Christian Bremer
  */
-package org.bremersee.samba.ad.dc.service;
+public interface TemplateEngine {
+  // belongs to controller -> field template component (user)
+  String compileAndExecute(String template, Map<String, Object> model);
+
+}

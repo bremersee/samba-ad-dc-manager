@@ -16,6 +16,8 @@
 
 package org.bremersee.samba.ad.dc.domain.service;
 
+import java.util.Map;
+import org.bremersee.samba.ad.dc.common.service.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.springframework.stereotype.Component;
@@ -26,7 +28,7 @@ import org.springframework.stereotype.Component;
  * @author Christian Bremer
  */
 @Component("domainService")
-public class DomainServiceImpl implements DomainService {
+public class DomainServiceImpl implements DomainService, TemplateEngineContextSupplier {
 
   private final DomainRepository domainRepository;
 
@@ -37,6 +39,11 @@ public class DomainServiceImpl implements DomainService {
    */
   public DomainServiceImpl(DomainRepository domainRepository) {
     this.domainRepository = domainRepository;
+  }
+
+  @Override
+  public Map<String, Object> getTemplateEngineContext() {
+    return Map.of("domain", domainRepository);
   }
 
   @Override
@@ -53,4 +60,5 @@ public class DomainServiceImpl implements DomainService {
   public String createRandomPassword() {
     return domainRepository.createRandomPassword();
   }
+
 }

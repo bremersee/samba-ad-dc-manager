@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2019-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.email;
 
-import java.util.Map;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
 
 /**
- * The interface TemplateEngine.
+ * The email service.
  *
  * @author Christian Bremer
  */
-public interface TemplateEngine {
-  // belongs to controller -> field template component (user)
-  String compileAndExecute(String template, Map<String, Object> model);
+@Validated
+public interface EmailService {
+
+  /**
+   * Send email with credentials.
+   *
+   * @param userName the username
+   * @param clearPassword the clear password
+   */
+  void sendEmailWithCredentials(
+      @NotEmpty String userName,
+      @Nullable String clearPassword);
 
 }

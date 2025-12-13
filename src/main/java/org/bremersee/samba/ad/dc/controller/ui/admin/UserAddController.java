@@ -38,7 +38,7 @@ import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
 import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.service.TemplateEngine;
+import org.bremersee.samba.ad.dc.common.service.TemplateEngine;
 import org.bremersee.exception.ServiceException;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;

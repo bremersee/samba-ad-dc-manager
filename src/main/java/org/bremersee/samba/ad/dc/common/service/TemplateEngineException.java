@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.common.service;
 
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.ErrorCode;
