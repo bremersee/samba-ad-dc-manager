@@ -16,27 +16,53 @@
 
 package org.bremersee.samba.ad.dc.domain.repository;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain repository interface.
  *
  * @author Christian Bremer
  */
+@Validated
 public interface DomainRepository {
 
+  /**
+   * Gets host name.
+   *
+   * @return the host name
+   */
   String getHostName();
 
+  /**
+   * Gets domain sid.
+   *
+   * @return the domain sid
+   */
   String getDomainSid();
 
   /**
    * Specifies whether NIS extensions (rfc2307) are installed on the AD Domain Controller. See <a
    * href="https://wiki.samba.org/index.php/Setting_up_RFC2307_in_AD">Setting up RFC2307 in AD</a>
+   *
+   * @return the boolean
    */
   boolean isRfc2307Enabled();
+
+  /**
+   * Gets domain info.
+   *
+   * @param ipOrHostname the ip or hostname
+   * @return the domain info
+   */
+  @NotNull
+  DomainInfo getDomainInfo(@NotEmpty String ipOrHostname);
 
   /**
    * Gets password information.
@@ -52,6 +78,15 @@ public interface DomainRepository {
    */
   String createRandomPassword();
 
+  /**
+   * Gets character rules.
+   *
+   * @param lowerNum the lower num
+   * @param upperNum the upper num
+   * @param digitNum the digit num
+   * @param specialNum the special num
+   * @return the character rules
+   */
   default List<CharacterRule> getCharacterRules(
       int lowerNum, int upperNum, int digitNum, int specialNum) {
     return List.of(
@@ -62,6 +97,9 @@ public interface DomainRepository {
     );
   }
 
+  /**
+   * The type Special character data.
+   */
   class SpecialCharacterData implements CharacterData {
 
     @Override
@@ -75,6 +113,9 @@ public interface DomainRepository {
     }
   }
 
+  /**
+   * The type Digit character data.
+   */
   class DigitCharacterData implements CharacterData {
 
     @Override
@@ -88,6 +129,9 @@ public interface DomainRepository {
     }
   }
 
+  /**
+   * The type Upper character data.
+   */
   class UpperCharacterData implements CharacterData {
 
     @Override
@@ -101,6 +145,9 @@ public interface DomainRepository {
     }
   }
 
+  /**
+   * The type Lower character data.
+   */
   class LowerCharacterData implements CharacterData {
 
     @Override

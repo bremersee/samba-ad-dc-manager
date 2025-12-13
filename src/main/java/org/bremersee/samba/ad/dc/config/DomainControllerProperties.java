@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -68,13 +67,9 @@ public class DomainControllerProperties implements Serializable {
 
   public static final int MIN_QUERY_LENGTH = 3; // TODO add to repos and javascript
 
-  public static final Dn MOCK_BASE_DN = new Dn("dc=samdom,dc=example,dc=org");
-
   private String emailRegex = EMAIL_REGEX;
 
   private String hostName;
-
-  private String domainName;  // TODO get from domain info
 
   private Dn baseDn = new Dn("dc=eixe,dc=bremersee,dc=org");
 
@@ -255,25 +250,6 @@ public class DomainControllerProperties implements Serializable {
     excludedNodeRegexList.add("_kpasswd\\..*$");
     excludedNodeRegexList.add("_ldap\\..*$");
     excludedNodeRegexList.add("ForestDnsZones");
-  }
-
-  // TODO move to user props
-  public String createDefaultUserPrincipalName(String samAccountName) {
-    return samAccountName + "@" + createDomainNameFromBaseDn();
-  }
-
-  public String createDomainNameFromBaseDn() {
-    return getBaseDn().getRDns().stream()
-        .filter(rdn -> "dc".equalsIgnoreCase(rdn.getNameValue().getName()))
-        .map(rdn -> rdn.getNameValue().getStringValue())
-        .collect(Collectors.joining("."));
-  }
-
-  public String getDomainName() {
-    if (isEmpty(domainName)) {
-      return createDomainNameFromBaseDn();
-    }
-    return domainName;
   }
 
   public boolean isDn(String value) {

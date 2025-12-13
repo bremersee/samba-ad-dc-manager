@@ -16,18 +16,41 @@
 
 package org.bremersee.samba.ad.dc.domain.service;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain service interface.
  *
  * @author Christian Bremer
  */
+@Validated
 public interface DomainService {
+
+  /**
+   * Gets domain info.
+   *
+   * @return the domain info
+   */
+  DomainInfo getDomainInfo();
+
+  /**
+   * Gets domain info.
+   *
+   * @param ipOrHostname the ip or hostname
+   * @return the domain info
+   */
+  @NotNull
+  DomainInfo getDomainInfo(@NotEmpty String ipOrHostname);
 
   /**
    * Specifies whether NIS extensions (rfc2307) are installed on the AD Domain Controller. See <a
    * href="https://wiki.samba.org/index.php/Setting_up_RFC2307_in_AD">Setting up RFC2307 in AD</a>
+   *
+   * @return the boolean
    */
   boolean isRfc2307Enabled();
 

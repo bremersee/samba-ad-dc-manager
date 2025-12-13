@@ -28,6 +28,7 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
@@ -103,6 +104,11 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     boolean result = dnExistsWithAnyObjectClass(dn.format());
     log.debug("Are nis extensions (rfc2307) installed? {}", result);
     return result;
+  }
+
+  @Override
+  public DomainInfo getDomainInfo(String ipOrHostname) {
+    return domainTool.getDomainInfo(ipOrHostname);
   }
 
   @Override

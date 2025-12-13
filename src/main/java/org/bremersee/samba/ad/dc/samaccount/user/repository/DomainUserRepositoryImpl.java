@@ -260,9 +260,9 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   public DomainUser add(DomainUser domainUser, Dn ou, Boolean useUsernameAsCn) {
     log.debug("add({}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn);
     validateSamAccountName(domainUser);
-    if (samAccountExists(domainUser)
-        || existsByPrincipalName(getProperties()
-        .createDefaultUserPrincipalName(domainUser.getSamAccountName()))) {
+    String defaultPrincipalName = domainUser.getSamAccountName()
+        + '@' + domainRepository.getDomainInfo(domainRepository.getHostName());
+    if (samAccountExists(domainUser) || existsByPrincipalName(defaultPrincipalName)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
           domainUser.getSamAccountName(),

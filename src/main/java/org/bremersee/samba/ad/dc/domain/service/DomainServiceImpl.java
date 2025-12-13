@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.domain.service;
 
 import java.util.Map;
 import org.bremersee.samba.ad.dc.common.service.TemplateEngineContextSupplier;
+import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,16 @@ public class DomainServiceImpl implements DomainService, TemplateEngineContextSu
   @Override
   public Map<String, Object> getTemplateEngineContext() {
     return Map.of("domain", domainRepository);
+  }
+
+  @Override
+  public DomainInfo getDomainInfo() {
+    return getDomainInfo(domainRepository.getHostName());
+  }
+
+  @Override
+  public DomainInfo getDomainInfo(String ipOrHostname) {
+    return domainRepository.getDomainInfo(ipOrHostname);
   }
 
   @Override
