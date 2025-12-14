@@ -68,8 +68,6 @@ public abstract class SamAccountRepository extends AdRepository {
 
   protected abstract String[] getReturnAttributes();
 
-  // protected abstract Filter objectClassFilter();
-
   protected String getUniqueNameAttributeName() {
     return AdConstants.SAM_ACCOUNT_NAME.getName();
   }
@@ -144,9 +142,6 @@ public abstract class SamAccountRepository extends AdRepository {
         .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
         .build();
   }
-
-
-
 
   protected void validateSamAccountName(SamAccount samAccount) {
     if (isEmpty(samAccount.getSamAccountName())) {

@@ -14,13 +14,13 @@ import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;
 import org.ldaptive.LdapAttribute;
@@ -108,7 +108,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
   }
 
   private Optional<byte[]> findAvatar(LdapEntry ldapEntry) {
-    return Optional.ofNullable(AdConstants.USER_JPEG_PHOTO.getValue(ldapEntry).get());
+    return AdConstants.USER_JPEG_PHOTO.getValue(ldapEntry);
   }
 
   private Stream<byte[]> findAvatarsOfProviders(String user, AvatarDefault avatarDefault,
@@ -142,7 +142,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
       int height = img.getHeight();
       int max = Math.max(width, height);
       if (max > MAX_AVATAR_SIZE) {
-        float factor = Integer.valueOf(MAX_AVATAR_SIZE).floatValue() / max;
+        float factor = (float) MAX_AVATAR_SIZE / max;
         width = Math.min(Math.round(factor * width), MAX_AVATAR_SIZE);
         height = Math.min(Math.round(factor * height), MAX_AVATAR_SIZE);
         img = imageTool.scaleImage(img, new Dimension(width, height));
@@ -159,7 +159,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
   }
 
   private String getEmail(LdapEntry ldapEntry, String defaultEmail) {
-    return AdConstants.MAIL.getValue(ldapEntry, defaultEmail).get();
+    return AdConstants.MAIL.getValue(ldapEntry).orElse(defaultEmail);
   }
 
   private Optional<LdapEntry> findLdapEntryForAvatar(

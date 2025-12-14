@@ -20,8 +20,6 @@ import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
-import org.ldaptive.dn.NameValue;
-import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.OrFilter;
@@ -66,10 +64,10 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
     return domainComputerLdapMapper.getMappedAttributeNames();
   }
 
-  private Filter getFindAllFilter(String query) {
+  Filter getFindAllFilter(String query) {
     //noinspection DuplicatedCode
     Filter objectClassFilter = objectClassFilter();
-    if (isNull(query) || query.length() <= 2) {
+    if (isNull(query) || query.length() < getProperties().getComputer().getMinQueryLength()) {
       return objectClassFilter;
     }
     Filter orFilter = new OrFilter(
@@ -131,7 +129,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
             domainComputer.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
     Dn oldDn = new Dn(existingDomainComputer.getDistinguishedName());
-    Dn newDn = getNewDn(existingDomainComputer, domainComputer, newOu);
+    Dn newDn = getNewDn(existingDomainComputer, newOu);
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
@@ -139,10 +137,14 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
           EC_DN_ALREADY_EXISTS);
     }
     if (!oldDn.isSame(newDn)) {
-      return getLdapTemplate()
-          .save(domainComputerTool.moveComputer(domainComputer, newOu), domainComputerLdapMapper);
+      domainComputerTool.moveComputer(existingDomainComputer, newDn);
     }
-    return getLdapTemplate().save(domainComputer, domainComputerLdapMapper);
+    DomainComputer newComputer = DomainComputer.builder()
+        .from(existingDomainComputer)
+        .distinguishedName(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+        .description(domainComputer.getDescription())
+        .build();
+    return getLdapTemplate().save(newComputer, domainComputerLdapMapper);
   }
 
   @Override
@@ -156,14 +158,12 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
         .orElse(false);
   }
 
-  Dn getNewDn(DomainComputer oldDomainComputer, DomainComputer newDomainComputer, Dn newOu) {
-    String rdnName = new Dn(oldDomainComputer.getDistinguishedName())
-        .getRDn().getNameValue().getName();
-    String rdnValue = newDomainComputer.getName();
-    Dn newDn = new Dn(new RDn(new NameValue(rdnName, rdnValue)));
+  Dn getNewDn(DomainComputer domainComputer, Dn newOu) {
+    Dn oldDn = new Dn(domainComputer.getDistinguishedName());
+    Dn newDn = new Dn(oldDn.getRDn());
     Dn parentDn;
     if (!DnTool.isValidDn(newOu)) {
-      parentDn = new Dn(oldDomainComputer.getDistinguishedName()).getParent();
+      parentDn = oldDn.getParent();
     } else {
       parentDn = getDnTool().addBaseDn(newOu);
     }

@@ -25,27 +25,17 @@ class SambaToolComputerCli extends SambaToolCli implements SambaToolComputer {
     return "computer";
   }
 
-
   @Override
-  public DomainComputer moveComputer(DomainComputer domainComputer, Dn newOu) {
-    String ou = Optional.ofNullable(getDnTool().removeBaseDn(newOu))
-        .map(Dn::format)
-        .orElse(null);
-    if (ou == null) {
-      return domainComputer;
-    }
-    List<String> commands = getCommands();
-    commands.add("move");
-    commands.add(quote(domainComputer.getSamAccountNameWithoutTrailingDollarSign()));
-    commands.add(quote(ou));
-    execute(commands, new ComputerMoveValidator(domainComputer, newOu));
-    Dn newDn = new Dn(domainComputer.getDn().getRDn());
-    newDn.add(newOu);
-    // TODO make method void
-    return DomainComputer.builder()
-        .from(domainComputer)
-        .distinguishedName(getDnTool().addBaseDn(newDn).format(rdn -> rdn))
-        .build();
+  public void moveComputer(DomainComputer domainComputer, Dn newOu) {
+    Optional.ofNullable(newOu)
+        .map(ou -> getDnTool().removeBaseDn(ou))
+        .ifPresent(ou -> {
+          List<String> commands = getCommands();
+          commands.add("move");
+          commands.add(quote(domainComputer.getSamAccountNameWithoutTrailingDollarSign()));
+          commands.add(quote(ou.format()));
+          execute(commands, new ComputerMoveValidator(domainComputer, newOu));
+        });
   }
 
   @Override

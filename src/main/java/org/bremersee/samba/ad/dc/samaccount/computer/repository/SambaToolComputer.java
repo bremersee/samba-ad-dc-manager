@@ -5,7 +5,7 @@ import org.ldaptive.dn.Dn;
 
 public interface SambaToolComputer {
 
-  DomainComputer moveComputer(DomainComputer domainComputer, Dn newOu);
+  void moveComputer(DomainComputer domainComputer, Dn newOu);
 
   void deleteComputer(DomainComputer domainComputer);
 
