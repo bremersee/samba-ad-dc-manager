@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
@@ -268,7 +269,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
       );
       findAllMembersFilter = new AndFilter(objectClassFilter, queryFilter);
     }
-    SearchRequest searchRequest = searchAllRequest(getProperties().getBaseDn(),
+    SearchRequest searchRequest = searchAllRequest(getDnTool().getBaseDn(),
         findAllMembersFilter, SearchScope.SUBTREE, returnAttributes);
     return getLdapTemplate().findAll(searchRequest)
         .stream()
@@ -285,16 +286,16 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
   Optional<SamAccount> findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
     String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
     SearchRequest searchRequest;
-    if (getProperties().isDn(samAccountName)) {
+    if (getDnTool().isValidDnWithBaseDn(samAccountName)) {
       searchRequest = SearchRequest.objectScopeSearchRequest(samAccountName, returnAttributes);
     } else {
       Dn ouDn;
       SearchScope scope;
-      if (isEmpty(ou) || ou.isEmpty()) {
-        ouDn = getProperties().getBaseDn();
+      if (!DnTool.isValidDn(ou)) {
+        ouDn = getDnTool().getBaseDn();
         scope = SearchScope.SUBTREE;
       } else {
-        ouDn = getProperties().getBaseDn(ou);
+        ouDn = getDnTool().addBaseDn(ou);
         scope = requireNonNullElse(TreeSearchScopeConverter
             .toSearchScope(searchScope), SearchScope.SUBTREE);
       }

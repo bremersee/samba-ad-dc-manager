@@ -202,7 +202,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
   private Optional<DomainUser> findOneByFilter(Filter filter) {
     SearchRequest searchRequest = SearchRequest.builder()
-        .dn(getProperties().getBaseDn().format())
+        .dn(getProperties().getBaseDn())
         .filter(new AndFilter(objectClassFilter(), filter))
         .scope(SearchScope.SUBTREE)
         .binaryAttributes(getBinaryAttributes())
@@ -245,7 +245,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
   private boolean existsByFilter(Filter filter) {
     SearchRequest searchRequest = SearchRequest.builder()
-        .dn(getProperties().getBaseDn().format())
+        .dn(getProperties().getBaseDn())
         .filter(new AndFilter(objectClassFilter(), filter))
         .scope(SearchScope.SUBTREE)
         .returnAttributes(AdConstants.OBJECT_CLASS.getName())
@@ -346,7 +346,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
-          getProperties().removeBaseDn(newDn),
+          getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
 
@@ -358,8 +358,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   Dn getNewDn(DomainUser oldDomainUser, DomainUser newDomainUser, Dn newOu) {
     Dn newParentDn;
     if (!isEmpty(newOu) && !newOu.isEmpty()) {
-      // TODO newParentDn = getProperties().getBaseDn(validateOu(newOu));
-      newParentDn = getProperties().getBaseDn(newOu);
+      newParentDn = getDnTool().addBaseDn(newOu);
     } else {
       newParentDn = oldDomainUser.getDn().getParent();
     }

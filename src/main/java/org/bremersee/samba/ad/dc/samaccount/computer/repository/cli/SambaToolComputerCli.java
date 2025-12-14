@@ -1,6 +1,7 @@
 package org.bremersee.samba.ad.dc.samaccount.computer.repository.cli;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
@@ -27,7 +28,12 @@ class SambaToolComputerCli extends SambaToolCli implements SambaToolComputer {
 
   @Override
   public DomainComputer moveComputer(DomainComputer domainComputer, Dn newOu) {
-    String ou = getProperties().removeBaseDn(newOu).format();
+    String ou = Optional.ofNullable(getDnTool().removeBaseDn(newOu))
+        .map(Dn::format)
+        .orElse(null);
+    if (ou == null) {
+      return domainComputer;
+    }
     List<String> commands = getCommands();
     commands.add("move");
     commands.add(quote(domainComputer.getSamAccountNameWithoutTrailingDollarSign()));
@@ -35,9 +41,10 @@ class SambaToolComputerCli extends SambaToolCli implements SambaToolComputer {
     execute(commands, new ComputerMoveValidator(domainComputer, newOu));
     Dn newDn = new Dn(domainComputer.getDn().getRDn());
     newDn.add(newOu);
+    // TODO make method void
     return DomainComputer.builder()
         .from(domainComputer)
-        .distinguishedName(getProperties().getBaseDn(newDn).format(rdn -> rdn))
+        .distinguishedName(getDnTool().addBaseDn(newDn).format(rdn -> rdn))
         .build();
   }
 

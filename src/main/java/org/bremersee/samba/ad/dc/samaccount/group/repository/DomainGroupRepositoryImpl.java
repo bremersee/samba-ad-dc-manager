@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
@@ -148,7 +149,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               objectClassFilter(),
               new EqualityFilter(AdConstants.OBJECT_SID.getName(), sid));
           SearchRequest searchRequest = SearchRequest.builder()
-              .dn(getProperties().getBaseDn().format())
+              .dn(getProperties().getBaseDn())
               .filter(filter)
               .scope(SearchScope.SUBTREE)
               .binaryAttributes(getBinaryAttributes())
@@ -168,7 +169,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               objectClassFilter(),
               new EqualityFilter(AdConstants.GID_NUMBER.getName(), gid.toString()));
           SearchRequest searchRequest = SearchRequest.builder()
-              .dn(getProperties().getBaseDn().format())
+              .dn(getProperties().getBaseDn())
               .filter(filter)
               .scope(SearchScope.SUBTREE)
               .binaryAttributes(getBinaryAttributes())
@@ -188,7 +189,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               objectClassFilter(),
               new EqualityFilter(AdConstants.GID_NUMBER.getName(), gid.toString()));
           SearchRequest searchRequest = SearchRequest.builder()
-              .dn(getProperties().getBaseDn().format())
+              .dn(getProperties().getBaseDn())
               .filter(filter)
               .scope(SearchScope.SUBTREE)
               .returnAttributes(new String[]{AdConstants.GID_NUMBER.getName()})
@@ -256,7 +257,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName(),
-          getProperties().removeBaseDn(newDn),
+          getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
     DomainGroup updatedDomainGroup = domainGroupTool
@@ -266,9 +267,8 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
 
   Dn getNewDn(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newOu) {
     Dn newParentDn;
-    if (!isEmpty(newOu) && !newOu.isEmpty()) {
-      // TODO newParentDn = getProperties().getBaseDn(validateOu(newOu));
-      newParentDn = getProperties().getBaseDn(newOu);
+    if (DnTool.isValidDn(newOu)) {
+      newParentDn = getDnTool().addBaseDn(newOu);
     } else {
       newParentDn = oldDomainGroup.getDn().getParent();
     }

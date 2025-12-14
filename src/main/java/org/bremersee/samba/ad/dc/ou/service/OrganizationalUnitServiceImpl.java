@@ -25,11 +25,12 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.ou.repository.OrganizationalUnitRepository;
-import org.bremersee.pagebuilder.PageBuilder;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +62,7 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
     this.sortMapper = sortMapper;
     this.repository = repository;
     this.base = OrganizationalUnit.builder()
-        .distinguishedName(properties.getBaseDn().format())
+        .distinguishedName(properties.getBaseDn())
         .created(OffsetDateTime.now())
         .modified(OffsetDateTime.now())
         .name("Base")
@@ -123,7 +124,7 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
         .filter(dn -> !dn.isEmpty())
         .flatMap(repository::findOne)
         .or(() -> Optional.ofNullable(ou)
-            .filter(dn -> dn.isSame(properties.getBaseDn()))
+            .filter(dn -> DnTool.isSameDn(dn, properties.getBaseDn()))
             .map(baseDn -> base));
   }
 
@@ -132,7 +133,7 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
     if (isEmpty(ou) || ou.isEmpty()) {
       return false;
     }
-    if (properties.getBaseDn().isSame(ou)) {
+    if (DnTool.isSameDn(ou, properties.getBaseDn())) {
       return true;
     }
     return repository.exists(ou);

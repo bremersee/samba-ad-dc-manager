@@ -77,7 +77,7 @@ public class OrganizationalUnitAddController extends AbstractController
   public String displayOrganizationalUnitAdd(ModelMap model) {
     getLogger().debug("displayOrganizationalUnitAdd()");
     OrganizationalUnitAddRequest ouAddRequest = new OrganizationalUnitAddRequest();
-    ouAddRequest.setParentOu(getProperties().getBaseDn().format());
+    ouAddRequest.setParentOu(getDnTool().getBaseDn().format());
     model.addAttribute("ouAddRequest", ouAddRequest);
     return "admin/organizational-unit-add";
   }

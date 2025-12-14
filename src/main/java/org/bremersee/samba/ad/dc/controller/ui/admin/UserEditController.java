@@ -168,7 +168,7 @@ public class UserEditController extends AbstractEditController implements Pageab
     DomainUser updatedUser = null;
     try {
       Dn parentDn = existingUser.getDn().getParent();
-      Dn ouDn = getProperties().getBaseDn(ou);
+      Dn ouDn = getDnTool().addBaseDn(ou);
       Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
       updatedUser = domainUserService.updateUser(oldSamAccountName, existingUser, newOu);
       updateAvatar(bindingResult, userEditRequest);

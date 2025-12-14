@@ -16,12 +16,9 @@
 
 package org.bremersee.samba.ad.dc.config;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,7 +27,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.ldaptive.SearchScope;
-import org.ldaptive.dn.Dn;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -71,7 +67,7 @@ public class DomainControllerProperties implements Serializable {
 
   private String hostName;
 
-  private Dn baseDn = new Dn("dc=eixe,dc=bremersee,dc=org");
+  private String baseDn = "dc=eixe,dc=bremersee,dc=org";
 
   @NestedConfigurationProperty
   private CliProperties cli = new CliProperties();
@@ -88,66 +84,11 @@ public class DomainControllerProperties implements Serializable {
   private DomainProperties domain = new DomainProperties(); // move back?
 
 
-  private String personalName = "Anna Livia";
+  private String personalName = "Anna Livia"; // mail with credentials
 
-  private String companyName = "example.org";
+  private String companyName = "example.org"; // mail with credentials
 
-  private String companyUrl = "http://example.org";
-
-
-  /*
-  @Deprecated
-  private String defaultNisDomain; // = "eixe"; // TODO can I determine it with ldap?, wo hatte ich den gefunden?
-
-  @Deprecated
-  private Integer defaultGidNumber; // = 100; // = Domain Users
-
-  @Deprecated
-  private String groupBaseDn;
-
-  @Deprecated
-  private String groupRdn = "cn";
-
-  @Deprecated
-  private String groupFindAllFilter = "(objectClass=group)"; // deprecated
-
-  @Deprecated
-  private SearchScope groupFindAllSearchScope = SearchScope.ONELEVEL;
-
-  @Deprecated
-  private String groupFindOneFilter = "(&(objectClass=group)(cn={0}))";
-
-  @Deprecated
-  private SearchScope groupFindOneSearchScope = SearchScope.ONELEVEL;
-  */
-
-
-
-  /*
-  @Deprecated
-  private String defaultDisplayName = "{{user.firstName}} {{user.lastName}}";
-
-  @Deprecated
-  private String userBaseDn;
-
-  @Deprecated
-  private String userRdn = "cn";
-
-  @Deprecated
-  private String userFindAllFilter = "(objectClass=user)"; // deprecated
-
-  @Deprecated
-  private SearchScope userFindAllSearchScope = SearchScope.ONELEVEL;
-
-  @Deprecated
-  private String userFindOneFilter = "(&(objectClass=user)(sAMAccountName={0}))";
-
-  @Deprecated
-  private String userFindOneFilterByUsernameOrEmail = "(&(objectClass=user)(|(sAMAccountName={0})(mail={0})))";
-
-  @Deprecated
-  private SearchScope userFindOneSearchScope = SearchScope.ONELEVEL;
-  */
+  private String companyUrl = "http://example.org"; // mail with credentials
 
 
   private int maximumPasswordLength = 75;
@@ -158,135 +99,13 @@ public class DomainControllerProperties implements Serializable {
       + "((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])"
       + "|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*";
 
+  // private String ip4Regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
 
-  private String dnsZoneBaseDn;
-
-  private String dnsZoneRdn = "dc";
-
-  private String dnsZoneFindAllFilter = "(objectClass=dnsZone)";
-
-  private SearchScope dnsZoneFindAllSearchScope = SearchScope.SUBTREE;
-
-  private String dnsZoneFindOneFilter = "(&(objectClass=dnsZone)(name={0}))";
-
-  private SearchScope dnsZoneFindOneSearchScope = SearchScope.SUBTREE;
-
-
-  private String defaultZone = "samdom.example.org";
-
-  private String dnsNodeBaseDn;
-
-  private String dnsNodeRdn = "dc";
-
-  private String dnsNodeFindAllFilter = "(objectClass=dnsNode)";
-
-  private SearchScope dnsNodeFindAllSearchScope = SearchScope.SUBTREE;
-
-  private String dnsNodeFindOneFilter = "(&(objectClass=dnsNode)(name={0}))";
-
-  private SearchScope dnsNodeFindOneSearchScope = SearchScope.SUBTREE;
-
-
-
-
-
-
-  /*
-  @Deprecated
-  private String defaultLoginShell = "/bin/bash";
-
-  @Deprecated
-  private String defaultHomeDrive; // = "H";
-
-  @Deprecated
-  private String defaultHomeDirectory = "\\\\data\\home";
-
-  @Deprecated
-  private String defaultUnixHomeDirectory = "/home/{{user.samAccountName}}";
-
-  @Deprecated
-  private String defaultGecos = "{{user.firstName}} {{user.lastName}}";
-
-  @Deprecated
-  private String defaultUid = "{{user.samAccountName}}";
-  */
-
-
-  private String nameServerHost = "ns.samdom.example.org";
-
-  private String reverseZoneSuffixIp4 = ".in-addr.arpa";
-
-  private String reverseZoneSuffixIp6 = ".ip6.arpa";
-
-  private List<String> excludedZoneRegexList = new ArrayList<>();
-
-  private List<String> excludedNodeRegexList = new ArrayList<>();
-
-
-  private String ip4Regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
-
-  private String macRegex = "^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$";
+  // private String macRegex = "^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$";
 
 
   private MailWithCredentialsProperties mailWithCredentials = new MailWithCredentialsProperties();
 
-
-  /**
-   * Instantiates a new Domain controller properties.
-   */
-  public DomainControllerProperties() {
-    excludedZoneRegexList.add("^_msdcs\\..*$");
-    excludedZoneRegexList.add("RootDNSServers");
-
-    excludedNodeRegexList.add("^$");
-    excludedNodeRegexList.add("_msdcs");
-    excludedNodeRegexList.add("_sites");
-    excludedNodeRegexList.add("_tcp");
-    excludedNodeRegexList.add("_udp");
-
-    excludedNodeRegexList.add("@");
-    excludedNodeRegexList.add("_gc\\..*$");
-    excludedNodeRegexList.add("_kerberos\\..*$");
-    excludedNodeRegexList.add("_kpasswd\\..*$");
-    excludedNodeRegexList.add("_ldap\\..*$");
-    excludedNodeRegexList.add("ForestDnsZones");
-  }
-
-  public boolean isDn(String value) {
-    if (isEmpty(value)) {
-      return false;
-    }
-    try {
-      Dn dn = new Dn(value);
-      return getBaseDn().isAncestor(dn);
-
-    } catch (RuntimeException e) {
-      return false;
-    }
-  }
-
-  public Dn getBaseDn(Dn ou) { // TODO ensures base dn, -> rename addBaseDn
-    if (isEmpty(ou) || ou.isEmpty()) {
-      return getBaseDn();
-    }
-    Dn dn = new Dn(ou.getRDns());
-    if (dn.isSame(getBaseDn()) || getBaseDn().isAncestor(dn)) {
-      return dn;
-    }
-    dn.add(getBaseDn());
-    return dn;
-  }
-
-  public Dn removeBaseDn(Dn dn) {
-    Dn adBaseDn = getBaseDn();
-    if (isEmpty(dn) || dn.isEmpty() || dn.isSame(adBaseDn)) {
-      return null;
-    }
-    if (adBaseDn.isAncestor(dn)) {
-      return dn.subDn(0, dn.size() - adBaseDn.size());
-    }
-    return dn;
-  }
 
   @Data
   public static class DomainProperties implements Serializable {

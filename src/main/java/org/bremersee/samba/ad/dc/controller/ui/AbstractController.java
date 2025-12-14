@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.common.DefaultDnTool;
 import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.DomainControllerPropertiesProvider;
+import org.bremersee.samba.ad.dc.controller.DnToolSupplier;
 import org.springframework.context.MessageSource;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.LocaleResolver;
@@ -37,7 +37,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Getter
-public abstract class AbstractController implements DomainControllerPropertiesProvider,
+public abstract class AbstractController implements DnToolSupplier,
     SortOrderConstants, LoggerProvider, MessageProvider, ErrorCode {
 
   private final DomainControllerProperties properties;

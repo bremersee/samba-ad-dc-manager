@@ -141,7 +141,7 @@ public class ComputerEditController extends AbstractEditController implements Pa
     Dn ou = computerEditRequest.getNewOuDn();
     try {
       Dn parentDn = existingComputer.getDn().getParent();
-      Dn ouDn = getProperties().getBaseDn(ou);
+      Dn ouDn = getDnTool().addBaseDn(ou);
       Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
       DomainComputer updatedComputer = domainComputerService
           .updateComputer(existingComputer, newOu);

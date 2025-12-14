@@ -1,7 +1,6 @@
 package org.bremersee.samba.ad.dc.samaccount.computer.repository;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -9,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
@@ -135,7 +135,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
-          getProperties().removeBaseDn(newDn),
+          getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
     if (!oldDn.isSame(newDn)) {
@@ -157,15 +157,17 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
   }
 
   Dn getNewDn(DomainComputer oldDomainComputer, DomainComputer newDomainComputer, Dn newOu) {
-    if (isEmpty(newOu) || newOu.isEmpty()) {
-      return new Dn(oldDomainComputer.getDistinguishedName());
-    }
     String rdnName = new Dn(oldDomainComputer.getDistinguishedName())
         .getRDn().getNameValue().getName();
     String rdnValue = newDomainComputer.getName();
     Dn newDn = new Dn(new RDn(new NameValue(rdnName, rdnValue)));
-    // TODO newDn.add(getProperties().getBaseDn(validateOu(newOu)));
-    newDn.add(getProperties().getBaseDn(newOu));
+    Dn parentDn;
+    if (!DnTool.isValidDn(newOu)) {
+      parentDn = new Dn(oldDomainComputer.getDistinguishedName()).getParent();
+    } else {
+      parentDn = getDnTool().addBaseDn(newOu);
+    }
+    newDn.add(parentDn);
     return newDn;
   }
 

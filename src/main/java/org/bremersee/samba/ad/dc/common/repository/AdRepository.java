@@ -90,9 +90,9 @@ public abstract class AdRepository implements ErrorCode {
     this.properties = properties;
     this.dnTool = new DefaultDnTool(properties);
     this.ldapTemplate = ldapTemplate;
-    this.ignoredDnFilter = dn -> isEmpty(dn) || Arrays
+    this.ignoredDnFilter = dn -> !DnTool.isValidDn(dn) || Arrays
         .stream(IGNORED_DN)
-        .map(this.properties::getBaseDn)
+        .map(this.dnTool::addBaseDn)
         .noneMatch(ignoredDn -> ignoredDn.isAncestor(new Dn(dn)));
     this.ignoredEntryFilter = entry -> ignoredDnFilter.test(entry.getDn());
     this.ignoredObjectFilter = distinguishedNameProvider -> ignoredDnFilter
@@ -129,7 +129,7 @@ public abstract class AdRepository implements ErrorCode {
 
   protected boolean dnExistsWithAnyObjectClass(String dn, String... objectClasses) {
     log.debug("dnExistsWithAnyObjectClass({}, {})", dn, objectClasses);
-    if (!getProperties().isDn(dn)) {
+    if (!DnTool.isValidDn(dn)) {
       log.debug("Dn '{}' does not exist", dn);
       return false;
     }

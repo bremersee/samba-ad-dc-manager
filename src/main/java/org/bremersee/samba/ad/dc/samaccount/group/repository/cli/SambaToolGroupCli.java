@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutor;
 import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupTypeContainer;
-import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.SambaToolGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.cli.validator.GroupAddValidator;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.cli.validator.GroupDeleteValidator;
@@ -46,10 +47,10 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
         .map(DomainGroupTypeContainer::getGroupType)
         .map(DomainGroupType::getPurpose)
         .ifPresent(purpose -> commands.add("--group-type=" + purpose));
-    Dn groupOu = getProperties().removeBaseDn(ou);
-    if (!isEmpty(groupOu) && !groupOu.isEmpty()) {
-      commands.add("--groupou=" + quote(groupOu.format()));
-    }
+    Optional.ofNullable(getDnTool().removeBaseDn(ou))
+        .map(Dn::format)
+        .map(CommandExecutor::quote)
+        .ifPresent(dn -> commands.add("--groupou=" + dn));
     if (Boolean.TRUE.equals(isRfc2307Enabled) && hasAllNisAttributes(domainGroup)) {
       commands.add("--nis-domain=" + quote(domainGroup.getNisDomain()));
       commands.add("--gid-number=" + domainGroup.getGidNumber());
@@ -95,13 +96,14 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
     }
     Dn newParentDn = newDn.getParent();
     if (!oldParentDn.isSame(newParentDn)) {
-      String ou = getProperties().removeBaseDn(newParentDn).format();
+      String ou = getDnTool().removeBaseDn(newParentDn).format();
       List<String> commands = getCommands();
       commands.add("move");
       commands.add(quote(newSamAccountName));
       commands.add(quote(ou));
       execute(commands, new GroupMoveValidator(newDomainGroup, newParentDn));
     }
+    // TODO make method void
     return DomainGroup.builder()
         .from(newDomainGroup)
         .distinguishedName(newDn.format(rdn -> rdn))

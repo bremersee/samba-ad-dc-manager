@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
@@ -105,7 +105,7 @@ public abstract class SamAccountRepository extends AdRepository {
       SearchScope scope,
       String... returnAttributes) {
 
-    if (getProperties().isDn(uniqueName)) {
+    if (getDnTool().isValidDnWithBaseDn(uniqueName)) {
       return SearchRequest.builder()
           .dn(uniqueName)
           .filter(objectClassFilter())
@@ -115,12 +115,12 @@ public abstract class SamAccountRepository extends AdRepository {
           .sizeLimit(1)
           .build();
     }
-    Dn ouDn = getProperties().getBaseDn(ouRdn);
+    Dn ouDn = getDnTool().addBaseDn(ouRdn);
     return SearchRequest.builder()
         .dn(ouDn.format())
         .filter(requireNonNullElseGet(filter, () -> findOneFilter(uniqueName)))
         .scope(Optional.ofNullable(scope)
-            .filter(searchScope -> !ouDn.isSame(getProperties().getBaseDn()))
+            .filter(searchScope -> !ouDn.isSame(getDnTool().getBaseDn()))
             .orElse(SearchScope.SUBTREE))
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
@@ -133,12 +133,12 @@ public abstract class SamAccountRepository extends AdRepository {
       Filter filter,
       SearchScope scope,
       String... returnAttributes) {
-    Dn ouDn = getProperties().getBaseDn(ouRdn);
+    Dn ouDn = getDnTool().addBaseDn(ouRdn);
     return SearchRequest.builder()
         .dn(ouDn.format())
         .filter(filter)
         .scope(Optional.ofNullable(scope)
-            .filter(searchScope -> !ouDn.isSame(getProperties().getBaseDn()))
+            .filter(searchScope -> !ouDn.isSame(getDnTool().getBaseDn()))
             .orElse(SearchScope.SUBTREE))
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
@@ -182,14 +182,14 @@ public abstract class SamAccountRepository extends AdRepository {
     }
     String[] returnAttributes = new String[]{AdConstants.DN.getName()};
     SearchRequest searchRequest;
-    if (getProperties().isDn(samAccountName)) {
+    if (getDnTool().isValidDnWithBaseDn(samAccountName)) {
       searchRequest = SearchRequest.objectScopeSearchRequest(
           samAccountName,
           returnAttributes,
           new PresenceFilter(AdConstants.SAM_ACCOUNT_NAME.getName()));
     } else {
       searchRequest = SearchRequest.builder()
-          .dn(getProperties().getBaseDn().format())
+          .dn(getProperties().getBaseDn())
           .filter(new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName))
           .scope(SearchScope.SUBTREE)
           .returnAttributes(returnAttributes)

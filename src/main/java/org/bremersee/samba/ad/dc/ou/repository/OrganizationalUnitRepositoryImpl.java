@@ -67,7 +67,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
   }
 
   Dn getDefaultOu() {
-    return getProperties().getBaseDn();
+    return getDnTool().getBaseDn();
   }
 
   String getObjectClassValue() {
@@ -86,15 +86,15 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     return new OrFilter(
         new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue()),
         new EqualityFilter(AdConstants.DN.getName(),
-            getProperties().getBaseDn(AdConstants.BASE_DN_USERS).format()),
+            getDnTool().addBaseDn(AdConstants.BASE_DN_USERS).format()),
         new EqualityFilter(AdConstants.DN.getName(),
-            getProperties().getBaseDn(AdConstants.BASE_DN_COMPUTERS).format()));
+            getDnTool().addBaseDn(AdConstants.BASE_DN_COMPUTERS).format()));
   }
 
   @Override
   public Stream<OrganizationalUnit> findCustomOus() {
     SearchRequest searchRequest = SearchRequest.builder()
-        .dn(getProperties().getBaseDn().format())
+        .dn(getProperties().getBaseDn())
         .filter(new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_OU))
         .scope(SearchScope.SUBTREE)
         .binaryAttributes(getBinaryAttributes())
@@ -108,7 +108,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
   public Stream<OrganizationalUnit> findAll() {
     SearchRequest computersSearchRequest = SearchRequest
         .objectScopeSearchRequest(
-            getProperties().getBaseDn(AdConstants.BASE_DN_COMPUTERS).format(),
+            getDnTool().addBaseDn(AdConstants.BASE_DN_COMPUTERS).format(),
             getReturnAttributes());
     Stream<OrganizationalUnit> stream = getLdapTemplate()
         .findOne(computersSearchRequest, ouLdapMapper)
@@ -116,7 +116,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
     SearchRequest usersSearchRequest = SearchRequest
         .objectScopeSearchRequest(
-            getProperties().getBaseDn(AdConstants.BASE_DN_USERS).format(),
+            getDnTool().addBaseDn(AdConstants.BASE_DN_USERS).format(),
             getReturnAttributes());
     stream = Stream.concat(
         stream,
@@ -131,7 +131,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     if (ou.isEmpty()) {
       return Optional.empty();
     }
-    String dn = getProperties().getBaseDn(ou).format();
+    String dn = getDnTool().addBaseDn(ou).format();
     log.debug("findOne, dn = {}", dn);
     SearchRequest searchRequest = SearchRequest.objectScopeSearchRequest(dn, getReturnAttributes(),
         objectClassFilter());
@@ -168,7 +168,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     if (isEmpty(ouDn) || ouDn.isEmpty()) {
       throw badRequest("Organizational unit cannot be empty.", EC_EMPTY_OU_RDN);
     }
-    Dn dn = getProperties().getBaseDn(ouDn);
+    Dn dn = getDnTool().addBaseDn(ouDn);
     if (!isEmpty(getLdapTemplate()) && !getLdapTemplate().exists(dn.format())) {
       throw badRequest(
           String.format("Organizational unit '%s' does not exist.", ouDn.format()),

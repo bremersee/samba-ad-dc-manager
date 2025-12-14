@@ -16,7 +16,6 @@
 
 package org.bremersee.samba.ad.dc.domain.repository;
 
-import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.security.SecureRandom;
@@ -26,11 +25,11 @@ import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.common.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
-import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.ad.SecurityIdentifier;
@@ -84,7 +83,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
 
   @Override
   public String getDomainSid() {
-    String baseDn = getProperties().getBaseDn().format();
+    String baseDn = getProperties().getBaseDn();
     String attrName = AdConstants.OBJECT_SID.getName();
     String[] returnAttributes = new String[]{
         attrName
@@ -100,7 +99,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
   @Override
   public boolean isRfc2307Enabled() {
     Dn dn = new Dn("CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System");
-    dn.add(getProperties().getBaseDn());
+    dn.add(getDnTool().getBaseDn());
     boolean result = dnExistsWithAnyObjectClass(dn.format());
     log.debug("Are nis extensions (rfc2307) installed? {}", result);
     return result;
@@ -120,8 +119,8 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
   @Override
   public String createRandomPassword() {
     PasswordInformation passwordInformation = getPasswordInformation();
-    int minLength = requireNonNullElse(passwordInformation.getMinimumPasswordLength(), 12);
-    int maxLength = requireNonNullElse(passwordInformation.getMaximumPasswordLength(), 75);
+    int minLength = passwordInformation.getMinimumPasswordLength();
+    int maxLength = passwordInformation.getMaximumPasswordLength();
     int maxPlus = Math.min(maxLength - minLength, 9);
     int length = Optional.of(minLength + (maxPlus > 0 ? random.nextInt(maxPlus) : 0))
         .filter(len -> len >= 4)

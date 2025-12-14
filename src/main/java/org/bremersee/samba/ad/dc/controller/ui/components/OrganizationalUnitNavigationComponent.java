@@ -18,12 +18,13 @@ package org.bremersee.samba.ad.dc.controller.ui.components;
 
 import java.util.List;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.controller.DomainControllerPropertiesProvider;
+import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.controller.DnToolSupplier;
 import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.MessageProvider;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.ui.ModelMap;
@@ -35,7 +36,7 @@ import org.springframework.validation.annotation.Validated;
  * @author Christian Bremer
  */
 @Validated
-public interface OrganizationalUnitNavigationComponent extends DomainControllerPropertiesProvider,
+public interface OrganizationalUnitNavigationComponent extends DnToolSupplier,
     CurrentPageNameProvider, PageableComponent, MessageProvider {
 
   OrganizationalUnitService getOrganizationalUnitService();
@@ -50,7 +51,7 @@ public interface OrganizationalUnitNavigationComponent extends DomainControllerP
       Dn ou,
       TreeSearchScope scope) {
 
-    Dn selectedOuDn = getProperties().getBaseDn(Optional.ofNullable(ou)
+    Dn selectedOuDn = getDnTool().addBaseDn(Optional.ofNullable(ou)
         .filter(dn -> getOrganizationalUnitService().organisationUnitExists(dn))
         .orElse(null));
     List<OrganizationalUnit> orgUnits = getOrganizationalUnitService()
@@ -88,7 +89,7 @@ public interface OrganizationalUnitNavigationComponent extends DomainControllerP
   }
 
   default boolean isBaseOu(OrganizationalUnit ou) {
-    return getProperties().getBaseDn().isSame(new Dn(ou.getDistinguishedName()));
+    return DnTool.isSameDn(getDnTool().getBaseDn(), new Dn(ou.getDistinguishedName()));
   }
 
   default String getDisplayValue(TreeSearchScope scope) {

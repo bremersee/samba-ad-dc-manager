@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.components.DomainGroupTypesComponent;
@@ -94,10 +95,11 @@ public class GroupAddController extends AbstractController implements PageableCo
 
     getLogger().debug("displayGroupAdd({})", ou);
     Dn ouDn = Optional.ofNullable(ou)
-        .filter(dn -> !dn.isEmpty())
-        .filter(dn -> !dn.isSame(getProperties().getBaseDn()))
+        .filter(DnTool::isValidDn)
+        .filter(dn -> !dn.isSame(getDnTool().getBaseDn()))
         .orElseGet(() -> getDnTool().addBaseDn(getProperties().getGroup().getDefaultOu()));
-    DomainGroupAddRequest groupAddRequest = new DomainGroupAddRequest(ouDn.format());
+    DomainGroupAddRequest groupAddRequest = new DomainGroupAddRequest(
+        ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
     model.addAttribute("groupAddRequest", groupAddRequest);
     return "admin/group-add";
   }

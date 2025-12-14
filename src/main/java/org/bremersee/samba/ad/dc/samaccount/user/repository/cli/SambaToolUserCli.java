@@ -91,13 +91,14 @@ public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
     }
     Dn newParentDn = newDn.getParent();
     if (!oldParentDn.isSame(newParentDn)) {
-      String ou = getProperties().removeBaseDn(newParentDn).format();
+      String ou = getDnTool().removeBaseDn(newParentDn).format();
       List<String> commands = getCommands();
       commands.add("move");
       commands.add(quote(newSamAccountName));
       commands.add(quote(ou));
       execute(commands, new UserMoveValidator(newDomainUser, newParentDn));
     }
+    // TODO void
     return DomainUser.builder()
         .from(newDomainUser)
         .distinguishedName(newDn.format(rdn -> rdn))

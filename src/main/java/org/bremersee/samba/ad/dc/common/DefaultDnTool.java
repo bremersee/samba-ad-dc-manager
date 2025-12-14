@@ -15,7 +15,7 @@ public class DefaultDnTool implements DnTool {
 
   @Override
   public Dn getBaseDn() {
-    return properties.getBaseDn();
+    return new Dn(properties.getBaseDn());
   }
 
 }

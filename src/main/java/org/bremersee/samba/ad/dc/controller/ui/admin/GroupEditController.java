@@ -137,7 +137,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
     Dn ou = groupEditRequest.getNewOuDn();
     try {
       Dn parentDn = existingGroup.getDn().getParent();
-      Dn ouDn = getProperties().getBaseDn(ou);
+      Dn ouDn = getDnTool().addBaseDn(ou);
       Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
       DomainGroup updatedGroup = domainGroupService
           .updateGroup(oldSamAccountName, existingGroup, newOu);

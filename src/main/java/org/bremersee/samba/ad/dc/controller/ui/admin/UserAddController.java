@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.service.TemplateEngine;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
@@ -257,8 +258,8 @@ public class UserAddController extends AbstractController
     DomainUserAddRequest addRequest = new DomainUserAddRequest(
         getProperties().getUser(), isRfc2307Enabled());
     addRequest.setNewOu(Optional.ofNullable(ou)
-        .filter(dn -> !dn.isEmpty())
-        .filter(dn -> !dn.isSame(getProperties().getBaseDn()))
+        .filter(DnTool::isValidDn)
+        .filter(dn -> !dn.isSame(getDnTool().getBaseDn()))
         .orElseGet(() -> getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()))
         .format());
     return addRequest;
