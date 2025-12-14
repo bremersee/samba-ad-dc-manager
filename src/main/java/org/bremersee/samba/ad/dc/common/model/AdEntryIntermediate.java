@@ -21,9 +21,9 @@ import org.immutables.value.Value;
     withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
-@JsonSerialize(as = ImmutableAdEntryModel.class)
-@JsonDeserialize(as = ImmutableAdEntryModel.class)
-public interface AdEntryModel extends AdEntry {
+@JsonSerialize(as = ImmutableAdEntryIntermediate.class)
+@JsonDeserialize(as = ImmutableAdEntryIntermediate.class)
+public interface AdEntryIntermediate extends AdEntry {
 
   /**
    * Gets the immutable builder.
@@ -37,7 +37,7 @@ public interface AdEntryModel extends AdEntry {
   /**
    * The immutable builder.
    */
-  class Builder extends ImmutableAdEntryModel.Builder {
+  class Builder extends ImmutableAdEntryIntermediate.Builder {
 
   }
 
