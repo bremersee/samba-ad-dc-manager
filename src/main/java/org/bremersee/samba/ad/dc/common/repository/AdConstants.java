@@ -6,8 +6,8 @@ import java.time.OffsetDateTime;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.ldaptive.transcoder.ValueTranscoderFactory;
-import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
 import org.bremersee.samba.ad.dc.samaccount.SidValueTranscoder;
+import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
 import org.ldaptive.dn.Dn;
 
 public abstract class AdConstants {
@@ -24,8 +24,6 @@ public abstract class AdConstants {
   public static final String OBJECT_CLASS_OU = "organizationalUnit";
 
   public static final String OBJECT_CLASS_USER = "user";
-
-  public static final String OBJECT_CLASS_DNS_NODE = "dnsNode";
 
   public static final String RDN_ATTR_NAME_OU = "OU";
 

@@ -29,10 +29,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupTypeContainer;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.mapper.SamAccountLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupTypeContainer;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
@@ -145,18 +145,6 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
     AdConstants.GROUP_MEMBER
         .setValues(destination, source.getMembers().stream().map(Dn::new).toList())
         .ifPresent(modifications::add);
-
-    boolean isCriticalSystemObject = AdConstants.IS_CRITICAL_SYSTEM_OBJECT
-        .getValue(destination, source.isCriticalSystemObject())
-        .orElse(false);
-
-    if (!isCriticalSystemObject) {
-      // TODO verify
-      // NOT_ALLOWED_ON_RDN, diagnosticMessage=00002016: Modify of 'name' not permitted, must use 'rename' operation instead
-      AdConstants.NAME
-          .setValue(destination, source.getName())
-          .ifPresent(modifications::add);
-    }
 
     if (Boolean.TRUE.equals(rfc2307EnabledSupplier.get())) {
       AdConstants.GID_NUMBER
