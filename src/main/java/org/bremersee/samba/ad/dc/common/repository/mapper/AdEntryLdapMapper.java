@@ -23,6 +23,7 @@ import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.common.model.AdEntry;
+import org.bremersee.samba.ad.dc.common.model.AdEntryModel;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
@@ -77,7 +78,7 @@ public class AdEntryLdapMapper extends LdaptiveEntryImmutableMapper<AdEntry> {
     if (isEmpty(source)) {
       return null;
     }
-    AdEntry.Builder builder = AdEntry.builder();
+    AdEntryModel.Builder builder = AdEntryModel.builder();
     builder.distinguishedName(source.getDn());
     AdConstants.WHEN_CREATED
         .getValue(source)

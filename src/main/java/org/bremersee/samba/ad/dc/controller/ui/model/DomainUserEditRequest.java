@@ -214,6 +214,13 @@ public class DomainUserEditRequest {
     void update(@MappingTarget DomainUser existingDomainUser,
         DomainUserEditRequest domainUserEditRequest);
 
+    // geht nur mit public
+    /*
+    void up(@MappingTarget DomainUser.Builder existingDomainUser,
+        DomainUserEditRequest domainUserEditRequest);
+
+     */
+
     default DomainUser updateExisting(DomainUser target, DomainUserEditRequest source) {
       return null;
     }

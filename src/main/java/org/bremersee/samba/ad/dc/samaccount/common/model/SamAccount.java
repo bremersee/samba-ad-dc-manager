@@ -2,8 +2,6 @@ package org.bremersee.samba.ad.dc.samaccount.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -11,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import org.bremersee.samba.ad.dc.common.model.AdEntry;
 import org.bremersee.samba.ad.dc.common.model.NameProvider;
-import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -22,17 +19,6 @@ import org.springframework.lang.Nullable;
  * @author Christian Bremer
  */
 @Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
-@Value.Style(
-    visibility = Value.Style.ImplementationVisibility.PACKAGE,
-    overshadowImplementation = true,
-    depluralize = true,
-    jdk9Collections = true,
-    get = {"get*", "is*"},
-    withUnaryOperator = "with*")
-@Value.Immutable
-@Serial.Version(1L)
-@JsonSerialize(as = ImmutableSamAccount.class)
-@JsonDeserialize(as = ImmutableSamAccount.class)
 public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {
 
   /**
@@ -98,22 +84,6 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
     String s1 = Objects.requireNonNullElse(getSamAccountName(), "");
     String s2 = Objects.requireNonNullElse(o.getSamAccountName(), "");
     return s1.compareToIgnoreCase(s2);
-  }
-
-  /**
-   * Gets the immutable builder.
-   *
-   * @return the builder
-   */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableSamAccount.Builder {
-
   }
 
 }

@@ -12,10 +12,11 @@ import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
+import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccountModel;
 import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
-import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;
@@ -73,7 +74,8 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
     if (isEmpty(source)) {
       return null;
     }
-    SamAccount.Builder builder = SamAccount.builder().from(adEntryLdapMapper.map(source));
+    SamAccountModel.Builder builder = SamAccountModel.builder()
+        .from(adEntryLdapMapper.map(source));
     AdConstants.SAM_ACCOUNT_NAME
         .getValue(source)
         .ifPresent(builder::samAccountName);

@@ -3,8 +3,6 @@ package org.bremersee.samba.ad.dc.common.model;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
@@ -13,7 +11,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.common.DnTool;
-import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
@@ -24,17 +21,6 @@ import org.springframework.lang.Nullable;
  * @author Christian Bremer
  */
 @Schema(description = "Active directory base entry.")
-@Value.Style(
-    visibility = Value.Style.ImplementationVisibility.PACKAGE,
-    overshadowImplementation = true,
-    depluralize = true,
-    jdk9Collections = true,
-    get = {"get*", "is*"},
-    withUnaryOperator = "with*")
-@Value.Immutable
-@Serial.Version(1L)
-@JsonSerialize(as = ImmutableAdEntry.class)
-@JsonDeserialize(as = ImmutableAdEntry.class)
 public interface AdEntry extends DistinguishedNameProvider {
 
   /**
@@ -122,22 +108,6 @@ public interface AdEntry extends DistinguishedNameProvider {
       return new Dn(getDistinguishedName());
     }
     return null;
-  }
-
-  /**
-   * Gets the immutable builder.
-   *
-   * @return the builder
-   */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableAdEntry.Builder {
-
   }
 
 }
