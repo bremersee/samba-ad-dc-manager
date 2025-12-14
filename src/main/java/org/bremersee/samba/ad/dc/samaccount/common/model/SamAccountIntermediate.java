@@ -21,9 +21,9 @@ import org.immutables.value.Value;
     withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
-@JsonSerialize(as = ImmutableSamAccountModel.class)
-@JsonDeserialize(as = ImmutableSamAccountModel.class)
-public interface SamAccountModel extends SamAccount {
+@JsonSerialize(as = ImmutableSamAccountIntermediate.class)
+@JsonDeserialize(as = ImmutableSamAccountIntermediate.class)
+public interface SamAccountIntermediate extends SamAccount {
 
   /**
    * Gets the immutable builder.
@@ -37,7 +37,7 @@ public interface SamAccountModel extends SamAccount {
   /**
    * The immutable builder.
    */
-  class Builder extends ImmutableSamAccountModel.Builder {
+  class Builder extends ImmutableSamAccountIntermediate.Builder {
 
   }
 

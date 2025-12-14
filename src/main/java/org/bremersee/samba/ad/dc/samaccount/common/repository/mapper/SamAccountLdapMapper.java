@@ -15,7 +15,7 @@ import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
-import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccountModel;
+import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccountIntermediate;
 import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
@@ -74,8 +74,7 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
     if (isEmpty(source)) {
       return null;
     }
-    SamAccountModel.Builder builder = SamAccountModel.builder()
-        .from(adEntryLdapMapper.map(source));
+    var builder = SamAccountIntermediate.builder().from(adEntryLdapMapper.map(source));
     AdConstants.SAM_ACCOUNT_NAME
         .getValue(source)
         .ifPresent(builder::samAccountName);
