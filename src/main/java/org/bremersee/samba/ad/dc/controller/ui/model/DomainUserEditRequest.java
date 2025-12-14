@@ -206,12 +206,21 @@ public class DomainUserEditRequest {
   @Mapper
   public interface DomainUserEditMapper {
 
-    @Mapping(source = "dn", target = "newOu")
+    //@Mapping(source = "dn", target = "newOu")
+    /*
     @Mapping(source = "accountControl.enabled", target = "enabled")
     @Mapping(
         source = "accountControl.passwordExpirationEnabled",
         target = "passwordExpirationEnabled")
+
+     */
+    @Mapping(source = "dn", target = "newOu")
     DomainUserEditRequest map(DomainUser domainUser);
+
+    default ModifiableDomainUserAccountControl map(
+        DomainUserAccountControl domainUserAccountControl) {
+      return ModifiableDomainUserAccountControl.create().from(domainUserAccountControl);
+    }
 
     default String mapToNewOu(Dn distinguishedName) {
       return Optional.ofNullable(distinguishedName)
