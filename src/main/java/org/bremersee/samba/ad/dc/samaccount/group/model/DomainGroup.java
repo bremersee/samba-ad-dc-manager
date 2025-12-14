@@ -30,6 +30,8 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainGroup.class)
 public interface DomainGroup extends SamAccount, NisDomainMember {
 
+  DomainGroup withDistinguishedName(String distinguishedName);
+
   /**
    * The description of the domain group.
    */

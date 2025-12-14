@@ -1,9 +1,10 @@
 package org.bremersee.samba.ad.dc.samaccount.computer.repository.cli.validator;
 
+import java.util.Optional;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
 import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
@@ -15,7 +16,6 @@ public class ComputerMoveValidator extends SambaToolValidator {
 
   public ComputerMoveValidator(DomainComputer domainComputer, Dn newOu) {
     Assert.notNull(domainComputer, "Domain computer cannot be null.");
-    Assert.notNull(newOu, "New organizational unit cannot be null.");
     this.domainComputer = domainComputer;
     this.newOu = newOu;
   }
@@ -24,7 +24,7 @@ public class ComputerMoveValidator extends SambaToolValidator {
   protected String getExceptionReason(CommandExecutorResponse response) {
     return String.format("Moving computer '%s' to '%s' failed. %s",
         domainComputer.getSamAccountName(),
-        newOu.format(),
+        Optional.ofNullable(newOu).map(Dn::format).orElse(null),
         CommandExecutorResponse.toExceptionMessage(response));
   }
 

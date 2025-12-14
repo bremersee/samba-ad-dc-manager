@@ -1,9 +1,10 @@
 package org.bremersee.samba.ad.dc.samaccount.group.repository.cli.validator;
 
+import java.util.Optional;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
@@ -15,7 +16,6 @@ public class GroupMoveValidator extends SambaToolValidator {
 
   public GroupMoveValidator(DomainGroup domainGroup, Dn newOu) {
     Assert.notNull(domainGroup, "Domain group cannot be null.");
-    Assert.notNull(newOu, "New organizational unit cannot be null.");
     this.domainGroup = domainGroup;
     this.newOu = newOu;
   }
@@ -24,7 +24,7 @@ public class GroupMoveValidator extends SambaToolValidator {
   protected String getExceptionReason(CommandExecutorResponse response) {
     return String.format("Moving group '%s' to '%s' failed. %s",
         domainGroup.getSamAccountName(),
-        newOu.format(),
+        Optional.ofNullable(newOu).map(Dn::format).orElse(null),
         CommandExecutorResponse.toExceptionMessage(response));
   }
 

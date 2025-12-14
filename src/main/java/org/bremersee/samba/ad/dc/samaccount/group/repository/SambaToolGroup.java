@@ -7,7 +7,7 @@ public interface SambaToolGroup {
 
   void addGroup(DomainGroup domainGroup, Dn ou, Boolean isRfc2307Enabled);
 
-  DomainGroup renameAndMoveGroup(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newDn);
+  void renameAndMoveGroup(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newDn);
 
   void deleteGroup(String samAccountName);
 

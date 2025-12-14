@@ -20,6 +20,8 @@ import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.OrFilter;
@@ -96,7 +98,6 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
         getFindAllFilter(query),
         scope,
         getReturnAttributes());
-    log.debug("findAll, searchRequest = {}", searchRequest);
     return getLdapTemplate()
         .findAll(searchRequest, domainComputerLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
@@ -129,7 +130,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
             domainComputer.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
     Dn oldDn = new Dn(existingDomainComputer.getDistinguishedName());
-    Dn newDn = getNewDn(existingDomainComputer, newOu);
+    Dn newDn = getNewDn(existingDomainComputer, domainComputer, newOu);
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
@@ -158,14 +159,16 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
         .orElse(false);
   }
 
-  Dn getNewDn(DomainComputer domainComputer, Dn newOu) {
-    Dn oldDn = new Dn(domainComputer.getDistinguishedName());
-    Dn newDn = new Dn(oldDn.getRDn());
+  Dn getNewDn(DomainComputer oldComputer, DomainComputer newComputer, Dn newOu) {
+    Dn oldDn = new Dn(oldComputer.getDistinguishedName());
+    Dn newDn = new Dn(new RDn(new NameValue(
+        oldDn.getRDn().getNameValue().getName(),
+        newComputer.getSamAccountName())));
     Dn parentDn;
-    if (!DnTool.isValidDn(newOu)) {
-      parentDn = oldDn.getParent();
-    } else {
+    if (DnTool.isValidDn(newOu)) {
       parentDn = getDnTool().addBaseDn(newOu);
+    } else {
+      parentDn = oldDn.getParent();
     }
     newDn.add(parentDn);
     return newDn;

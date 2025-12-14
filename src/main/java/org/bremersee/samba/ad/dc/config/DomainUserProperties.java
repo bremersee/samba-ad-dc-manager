@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.config;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -40,6 +41,9 @@ public class DomainUserProperties implements Serializable {
 
   @NotNull
   private TreeSearchScope defaultSearchScope = TreeSearchScope.ONELEVEL;
+
+  @Min(1)
+  private int minQueryLength = 2;
 
   /**
    * Specifies whether the username should be used for attribute 'cn' or firstname and lastname.

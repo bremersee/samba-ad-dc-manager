@@ -26,14 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.common.DnTool;
-import org.bremersee.samba.ad.dc.common.repository.AdConstants;
-import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.group.repository.mapper.DomainGroupLdapMapper;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.repository.mapper.DomainGroupLdapMapper;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -103,7 +103,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
     Filter objectClassFilter = new EqualityFilter(
         AdConstants.OBJECT_CLASS.getName(),
         getObjectClassValue());
-    if (isNull(query) || query.length() <= 2) {
+    if (isNull(query) || query.length() < getProperties().getGroup().getMinQueryLength()) {
       return objectClassFilter;
     }
     Filter orFilter = new OrFilter(
@@ -126,8 +126,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         getReturnAttributes());
     return getLdapTemplate()
         .findAll(searchRequest, domainGroupLdapMapper)
-        .filter(getIgnoredObjectFilter(ou, scope))
-        .peek(group -> log.debug("Found group: {}", group.getDistinguishedName()));
+        .filter(getIgnoredObjectFilter(ou, scope));
   }
 
   @Override
@@ -192,7 +191,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               .dn(getProperties().getBaseDn())
               .filter(filter)
               .scope(SearchScope.SUBTREE)
-              .returnAttributes(new String[]{AdConstants.GID_NUMBER.getName()})
+              .returnAttributes(AdConstants.GID_NUMBER.getName())
               .build();
           return getLdapTemplate()
               .findOne(searchRequest)
@@ -217,11 +216,13 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
           domainGroup.getGidNumber(),
           EC_GID_NUMBER_ALREADY_EXISTS);
     }
-    domainGroupTool.addGroup(domainGroup, ou, domainRepository.isRfc2307Enabled());
+    Dn newOu = DnTool.isValidDn(ou) ? ou : getDefaultOu();
+    domainGroupTool.addGroup(domainGroup, newOu, domainRepository.isRfc2307Enabled());
     return findDnOfSamAccount(domainGroup)
-        .map(dn -> getLdapTemplate().save(
-            DomainGroup.builder().from(domainGroup).distinguishedName(dn).build(),
-            domainGroupLdapMapper))
+        .map(dn -> getLdapTemplate()
+            .save(
+                domainGroup.withDistinguishedName(dn),
+                domainGroupLdapMapper))
         .orElseThrow(() -> ServiceException
             .internalServerError(
                 String.format("Adding group '%s' failed.", domainGroup.getSamAccountName()),
@@ -260,9 +261,17 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
           getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
-    DomainGroup updatedDomainGroup = domainGroupTool
-        .renameAndMoveGroup(existingDomainGroup, domainGroup, newDn);
-    return getLdapTemplate().save(updatedDomainGroup, domainGroupLdapMapper);
+    domainGroupTool.renameAndMoveGroup(existingDomainGroup, domainGroup, newDn);
+    return findDnOfSamAccount(domainGroup)
+        .map(dn -> DomainGroup.builder()
+            .from(domainGroup)
+            .distinguishedName(dn)
+            .members(existingDomainGroup.getMembers())
+            .build())
+        .map(group -> getLdapTemplate().save(group, domainGroupLdapMapper))
+        .orElseThrow(() -> ServiceException.internalServerError(
+            String.format("Updating group '%s' failed.", groupName),
+            EC_UPDATING_GROUP_FAILED));
   }
 
   Dn getNewDn(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newOu) {

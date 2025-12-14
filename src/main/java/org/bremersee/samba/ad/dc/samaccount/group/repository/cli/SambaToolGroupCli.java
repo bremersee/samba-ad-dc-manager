@@ -59,7 +59,7 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
   }
 
   @Override
-  public DomainGroup renameAndMoveGroup(
+  public void renameAndMoveGroup(
       DomainGroup oldDomainGroup,
       DomainGroup newDomainGroup,
       Dn newDn) {
@@ -68,16 +68,18 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
         .getRDn().getNameValue().getStringValue();
     String newCn = newDn
         .getRDn().getNameValue().getStringValue();
-    boolean cnChanged = !Objects.equals(oldCn, newCn);
+    boolean cnChanged = !oldCn.equalsIgnoreCase(newCn);
     Dn oldParentDn = oldDomainGroup.getDn().getParent();
 
     String oldSamAccountName = oldDomainGroup.getSamAccountName();
     String newSamAccountName = newDomainGroup.getSamAccountName();
-    boolean samAccountNameChanged = !Objects.equals(oldSamAccountName, newSamAccountName);
+    boolean samAccountNameChanged = !oldSamAccountName.equalsIgnoreCase(newSamAccountName);
 
     String oldEmail = oldDomainGroup.getEmail();
     String newEmail = newDomainGroup.getEmail();
-    boolean emailChanged = !Objects.equals(oldEmail, newEmail);
+    boolean emailChanged = !Objects.equals(
+        Optional.ofNullable(oldEmail).map(String::toLowerCase).orElse(""),
+        Optional.ofNullable(newEmail).map(String::toLowerCase).orElse(""));
 
     if (cnChanged || samAccountNameChanged || emailChanged) {
       List<String> commands = getCommands();
@@ -96,18 +98,15 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
     }
     Dn newParentDn = newDn.getParent();
     if (!oldParentDn.isSame(newParentDn)) {
-      String ou = getDnTool().removeBaseDn(newParentDn).format();
-      List<String> commands = getCommands();
-      commands.add("move");
-      commands.add(quote(newSamAccountName));
-      commands.add(quote(ou));
-      execute(commands, new GroupMoveValidator(newDomainGroup, newParentDn));
+      Optional.ofNullable(getDnTool().removeBaseDn(newParentDn))
+          .ifPresent(newOu -> {
+            List<String> commands = getCommands();
+            commands.add("move");
+            commands.add(quote(newSamAccountName));
+            commands.add(quote(newOu.format()));
+            execute(commands, new GroupMoveValidator(newDomainGroup, newOu));
+          });
     }
-    // TODO make method void
-    return DomainGroup.builder()
-        .from(newDomainGroup)
-        .distinguishedName(newDn.format(rdn -> rdn))
-        .build();
   }
 
   @Override

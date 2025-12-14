@@ -34,7 +34,7 @@ class SambaToolComputerCli extends SambaToolCli implements SambaToolComputer {
           commands.add("move");
           commands.add(quote(domainComputer.getSamAccountNameWithoutTrailingDollarSign()));
           commands.add(quote(ou.format()));
-          execute(commands, new ComputerMoveValidator(domainComputer, newOu));
+          execute(commands, new ComputerMoveValidator(domainComputer, ou));
         });
   }
 
