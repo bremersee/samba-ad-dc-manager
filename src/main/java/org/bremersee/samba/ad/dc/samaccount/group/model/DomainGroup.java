@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.List;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
@@ -56,8 +55,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
   /**
    * The type of the domain group.
    */
-  @Schema(description = "The type of the domain group.", requiredMode = RequiredMode.REQUIRED)
-  @JsonProperty(value = "groupType", required = true)
+  @Schema(description = "The type of the domain group.")
+  @JsonProperty(value = "groupType")
   @Value.Default
   default DomainGroupType getGroupType() {
     return DomainGroupType.defaultGroupType();
@@ -83,6 +82,7 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
       accessMode = AccessMode.READ_ONLY)
   @JsonProperty(value = "primaryGroupId", access = Access.READ_ONLY)
   @Value.Lazy
+  @Nullable
   @Override
   default Integer getPrimaryGroupId() {
     return Optional.ofNullable(getSid())
