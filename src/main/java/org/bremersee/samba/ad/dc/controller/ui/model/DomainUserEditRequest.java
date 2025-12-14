@@ -20,7 +20,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.samaccount.user.model.ImmutableDomainUser;
@@ -39,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class DomainUserEditRequest {
 
   public static final DomainUserEditMapper MAPPER = Mappers.getMapper(DomainUserEditMapper.class);
@@ -54,8 +52,7 @@ public class DomainUserEditRequest {
 
   private boolean renameNamesAutomatically = true;
 
-  // TODO
-  // ModifiableDomainUserAccountControl access = ModifiableDomainUserAccountControl.create();
+  private ModifiableDomainUserAccountControl accountControl;
 
   private boolean enabled = true;
 
@@ -185,6 +182,10 @@ public class DomainUserEditRequest {
    * User's Unix/RFC2307 NIS domain.
    */
   private String nisDomain;
+
+  public DomainUserEditRequest() {
+    accountControl = ModifiableDomainUserAccountControl.create();
+  }
 
   public Dn getNewOuDn() {
     if (isEmpty(newOu)) {
