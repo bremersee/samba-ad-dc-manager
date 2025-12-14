@@ -31,10 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.mapper.SamAccountLdapMapper;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;
@@ -127,7 +127,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
     if (isEmpty(source)) {
       return null;
     }
-    DomainUser.Builder builder = DomainUser.builder()
+    var builder = DomainUser.builder()
         .from(samAccountLdapMapper.map(source));
     AdConstants.USER_ACCOUNT_EXPIRES
         .getValue(source)
@@ -351,7 +351,6 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
           AdConstants.USER_UNIX_HOME_DIRECTORY,
           unixHomeDirectory,
           modifications);
-
     }
 
     return modifications.toArray(new AttributeModification[0]);

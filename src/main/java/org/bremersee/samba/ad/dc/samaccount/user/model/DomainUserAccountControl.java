@@ -10,16 +10,18 @@ import java.util.Optional;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 
 @Schema(description = "Domain user's account control.")
 @Value.Style(
-    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
     withUnaryOperator = "with*")
 @Value.Immutable
+@Value.Modifiable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainUserAccountControl.class)
 @JsonDeserialize(as = ImmutableDomainUserAccountControl.class)
@@ -82,15 +84,8 @@ public interface DomainUserAccountControl {
    *
    * @return the builder
    */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableDomainUserAccountControl.Builder {
-
+  static ImmutableDomainUserAccountControl.Builder builder() {
+    return ImmutableDomainUserAccountControl.builder();
   }
 
 }

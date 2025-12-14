@@ -20,7 +20,7 @@ import org.springframework.lang.Nullable;
 
 @Schema(description = "The domain user.")
 @Value.Style(
-    visibility = ImplementationVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
@@ -32,7 +32,9 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainUser.class)
 public interface DomainUser extends SamAccount, NisDomainMember {
 
-  DomainUser withDistinguishedName(String distinguishedName);
+  default DomainUser withDistinguishedName(String distinguishedName) {
+    return builder().distinguishedName(distinguishedName).build();
+  }
 
   @Schema(description = "User's account control.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "accountControl", required = true)
@@ -262,15 +264,8 @@ public interface DomainUser extends SamAccount, NisDomainMember {
    *
    * @return the builder
    */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableDomainUser.Builder {
-
+  static ImmutableDomainUser.Builder builder() {
+    return ImmutableDomainUser.builder();
   }
 
 }

@@ -22,10 +22,14 @@ import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
+import org.bremersee.samba.ad.dc.samaccount.user.model.ImmutableDomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.model.ModifiableDomainUserAccountControl;
 import org.ldaptive.dn.Dn;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +53,9 @@ public class DomainUserEditRequest {
   private String samAccountName;
 
   private boolean renameNamesAutomatically = true;
+
+  // TODO
+  // ModifiableDomainUserAccountControl access = ModifiableDomainUserAccountControl.create();
 
   private boolean enabled = true;
 
@@ -187,6 +194,15 @@ public class DomainUserEditRequest {
   }
 
   @Mapper
+  public interface ToDomainUserMapper {
+
+    DomainUser update(
+        DomainUserEditRequest source,
+        @MappingTarget ImmutableDomainUser.Builder target);
+
+  }
+
+  @Mapper
   public interface DomainUserEditMapper {
 
     @Mapping(source = "dn", target = "newOu")
@@ -215,14 +231,17 @@ public class DomainUserEditRequest {
         DomainUserEditRequest domainUserEditRequest);
 
     // geht nur mit public
-    /*
-    void up(@MappingTarget DomainUser.Builder existingDomainUser,
-        DomainUserEditRequest domainUserEditRequest);
+    @Mapping(target = "accountControl", source = "source", qualifiedByName = "mapToAccountControl")
+    void up(@MappingTarget ImmutableDomainUser.Builder existingDomainUser,
+        DomainUserEditRequest source);
 
-     */
+    @Named("mapToAccountControl")
+    DomainUserAccountControl mapToAccountControl(DomainUserEditRequest domainUserEditRequest);
 
     default DomainUser updateExisting(DomainUser target, DomainUserEditRequest source) {
-      return null;
+      var builder = DomainUser.builder().from(target);
+      up(builder, source);
+      return builder.build();
     }
   }
 
