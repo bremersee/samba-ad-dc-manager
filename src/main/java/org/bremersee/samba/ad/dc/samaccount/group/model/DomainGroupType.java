@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.springframework.lang.Nullable;
 
 /**
  * The domain group type.
@@ -75,20 +74,18 @@ public interface DomainGroupType {
   @Schema(description = "The scope of the group.", accessMode = Schema.AccessMode.READ_ONLY)
   @JsonProperty(value = "scope", access = Access.READ_ONLY)
   @Value.Lazy
-  @Nullable
   default Scope getScope() {
     return switch (getValue()) {
       case GLOBAL_SECURITY, GLOBAL_DISTRIBUTION -> Scope.GLOBAL;
       case DOMAIN_LOCAL_SECURITY, DOMAIN_LOCAL_DISTRIBUTION -> Scope.DOMAIN_LOCAL;
       case UNIVERSAL_SECURITY, UNIVERSAL_DISTRIBUTION -> Scope.UNIVERSAL;
-      default -> null;
+      default -> Scope.UNKNOWN;
     };
   }
 
   @Schema(description = "The purpose of the group.", accessMode = Schema.AccessMode.READ_ONLY)
   @JsonProperty(value = "purpose", access = Access.READ_ONLY)
   @Value.Lazy
-  @Nullable
   default Purpose getPurpose() {
     return switch (getValue()) {
       case GLOBAL_SECURITY,
@@ -97,7 +94,7 @@ public interface DomainGroupType {
       case GLOBAL_DISTRIBUTION,
            DOMAIN_LOCAL_DISTRIBUTION,
            UNIVERSAL_DISTRIBUTION -> Purpose.DISTRIBUTION;
-      default -> null;
+      default -> Purpose.UNKNOWN;
     };
   }
 
@@ -145,6 +142,7 @@ public interface DomainGroupType {
   }
 
   enum Scope {
+    UNKNOWN("Unknown"),
     UNIVERSAL("Universal"),
     GLOBAL("Global"),
     DOMAIN_LOCAL("Domain");
@@ -177,6 +175,7 @@ public interface DomainGroupType {
   }
 
   enum Purpose {
+    UNKNOWN("Unknown"),
     SECURITY("Security"),
     DISTRIBUTION("Distribution");
 
