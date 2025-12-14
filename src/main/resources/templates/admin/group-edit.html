@@ -145,23 +145,23 @@
         </div>
       </div>
 
-      <div class="row mb-3" th:if="${group.groupType.groupType.scope != null}">
+      <div class="row mb-3" th:if="${group.groupType.scope != null}">
         <div class="col">
           <label for="groupScope" class="form-label">Group scope</label>
           <input type="text" class="form-control" id="groupScope" disabled
-                 th:value="${group.groupType.groupType.scope}" />
+                 th:value="${group.groupType.scope}" />
         </div>
         <div class="col">
           <label for="groupPurpose" class="form-label">Group purpose</label>
           <input type="text" class="form-control" id="groupPurpose" disabled
-                 th:value="${group.groupType.groupType.purpose}" />
+                 th:value="${group.groupType.purpose}" />
         </div>
       </div>
 
-      <div class="mb-3" th:if="${group.groupType.groupType.scope == null}">
+      <div class="mb-3" th:if="${group.groupType.scope == null}">
         <label for="groupType" class="form-label">Group type</label>
         <input type="number" class="form-control" id="groupType" name="groupType" disabled
-               value="1234" th:value="${group.groupType.groupTypeValue}" />
+               value="1234" th:value="${group.groupType.value}" />
         <div class="small text-secondary mt-2">
           Group type is unknown.
         </div>
