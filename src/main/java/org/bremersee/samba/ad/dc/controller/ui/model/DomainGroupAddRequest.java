@@ -27,7 +27,6 @@ import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Purpose;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Scope;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupTypeContainer;
 import org.ldaptive.dn.Dn;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -77,8 +76,8 @@ public class DomainGroupAddRequest implements Serializable {
 
   public DomainGroupAddRequest(String newOu) {
     this.newOu = newOu;
-    this.groupScope = DomainGroupType.GLOBAL_SECURITY.getScope().name();
-    this.groupPurpose = DomainGroupType.GLOBAL_SECURITY.getPurpose().name();
+    this.groupScope = Scope.GLOBAL.name();
+    this.groupPurpose = Purpose.SECURITY.name();
   }
 
   public Dn getNewOuDn() {
@@ -100,17 +99,16 @@ public class DomainGroupAddRequest implements Serializable {
         .orElse(Purpose.SECURITY);
   }
 
-  public DomainGroupTypeContainer getSelectedGroupType() {
-    DomainGroupType groupType = DomainGroupType.fromScopeAndPurpose(
+  public DomainGroupType getSelectedGroupType() {
+    return DomainGroupType.from(
         getSelectedGroupScope(),
         getSelectedGroupPurpose());
-    return DomainGroupTypeContainer.containerWithGroupTypeValue(groupType.getValue());
   }
 
   @Mapper
   public interface DomainGroupAddMapper {
 
-    @Mapping(source = "selectedGroupType", target = "groupType")
+    //@Mapping(source = "selectedGroupType", target = "groupType")
     DomainGroup mapToDomainGroup(DomainGroupAddRequest request);
 
   }

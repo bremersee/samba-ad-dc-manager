@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller;
 
+import org.bremersee.samba.ad.dc.common.DefaultDnTool;
 import org.bremersee.samba.ad.dc.common.DnTool;
 
 /**
@@ -23,8 +24,10 @@ import org.bremersee.samba.ad.dc.common.DnTool;
  *
  * @author Christian Bremer
  */
-public interface DnToolSupplier extends DomainControllerPropertiesProvider {
+public interface DnToolProvider extends DomainControllerPropertiesProvider {
 
-  DnTool getDnTool();
+  default DnTool getDnTool() {
+    return new DefaultDnTool(getProperties());
+  }
 
 }

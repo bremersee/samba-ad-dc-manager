@@ -12,7 +12,6 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupTypeContainer;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.SambaToolGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.cli.validator.GroupAddValidator;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.cli.validator.GroupDeleteValidator;
@@ -40,11 +39,9 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
     commands.add("add");
     commands.add(quote(domainGroup.getSamAccountName()));
     Optional.ofNullable(domainGroup.getGroupType())
-        .map(DomainGroupTypeContainer::getGroupType)
         .map(DomainGroupType::getScope)
         .ifPresent(scope -> commands.add("--group-scope=" + scope));
     Optional.ofNullable(domainGroup.getGroupType())
-        .map(DomainGroupTypeContainer::getGroupType)
         .map(DomainGroupType::getPurpose)
         .ifPresent(purpose -> commands.add("--group-type=" + purpose));
     Optional.ofNullable(getDnTool().removeBaseDn(ou))

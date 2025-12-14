@@ -32,7 +32,7 @@ import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.mapper.SamAccountLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupTypeContainer;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
@@ -106,7 +106,7 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
     AdConstants.GROUP_TYPE
         .getValue(source)
         .ifPresent(groupTypeValue -> builder
-            .groupType(DomainGroupTypeContainer.containerWithGroupTypeValue(groupTypeValue)));
+            .groupType(DomainGroupType.from(groupTypeValue)));
     AdConstants.DESCRIPTION
         .getValue(source)
         .ifPresent(builder::description);

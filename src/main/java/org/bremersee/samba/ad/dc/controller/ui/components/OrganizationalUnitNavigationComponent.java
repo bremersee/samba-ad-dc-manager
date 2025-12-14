@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.controller.DnToolSupplier;
+import org.bremersee.samba.ad.dc.controller.DnToolProvider;
 import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.MessageProvider;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
@@ -36,7 +36,7 @@ import org.springframework.validation.annotation.Validated;
  * @author Christian Bremer
  */
 @Validated
-public interface OrganizationalUnitNavigationComponent extends DnToolSupplier,
+public interface OrganizationalUnitNavigationComponent extends DnToolProvider,
     CurrentPageNameProvider, PageableComponent, MessageProvider {
 
   OrganizationalUnitService getOrganizationalUnitService();

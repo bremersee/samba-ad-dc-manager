@@ -19,94 +19,137 @@ package org.bremersee.samba.ad.dc.samaccount.group.model;
 import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
  * The domain group type.
  *
  * <p>See: <a
- * href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups">Active
- * Directory security groups</a>
+ * href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups">
+ * Active Directory security groups</a>
  *
  * @author Christian Bremer
  */
-@Getter
-public enum DomainGroupType {
+@Schema(description = "The domain group type.")
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainGroupType.class)
+@JsonDeserialize(as = ImmutableDomainGroupType.class)
+public interface DomainGroupType {
 
-  UNKNOWN(null, null, null),
+  int GLOBAL_SECURITY = -2147483646;
 
-  DOMAIN_LOCAL_SECURITY(Scope.DOMAIN_LOCAL, Purpose.SECURITY, -2147483644),
+  int GLOBAL_DISTRIBUTION = 2;
 
-  DOMAIN_LOCAL_DISTRIBUTION(Scope.DOMAIN_LOCAL, Purpose.DISTRIBUTION, 4),
+  int DOMAIN_LOCAL_SECURITY = -2147483644;
 
-  GLOBAL_SECURITY(Scope.GLOBAL, Purpose.SECURITY, -2147483646),
+  int DOMAIN_LOCAL_DISTRIBUTION = 4;
 
-  GLOBAL_DISTRIBUTION(Scope.GLOBAL, Purpose.DISTRIBUTION, 2),
+  int UNIVERSAL_SECURITY = -2147483640;
 
-  UNIVERSAL_SECURITY(Scope.UNIVERSAL, Purpose.SECURITY, -2147483640),
+  int UNIVERSAL_DISTRIBUTION = 8;
 
-  UNIVERSAL_DISTRIBUTION(Scope.UNIVERSAL, Purpose.DISTRIBUTION, 8);
-
-  private final Scope scope;
-
-  private final Purpose purpose;
-
-  private final int value;
-
-  DomainGroupType(Scope scope, Purpose purpose, Integer value) {
-    this.scope = scope;
-    this.purpose = purpose;
-    this.value = value;
+  @Schema(description = "The integer value of the group type.", defaultValue = "-2147483646")
+  @JsonProperty(value = "value", defaultValue = "-2147483646")
+  @Value.Default
+  default int getValue() {
+    return GLOBAL_SECURITY;
   }
 
-  @JsonValue
-  @Override
-  public String toString() {
-    return name().toLowerCase();
+  @Schema(description = "The scope of the group.", accessMode = Schema.AccessMode.READ_ONLY)
+  @JsonProperty(value = "scope", access = Access.READ_ONLY)
+  @Value.Lazy
+  @Nullable
+  default Scope getScope() {
+    return switch (getValue()) {
+      case GLOBAL_SECURITY, GLOBAL_DISTRIBUTION -> Scope.GLOBAL;
+      case DOMAIN_LOCAL_SECURITY, DOMAIN_LOCAL_DISTRIBUTION -> Scope.DOMAIN_LOCAL;
+      case UNIVERSAL_SECURITY, UNIVERSAL_DISTRIBUTION -> Scope.UNIVERSAL;
+      default -> null;
+    };
   }
 
-  @JsonCreator
-  public static DomainGroupType fromString(String type) {
-    if (isNull(type)) {
-      return null;
-    }
-    try {
-      return DomainGroupType.valueOf(type.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
+  @Schema(description = "The purpose of the group.", accessMode = Schema.AccessMode.READ_ONLY)
+  @JsonProperty(value = "purpose", access = Access.READ_ONLY)
+  @Value.Lazy
+  @Nullable
+  default Purpose getPurpose() {
+    return switch (getValue()) {
+      case GLOBAL_SECURITY,
+           DOMAIN_LOCAL_SECURITY,
+           UNIVERSAL_SECURITY -> Purpose.SECURITY;
+      case GLOBAL_DISTRIBUTION,
+           DOMAIN_LOCAL_DISTRIBUTION,
+           UNIVERSAL_DISTRIBUTION -> Purpose.DISTRIBUTION;
+      default -> null;
+    };
   }
 
-  public static DomainGroupType fromValue(Integer value) {
-    if (isNull(value)) {
-      return UNKNOWN;
+  static DomainGroupType from(Scope scope, Purpose purpose) {
+    if (scope == Scope.DOMAIN_LOCAL && purpose == Purpose.DISTRIBUTION) {
+      return from(DOMAIN_LOCAL_DISTRIBUTION);
     }
-    for (DomainGroupType type : DomainGroupType.values()) {
-      if (value.equals(type.value)) {
-        return type;
-      }
+    if (scope == Scope.DOMAIN_LOCAL && purpose == Purpose.SECURITY) {
+      return from(DOMAIN_LOCAL_SECURITY);
     }
-    return UNKNOWN;
+    if (scope == Scope.UNIVERSAL && purpose == Purpose.DISTRIBUTION) {
+      return from(UNIVERSAL_DISTRIBUTION);
+    }
+    if (scope == Scope.UNIVERSAL && purpose == Purpose.SECURITY) {
+      return from(UNIVERSAL_SECURITY);
+    }
+    if (scope == Scope.GLOBAL && purpose == Purpose.DISTRIBUTION) {
+      return from(GLOBAL_DISTRIBUTION);
+    }
+    return defaultGroupType();
   }
 
-  public static DomainGroupType fromScopeAndPurpose(Scope scope, Purpose purpose) {
-    if (isNull(scope) || isNull(purpose)) {
-      return UNKNOWN;
-    }
-    for (DomainGroupType type : DomainGroupType.values()) {
-      if (scope.equals(type.scope) && purpose.equals(type.purpose)) {
-        return type;
-      }
-    }
-    return UNKNOWN;
+  static DomainGroupType from(int value) {
+    return builder().value(value).build();
   }
 
-  public enum Scope {
+  static DomainGroupType defaultGroupType() {
+    return from(GLOBAL_SECURITY);
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableDomainGroupType.Builder {
+
+  }
+
+  enum Scope {
     UNIVERSAL("Universal"),
     GLOBAL("Global"),
     DOMAIN_LOCAL("Domain");
 
+    @Getter
     private final String value;
 
     Scope(String value) {
@@ -125,7 +168,7 @@ public enum DomainGroupType {
         return null;
       }
       for (Scope type : Scope.values()) {
-        if (scope.equalsIgnoreCase(type.value) || scope.equalsIgnoreCase(type.name())) {
+        if (scope.equalsIgnoreCase(type.getValue()) || scope.equalsIgnoreCase(type.name())) {
           return type;
         }
       }
@@ -133,10 +176,11 @@ public enum DomainGroupType {
     }
   }
 
-  public enum Purpose {
+  enum Purpose {
     SECURITY("Security"),
     DISTRIBUTION("Distribution");
 
+    @Getter
     private final String value;
 
     Purpose(String purpose) {
@@ -155,7 +199,7 @@ public enum DomainGroupType {
         return null;
       }
       for (Purpose purpose : Purpose.values()) {
-        if (value.equalsIgnoreCase(purpose.value) || value.equalsIgnoreCase(purpose.name())) {
+        if (value.equalsIgnoreCase(purpose.getValue()) || value.equalsIgnoreCase(purpose.name())) {
           return purpose;
         }
       }

@@ -11,6 +11,7 @@ import java.util.Set;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
@@ -87,7 +88,7 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
         .ifPresent(builder::primaryGroupId);
     builder.memberships(AdConstants.MEMBER_OF_GROUP
         .getValues(source)
-        .map(dn -> dn.format(rdn -> rdn))
+        .map(dn -> dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
         .toList());
     return builder.build();
   }

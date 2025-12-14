@@ -59,8 +59,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
   @Schema(description = "The type of the domain group.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "groupType", required = true)
   @Value.Default
-  default DomainGroupTypeContainer getGroupType() {
-    return DomainGroupTypeContainer.defaultContainer();
+  default DomainGroupType getGroupType() {
+    return DomainGroupType.defaultGroupType();
   }
 
   /**
