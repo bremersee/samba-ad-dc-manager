@@ -7,8 +7,7 @@ public interface SambaToolUser {
 
   void addUser(DomainUser domainUser, Dn ou, Boolean useUsernameAsCn, Boolean isRfc2307Enabled);
 
-  // TODO void
-  DomainUser renameAndMoveUser(DomainUser oldDomainUser, DomainUser newDomainUser, Dn newDn);
+  void renameAndMoveUser(DomainUser oldDomainUser, DomainUser newDomainUser, Dn newDn);
 
   void deleteUser(String samAccountName);
 

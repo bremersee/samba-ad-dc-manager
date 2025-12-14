@@ -29,14 +29,15 @@ import org.bremersee.ldaptive.AbstractLdaptiveErrorHandler;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.common.repository.AdConstants;
-import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.converter.TreeSearchScopeConverter;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.user.repository.mapper.DomainUserLdapMapper;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.repository.mapper.DomainUserLdapMapper;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;
 import org.ldaptive.LdapException;
@@ -120,9 +121,8 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   }
 
   private Filter getFindAllFilter(String query) {
-    //noinspection DuplicatedCode
     Filter objectClassFilter = objectClassFilter();
-    if (isNull(query) || query.length() <= 2) {
+    if (isNull(query) || query.length() < getProperties().getUser().getMinQueryLength()) {
       return objectClassFilter;
     }
     Filter orFilter = new OrFilter(
@@ -153,7 +153,6 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         getFindAllFilter(query),
         scope,
         getReturnAttributes());
-    log.debug("findAll, searchRequest = {}", searchRequest);
     return getLdapTemplate()
         .findAll(searchRequest, domainUserLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
@@ -164,7 +163,6 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     log.debug("findOne({})", userName);
     SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);
     SearchRequest searchRequest = searchOneRequest(userName, ou, scope);
-    log.debug("findOne, searchRequest = {}", searchRequest);
     return getLdapTemplate()
         .findOne(searchRequest, domainUserLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
@@ -289,11 +287,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
           domainUser.getUidNumber(),
           EC_UID_NUMBER_ALREADY_EXISTS);
     }
-    domainUserTool.addUser(domainUser, ou, useUsernameAsCn, domainRepository.isRfc2307Enabled());
+    Dn userOu = DnTool.isValidDn(ou) ? ou : getDefaultOu();
+    domainUserTool
+        .addUser(domainUser, userOu, useUsernameAsCn, domainRepository.isRfc2307Enabled());
     return findDnOfSamAccount(domainUser)
-        .map(dn -> getLdapTemplate().save(
-            DomainUser.builder().from(domainUser).distinguishedName(dn).build(),
-            domainUserLdapMapper))
+        .map(dn -> getLdapTemplate()
+            .save(domainUser.withDistinguishedName(dn), domainUserLdapMapper))
         .orElseThrow(() -> ServiceException
             .internalServerError(
                 String.format("Adding user '%s' failed.", domainUser.getSamAccountName()),
@@ -350,30 +349,34 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
           EC_DN_ALREADY_EXISTS);
     }
 
-    DomainUser updatedDomainUser = domainUserTool
-        .renameAndMoveUser(existingDomainUser, domainUser, newDn);
-    return getLdapTemplate().save(updatedDomainUser, domainUserLdapMapper);
+    domainUserTool.renameAndMoveUser(existingDomainUser, domainUser, newDn);
+    return findDnOfSamAccount(domainUser)
+        .map(domainUser::withDistinguishedName)
+        .map(user -> getLdapTemplate().save(user, domainUserLdapMapper))
+        .orElseThrow(() -> ServiceException.internalServerError(
+            String.format("Updating user '%s' failed.", userName),
+            EC_UPDATING_USER_FAILED));
   }
 
-  Dn getNewDn(DomainUser oldDomainUser, DomainUser newDomainUser, Dn newOu) {
+  Dn getNewDn(DomainUser oldUser, DomainUser newUser, Dn newOu) {
     Dn newParentDn;
-    if (!isEmpty(newOu) && !newOu.isEmpty()) {
+    if (DnTool.isValidDn(newOu)) {
       newParentDn = getDnTool().addBaseDn(newOu);
     } else {
-      newParentDn = oldDomainUser.getDn().getParent();
+      newParentDn = oldUser.getDn().getParent();
     }
 
-    RDn oldRdn = new Dn(oldDomainUser.getDistinguishedName()).getRDn();
+    RDn oldRdn = new Dn(oldUser.getDistinguishedName()).getRDn();
     String oldCn = oldRdn.getNameValue().getStringValue().toLowerCase();
     String newCn;
-    if (oldCn.equalsIgnoreCase(newDomainUser.getSamAccountName())
-        || oldCn.equalsIgnoreCase(newDomainUser.getDisplayName())) {
+    if (oldCn.equalsIgnoreCase(newUser.getSamAccountName())
+        || oldCn.equalsIgnoreCase(newUser.getDisplayName())) {
       newCn = oldCn;
-    } else if (oldCn.equalsIgnoreCase(oldDomainUser.getDisplayName())
-        && !isEmpty(newDomainUser.getFirstName()) && !isEmpty(newDomainUser.getLastName())) {
-      newCn = newDomainUser.getFirstName() + " " + newDomainUser.getLastName();
+    } else if (oldCn.equalsIgnoreCase(oldUser.getDisplayName())
+        && !isEmpty(newUser.getFirstName()) && !isEmpty(newUser.getLastName())) {
+      newCn = newUser.getFirstName() + " " + newUser.getLastName();
     } else {
-      newCn = newDomainUser.getSamAccountName();
+      newCn = newUser.getSamAccountName();
     }
     Dn newDn = new Dn(new RDn(new NameValue(oldRdn.getNameValue().getName(), newCn)));
     newDn.add(newParentDn);

@@ -1,9 +1,10 @@
 package org.bremersee.samba.ad.dc.samaccount.user.repository.cli.validator;
 
+import java.util.Optional;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
@@ -15,7 +16,6 @@ public class UserMoveValidator extends SambaToolValidator {
 
   public UserMoveValidator(DomainUser domainUser, Dn newOu) {
     Assert.notNull(domainUser, "Domain user cannot be null.");
-    Assert.notNull(newOu, "New organizational unit cannot be null.");
     this.domainUser = domainUser;
     this.newOu = newOu;
   }
@@ -24,7 +24,7 @@ public class UserMoveValidator extends SambaToolValidator {
   protected String getExceptionReason(CommandExecutorResponse response) {
     return String.format("Moving user '%s' to '%s' failed. %s",
         domainUser.getSamAccountName(),
-        newOu.format(),
+        Optional.ofNullable(newOu).map(Dn::format).orElse(null),
         CommandExecutorResponse.toExceptionMessage(response));
   }
 

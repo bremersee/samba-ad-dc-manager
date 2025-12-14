@@ -6,10 +6,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.SambaToolUser;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.cli.validator.UserAddValidator;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.cli.validator.UserDeleteValidator;
@@ -45,9 +46,10 @@ public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
     commands.add("add");
     commands.add(quote(domainUser.getSamAccountName()));
     commands.add("--random-password");
-    if (!isEmpty(ou)) {
-      commands.add("--userou=" + quote(ou.format()));
-    }
+    Optional.ofNullable(ou)
+        .filter(DnTool::isValidDn)
+        .map(userOu -> getDnTool().removeBaseDn(userOu))
+        .ifPresent(userOu -> commands.add("--userou=" + quote(userOu.format())));
     if (usernameAsCn || isEmpty(domainUser.getFirstName()) || isEmpty(domainUser.getLastName())) {
       commands.add("--use-username-as-cn");
     }
@@ -69,7 +71,7 @@ public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
   }
 
   @Override
-  public DomainUser renameAndMoveUser(
+  public void renameAndMoveUser(
       DomainUser oldDomainUser,
       DomainUser newDomainUser,
       Dn newDn) {
@@ -81,7 +83,7 @@ public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
     Dn oldParentDn = oldDomainUser.getDn().getParent();
     String oldSamAccountName = oldDomainUser.getSamAccountName();
     String newSamAccountName = newDomainUser.getSamAccountName();
-    if (!oldCn.equals(newCn) || !oldSamAccountName.equals(newSamAccountName)) {
+    if (!oldCn.equalsIgnoreCase(newCn) || !oldSamAccountName.equalsIgnoreCase(newSamAccountName)) {
       List<String> commands = getCommands();
       commands.add("rename");
       commands.add(quote(oldSamAccountName));
@@ -91,18 +93,15 @@ public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
     }
     Dn newParentDn = newDn.getParent();
     if (!oldParentDn.isSame(newParentDn)) {
-      String ou = getDnTool().removeBaseDn(newParentDn).format();
-      List<String> commands = getCommands();
-      commands.add("move");
-      commands.add(quote(newSamAccountName));
-      commands.add(quote(ou));
-      execute(commands, new UserMoveValidator(newDomainUser, newParentDn));
+      Optional.ofNullable(getDnTool().removeBaseDn(newParentDn))
+          .ifPresent(newOu -> {
+            List<String> commands = getCommands();
+            commands.add("move");
+            commands.add(quote(newSamAccountName));
+            commands.add(quote(newOu.format()));
+            execute(commands, new UserMoveValidator(newDomainUser, newOu));
+          });
     }
-    // TODO void
-    return DomainUser.builder()
-        .from(newDomainUser)
-        .distinguishedName(newDn.format(rdn -> rdn))
-        .build();
   }
 
   @Override

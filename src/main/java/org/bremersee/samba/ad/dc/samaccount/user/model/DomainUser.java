@@ -32,6 +32,8 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainUser.class)
 public interface DomainUser extends SamAccount, NisDomainMember {
 
+  DomainUser withDistinguishedName(String distinguishedName);
+
   @Schema(description = "User's account control.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "accountControl", required = true)
   @Value.Default
