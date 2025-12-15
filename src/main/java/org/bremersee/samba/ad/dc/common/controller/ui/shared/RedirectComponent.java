@@ -96,8 +96,8 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
 
   default Optional<HttpServletRequest> findHttpServletRequest() {
     return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
-        .filter(attrs -> attrs instanceof ServletRequestAttributes)
-        .map(attrs -> (ServletRequestAttributes) attrs)
+        .filter(ServletRequestAttributes.class::isInstance)
+        .map(ServletRequestAttributes.class::cast)
         .map(ServletRequestAttributes::getRequest);
   }
 

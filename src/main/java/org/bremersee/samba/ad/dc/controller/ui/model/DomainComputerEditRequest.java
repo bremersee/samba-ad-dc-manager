@@ -48,6 +48,9 @@ public class DomainComputerEditRequest implements Serializable {
           .orElse(null);
     }
 
+    @Mapping(target = "memberships", ignore = true)
+    @Mapping(target = "networkAddresses", ignore = true)
+    @Mapping(target = "servicePrincipalNames", ignore = true)
     void update(@MappingTarget DomainComputer existingDomainComputer,
         DomainComputerEditRequest domainComputerEditRequest);
   }

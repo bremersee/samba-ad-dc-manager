@@ -21,8 +21,11 @@ public interface DomainUserEditModelMapper {
 
   DomainUserEditModelMapper INSTANCE = Mappers.getMapper(DomainUserEditModelMapper.class);
 
-  @Mapping(target = "newOu", source = "dn")
-  @Mapping(target = "noExpiry", source = "source", qualifiedByName = "mapNoExpiryInternal")
+  @Mapping(target = "newOu", source = "dn", qualifiedByName = "mapDistinguishedNameToNewOu")
+  @Mapping(target = "noExpiry", source = "source", qualifiedByName = "mapNoExpiry")
+  @Mapping(target = "avatar", ignore = true)
+  @Mapping(target = "removeAvatar", ignore = true)
+  @Mapping(target = "renameNamesAutomatically", ignore = true)
   DomainUserEditModel map(DomainUser source);
 
   default ModifiableDomainUserAccountControl mapInternal(
@@ -30,14 +33,15 @@ public interface DomainUserEditModelMapper {
     return ModifiableDomainUserAccountControl.create().from(domainUserAccountControl);
   }
 
-  default String mapInternal(Dn distinguishedName) {
-    return Optional.ofNullable(distinguishedName)
+  @Named("mapDistinguishedNameToNewOu")
+  default String mapDistinguishedNameToNewOuInternal(Dn dn) {
+    return Optional.ofNullable(dn)
         .map(Dn::getParent)
         .map(Dn::format)
         .orElse(null);
   }
 
-  @Named("mapNoExpiryInternal")
+  @Named("mapNoExpiry")
   default boolean mapNoExpiryInternal(DomainUser source) {
     return isNull(source.getAccountExpires());
   }
@@ -50,6 +54,16 @@ public interface DomainUserEditModelMapper {
       target = "accountExpires",
       source = "source",
       qualifiedByName = "mergeAccountExpiresInternal")
+  @Mapping(target = "distinguishedName", ignore = true)
+  @Mapping(target = "created", ignore = true)
+  @Mapping(target = "modified", ignore = true)
+  @Mapping(target = "sid", ignore = true)
+  @Mapping(target = "criticalSystemObject", ignore = true)
+  @Mapping(target = "memberships", ignore = true)
+  @Mapping(target = "lastLogon", ignore = true)
+  @Mapping(target = "logonCount", ignore = true)
+  @Mapping(target = "password", ignore = true)
+  @Mapping(target = "passwordLastSet", ignore = true)
   DomainUser mergeInternal(
       DomainUserEditModel source,
       @MappingTarget ImmutableDomainUser.Builder target);

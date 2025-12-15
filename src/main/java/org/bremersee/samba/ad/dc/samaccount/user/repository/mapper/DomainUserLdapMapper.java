@@ -17,6 +17,7 @@
 package org.bremersee.samba.ad.dc.samaccount.user.repository.mapper;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -48,7 +49,10 @@ import org.springframework.util.Assert;
 @Slf4j
 public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUser> {
 
+  // Will be encoded as '0'.
   private static final OffsetDateTime NEVER_EXPIRES = OffsetDateTime.parse("1601-01-01T00:00:00Z");
+
+  // Actually max is Long.MAX_VALUE, year > 30000. Year 9999 should be great enough.
   private static final OffsetDateTime MAX_EXPIRES = OffsetDateTime.parse("9999-01-01T00:00:00Z");
 
   private final Supplier<Boolean> rfc2307EnabledSupplier;
@@ -243,7 +247,12 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
         .filter(expires -> expires.isBefore(MAX_EXPIRES))
         .ifPresentOrElse(
             expires -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, expires),
-            () -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, NEVER_EXPIRES));
+            () -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(
+                destination,
+                NEVER_EXPIRES,
+                // The value decoder interprets '0' as null. But null would remove the attribute
+                // and that is not allowed.
+                (oldValue, newValue) -> nonNull(oldValue)));
 
     String company = source.getCompany();
     setAttribute(destination, AdConstants.USER_COMPANY, company, modifications);
