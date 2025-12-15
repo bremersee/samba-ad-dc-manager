@@ -28,7 +28,7 @@ import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.admin.AbstractEditController;
+import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
