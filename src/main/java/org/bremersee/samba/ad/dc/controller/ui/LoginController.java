@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller("loginController")
-public class LoginController extends AbstractController {
+public class LoginController extends UiController {
 
   public LoginController(
       DomainControllerProperties domainControllerProperties,

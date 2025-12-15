@@ -41,7 +41,6 @@ public interface AdEntry extends DistinguishedNameProvider {
   @Hidden
   @JsonIgnore
   @Value.Lazy
-  @Nullable
   default String getDistinguishedNameUnformatted() {
     return isEmpty(getDn()) ? null : getDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
   }
@@ -54,7 +53,6 @@ public interface AdEntry extends DistinguishedNameProvider {
   @Hidden
   @JsonIgnore
   @Value.Lazy
-  @Nullable
   default String getParentDistinguishedName() {
     return Optional.ofNullable(getDn())
         .map(Dn::getParent)
@@ -70,7 +68,6 @@ public interface AdEntry extends DistinguishedNameProvider {
   @Hidden
   @JsonIgnore
   @Value.Lazy
-  @Nullable
   default String getNameTree() { // ou is reverse
     return Stream.ofNullable(getDn())
         .map(Dn::getRDns)
@@ -106,7 +103,6 @@ public interface AdEntry extends DistinguishedNameProvider {
   @Hidden
   @JsonIgnore
   @Value.Lazy
-  @Nullable
   default Dn getDn() {
     if (DnTool.isValidDn(getDistinguishedName())) {
       return new Dn(getDistinguishedName());

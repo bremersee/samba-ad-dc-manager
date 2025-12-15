@@ -20,6 +20,7 @@ import static java.util.Objects.isNull;
 import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -46,6 +47,9 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUser> {
+
+  private static final OffsetDateTime NEVER_EXPIRES = OffsetDateTime.parse("1601-01-01T00:00:00Z");
+  private static final OffsetDateTime MAX_EXPIRES = OffsetDateTime.parse("9999-01-01T00:00:00Z");
 
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
@@ -131,6 +135,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
         .from(samAccountLdapMapper.map(source));
     AdConstants.USER_ACCOUNT_EXPIRES
         .getValue(source)
+        .filter(expires -> expires.isBefore(MAX_EXPIRES))
         .ifPresent(builder::accountExpires);
     AdConstants.USER_COMPANY
         .getValue(source)
@@ -234,8 +239,11 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
     var modifications = new ArrayList<>(Arrays.asList(samAccountLdapMapper
         .mapAndComputeModifications(source, destination)));
 
-    // TODO can I set it?
-    // OffsetDateTime accountExpires = source.getAccountExpires();
+    Optional.ofNullable(source.getAccountExpires())
+        .filter(expires -> expires.isBefore(MAX_EXPIRES))
+        .ifPresentOrElse(
+            expires -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, expires),
+            () -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, NEVER_EXPIRES));
 
     String company = source.getCompany();
     setAttribute(destination, AdConstants.USER_COMPANY, company, modifications);

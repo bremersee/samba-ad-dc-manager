@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui.admin;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.DnsZoneDeleteRequest;

@@ -17,8 +17,8 @@
 package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
-import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnitPage;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
@@ -37,7 +37,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class OrganizationUnitsController extends AbstractController
+public class OrganizationUnitsController extends UiController
     implements PageableComponent, CurrentPageNameProvider {
 
   private final OrganizationalUnitService organizationalUnitService;

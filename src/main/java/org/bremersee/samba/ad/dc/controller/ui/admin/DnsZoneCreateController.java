@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.bremersee.samba.ad.dc.dns.model.DnsZone;
@@ -38,7 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsZoneCreateController extends AbstractController {
+public class DnsZoneCreateController extends UiController {
 
   private final DnsService dnsService;
 

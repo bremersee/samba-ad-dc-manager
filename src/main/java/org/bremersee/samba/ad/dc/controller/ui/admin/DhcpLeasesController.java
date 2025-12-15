@@ -24,10 +24,10 @@ import java.util.Optional;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
-import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.bremersee.samba.ad.dc.dns.model.DhcpLeasePage;
@@ -48,7 +48,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class DhcpLeasesController extends AbstractController
+public class DhcpLeasesController extends UiController
     implements PageableComponent, CurrentPageNameProvider, RedirectComponent {
 
   private final SortMapper sortMapper;

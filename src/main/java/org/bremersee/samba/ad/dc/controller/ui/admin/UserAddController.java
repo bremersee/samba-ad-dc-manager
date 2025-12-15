@@ -28,12 +28,12 @@ import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.service.TemplateEngine;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
-import org.bremersee.samba.ad.dc.controller.ui.components.FieldTemplateComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.FieldTemplateComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserAddRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
@@ -59,7 +59,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserAddController extends AbstractController
+public class UserAddController extends UiController
     implements PageableComponent, RedirectComponent, FieldTemplateComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 

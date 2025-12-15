@@ -20,7 +20,7 @@ import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitNavigationComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDropdown;
@@ -44,7 +44,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class ComputersController extends AbstractController
+public class ComputersController extends UiController
     implements PageableComponent, OrganizationalUnitNavigationComponent {
 
   private final SortMapper sortMapper;

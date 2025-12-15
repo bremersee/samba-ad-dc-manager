@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.controller.ui.components;
 
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.controller.ui.ControllerConstants;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  * @author Christian Bremer
  */
-public interface PageableComponent extends ControllerConstants {
+public interface PageableComponent extends UiControllerConstants {
 
   @ModelAttribute(PAGE)
   default int addPage(@RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page) {

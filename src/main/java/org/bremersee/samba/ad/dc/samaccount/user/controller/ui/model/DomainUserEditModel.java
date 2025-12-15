@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui.model;
+package org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import lombok.Data;
+import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.samaccount.user.model.ImmutableDomainUser;
@@ -38,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Christian Bremer
  */
 @Data
-public class DomainUserEditRequest {
+public class DomainUserEditModel {
 
   public static final DomainUserEditMapper MAPPER = Mappers.getMapper(DomainUserEditMapper.class);
 
@@ -54,9 +56,13 @@ public class DomainUserEditRequest {
 
   private ModifiableDomainUserAccountControl accountControl;
 
-  private boolean enabled = true;
+  private OffsetDateTime accountExpires; // TODO how does it interact with passwordExpirationEnabled?
 
-  private boolean passwordExpirationEnabled = false;
+  private boolean noExpiry; // TODO add checkbox
+
+  private boolean enabled = true; // TODO use account control
+
+  private boolean passwordExpirationEnabled = false; // TODO use account control
 
   private String userPrincipalName;
 
@@ -183,7 +189,7 @@ public class DomainUserEditRequest {
    */
   private String nisDomain;
 
-  public DomainUserEditRequest() {
+  public DomainUserEditModel() {
     accountControl = ModifiableDomainUserAccountControl.create();
   }
 
@@ -198,7 +204,7 @@ public class DomainUserEditRequest {
   public interface ToDomainUserMapper {
 
     DomainUser update(
-        DomainUserEditRequest source,
+        DomainUserEditModel source,
         @MappingTarget ImmutableDomainUser.Builder target);
 
   }
@@ -215,7 +221,7 @@ public class DomainUserEditRequest {
 
      */
     @Mapping(source = "dn", target = "newOu")
-    DomainUserEditRequest map(DomainUser domainUser);
+    DomainUserEditModel map(DomainUser domainUser);
 
     default ModifiableDomainUserAccountControl map(
         DomainUserAccountControl domainUserAccountControl) {
@@ -238,17 +244,17 @@ public class DomainUserEditRequest {
 
      */
     void update(@MappingTarget DomainUser existingDomainUser,
-        DomainUserEditRequest domainUserEditRequest);
+        DomainUserEditModel domainUserEditRequest);
 
     // geht nur mit public
     @Mapping(target = "accountControl", source = "source", qualifiedByName = "mapToAccountControl")
     void up(@MappingTarget ImmutableDomainUser.Builder existingDomainUser,
-        DomainUserEditRequest source);
+        DomainUserEditModel source);
 
     @Named("mapToAccountControl")
-    DomainUserAccountControl mapToAccountControl(DomainUserEditRequest domainUserEditRequest);
+    DomainUserAccountControl mapToAccountControl(DomainUserEditModel domainUserEditRequest);
 
-    default DomainUser updateExisting(DomainUser target, DomainUserEditRequest source) {
+    default DomainUser updateExisting(DomainUser target, DomainUserEditModel source) {
       var builder = DomainUser.builder().from(target);
       up(builder, source);
       return builder.build();

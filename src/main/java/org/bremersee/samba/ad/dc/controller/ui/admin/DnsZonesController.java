@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import java.util.List;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeNavigationComponent;
 import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
@@ -35,7 +35,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class DnsZonesController extends AbstractController
+public class DnsZonesController extends UiController
     implements DnsZoneTypeNavigationComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;

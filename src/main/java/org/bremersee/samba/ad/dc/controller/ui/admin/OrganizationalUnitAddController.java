@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitAddRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
@@ -46,7 +46,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class OrganizationalUnitAddController extends AbstractController
+public class OrganizationalUnitAddController extends UiController
     implements PageableComponent, RedirectComponent {
 
   private final OrganizationalUnitService organizationalUnitService;

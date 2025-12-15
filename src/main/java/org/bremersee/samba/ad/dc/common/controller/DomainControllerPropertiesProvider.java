@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller;
+package org.bremersee.samba.ad.dc.common.controller;
 
-import org.bremersee.samba.ad.dc.common.DefaultDnTool;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 
 /**
- * The interface DnToolSupplier.
+ * The interface DomainControllerPropertiesProvider.
  *
  * @author Christian Bremer
  */
-public interface DnToolProvider extends DomainControllerPropertiesProvider {
+public interface DomainControllerPropertiesProvider {
 
-  default DnTool getDnTool() {
-    return new DefaultDnTool(getProperties());
-  }
+  DomainControllerProperties getProperties();
 
 }

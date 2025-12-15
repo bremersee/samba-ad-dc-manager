@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui.components;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -28,9 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.bremersee.ldaptive.converter.StringToDnConverter;
-import org.bremersee.samba.ad.dc.controller.ui.ControllerConstants;
-import org.bremersee.samba.ad.dc.controller.ui.LoggerProvider;
-import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.logger.LoggerProvider;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
@@ -44,7 +43,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author Christian Bremer
  */
 @Validated
-public interface RedirectComponent extends ControllerConstants, LoggerProvider {
+public interface RedirectComponent extends UiControllerConstants, LoggerProvider {
 
   String PAGE_PARAMS = PAGE + "={{" + PAGE + "}}"
       + "&" + SIZE + "={{" + SIZE + "}}"
@@ -80,9 +79,7 @@ public interface RedirectComponent extends ControllerConstants, LoggerProvider {
         SCOPE, findScopeParameterValue()
             .map(TreeSearchScope::getParameterValue)
             .orElse(""),
-        ZONE_TYPE, findZoneTypeParameterValue()
-            .map(DnsZoneType::getParameterValue)
-            .orElse(""),
+        ZONE_TYPE, findZoneTypeParameterValue().orElse(""),
         ZONE_NAME, findParameterValue(ZONE_NAME).orElse("")
     );
   }
@@ -145,9 +142,8 @@ public interface RedirectComponent extends ControllerConstants, LoggerProvider {
         .map(TreeSearchScope::fromValue);
   }
 
-  default Optional<DnsZoneType> findZoneTypeParameterValue() {
-    return findParameterValue(ZONE_TYPE)
-        .map(DnsZoneType::fromValue);
+  default Optional<String> findZoneTypeParameterValue() {
+    return findParameterValue(ZONE_TYPE);
   }
 
   default String getRedirectUri(

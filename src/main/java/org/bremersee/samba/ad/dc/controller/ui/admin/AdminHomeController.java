@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComponent;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class AdminHomeController extends AbstractController
+public class AdminHomeController extends UiController
     implements OrganizationalUnitComponent {
 
   public AdminHomeController(DomainControllerProperties properties,

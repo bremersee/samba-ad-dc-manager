@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.components;
 
-import org.bremersee.samba.ad.dc.controller.ui.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.model.DnsZoneTypeDropdown;
 import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 import org.springframework.web.bind.annotation.ModelAttribute;

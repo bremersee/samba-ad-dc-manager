@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDeleteRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;

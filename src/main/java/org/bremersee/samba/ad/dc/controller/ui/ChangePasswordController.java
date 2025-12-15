@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.ChangePasswordRequest;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
@@ -42,7 +43,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class ChangePasswordController extends AbstractController {
+public class ChangePasswordController extends UiController {
 
   private final DomainService domainService;
 

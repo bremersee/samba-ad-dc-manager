@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller.ui;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.Locale;
 import lombok.Getter;
 import lombok.Setter;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.common.DefaultDnTool;
 import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.common.controller.DnToolProvider;
+import org.bremersee.samba.ad.dc.common.controller.SortOrderConstants;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.MessageProvider;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.logger.LoggerProvider;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.DnToolProvider;
 import org.springframework.context.MessageSource;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type AbstractController.
+ * The type UiController.
  *
  * @author Christian Bremer
  */
 @Getter
-public abstract class AbstractController implements DnToolProvider,
-    SortOrderConstants, LoggerProvider, MessageProvider, ErrorCode {
+public abstract class UiController implements DnToolProvider,
+    LoggerProvider, MessageProvider, SortOrderConstants, ErrorCode {
 
   private final DomainControllerProperties properties;
 
@@ -52,17 +53,13 @@ public abstract class AbstractController implements DnToolProvider,
   @Setter
   private MessageSource messageSource;
 
-  public AbstractController(
+  protected UiController(
       DomainControllerProperties properties,
       LocaleResolver localeResolver) {
     this.properties = properties;
     this.dnTool = new DefaultDnTool(properties);
     this.localeResolver = localeResolver;
     Assert.notNull(getLogger(), "Logger is required.");
-  }
-
-  protected Locale resolveLocale(HttpServletRequest request) {
-    return localeResolver.resolveLocale(request);
   }
 
   protected void logRedirectTo(String msg, String redirect) {

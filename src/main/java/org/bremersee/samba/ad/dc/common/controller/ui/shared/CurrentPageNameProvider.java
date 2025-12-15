@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
- * The interface DomainControllerPropertiesProvider.
+ * The interface CurrentPageProvider.
  *
  * @author Christian Bremer
  */
-public interface DomainControllerPropertiesProvider {
+public interface CurrentPageNameProvider extends UiControllerConstants {
 
-  DomainControllerProperties getProperties();
+  String getCurrentPageName();
+
+  @ModelAttribute(CURRENT_PAGE_NAME)
+  default String addCurrentPageName() {
+    return getCurrentPageName();
+  }
 
 }

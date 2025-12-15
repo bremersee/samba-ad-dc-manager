@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared.logger;
 
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * The interface CurrentPageProvider.
+ * The interface LoggerProvider.
  *
  * @author Christian Bremer
  */
-public interface CurrentPageNameProvider extends ControllerConstants {
+public interface LoggerProvider {
 
-  String getCurrentPageName();
-
-  @ModelAttribute(CURRENT_PAGE_NAME)
-  default String addCurrentPageName() {
-    return getCurrentPageName();
+  default Logger getLogger() {
+    return LoggerMap.INSTANCE.computeIfAbsent(getClass(), LoggerFactory::getLogger);
   }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui.components;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import static java.util.Objects.requireNonNullElse;
 

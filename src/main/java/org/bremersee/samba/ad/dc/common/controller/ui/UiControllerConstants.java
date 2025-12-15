@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller.ui;
 
 /**
  * The interface ControllerConstants.
  *
  * @author Christian Bremer
  */
-public interface ControllerConstants {
+public interface UiControllerConstants {
 
   String CURRENT_PAGE_NAME = "currentPage";
 

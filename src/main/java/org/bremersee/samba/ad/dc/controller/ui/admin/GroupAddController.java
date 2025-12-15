@@ -24,12 +24,12 @@ import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.components.DomainGroupTypesComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.DomainGroupAddRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
@@ -55,7 +55,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class GroupAddController extends AbstractController implements PageableComponent,
+public class GroupAddController extends UiController implements PageableComponent,
     RedirectComponent, DomainGroupTypesComponent, OrganizationalUnitComponent,
     OrganisationalUnitsComponent {
 

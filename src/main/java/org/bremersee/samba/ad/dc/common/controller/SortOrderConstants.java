@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
 
 /**
- * The interface LoggerProvider.
+ * The interface SortOrderConstants.
  *
  * @author Christian Bremer
  */
-public interface LoggerProvider {
+public interface SortOrderConstants extends UiControllerConstants {
 
-  Map<Class<?>, Logger> LOGGER_MAP = new HashMap<>();
+  String USER_SORT = "lastName;firstName;samAccountName";
 
-  default Logger getLogger() {
-    return LOGGER_MAP.computeIfAbsent(getClass(), LoggerFactory::getLogger);
-  }
+  String GROUP_SORT = "samAccountName";
+
+  String COMPUTER_SORT = "name";
+
+  String OU_SORT = "nameTree";
+
+  String DNS_ENTRY_SORT = "name;type;value";
+
+  String DHCP_LEASE_SORT = "ip";
 
 }

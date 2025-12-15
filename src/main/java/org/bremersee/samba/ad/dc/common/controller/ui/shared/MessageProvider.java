@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -39,8 +39,8 @@ public interface MessageProvider extends MessageSourceAware {
 
   default Locale getResolvedLocale() {
     return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
-        .filter(attrs -> attrs instanceof ServletRequestAttributes)
-        .map(attrs -> (ServletRequestAttributes) attrs)
+        .filter(ServletRequestAttributes.class::isInstance)
+        .map(ServletRequestAttributes.class::cast)
         .map(ServletRequestAttributes::getRequest)
         .map(req -> getLocaleResolver().resolveLocale(req))
         .orElse(Locale.ENGLISH);

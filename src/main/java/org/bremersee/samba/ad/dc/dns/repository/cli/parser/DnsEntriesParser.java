@@ -95,7 +95,7 @@ public interface DnsEntriesParser
           currentEntry = DnsEntry.builder()
               .zoneName(zoneName)
               .name(currentName)
-              .build();
+              .build(); // TODO type and value should not be nullable
         } else if (nonNull(currentEntry)) {
           int i0 = line.indexOf(RECORD_LINE_INDICATOR);
           if (i0 > 0) {

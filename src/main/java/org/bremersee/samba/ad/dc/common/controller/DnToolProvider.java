@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller;
+
+import org.bremersee.samba.ad.dc.common.DefaultDnTool;
+import org.bremersee.samba.ad.dc.common.DnTool;
 
 /**
- * The interface SortOrderConstants.
+ * The interface DnToolProvider.
  *
  * @author Christian Bremer
  */
-public interface SortOrderConstants extends ControllerConstants {
+public interface DnToolProvider extends DomainControllerPropertiesProvider {
 
-  String USER_SORT = "lastName;firstName;samAccountName";
-
-  String GROUP_SORT = "samAccountName";
-
-  String COMPUTER_SORT = "name";
-
-  String OU_SORT = "nameTree";
-
-  String DNS_ENTRY_SORT = "name;type;value";
-
-  String DHCP_LEASE_SORT = "ip";
+  default DnTool getDnTool() {
+    return new DefaultDnTool(getProperties());
+  }
 
 }

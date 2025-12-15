@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import org.bremersee.pagebuilder.model.AbstractPageDto;
 import org.springframework.stereotype.Component;

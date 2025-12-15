@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui.admin;
+package org.bremersee.samba.ad.dc.samaccount.user.controller.ui;
 
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -25,21 +25,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.controller.ui.admin.AbstractEditController;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserEditRequest;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
-import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
-import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.samaccount.user.controller.ui.mapper.DomainUserEditModelMapper;
+import org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model.DomainUserEditModel;
+import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
+import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -117,8 +119,8 @@ public class UserEditController extends AbstractEditController implements Pageab
           List<DomainGroup> groups = domainGroupService.getMemberships(userName, ou, searchScope)
               .toList();
           model.addAttribute("groups", groups);
-          DomainUserEditRequest request = DomainUserEditRequest.MAPPER.map(user);
-          model.addAttribute("userEditRequest", request);
+          DomainUserEditModel editModel = DomainUserEditModelMapper.INSTANCE.map(user);
+          model.addAttribute("userEditRequest", editModel);
           return "admin/user-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -133,7 +135,7 @@ public class UserEditController extends AbstractEditController implements Pageab
       @RequestParam(value = "previousLastName", required = false) String previousLastName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "userEditRequest") DomainUserEditRequest userEditRequest,
+      @ModelAttribute(name = "userEditRequest") DomainUserEditModel userEditRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -157,21 +159,20 @@ public class UserEditController extends AbstractEditController implements Pageab
 
   private String updateUser(
       DomainUser existingUser,
-      DomainUserEditRequest userEditRequest,
+      DomainUserEditModel userEditModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
     String oldSamAccountName = existingUser.getSamAccountName();
-    DomainUserEditRequest.MAPPER.update(existingUser, userEditRequest);
-    Dn ou = userEditRequest.getNewOuDn();
-    DomainUser updatedUser = null;
+    DomainUser newUser = DomainUserEditModelMapper.INSTANCE.merge(userEditModel, existingUser);
+    Dn ou = userEditModel.getNewOuDn();
+    Dn parentDn = existingUser.getDn().getParent();
+    Dn ouDn = getDnTool().addBaseDn(ou);
+    Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
     try {
-      Dn parentDn = existingUser.getDn().getParent();
-      Dn ouDn = getDnTool().addBaseDn(ou);
-      Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
-      updatedUser = domainUserService.updateUser(oldSamAccountName, existingUser, newOu);
-      updateAvatar(bindingResult, userEditRequest);
+      DomainUser updatedUser = domainUserService.updateUser(oldSamAccountName, newUser, newOu);
+      updateAvatar(bindingResult, userEditModel);
 
       model.clear();
       String defaultMsg = String
@@ -189,15 +190,17 @@ public class UserEditController extends AbstractEditController implements Pageab
     } catch (ServiceException e) {
       handleException(bindingResult, e);
       getLogger().debug("Updating user failed. Some fields were invalid.");
-      String currentSamAccountName = Optional.ofNullable(updatedUser)
+      String currentSamAccountName = Optional.ofNullable(newUser)
           .map(DomainUser::getSamAccountName)
           .orElse(oldSamAccountName);
-      Dn currentOu = Optional.ofNullable(updatedUser)
+      Dn currentOu = Optional.ofNullable(newUser)
           .map(DomainUser::getDn)
           .map(Dn::getParent)
-          .orElseGet(() -> existingUser.getDn().getParent());
+          .orElse(parentDn);
       DomainUser currentUser = domainUserService
-          .getUser(currentSamAccountName, currentOu, TreeSearchScope.ONELEVEL)
+          .getUser(oldSamAccountName, parentDn, TreeSearchScope.ONELEVEL)
+          .or(() -> domainUserService.getUser(currentSamAccountName, currentOu,
+              TreeSearchScope.ONELEVEL))
           .orElseThrow(() -> ServiceException.internalServerError(String
               .format("Domain user '%s' was not found.", currentSamAccountName)));
       model.addAttribute("user", currentUser);
@@ -212,13 +215,14 @@ public class UserEditController extends AbstractEditController implements Pageab
     }
   }
 
-  public void replaceNames(DomainUserEditRequest userEditRequest, String oldName, String newName) {
+  public void replaceNames(DomainUserEditModel userEditRequest, String oldName, String newName) {
     if (isEmpty(userEditRequest) || isEmpty(oldName)) {
       return;
     }
     String replacement = isEmpty(newName) ? "" : newName;
     if (!isEmpty(userEditRequest.getDisplayName())) {
-      userEditRequest.setDisplayName(userEditRequest.getDisplayName().replace(oldName, replacement).trim());
+      userEditRequest.setDisplayName(
+          userEditRequest.getDisplayName().replace(oldName, replacement).trim());
     }
     if (!isEmpty(userEditRequest.getGecos())) {
       userEditRequest.setGecos(userEditRequest.getGecos().replace(oldName, replacement).trim());
@@ -228,10 +232,12 @@ public class UserEditController extends AbstractEditController implements Pageab
           userEditRequest.getHomeDirectory().replace(oldName, replacement).trim());
     }
     if (!isEmpty(userEditRequest.getProfilePath())) {
-      userEditRequest.setProfilePath(userEditRequest.getProfilePath().replace(oldName, replacement).trim());
+      userEditRequest.setProfilePath(
+          userEditRequest.getProfilePath().replace(oldName, replacement).trim());
     }
     if (!isEmpty(userEditRequest.getScriptPath())) {
-      userEditRequest.setScriptPath(userEditRequest.getScriptPath().replace(oldName, replacement).trim());
+      userEditRequest.setScriptPath(
+          userEditRequest.getScriptPath().replace(oldName, replacement).trim());
     }
     if (!isEmpty(userEditRequest.getUid())) {
       userEditRequest.setUid(userEditRequest.getUid().replace(oldName, replacement).trim());
@@ -246,7 +252,7 @@ public class UserEditController extends AbstractEditController implements Pageab
     }
   }
 
-  private void updateAvatar(BindingResult bindingResult, DomainUserEditRequest userEditRequest) {
+  private void updateAvatar(BindingResult bindingResult, DomainUserEditModel userEditRequest) {
     if (userEditRequest.isRemoveAvatar()) {
       domainUserService.removeUserAvatar(userEditRequest.getSamAccountName());
     } else if (!isEmpty(userEditRequest.getAvatar()) && !userEditRequest.getAvatar().isEmpty()) {
@@ -264,7 +270,7 @@ public class UserEditController extends AbstractEditController implements Pageab
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof DomainUserEditRequest, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof DomainUserEditModel, "Illegal bind target.");
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {

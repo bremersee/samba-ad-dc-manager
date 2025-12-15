@@ -1,24 +1,24 @@
 package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractController;
-import org.bremersee.samba.ad.dc.controller.ui.components.RedirectComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-public abstract class AbstractEditController extends AbstractController
+public abstract class AbstractEditController extends UiController
     implements RedirectComponent {
 
-  public AbstractEditController(
+  protected AbstractEditController(
       DomainControllerProperties properties,
       LocaleResolver localeResolver) {
     super(properties, localeResolver);
   }
 
   @Deprecated
-  String entityNotFoundRedirect(
+  protected String entityNotFoundRedirect(
       RedirectAttributes redirectAttributes,
       String entityType,
       String i18nCode,
@@ -29,7 +29,7 @@ public abstract class AbstractEditController extends AbstractController
         PAGE_AND_OU_PARAMS, redirect);
   }
 
-  String entityNotFoundRedirect(
+  protected String entityNotFoundRedirect(
       RedirectAttributes redirectAttributes,
       String entityType,
       String i18nCode,
