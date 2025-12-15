@@ -25,11 +25,12 @@ import org.bremersee.samba.ad.dc.common.DefaultDnTool;
 import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.controller.DnToolProvider;
 import org.bremersee.samba.ad.dc.common.controller.SortOrderConstants;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.LoggerProvider;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.MessageProvider;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.logger.LoggerProvider;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
-import org.springframework.util.Assert;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
@@ -38,28 +39,27 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Getter
-public abstract class UiController implements DnToolProvider,
-    LoggerProvider, MessageProvider, SortOrderConstants, ErrorCode {
+public abstract class UiController implements LoggerProvider, DnToolProvider, MessageProvider,
+    SortOrderConstants, ErrorCode {
+
+  private final Logger logger;
 
   private final DomainControllerProperties properties;
 
-  @Getter
   private final DnTool dnTool;
 
-  @Getter
   private final LocaleResolver localeResolver;
 
-  @Getter
   @Setter
   private MessageSource messageSource;
 
   protected UiController(
       DomainControllerProperties properties,
       LocaleResolver localeResolver) {
+    this.logger = LoggerFactory.getLogger(getClass());
     this.properties = properties;
     this.dnTool = new DefaultDnTool(properties);
     this.localeResolver = localeResolver;
-    Assert.notNull(getLogger(), "Logger is required.");
   }
 
   protected void logRedirectTo(String msg, String redirect) {

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.common.controller.ui.shared.logger;
+package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The interface LoggerProvider.
@@ -26,8 +25,6 @@ import org.slf4j.LoggerFactory;
  */
 public interface LoggerProvider {
 
-  default Logger getLogger() {
-    return LoggerMap.INSTANCE.computeIfAbsent(getClass(), LoggerFactory::getLogger);
-  }
+  Logger getLogger();
 
 }

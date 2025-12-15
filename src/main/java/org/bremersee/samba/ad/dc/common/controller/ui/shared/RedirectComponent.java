@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import org.bremersee.ldaptive.converter.StringToDnConverter;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.logger.LoggerProvider;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
