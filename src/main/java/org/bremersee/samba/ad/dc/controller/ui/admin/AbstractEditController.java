@@ -3,8 +3,8 @@ package org.bremersee.samba.ad.dc.controller.ui.admin;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
-import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
-import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 

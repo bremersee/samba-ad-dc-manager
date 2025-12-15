@@ -18,8 +18,8 @@ package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
-import org.bremersee.samba.ad.dc.controller.ui.components.DnsZoneTypeComponent;
-import org.bremersee.samba.ad.dc.controller.ui.components.PageableComponent;
+import org.bremersee.samba.ad.dc.dns.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.dns.servive.DnsService;
 import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Controller;

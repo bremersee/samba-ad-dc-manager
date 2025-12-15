@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui.admin;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
-import org.bremersee.samba.ad.dc.controller.ui.components.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.LocaleResolver;

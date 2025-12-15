@@ -18,8 +18,6 @@ package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import java.util.Locale;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessage;
-import org.bremersee.samba.ad.dc.controller.ui.model.RedirectMessageType;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.web.context.request.RequestContextHolder;
