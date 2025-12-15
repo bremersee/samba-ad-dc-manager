@@ -108,7 +108,7 @@ public interface PasswordInformationParser
 
     @Override
     public PasswordInformation parse(final CommandExecutorResponse response) {
-      if (!response.stdoutHasText()) {
+      if (response.stdoutHasNoText()) {
         log.warn("Password information command did not produce output. Error is [{}].",
             response.getStderr());
         return PasswordInformation.builder().build();

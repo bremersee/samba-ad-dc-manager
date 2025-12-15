@@ -76,7 +76,7 @@ public interface DomainInfoParser
 
     @Override
     public DomainInfo parse(final CommandExecutorResponse response) {
-      if (!response.stdoutHasText()) {
+      if (response.stdoutHasNoText()) {
         log.warn("Domain info command did not produce output. Error is [{}].",
             response.getStderr());
         return DomainInfo.builder().build();

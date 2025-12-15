@@ -47,10 +47,10 @@ public class CommandExecutorResponse implements Serializable {
   /**
    * Check whether stdout has text or not.
    *
-   * @return {@code true} if stdout has text, otherwise {@code false}
+   * @return {@code false} if stdout has text, otherwise {@code true}
    */
-  public boolean stdoutHasText() {
-    return hasText(stdout);
+  public boolean stdoutHasNoText() {
+    return !hasText(stdout);
   }
 
   /**
@@ -78,7 +78,7 @@ public class CommandExecutorResponse implements Serializable {
     if (StringUtils.hasText(out)) {
       sb.append("stdout=[").append(out).append("]");
       if (StringUtils.hasText(err)) {
-        sb.append(" ");
+        sb.append(", ");
       }
     }
     if (StringUtils.hasText(err)) {

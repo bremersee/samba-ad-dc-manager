@@ -34,7 +34,7 @@ public abstract class AbstractCommandExecutorResponseParser<T>
 
   @Override
   public T parse(CommandExecutorResponse response) {
-    if (!response.stdoutHasText()) {
+    if (response.stdoutHasNoText()) {
       if (response.stderrHasText()) {
         log.warn("Command did not produce output. Error is:\n{}\n",
             response.getStderr());
