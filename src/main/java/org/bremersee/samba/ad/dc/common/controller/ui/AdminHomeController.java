@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.controller.ui.admin;
+package org.bremersee.samba.ad.dc.common.controller.ui;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
