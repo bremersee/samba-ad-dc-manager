@@ -105,7 +105,7 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
         .map(req -> req.getParameter(parameterName));
   }
 
-  default Integer findPageParameterValue() {
+  default int findPageParameterValue() {
     return findParameterValue(PAGE)
         .map(value -> {
           try {
@@ -118,7 +118,7 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
         .orElse(PAGE_DEFAULT_INT);
   }
 
-  default Integer findSizeParameterValue() {
+  default int findSizeParameterValue() {
     return findParameterValue(SIZE)
         .map(value -> {
           try {
