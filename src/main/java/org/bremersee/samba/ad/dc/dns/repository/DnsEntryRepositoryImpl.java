@@ -77,9 +77,11 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
     String[] returnAttributes = adEntryMapper.getMappedAttributeNames();
     SearchRequest searchRequest = SearchRequest
         .objectScopeSearchRequest(dn.format(), returnAttributes);
-    getLdapTemplate().findOne(searchRequest)
-        .ifPresent(ldapEntry -> adEntryMapper.map(ldapEntry, entry));
-    return entry;
+    return getLdapTemplate().findOne(searchRequest)
+        .map(ldapEntry -> DnsEntry.builder()
+            .from(entry).from(adEntryMapper.map(ldapEntry))
+            .build())
+        .orElse(entry);
   }
 
   @CacheEvict(value = "dnsEntryListCache", allEntries = true)

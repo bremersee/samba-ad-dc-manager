@@ -79,10 +79,10 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
   private Optional<DnsZone> doFindDnsZone(String zoneName) {
     return dnsTool.findDnsZone(getHostName(), zoneName)
         .map(zone -> findLdapEntryOfDnsZone(zone.getDistinguishedName())
-            .map(ldapEntry -> {
-              adEntryMapper.map(ldapEntry, zone);
-              return zone;
-            })
+            .map(ldapEntry ->  DnsZone.builder()
+                .from(zone)
+                .from(adEntryMapper.map(ldapEntry))
+                .build())
             .orElse(zone));
   }
 

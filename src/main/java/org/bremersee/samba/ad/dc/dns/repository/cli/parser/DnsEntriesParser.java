@@ -132,7 +132,7 @@ public interface DnsEntriesParser
       return entries;
     }
 
-    private DnsEntry parseDnsRecord(String line, DnsEntry currentEntry) {
+    private DnsEntry parseDnsRecord(String line, DnsEntry currentEntry) { // TODO use builder
       DnsEntry.Builder dnsEntryBuilder = DnsEntry.builder().from(currentEntry);
       int i0 = line.indexOf(RECORD_LINE_INDICATOR);
       if (i0 > 0) {

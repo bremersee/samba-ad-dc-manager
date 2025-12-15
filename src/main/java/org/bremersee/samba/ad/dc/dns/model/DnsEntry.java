@@ -43,10 +43,12 @@ public interface DnsEntry extends AdEntry {
 
   @Schema(description = "The type of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "type", required = true)
+  @Nullable // TODO parsing error? Some internal entries have no type and value
   DnsEntryType getType();
 
   @Schema(description = "The value of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "value", required = true)
+  @Nullable // TODO parsing error?
   String getValue();
 
   @Schema(description = "The flags of this dns entry.")
