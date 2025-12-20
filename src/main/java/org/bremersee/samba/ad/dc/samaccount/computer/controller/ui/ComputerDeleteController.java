@@ -16,17 +16,19 @@
 
 package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui;
 
-import java.util.Map;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteRequest;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteModel;
+import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
@@ -60,7 +62,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
 
   @Override
   public String getDefaultSort() {
-    return USER_SORT;
+    return ComputerControllerConstants.COMPUTER_SORT;
   }
 
   @GetMapping(path = "/admin/computer-delete")
@@ -74,37 +76,49 @@ public class ComputerDeleteController extends AbstractEditController implements 
     return Optional.ofNullable(computerName)
         .flatMap(name -> domainComputerService.getComputer(computerName, ou, searchScope))
         .map(computer -> {
-          model.addAttribute("computer", computer);
-          model.addAttribute("deleteRequest", new SamAccountDeleteRequest(computer));
+          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          model.addAttribute("deleteModel", new SamAccountDeleteModel(computer));
           return "admin/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Computer", "todo", computerName, "computers"));
+            redirectAttributes,
+            ComputerControllerConstants.COMPUTER,
+            "todo",
+            computerName,
+            PAGE_AND_OU_PARAMS,
+            ComputerControllerConstants.COMPUTERS));
   }
 
   @PostMapping(path = "/admin/computer-delete")
   public String deleteComputer(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute("deleteRequest") SamAccountDeleteRequest deleteRequest,
+      @ModelAttribute("deleteModel") SamAccountDeleteModel deleteModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("deleteComputer({})", deleteRequest);
-    return Optional.ofNullable(deleteRequest.getSamAccountName())
+    getLogger().debug("deleteComputer({})", deleteModel);
+    return Optional.ofNullable(deleteModel.getSamAccountName())
         .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
         .map(computer -> {
-          if (!computer.getName().equalsIgnoreCase(deleteRequest.getVerificationName())) {
-            bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
-            model.addAttribute("computer", computer);
-            return "admin/computer-delete";
+          if (isVerified(computer, deleteModel)) {
+            return deleteComputer(computer, model, redirectAttributes);
           }
-          return deleteComputer(computer, model, redirectAttributes);
+          bindingResult.rejectValue(
+              "verificationName",
+              "todo",
+              "The name doesn't match.");
+          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          return "admin/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Computer", "todo", deleteRequest.getSamAccountName(),
-            "computers"));
+            redirectAttributes,
+            ComputerControllerConstants.COMPUTER,
+            "todo",
+            deleteModel.getSamAccountName(),
+            PAGE_AND_OU_PARAMS,
+            ComputerControllerConstants.COMPUTERS));
   }
 
   private String deleteComputer(
@@ -116,20 +130,35 @@ public class ComputerDeleteController extends AbstractEditController implements 
     model.clear();
     RedirectMessage rmsg;
     if (result) {
-      rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
+      rmsg = getRedirectMessage(
+          RedirectMessageType.SUCCESS,
           String.format("Computer '%s' was successfully deleted.", computer.getName()),
-          "todo", computer.getName());
+          "todo",
+          computer.getName());
     } else {
-      rmsg = getRedirectMessage(RedirectMessageType.WARNING,
+      rmsg = getRedirectMessage(
+          RedirectMessageType.WARNING,
           String.format("Somehow the computer '%s' was not deleted.", computer.getName()),
-          "todo", computer.getName());
+          "todo",
+          computer.getName());
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-    Map<String, Object> parameters = getParamterMap();
-    String redirect = getRedirectUri("computers", PAGE_AND_OU_PARAMS, parameters);
+    String redirect = getRedirectUri(
+        ComputerControllerConstants.COMPUTERS,
+        PAGE_AND_OU_PARAMS,
+        getParamterMap());
     logRedirectTo("Computer deletion message.", redirect);
     return redirect;
+  }
+
+  private boolean isVerified(DomainComputer computer, SamAccountDeleteModel deleteModel) {
+    if (isEmpty(computer) || isEmpty(deleteModel)) {
+      return false;
+    }
+    return Optional.ofNullable(computer.getName())
+        .filter(name -> name.equalsIgnoreCase(deleteModel.getSamAccountName()))
+        .isPresent();
   }
 
 }

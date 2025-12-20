@@ -18,6 +18,8 @@ package org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import lombok.Data;
@@ -40,11 +42,14 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Christian Bremer
  */
 @Data
-public class DomainUserEditModel {
+public class DomainUserEditModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public static final DomainUserEditMapper MAPPER = Mappers.getMapper(DomainUserEditMapper.class);
 
-  private MultipartFile avatar;
+  private transient MultipartFile avatar;
 
   private boolean removeAvatar;
 

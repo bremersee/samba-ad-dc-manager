@@ -71,7 +71,7 @@ public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<Do
     if (isEmpty(source)) {
       return null;
     }
-    DomainGroupMember.Builder builder = DomainGroupMember.builder()
+    var builder = DomainGroupMember.builder()
         .from(samAccountLdapMapper.map(source));
     builder.memberType(Optional
         .ofNullable(source.getAttribute(AdConstants.OBJECT_CLASS.getName()))

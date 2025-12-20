@@ -22,6 +22,7 @@ import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
@@ -59,7 +60,7 @@ public class ComputerMembershipsController extends AbstractEditController
 
   @Override
   public String getDefaultSort() {
-    return COMPUTER_SORT;
+    return ComputerControllerConstants.COMPUTER_SORT;
   }
 
   @GetMapping(path = "/admin/computer-memberships-direct")
@@ -97,7 +98,7 @@ public class ComputerMembershipsController extends AbstractEditController
     return Optional.ofNullable(computerName)
         .flatMap(name -> domainComputerService.getComputer(computerName, ou, searchScope))
         .map(computer -> {
-          model.addAttribute("computer", computer);
+          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
           Stream<DomainGroup> memberships;
           String page;
           if (direct) {
@@ -111,7 +112,12 @@ public class ComputerMembershipsController extends AbstractEditController
           return page;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", computerName, "computers"));
+            redirectAttributes,
+            "Group",
+            "todo",
+            computerName,
+            PAGE_AND_OU_PARAMS,
+            ComputerControllerConstants.COMPUTERS));
   }
 
 }

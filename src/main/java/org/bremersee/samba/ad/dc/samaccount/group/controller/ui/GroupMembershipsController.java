@@ -54,7 +54,7 @@ public class GroupMembershipsController extends AbstractEditController
 
   @Override
   public String getDefaultSort() {
-    return USER_SORT;
+    return GROUP_SORT;
   }
 
   @GetMapping(path = "/admin/group-memberships-direct")

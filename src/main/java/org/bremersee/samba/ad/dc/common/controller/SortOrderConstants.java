@@ -16,20 +16,18 @@
 
 package org.bremersee.samba.ad.dc.common.controller;
 
-import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
-
 /**
  * The interface SortOrderConstants.
  *
  * @author Christian Bremer
  */
-public interface SortOrderConstants extends UiControllerConstants {
+public interface SortOrderConstants {
 
   String USER_SORT = "lastName;firstName;samAccountName";
 
   String GROUP_SORT = "samAccountName";
 
-  String COMPUTER_SORT = "name";
+  //String COMPUTER_SORT = "name";
 
   String OU_SORT = "nameTree";
 

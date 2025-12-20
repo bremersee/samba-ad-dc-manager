@@ -26,14 +26,12 @@ import org.bremersee.samba.ad.dc.common.service.TemplateEngine;
 import org.bremersee.samba.ad.dc.common.service.TemplateEngineException;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The interface FieldTemplateComponent.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface FieldTemplateComponent {
 
   TemplateEngine getTemplateEngine();

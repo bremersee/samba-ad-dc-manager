@@ -30,22 +30,25 @@ import lombok.Getter;
 @Getter
 public enum TreeSearchScope implements Translatable {
 
-  ONELEVEL("search-scope.one-level.label", "One Level"), // Eine Ebene
+  ONELEVEL("one-level", "search-scope.one-level.label", "One Level"), // Eine Ebene
 
-  SUBTREE("search-scope.subtree.label", "Subtree"); // Teilbaum
+  SUBTREE("subtree", "search-scope.subtree.label", "Subtree"); // Teilbaum
+
+  private final String parameterValue;
 
   private final String i18nCode;
 
   private final String defaultDisplayName;
 
-  TreeSearchScope(String i18nCode, String defaultDisplayName) {
+  TreeSearchScope(String parameterValue, String i18nCode, String defaultDisplayName) {
+    this.parameterValue = parameterValue;
     this.i18nCode = i18nCode;
     this.defaultDisplayName = defaultDisplayName;
   }
 
   @JsonValue
   public String getParameterValue() {
-    return name().toLowerCase();
+    return parameterValue;
   }
 
   @JsonCreator
@@ -53,11 +56,12 @@ public enum TreeSearchScope implements Translatable {
     if (isNull(value) || value.isEmpty()) {
       return null;
     }
-    try {
-      return valueOf(value.toUpperCase());
-    } catch (IllegalArgumentException ex) {
-      return null;
+    for (TreeSearchScope scope : values()) {
+      if (scope.parameterValue.equalsIgnoreCase(value) || scope.name().equalsIgnoreCase(value)) {
+        return scope;
+      }
     }
+    return null;
   }
 
   @Override

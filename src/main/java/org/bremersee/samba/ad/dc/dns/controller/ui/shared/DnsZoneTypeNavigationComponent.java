@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.dns.controller.ui.shared;
 
+import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
@@ -29,9 +30,11 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 public interface DnsZoneTypeNavigationComponent extends CurrentPageNameProvider, PageableComponent {
 
-  @ModelAttribute(ZONE_TYPE_DROPDOWN)
+  @ModelAttribute("zoneTypeDropdown")
   default DnsZoneTypeDropdown getZoneTypeDropdown(
-      @RequestParam(name = ZONE_TYPE, defaultValue = ZONE_TYPE_DEFAULT) DnsZoneType zoneType) {
+      @RequestParam(name = AbstractController.ZONE_TYPE,
+          defaultValue = AbstractController.ZONE_TYPE_DEFAULT)
+      DnsZoneType zoneType) {
     return new DnsZoneTypeDropdown(zoneType);
   }
 

@@ -24,7 +24,7 @@ import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitCompo
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteRequest;
+import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteModel;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
@@ -75,7 +75,7 @@ public class UserDeleteController extends AbstractEditController implements Page
         .flatMap(name -> domainUserService.getUser(userName, ou, searchScope))
         .map(user -> {
           model.addAttribute("user", user);
-          model.addAttribute("deleteRequest", new SamAccountDeleteRequest(user));
+          model.addAttribute("deleteRequest", new SamAccountDeleteModel(user));
           return "admin/user-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -86,7 +86,7 @@ public class UserDeleteController extends AbstractEditController implements Page
   public String deleteUser(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute("deleteRequest") SamAccountDeleteRequest deleteRequest,
+      @ModelAttribute("deleteRequest") SamAccountDeleteModel deleteRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {

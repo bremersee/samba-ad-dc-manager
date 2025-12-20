@@ -23,13 +23,13 @@ import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 
 /**
- * The type DomainGroupAddRequest.
+ * The sam account delete model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class SamAccountDeleteRequest implements Serializable {
+public class SamAccountDeleteModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -38,7 +38,7 @@ public class SamAccountDeleteRequest implements Serializable {
 
   private String verificationName;
 
-  public SamAccountDeleteRequest(SamAccount samAccount) {
+  public SamAccountDeleteModel(SamAccount samAccount) {
     this.samAccountName = samAccount.getSamAccountName();
   }
 

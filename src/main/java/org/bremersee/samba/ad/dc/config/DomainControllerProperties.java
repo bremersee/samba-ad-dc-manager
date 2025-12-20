@@ -83,6 +83,9 @@ public class DomainControllerProperties implements Serializable {
 
   private DomainProperties domain = new DomainProperties(); // move back?
 
+  @NestedConfigurationProperty
+  private AesCryptoProperties aesCrypto = new AesCryptoProperties();
+
 
   private String personalName = "Anna Livia"; // mail with credentials
 

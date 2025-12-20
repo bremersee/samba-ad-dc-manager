@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
+import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,27 +26,35 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  * @author Christian Bremer
  */
-public interface PageableComponent extends UiControllerConstants {
+public interface PageableComponent {
 
-  @ModelAttribute(PAGE)
-  default int addPage(@RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page) {
+  @ModelAttribute(AbstractController.PAGE)
+  default int addPage(
+      @RequestParam(name = AbstractController.PAGE, defaultValue = AbstractController.PAGE_DEFAULT)
+      int page) {
     return page;
   }
 
-  @ModelAttribute(SIZE)
-  default int addSize(@RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size) {
+  @ModelAttribute(AbstractController.SIZE)
+  default int addSize(
+      @RequestParam(name = AbstractController.SIZE, defaultValue = AbstractController.SIZE_DEFAULT)
+      int size) {
     return size;
   }
 
   String getDefaultSort();
 
-  @ModelAttribute(SORT)
-  default String addSort(@RequestParam(name = SORT, required = false) String sort) {
+  @ModelAttribute(AbstractController.SORT)
+  default String addSort(
+      @RequestParam(name = AbstractController.SORT, required = false) String sort) {
     return Optional.ofNullable(sort).orElse(getDefaultSort());
   }
 
-  @ModelAttribute(QUERY)
-  default String addQuery(@RequestParam(name = QUERY, defaultValue = QUERY_DEFAULT) String q) {
+  @ModelAttribute(AbstractController.QUERY)
+  default String addQuery(
+      @RequestParam(name = AbstractController.QUERY,
+          defaultValue = AbstractController.QUERY_DEFAULT)
+      String q) {
     return q;
   }
 

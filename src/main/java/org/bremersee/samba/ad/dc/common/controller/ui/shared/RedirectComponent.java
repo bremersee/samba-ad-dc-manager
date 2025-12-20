@@ -28,11 +28,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.bremersee.ldaptive.converter.StringToDnConverter;
-import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
+import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -41,23 +40,22 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  *
  * @author Christian Bremer
  */
-@Validated
-public interface RedirectComponent extends UiControllerConstants, LoggerProvider {
+public interface RedirectComponent extends LoggerProvider {
 
-  String PAGE_PARAMS = PAGE + "={{" + PAGE + "}}"
-      + "&" + SIZE + "={{" + SIZE + "}}"
-      + "&" + SORT + "={{" + SORT + "}}"
-      + "&" + QUERY + "={{" + QUERY + "}}";
+  String PAGE_PARAMS = AbstractController.PAGE + "={{" + AbstractController.PAGE + "}}"
+      + "&" + AbstractController.SIZE + "={{" + AbstractController.SIZE + "}}"
+      + "&" + AbstractController.SORT + "={{" + AbstractController.SORT + "}}"
+      + "&" + AbstractController.QUERY + "={{" + AbstractController.QUERY + "}}";
 
   String PAGE_AND_OU_PARAMS = PAGE_PARAMS
-      + "&" + OU + "={{" + OU + "}}"
-      + "&" + SCOPE + "={{" + SCOPE + "}}";
+      + "&" + AbstractController.OU + "={{" + AbstractController.OU + "}}"
+      + "&" + AbstractController.SCOPE + "={{" + AbstractController.SCOPE + "}}";
 
   String PAGE_AND_ZONE_TYPE_PARAMS = PAGE_PARAMS
-      + "&" + ZONE_TYPE + "={{" + ZONE_TYPE + "}}";
+      + "&" + AbstractController.ZONE_TYPE + "={{" + AbstractController.ZONE_TYPE + "}}";
 
   String PAGE_AND_ZONE_NAME_PARAMS = PAGE_AND_ZONE_TYPE_PARAMS
-      + "&" + ZONE_NAME + "={{" + ZONE_NAME + "}}";
+      + "&" + AbstractController.ZONE_NAME + "={{" + AbstractController.ZONE_NAME + "}}";
 
   String PAGE_AND_DNS_ENTRY_PARAMS = PAGE_AND_ZONE_NAME_PARAMS
       + "&name={{name}}"
@@ -66,20 +64,21 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
 
   default Map<String, Object> getParamterMap(Dn ou) {
     return Map.of(
-        PAGE, findPageParameterValue(),
-        SIZE, findSizeParameterValue(),
-        SORT, findParameterValue(SORT).orElse(""),
-        QUERY, findParameterValue(QUERY).orElse(""),
-        OU, Optional.ofNullable(ou)
+        AbstractController.PAGE, findPageParameterValue(),
+        AbstractController.SIZE, findSizeParameterValue(),
+        AbstractController.SORT, findParameterValue(AbstractController.SORT).orElse(""),
+        AbstractController.QUERY, findParameterValue(AbstractController.QUERY).orElse(""),
+        AbstractController.OU, Optional.ofNullable(ou)
             .or(this::findOuParameterValue)
             .filter(dn -> !dn.isEmpty())
             .map(Dn::format)
             .orElse(""),
-        SCOPE, findScopeParameterValue()
+        AbstractController.SCOPE, findScopeParameterValue()
             .map(TreeSearchScope::getParameterValue)
             .orElse(""),
-        ZONE_TYPE, findZoneTypeParameterValue().orElse(""),
-        ZONE_NAME, findParameterValue(ZONE_NAME).orElse("")
+        AbstractController.ZONE_TYPE, findZoneTypeParameterValue().orElse(""),
+        AbstractController.ZONE_NAME, findParameterValue(AbstractController.ZONE_NAME)
+            .orElse("")
     );
   }
 
@@ -106,7 +105,7 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
   }
 
   default int findPageParameterValue() {
-    return findParameterValue(PAGE)
+    return findParameterValue(AbstractController.PAGE)
         .map(value -> {
           try {
             return Integer.parseInt(value);
@@ -115,11 +114,11 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
           }
         })
         .filter(value -> value >= 0)
-        .orElse(PAGE_DEFAULT_INT);
+        .orElse(AbstractController.PAGE_DEFAULT_INT);
   }
 
   default int findSizeParameterValue() {
-    return findParameterValue(SIZE)
+    return findParameterValue(AbstractController.SIZE)
         .map(value -> {
           try {
             return Integer.parseInt(value);
@@ -128,21 +127,21 @@ public interface RedirectComponent extends UiControllerConstants, LoggerProvider
           }
         })
         .filter(value -> value >= 1)
-        .orElse(SIZE_DEFAULT_INT);
+        .orElse(AbstractController.SIZE_DEFAULT_INT);
   }
 
   default Optional<Dn> findOuParameterValue() {
-    return findParameterValue(OU)
+    return findParameterValue(AbstractController.OU)
         .map(dn -> new StringToDnConverter().convert(dn));
   }
 
   default Optional<TreeSearchScope> findScopeParameterValue() {
-    return findParameterValue(SCOPE)
+    return findParameterValue(AbstractController.SCOPE)
         .map(TreeSearchScope::fromValue);
   }
 
   default Optional<String> findZoneTypeParameterValue() {
-    return findParameterValue(ZONE_TYPE);
+    return findParameterValue(AbstractController.ZONE_TYPE);
   }
 
   default String getRedirectUri(

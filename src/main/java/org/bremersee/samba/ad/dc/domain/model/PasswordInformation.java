@@ -151,7 +151,8 @@ public interface PasswordInformation {
    */
   @Hidden
   @JsonIgnore
-  default Pattern getPasswordPattern() { // TODO move to service
+  @Value.Lazy
+  default Pattern getPasswordPattern() {
     return Pattern.compile(getPasswordRegex());
   }
 

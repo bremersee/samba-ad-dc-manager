@@ -72,7 +72,7 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
     if (isEmpty(source)) {
       return null;
     }
-    DomainComputer.Builder builder = DomainComputer.builder()
+    var builder = DomainComputer.builder()
         .from(samAccountLdapMapper.map(source));
     AdConstants.NAME
         .getValue(source)

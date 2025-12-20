@@ -16,7 +16,6 @@
 
 package org.bremersee.samba.ad.dc.common.controller.ui.shared;
 
-import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
@@ -24,11 +23,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
  *
  * @author Christian Bremer
  */
-public interface CurrentPageNameProvider extends UiControllerConstants {
+public interface CurrentPageNameProvider {
 
   String getCurrentPageName();
 
-  @ModelAttribute(CURRENT_PAGE_NAME)
+  @ModelAttribute("currentPage")
   default String addCurrentPageName() {
     return getCurrentPageName();
   }

@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.dns.controller.ui.shared;
 
-import org.bremersee.samba.ad.dc.common.controller.ui.UiControllerConstants;
+import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,11 +26,13 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  * @author Christian Bremer
  */
-public interface DnsZoneTypeComponent extends UiControllerConstants {
+public interface DnsZoneTypeComponent {
 
-  @ModelAttribute(ZONE_TYPE_VARIABLE)
+  @ModelAttribute("zoneType")
   default String addDnsZoneType(
-      @RequestParam(name = ZONE_TYPE, defaultValue = ZONE_TYPE_DEFAULT) DnsZoneType zoneType) {
+      @RequestParam(name = AbstractController.ZONE_TYPE,
+          defaultValue = AbstractController.ZONE_TYPE_DEFAULT)
+      DnsZoneType zoneType) {
     return zoneType.getParameterValue();
   }
 

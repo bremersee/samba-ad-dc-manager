@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Groups</title>
+  <title>Computers</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -31,7 +31,7 @@
           th:src="@{/lib/bootstrap/5.3.3/js/bootstrap.min.js}"></script>
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="header"
      th:replace="~{fragments/header :: header}">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">bremersee.org</a>
@@ -53,8 +53,8 @@
 
   <div class="row mb-4">
     <div class="col-1">
-      <a class="btn btn-outline-secondary" href="home.html"
-         th:href="@{../admin}">
+      <a class="btn btn-outline-secondary" href="../common/management.html"
+         th:href="@{../management}">
         <span class="fa fa-backward"></span>
       </a>
     </div>
@@ -66,7 +66,7 @@
         <div class="d-flex justify-content-center">
           <h3 class="small text-secondary">
             <span class="fa fa-folder-tree" aria-hidden="true"></span>
-            <span class="mx-1" th:text="${ouDropdown.selectedOu.nameTree}">Users</span>
+            <span class="mx-1" th:text="${ouDropdown.selectedOu.nameTree}">Computers</span>
           </h3>
         </div>
       </div>
@@ -105,93 +105,85 @@
           </div>
         </div>
       </div>
-      <!--
-      <div class="col col-auto mt-sm-2 mt-md-0">
-        <a id="addGroup" href="#" title="Add computer" class="btn btn-outline-primary"
-           th:href="@{computer-add(page=${page},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
-          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-        </a>
-      </div>
-      -->
     </div>
   </div>
 
-  <div th:if="${#lists.isEmpty(computers.content)}"
+  <div th:if="${#lists.isEmpty(page.content)}"
        class="alert alert-info" role="alert">
     No computers were found.
   </div>
 
-  <div class="list-group list-group-flush" th:if="${not #lists.isEmpty(computers.content)}">
-    <a th:each="entry : ${computers.content}" href="#"
+  <div class="list-group list-group-flush" th:if="${not #lists.isEmpty(page.content)}">
+    <a th:each="entry : ${page.content}" href="#"
        th:href="@{computer-edit(name=${entry.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}"
        class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
         <h6 class="mb-1" th:text="${entry.name}">
-          Administrators
+          DC1
         </h6>
         <span class="far fa-edit" aria-hidden="true"></span>
       </div>
     </a>
   </div>
 
-  <nav aria-label="Page navigation example" th:if="${@paginationHelper.getTotalPages(computers) > 1}">
+  <nav aria-label="Page navigation example" th:if="${@paginationHelper.getTotalPages(page) > 1}">
     <ul class="pagination justify-content-center">
-      <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(computers, computers.number - 3)}">
+      <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(page, page.number - 3)}">
         <a class="page-link" href="#" aria-label="First"
            th:href="@{${currentPage}(page=0,size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           <span aria-hidden="true">&laquo;</span>
         </a>
       </li>
       <li class="page-item"
-          th:if="${@paginationHelper.isValidPageNumber(computers, computers.number - 5)}">
+          th:if="${@paginationHelper.isValidPageNumber(page, page.number - 5)}">
         <a class="page-link" href="#" aria-label="Previous"
-           th:href="@{${currentPage}(page=${computers.number - 5},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+           th:href="@{${currentPage}(page=${page.number - 5},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           <span aria-hidden="true">&mldr;</span>
         </a>
       </li>
       <li class="page-item"
-          th:if="${@paginationHelper.isValidPageNumber(computers, computers.number - 2)}">
-        <a class="page-link" href="#" th:text="${computers.number - 1}"
-           th:href="@{${currentPage}(page=${computers.number - 2},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+          th:if="${@paginationHelper.isValidPageNumber(page, page.number - 2)}">
+        <a class="page-link" href="#" th:text="${page.number - 1}"
+           th:href="@{${currentPage}(page=${page.number - 2},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           1
         </a>
       </li>
-      <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(computers, computers.number - 1)}">
-        <a class="page-link" href="#" th:text="${computers.number}"
-           th:href="@{${currentPage}(page=${computers.number - 1},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+      <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(page, page.number - 1)}">
+        <a class="page-link" href="#" th:text="${page.number}"
+           th:href="@{${currentPage}(page=${page.number - 1},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           2
         </a>
       </li>
       <li class="page-item disabled">
-        <a class="page-link" href="#" th:text="${computers.number + 1}">
+        <a class="page-link" href="#" th:text="${page.number + 1}">
           3
         </a>
       </li>
       <li class="page-item"
-          th:if="${@paginationHelper.isValidPageNumber(computers, computers.number + 1)}">
-        <a class="page-link" href="#" th:text="${computers.number + 2}"
-           th:href="@{${currentPage}(page=${computers.number + 1},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+          th:if="${@paginationHelper.isValidPageNumber(page, page.number + 1)}">
+        <a class="page-link" href="#" th:text="${page.number + 2}"
+           th:href="@{${currentPage}(page=${page.number + 1},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           4
         </a>
       </li>
       <li class="page-item"
-          th:if="${@paginationHelper.isValidPageNumber(computers, computers.number + 2)}">
-        <a class="page-link" href="#" th:text="${computers.number + 3}"
-           th:href="@{${currentPage}(page=${computers.number + 2},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+          th:if="${@paginationHelper.isValidPageNumber(page, page.number + 2)}">
+        <a class="page-link" href="#" th:text="${page.number + 3}"
+           th:href="@{${currentPage}(page=${page.number + 2},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           5
         </a>
       </li>
       <li class="page-item"
-          th:if="${@paginationHelper.isValidPageNumber(computers, computers.number + 5)}">
+          th:if="${@paginationHelper.isValidPageNumber(page, page.number + 5)}">
         <a class="page-link" href="#" aria-label="Next"
-           th:href="@{${currentPage}(page=${computers.number + 5},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+           th:href="@{${currentPage}(page=${page.number + 5},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           <span aria-hidden="true">&mldr;</span>
         </a>
       </li>
       <li class="page-item"
-          th:if="${@paginationHelper.isValidPageNumber(computers, computers.number + 3)}">
+          th:if="${@paginationHelper.isValidPageNumber(page, page.number + 3)}">
         <a class="page-link" href="#" aria-label="Last"
-           th:href="@{${currentPage}(page=${@paginationHelper.getTotalPages(computers) - 1},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+           th:href="@{${currentPage}(page=${@paginationHelper.getTotalPages(page) - 1},size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
           <span aria-hidden="true">&raquo;</span>
         </a>
       </li>
@@ -202,6 +194,12 @@
 <script type="text/javascript" th:inline="javascript">
   //<![CDATA[
   "use strict";
+  function moveCursorToEnd(input) {
+    const length = input.value.length;
+    input.focus();
+    input.setSelectionRange(length, length);
+  }
+
   $(document).ready(function () {
     const currentPage = /*[[${currentPage}]]*/ "computers";
     const size = /*[[${size}]]*/ "";
@@ -214,17 +212,10 @@
       loadingSpinnerModal.show();
     });
 
-    function moveCursorToEnd(input) {
-      const length = input.value.length;
-      input.focus();
-      input.setSelectionRange(length, length);
-    }
-
     const searchInput = $('#q');
     searchInput.typeWatch({
       callback: function (value) {
-        //console.log('TypeWatch callback: (' + (this.type || this.nodeName) + ') ' + value);
-        window.location.href = currentPage
+        globalThis.location.href = currentPage
             + "?page=0"
             + "&size=" + size
             + "&sort=" + encodeURIComponent(sort)

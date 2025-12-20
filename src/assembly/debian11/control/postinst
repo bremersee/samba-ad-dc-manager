@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-DEBIAN_NAME="dc-con"
+DEBIAN_NAME="samba-ad-dc-manager"
 APP_NAME=$DEBIAN_NAME
-USER_NAME="dc-con"
+USER_NAME="smb-mngr"
 GROUP_NAME=$USER_NAME
 SUDO_FILE=/etc/sudoers
 SUDO_ENTRY="$USER_NAME ALL = NOPASSWD: /usr/bin/samba-tool, /usr/bin/kinit, /usr/sbin/dhcp-lease-list"

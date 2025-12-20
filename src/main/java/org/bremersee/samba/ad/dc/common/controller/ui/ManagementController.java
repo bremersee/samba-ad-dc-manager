@@ -23,22 +23,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type AdminHomeController.
+ * The management controller.
  *
  * @author Christian Bremer
  */
 @Controller
-public class AdminHomeController extends UiController
+public class ManagementController extends UiController
     implements OrganizationalUnitComponent {
 
-  public AdminHomeController(DomainControllerProperties properties,
+  public ManagementController(DomainControllerProperties properties,
       LocaleResolver localeResolver) {
     super(properties, localeResolver);
   }
 
-  @GetMapping("/admin")
+  @GetMapping("/management")
   public String displayAdminHome() {
-    return "admin/home";
+    return "common/management";
   }
 
 }

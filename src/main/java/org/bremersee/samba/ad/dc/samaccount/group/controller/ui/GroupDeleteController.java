@@ -24,7 +24,7 @@ import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitCompo
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteRequest;
+import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteModel;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
@@ -60,7 +60,7 @@ public class GroupDeleteController extends AbstractEditController implements Pag
 
   @Override
   public String getDefaultSort() {
-    return USER_SORT;
+    return GROUP_SORT;
   }
 
   @GetMapping(path = "/admin/group-delete")
@@ -75,7 +75,7 @@ public class GroupDeleteController extends AbstractEditController implements Pag
         .flatMap(name -> domainGroupService.getGroup(groupName, ou, searchScope))
         .map(group -> {
           model.addAttribute("group", group);
-          model.addAttribute("deleteRequest", new SamAccountDeleteRequest(group));
+          model.addAttribute("deleteRequest", new SamAccountDeleteModel(group));
           return "admin/group-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -86,7 +86,7 @@ public class GroupDeleteController extends AbstractEditController implements Pag
   public String deleteGroup(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute("deleteRequest") SamAccountDeleteRequest deleteRequest,
+      @ModelAttribute("deleteRequest") SamAccountDeleteModel deleteRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {

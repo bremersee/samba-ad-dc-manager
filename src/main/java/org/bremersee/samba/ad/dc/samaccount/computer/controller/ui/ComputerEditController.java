@@ -20,21 +20,23 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.Getter;
-import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model.DomainComputerEditRequest;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.domain.service.DomainService;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
+import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.mapper.ComputerEditModelMapper;
+import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model.ComputerEditModel;
+import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
 import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
-import org.bremersee.samba.ad.dc.domain.service.DomainService;
-import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
-import org.bremersee.exception.ServiceException;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -48,12 +50,12 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The computer edit controller.
  *
  * @author Christian Bremer
  */
 @Controller
-public class ComputerEditController extends AbstractEditController implements PageableComponent,
+public class ComputerEditController extends UiController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
   private final DomainService domainService;
@@ -81,7 +83,7 @@ public class ComputerEditController extends AbstractEditController implements Pa
 
   @Override
   public String getDefaultSort() {
-    return GROUP_SORT;
+    return ComputerControllerConstants.COMPUTER_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -89,7 +91,7 @@ public class ComputerEditController extends AbstractEditController implements Pa
     return domainService.isRfc2307Enabled();
   }
 
-  @GetMapping(path = "/admin/computer-edit")
+  @GetMapping(path = "/management/computer-edit")
   public String displayComputerEdit(
       @RequestParam(value = "name", required = false) String computerName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -100,23 +102,29 @@ public class ComputerEditController extends AbstractEditController implements Pa
     return Optional.ofNullable(computerName)
         .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
         .map(computer -> {
-          model.addAttribute("computer", computer);
-          domainGroupService.getGroupByPrimaryGroupId(computer.getPrimaryGroupId())
+          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          Optional.ofNullable(computer.getPrimaryGroupId())
+              .flatMap(domainGroupService::getGroupByPrimaryGroupId)
               .ifPresent(group -> model.addAttribute("primaryGroup", group));
-          DomainComputerEditRequest req = DomainComputerEditRequest.MAPPER.map(computer);
-          model.addAttribute("computerEditRequest", req);
-          return "admin/computer-edit";
+          ComputerEditModel editModel = ComputerEditModelMapper.INSTANCE.map(computer);
+          model.addAttribute("editModel", editModel);
+          return "computer/computer-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Computer", "todo", computerName, "computers"));
+            redirectAttributes,
+            "Computer",
+            "todo",
+            computerName,
+            PAGE_AND_OU_PARAMS,
+            ComputerControllerConstants.COMPUTERS));
   }
 
-  @PostMapping(path = "/admin/computer-edit")
+  @PostMapping(path = "/management/computer-edit")
   public String updateComputer(
       @RequestParam(value = "samAccountName", required = false) String samAccountName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "computerEditRequest") DomainComputerEditRequest computerEditRequest,
+      @ModelAttribute(name = "computerEditRequest") ComputerEditModel computerEditRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -128,43 +136,58 @@ public class ComputerEditController extends AbstractEditController implements Pa
         .map(existingComputer -> updateComputer(
             existingComputer, computerEditRequest, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Computer", "todo", samAccountName, PAGE_AND_OU_PARAMS, "computers"));
+            redirectAttributes,
+            "Computer",
+            "todo",
+            samAccountName,
+            PAGE_AND_OU_PARAMS,
+            ComputerControllerConstants.COMPUTERS));
   }
 
   private String updateComputer(
       DomainComputer existingComputer,
-      DomainComputerEditRequest computerEditRequest,
+      ComputerEditModel computerEditModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    DomainComputerEditRequest.MAPPER.update(existingComputer, computerEditRequest);
-    Dn ou = computerEditRequest.getNewOuDn();
     try {
+      DomainComputer newComputer = ComputerEditModelMapper.INSTANCE
+          .merge(computerEditModel, existingComputer);
+      Dn ou = computerEditModel.getNewOuDn();
       Dn parentDn = existingComputer.getDn().getParent();
       Dn ouDn = getDnTool().addBaseDn(ou);
       Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
       DomainComputer updatedComputer = domainComputerService
-          .updateComputer(existingComputer, newOu);
+          .updateComputer(newComputer, newOu);
 
       model.clear();
-      String msg = String.format("Computer '%s' was successfully updated.", updatedComputer.getName());
-      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", updatedComputer.getName());
+      String msg = String.format("Computer '%s' was successfully updated.",
+          updatedComputer.getName());
+      RedirectMessage rmsg = getRedirectMessage(
+          RedirectMessageType.SUCCESS,
+          msg,
+          "todo",
+          updatedComputer.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
       Map<String, Object> parameters = getParamterMap(updatedComputer.getDn().getParent());
       String redirect = getRedirectUri("computer-edit?name={{computer.samAccountName}}",
-          PAGE_AND_OU_PARAMS, putToParameterMap(parameters, "computer", updatedComputer));
+          PAGE_AND_OU_PARAMS,
+          putToParameterMap(
+              parameters,
+              ComputerControllerConstants.COMPUTER,
+              updatedComputer));
       logRedirectTo("Computer successfully updated.", redirect);
       return redirect;
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);
-      model.addAttribute("computer", existingComputer);
-      domainGroupService.getGroupByPrimaryGroupId(existingComputer.getPrimaryGroupId())
+      model.addAttribute(ComputerControllerConstants.COMPUTER, existingComputer);
+      Optional.ofNullable(existingComputer.getPrimaryGroupId())
+          .flatMap(domainGroupService::getGroupByPrimaryGroupId)
           .ifPresent(group -> model.addAttribute("primaryGroup", group));
-      return "admin/computer-edit";
+      return "computer/computer-edit";
     }
   }
 
@@ -172,7 +195,7 @@ public class ComputerEditController extends AbstractEditController implements Pa
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof DomainComputerEditRequest, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof ComputerEditModel, "Illegal bind target.");
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_EMPTY_OU_RDN: {

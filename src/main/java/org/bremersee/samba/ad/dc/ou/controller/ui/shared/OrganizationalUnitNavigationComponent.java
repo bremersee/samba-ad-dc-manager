@@ -44,7 +44,7 @@ public interface OrganizationalUnitNavigationComponent extends DnToolProvider,
   TreeSearchScope getDefaultSearchScope();
 
   default void addOrganizationalUnitDropdown(ModelMap model, OrganizationalUnitDropdown selector) {
-    model.addAttribute(OU_DROPDOWN, selector);
+    model.addAttribute("ouDropdown", selector);
   }
 
   default OrganizationalUnitDropdown getOrganizationalUnitDropdown(

@@ -28,7 +28,7 @@ import lombok.Data;
 public class RedirectMessage implements Serializable {
 
   @Serial
-  private static final long serialVersionUID = 6782221503683539133L;
+  private static final long serialVersionUID = 1L;
 
   public static final String ATTRIBUTE_NAME = "rmsg";
 

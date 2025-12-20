@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.user.controller.rest;
+package org.bremersee.samba.ad.dc.samaccount.user.controller.api;
 
 import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/users")
-public class DomainUserManagementController {
+public class UserApiController {
 
   private final DomainUserService domainUserService;
 
-  public DomainUserManagementController(DomainUserService domainUserService) {
+  public UserApiController(DomainUserService domainUserService) {
     this.domainUserService = domainUserService;
   }
 
