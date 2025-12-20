@@ -1,11 +1,11 @@
 package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.ldaptive.dn.Dn;
 
 @Data
@@ -19,11 +19,10 @@ public class ComputerEditModel implements Serializable {
 
   private String description;
 
-  public Dn getNewOuDn() {
-    if (isEmpty(newOu)) {
-      return null;
-    }
-    return new Dn(newOu);
+  public Optional<Dn> getNewOuDn() {
+    return Optional.ofNullable(newOu)
+        .filter(DnTool::isValidDn)
+        .map(Dn::new);
   }
 
 }

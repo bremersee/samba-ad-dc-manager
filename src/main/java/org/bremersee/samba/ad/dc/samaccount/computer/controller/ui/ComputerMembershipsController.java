@@ -63,7 +63,7 @@ public class ComputerMembershipsController extends AbstractEditController
     return ComputerControllerConstants.COMPUTER_SORT;
   }
 
-  @GetMapping(path = "/admin/computer-memberships-direct")
+  @GetMapping(path = "/management/computer-memberships-direct")
   public String displayComputerEditMembershipsDirect(
       @RequestParam(value = "name", required = false) String computerName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -75,7 +75,7 @@ public class ComputerMembershipsController extends AbstractEditController
         true, computerName, ou, searchScope, model, redirectAttributes);
   }
 
-  @GetMapping(path = "/admin/computer-memberships-resolved")
+  @GetMapping(path = "/management/computer-memberships-resolved")
   public String displayComputerEditMembershipsResolved(
       @RequestParam(value = "name", required = false) String computerName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -103,17 +103,17 @@ public class ComputerMembershipsController extends AbstractEditController
           String page;
           if (direct) {
             memberships = domainGroupService.getMemberships(computerName, ou, searchScope);
-            page = "admin/computer-memberships-direct";
+            page = "computer/computer-memberships-direct";
           } else {
             memberships = domainGroupService.resolveMemberships(computerName, ou, searchScope);
-            page = "admin/computer-memberships-resolved";
+            page = "computer/computer-memberships-resolved";
           }
           model.addAttribute("memberships", memberships.toList());
           return page;
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
-            "Group",
+            "Computer",
             "todo",
             computerName,
             PAGE_AND_OU_PARAMS,

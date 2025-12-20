@@ -65,7 +65,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
     return ComputerControllerConstants.COMPUTER_SORT;
   }
 
-  @GetMapping(path = "/admin/computer-delete")
+  @GetMapping(path = "/management/computer-delete")
   public String displayComputerDelete(
       @RequestParam(value = "name", required = false) String computerName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -78,7 +78,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
         .map(computer -> {
           model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
           model.addAttribute("deleteModel", new SamAccountDeleteModel(computer));
-          return "admin/computer-delete";
+          return "computer/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
@@ -89,7 +89,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
             ComputerControllerConstants.COMPUTERS));
   }
 
-  @PostMapping(path = "/admin/computer-delete")
+  @PostMapping(path = "/management/computer-delete")
   public String deleteComputer(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
@@ -110,7 +110,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
               "todo",
               "The name doesn't match.");
           model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
-          return "admin/computer-delete";
+          return "computer/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,

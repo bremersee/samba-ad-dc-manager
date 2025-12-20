@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Computers</title>
+  <title>Direct memberships of computer</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -122,7 +122,7 @@
       </div>
 
       <div class="list-group list-group-flush" th:if="${not #lists.isEmpty(memberships)}">
-        <a th:each="entry : ${memberships}" href="computer-edit-members.html"
+        <a th:each="entry : ${memberships}" href="../group/computer-edit-members.html"
            th:href="@{group-edit-members(name=${entry.samAccountName},ou=${entry.parentDistinguishedName})}"
            class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between">

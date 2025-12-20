@@ -21,6 +21,8 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
@@ -103,9 +105,7 @@ public class ComputerEditController extends UiController implements PageableComp
         .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
         .map(computer -> {
           model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
-          Optional.ofNullable(computer.getPrimaryGroupId())
-              .flatMap(domainGroupService::getGroupByPrimaryGroupId)
-              .ifPresent(group -> model.addAttribute("primaryGroup", group));
+          addPrimaryGroupToModel(model, computer);
           ComputerEditModel editModel = ComputerEditModelMapper.INSTANCE.map(computer);
           model.addAttribute("editModel", editModel);
           return "computer/computer-edit";
@@ -151,13 +151,13 @@ public class ComputerEditController extends UiController implements PageableComp
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
+    Dn newOu = computerEditModel.getNewOuDn()
+        .map(ou -> getDnTool().addBaseDn(ou))
+        .filter(ou -> !DnTool.isSameDn(ou, existingComputer.getDn().getParent()))
+        .orElse(null);
     try {
       DomainComputer newComputer = ComputerEditModelMapper.INSTANCE
           .merge(computerEditModel, existingComputer);
-      Dn ou = computerEditModel.getNewOuDn();
-      Dn parentDn = existingComputer.getDn().getParent();
-      Dn ouDn = getDnTool().addBaseDn(ou);
-      Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
       DomainComputer updatedComputer = domainComputerService
           .updateComputer(newComputer, newOu);
 
@@ -183,10 +183,15 @@ public class ComputerEditController extends UiController implements PageableComp
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);
-      model.addAttribute(ComputerControllerConstants.COMPUTER, existingComputer);
-      Optional.ofNullable(existingComputer.getPrimaryGroupId())
-          .flatMap(domainGroupService::getGroupByPrimaryGroupId)
-          .ifPresent(group -> model.addAttribute("primaryGroup", group));
+      DomainComputer partialUpdatedComputer = Optional.ofNullable(newOu)
+          .flatMap(ou -> domainComputerService
+              .getComputer(existingComputer.getSamAccountName(), null, null))
+          .orElse(existingComputer);
+      model.addAttribute(
+          AbstractController.OU,
+          partialUpdatedComputer.getDn().getParent().format());
+      model.addAttribute(ComputerControllerConstants.COMPUTER, partialUpdatedComputer);
+      addPrimaryGroupToModel(model, partialUpdatedComputer);
       return "computer/computer-edit";
     }
   }
@@ -213,5 +218,13 @@ public class ComputerEditController extends UiController implements PageableComp
         throw serviceException;
       }
     }
+  }
+
+  private void addPrimaryGroupToModel(ModelMap model, DomainComputer computer) {
+    Optional.ofNullable(computer)
+        .map(DomainComputer::getPrimaryGroupId)
+        .flatMap(domainGroupService::getGroupByPrimaryGroupId)
+        .ifPresent(group -> model.addAttribute("primaryGroup", group));
+
   }
 }
