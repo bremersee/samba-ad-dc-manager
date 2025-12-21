@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;

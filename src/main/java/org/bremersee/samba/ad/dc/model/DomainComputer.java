@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.model;
+package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.isNull;
 
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import org.bremersee.samba.ad.dc.model.SamAccount;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;

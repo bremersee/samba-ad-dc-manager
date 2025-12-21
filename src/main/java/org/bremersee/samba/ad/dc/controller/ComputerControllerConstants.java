@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.controller;
+package org.bremersee.samba.ad.dc.controller;
 
 public class ComputerControllerConstants {
 

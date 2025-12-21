@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.repository;
+package org.bremersee.samba.ad.dc.repository;
 
 import static java.util.Objects.isNull;
 
@@ -11,11 +11,9 @@ import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.repository.SamAccountRepository;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper.DomainComputerLdapMapper;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.repository.mapper.DomainComputerLdapMapper;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;

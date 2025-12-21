@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.model;
+package org.bremersee.samba.ad.dc.model;
 
 import org.bremersee.pagebuilder.model.JsonPageDto;
 import org.springframework.data.domain.Page;

@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.api;
+package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,12 +10,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.controller.api.ApiController;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputerPage;
-import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.DomainComputerPage;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

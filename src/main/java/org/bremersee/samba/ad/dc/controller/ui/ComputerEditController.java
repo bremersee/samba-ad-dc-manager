@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +23,6 @@ import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
-import org.bremersee.samba.ad.dc.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
@@ -33,11 +32,11 @@ import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.mapper.ComputerEditModelMapper;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model.ComputerEditModel;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.ComputerEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.ComputerEditModel;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;

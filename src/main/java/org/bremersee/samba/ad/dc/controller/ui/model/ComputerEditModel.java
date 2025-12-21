@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model;
+package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import java.io.Serial;
 import java.io.Serializable;

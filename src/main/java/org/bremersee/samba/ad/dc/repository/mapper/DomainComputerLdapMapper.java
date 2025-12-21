@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper;
+package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -10,9 +10,8 @@ import java.util.Set;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
-import org.bremersee.samba.ad.dc.repository.mapper.SamAccountLdapMapper;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;

@@ -1,14 +1,13 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.repository.cli;
+package org.bremersee.samba.ad.dc.repository.cli;
 
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.repository.SambaToolComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.repository.cli.validator.ComputerDeleteValidator;
-import org.bremersee.samba.ad.dc.samaccount.computer.repository.cli.validator.ComputerMoveValidator;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.repository.SambaToolComputer;
+import org.bremersee.samba.ad.dc.repository.cli.validator.ComputerDeleteValidator;
+import org.bremersee.samba.ad.dc.repository.cli.validator.ComputerMoveValidator;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Component;
 

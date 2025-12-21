@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
 
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigationComponent;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputerPage;
-import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.model.DomainComputerPage;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,8 +1,7 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.repository.cli.validator;
+package org.bremersee.samba.ad.dc.repository.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
-import org.bremersee.samba.ad.dc.repository.cli.validator.SambaToolValidator;
 
 public class ComputerDeleteValidator extends SambaToolValidator {
 

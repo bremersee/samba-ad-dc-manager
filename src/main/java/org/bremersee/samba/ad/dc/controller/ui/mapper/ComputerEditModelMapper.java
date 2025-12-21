@@ -1,8 +1,8 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.mapper;
+package org.bremersee.samba.ad.dc.controller.ui.mapper;
 
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model.ComputerEditModel;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.ImmutableDomainComputer;
+import org.bremersee.samba.ad.dc.controller.ui.model.ComputerEditModel;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.ImmutableDomainComputer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

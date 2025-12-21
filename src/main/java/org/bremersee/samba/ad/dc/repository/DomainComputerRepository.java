@@ -1,33 +1,31 @@
-package org.bremersee.samba.ad.dc.samaccount.computer.service;
+package org.bremersee.samba.ad.dc.repository;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
+import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-public interface DomainComputerService {
+public interface DomainComputerRepository {
 
-  Page<DomainComputer> getComputers(
-      @NotNull Pageable pageable,
+  Stream<DomainComputer> findAll(
       @Nullable String query,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
-  Optional<DomainComputer> getComputer(
+  Optional<DomainComputer> findOne(
       @NotEmpty String name,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
   @NotNull
-  DomainComputer updateComputer(@NotNull DomainComputer domainComputer, @Nullable Dn newOu);
+  DomainComputer update(@NotNull DomainComputer domainComputer, @Nullable Dn newOu);
 
-  boolean deleteComputer(@NotEmpty String name);
+  boolean delete(@NotEmpty String name);
 
 }
