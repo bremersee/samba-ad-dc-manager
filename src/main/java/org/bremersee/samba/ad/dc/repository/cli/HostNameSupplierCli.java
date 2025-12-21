@@ -4,9 +4,9 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bremersee.samba.ad.dc.repository.cli.parser.HostNameParser;
-import org.bremersee.samba.ad.dc.repository.HostNameSupplier;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.repository.HostNameSupplier;
+import org.bremersee.samba.ad.dc.repository.cli.parser.HostNameParser;
 import org.springframework.stereotype.Component;
 
 @Component

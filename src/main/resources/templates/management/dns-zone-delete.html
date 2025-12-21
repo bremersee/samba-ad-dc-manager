@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>DNS Zone Entries</title>
+  <title>Delete dns zone</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -113,7 +113,7 @@
         </a>
       </div>
       <form id="deleteDnsEntryForm" th:action="@{dns-zone-delete}"
-            th:object="${dnsZoneDeleteRequest}" action="#" method="post">
+            th:object="${dnsZoneDeleteModel}" action="#" method="post">
         <input type="hidden" name="page" th:value="${page}"/>
         <input type="hidden" name="size" th:value="${size}"/>
         <input type="hidden" name="sort" th:value="${sort}"/>

@@ -36,13 +36,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type DhcpLeasesController.
+ * The dhcp leases controller.
  *
  * @author Christian Bremer
  */
@@ -74,7 +73,7 @@ public class DhcpLeasesController extends UiController
     return "dhcp-leases";
   }
 
-  @RequestMapping(path = "/management/dhcp-leases", method = RequestMethod.GET)
+  @GetMapping(path = "/management/dhcp-leases")
   public String displayDhcpLeases(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
@@ -94,9 +93,9 @@ public class DhcpLeasesController extends UiController
           parameters.put(QUERY, "");
           parameters.put(ZONE_TYPE, DnsZoneType.PRIMARY);
           parameters.put(ZONE_NAME, dnsEntry.getZoneName());
-          parameters.put("name", dnsEntry.getName());
-          parameters.put("type", dnsEntry.getType());
-          parameters.put("value", dnsEntry.getValue());
+          parameters.put(DNS_ENTRY_NAME, dnsEntry.getName());
+          parameters.put(DNS_ENTRY_TYPE, dnsEntry.getType());
+          parameters.put(DNS_ENTRY_VALUE, dnsEntry.getValue());
           return getRedirectUri("dns-entry-edit", PAGE_AND_DNS_ENTRY_PARAMS, parameters);
         })
         .orElseGet(() -> {

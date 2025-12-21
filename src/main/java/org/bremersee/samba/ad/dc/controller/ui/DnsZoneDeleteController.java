@@ -18,15 +18,15 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsZoneDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.model.DnsZoneDeleteRequest;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.service.DnsService;
-import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -73,21 +73,21 @@ public class DnsZoneDeleteController extends UiController
       ModelMap model) {
 
     model.addAttribute("zoneName", zoneName);
-    model.addAttribute("dnsZoneDeleteRequest", new DnsZoneDeleteRequest());
+    model.addAttribute("dnsZoneDeleteModel", new DnsZoneDeleteModel());
     return "management/dns-zone-delete";
   }
 
   @PostMapping(path = "/management/dns-zone-delete")
   public String deleteDnsZone(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @ModelAttribute(name = "dnsZoneDeleteRequest") DnsZoneDeleteRequest deleteRequest,
+      @ModelAttribute(name = "dnsZoneDeleteModel") DnsZoneDeleteModel deleteModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    log.debug("deleteDnsEntry({}, {})", zoneName, deleteRequest);
+    log.debug("deleteDnsEntry({}, {})", zoneName, deleteModel);
 
-    if (!zoneName.equalsIgnoreCase(deleteRequest.getVerificationName())) {
+    if (!zoneName.equalsIgnoreCase(deleteModel.getVerificationName())) {
       bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
       model.addAttribute("zoneName", zoneName);
       return "management/dns-zone-delete";
@@ -98,17 +98,17 @@ public class DnsZoneDeleteController extends UiController
       dnsService.deleteDnsZone(zoneName);
 
       String msg = String.format("Dns zone '%s' was successfully deleted.", zoneName);
-      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
+      RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
           "todo", zoneName);
-      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
+      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
 
     } catch (ServiceException e) {
 
       String msg = String.format("Deletion of dns zone '%s' failed.", zoneName);
       log.error(msg, e);
-      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
+      RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,
           "todo", zoneName);
-      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
+      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
     }
 
     Map<String, Object> parameters = getParamterMap();

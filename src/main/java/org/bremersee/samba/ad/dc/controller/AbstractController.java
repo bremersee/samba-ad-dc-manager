@@ -42,6 +42,12 @@ public abstract class AbstractController {
 
   public static final String ZONE_TYPE_DEFAULT = "primary";
 
+  public static final String DNS_ENTRY_NAME = "name";
+
+  public static final String DNS_ENTRY_TYPE = "type";
+
+  public static final String DNS_ENTRY_VALUE = "value";
+
   protected AbstractController() {
   }
 

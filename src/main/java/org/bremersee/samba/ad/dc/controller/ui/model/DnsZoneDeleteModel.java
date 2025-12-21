@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class DnsZoneDeleteRequest {
+public class DnsZoneDeleteModel {
 
   private String verificationName;
 

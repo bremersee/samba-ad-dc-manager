@@ -17,12 +17,12 @@
 package org.bremersee.samba.ad.dc.controller.ui;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.service.DnsService;
-import org.bremersee.exception.ServiceException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +31,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type DnsZoneCreateController.
+ * The dns zone create controller.
  *
  * @author Christian Bremer
  */
@@ -61,18 +61,18 @@ public class DnsZoneCreateController extends UiController {
       DnsZone zone = dnsService.createDnsZone(name);
       String msg = String.format("Dns zone '%s' was successfully created.",
           zone.getName());
-      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
+      RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
           "todo", zone.getName());
-      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
+      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
       return "redirect:dns-zones";
 
     } catch (ServiceException e) {
 
       String msg = String.format("Creation of dns zone '%s' failed.", name);
       log.error(msg, e);
-      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
+      RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,
           "todo", name);
-      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
+      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
       return "redirect:dns-zones";
     }
   }

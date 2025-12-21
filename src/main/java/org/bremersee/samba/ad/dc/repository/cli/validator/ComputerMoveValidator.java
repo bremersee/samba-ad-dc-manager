@@ -2,8 +2,8 @@ package org.bremersee.samba.ad.dc.repository.cli.validator;
 
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
