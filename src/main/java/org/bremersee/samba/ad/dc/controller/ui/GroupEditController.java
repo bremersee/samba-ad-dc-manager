@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.samaccount.computer.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static java.util.Objects.requireNonNullElse;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
-import org.bremersee.samba.ad.dc.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
@@ -33,11 +33,10 @@ import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.mapper.ComputerEditModelMapper;
-import org.bremersee.samba.ad.dc.samaccount.computer.controller.ui.model.ComputerEditModel;
-import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
-import org.bremersee.samba.ad.dc.samaccount.computer.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.controller.GroupControllerConstants;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditModel;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
@@ -52,40 +51,36 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The computer edit controller.
+ * The group edit controller.
  *
  * @author Christian Bremer
  */
 @Controller
-public class ComputerEditController extends UiController implements PageableComponent,
+public class GroupEditController extends AbstractEditController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
   private final DomainService domainService;
-
-  private final DomainComputerService domainComputerService;
 
   private final DomainGroupService domainGroupService;
 
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
-  public ComputerEditController(
+  public GroupEditController(
       DomainControllerProperties domainControllerProperties,
       LocaleResolver localeResolver,
       DomainService domainService,
-      DomainComputerService domainComputerService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
     super(domainControllerProperties, localeResolver);
     this.domainService = domainService;
-    this.domainComputerService = domainComputerService;
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
   }
 
   @Override
   public String getDefaultSort() {
-    return ComputerControllerConstants.COMPUTER_SORT;
+    return GroupControllerConstants.GROUP_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -93,106 +88,97 @@ public class ComputerEditController extends UiController implements PageableComp
     return domainService.isRfc2307Enabled();
   }
 
-  @GetMapping(path = "/management/computer-edit")
-  public String displayComputerEdit(
-      @RequestParam(value = "name", required = false) String computerName,
+  @GetMapping(path = "/management/group-edit")
+  public String displayGroupEdit(
+      @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
-    return Optional.ofNullable(computerName)
-        .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
-        .map(computer -> {
-          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
-          addPrimaryGroupToModel(model, computer);
-          ComputerEditModel editModel = ComputerEditModelMapper.INSTANCE.map(computer);
+    return Optional.ofNullable(groupName)
+        .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
+        .map(group -> {
+          model.addAttribute(GroupControllerConstants.GROUP, group);
+          GroupEditModel editModel = GroupEditModelMapper.INSTANCE.map(group);
           model.addAttribute("editModel", editModel);
-          return "computer/computer-edit";
+          return "group/group-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
-            "Computer",
+            "Group",
             "todo",
-            computerName,
+            groupName,
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            GroupControllerConstants.GROUPS));
   }
 
-  @PostMapping(path = "/management/computer-edit")
-  public String updateComputer(
-      @RequestParam(value = "samAccountName", required = false) String samAccountName,
+  @PostMapping(path = "/management/group-edit")
+  public String updateGroup(
+      @RequestParam(value = "name", required = false) String oldSamAccountName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "editModel") ComputerEditModel editModel,
+      @ModelAttribute(name = "editModel") GroupEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("updateComputer({}, {})", samAccountName, editModel);
+    getLogger().debug("updateGroup({}, {})", oldSamAccountName, editModel);
 
-    return Optional.ofNullable(samAccountName)
-        .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
-        .map(existingComputer -> updateComputer(
-            existingComputer, editModel, model, bindingResult, redirectAttributes))
+    return Optional.ofNullable(oldSamAccountName)
+        .or(() -> Optional.ofNullable(editModel.getSamAccountName()))
+        .flatMap(oldName -> domainGroupService.getGroup(oldName, ou, searchScope))
+        .map(existingGroup -> updateGroup(
+            existingGroup, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
-            "Computer",
+            "Group",
             "todo",
-            samAccountName,
+            oldSamAccountName,
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            GroupControllerConstants.GROUPS));
   }
 
-  private String updateComputer(
-      DomainComputer existingComputer,
-      ComputerEditModel computerEditModel,
+  private String updateGroup(
+      DomainGroup existingGroup,
+      GroupEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    Dn newOu = computerEditModel.getNewOuDn()
-        .map(ou -> getDnTool().addBaseDn(ou))
-        .filter(ou -> !DnTool.isSameDn(ou, existingComputer.getDn().getParent()))
-        .orElse(null);
+    String oldSamAccountName = existingGroup.getSamAccountName();
+    DomainGroup newGroup = GroupEditModelMapper.INSTANCE.merge(editModel, existingGroup);
     try {
-      DomainComputer newComputer = ComputerEditModelMapper.INSTANCE
-          .merge(computerEditModel, existingComputer);
-      DomainComputer updatedComputer = domainComputerService
-          .updateComputer(newComputer, newOu);
-
+      Dn newOu = editModel.getNewOuDn()
+          .map(ou -> getDnTool().addBaseDn(ou))
+          .filter(ou -> !DnTool.isSameDn(ou, existingGroup.getDn().getParent()))
+          .orElse(null);
+      DomainGroup updatedGroup = domainGroupService
+          .updateGroup(oldSamAccountName, newGroup, newOu);
       model.clear();
-      String msg = String.format("Computer '%s' was successfully updated.",
-          updatedComputer.getName());
-      RedirectMessage rmsg = getRedirectMessage(
-          RedirectMessageType.SUCCESS,
-          msg,
-          "todo",
-          updatedComputer.getName());
+      String msg = String.format("Group '%s' was successfully updated.", updatedGroup.getName());
+      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
+          "i18n.group.edited", updatedGroup.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-      Map<String, Object> parameters = getParamterMap(updatedComputer.getDn().getParent());
-      String redirect = getRedirectUri("computer-edit?name={{computer.samAccountName}}",
+      Map<String, Object> parameters = getParamterMap(updatedGroup.getDn().getParent());
+      String redirect = getRedirectUri("group-edit?name={{group.samAccountName}}",
           PAGE_AND_OU_PARAMS,
-          putToParameterMap(
-              parameters,
-              ComputerControllerConstants.COMPUTER,
-              updatedComputer));
-      logRedirectTo("Computer successfully updated.", redirect);
+          putToParameterMap(parameters, GroupControllerConstants.GROUP, updatedGroup));
+      logRedirectTo("Group successfully updated.", redirect);
       return redirect;
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);
-      DomainComputer partialUpdatedComputer = Optional.ofNullable(newOu)
-          .flatMap(ou -> domainComputerService
-              .getComputer(existingComputer.getSamAccountName(), null, null))
-          .orElse(existingComputer);
+      String newSamAccountName = newGroup.getSamAccountName();
+      DomainGroup partialUpdatedGroup = domainGroupService.getGroup(oldSamAccountName, null, null)
+          .or(() -> domainGroupService.getGroup(newSamAccountName, null, null))
+          .orElse(existingGroup);
       model.addAttribute(
           AbstractController.OU,
-          partialUpdatedComputer.getDn().getParent().format());
-      model.addAttribute(ComputerControllerConstants.COMPUTER, partialUpdatedComputer);
-      addPrimaryGroupToModel(model, partialUpdatedComputer);
-      return "computer/computer-edit";
+          partialUpdatedGroup.getDn().getParent().format());
+      model.addAttribute(GroupControllerConstants.GROUP, partialUpdatedGroup);
+      return "group/group-edit";
     }
   }
 
@@ -200,9 +186,34 @@ public class ComputerEditController extends UiController implements PageableComp
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof ComputerEditModel, "Illegal bind target.");
-    String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
+    Assert.isTrue(bindTarget instanceof GroupEditModel, "Illegal bind target.");
+    String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
+      case EC_SAM_ACCOUNT_NAME_REQUIRED: {
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+            "Group name is required.");
+        break;
+      }
+      case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+            "Group name contains illegal characters.");
+        break;
+      }
+      case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+            "Group name already exists.");
+        break;
+      }
+      case EC_GID_NUMBER_ALREADY_EXISTS: {
+        bindingResult.rejectValue("gidNumber", "code",
+            "Unix GID number already exists.");
+        break;
+      }
+      case EC_DN_ALREADY_EXISTS: {
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+            "Distinguished name already exists.");
+        break;
+      }
       case EC_EMPTY_OU_RDN: {
         bindingResult.rejectValue("newOu", "code",
             "Organizational unit is empty.");
@@ -214,17 +225,9 @@ public class ComputerEditController extends UiController implements PageableComp
         break;
       }
       default: {
-        getLogger().error("Editing computer failed with a not mapped exception.", serviceException);
+        getLogger().error("Editing group failed with a not mapped exception.", serviceException);
         throw serviceException;
       }
     }
-  }
-
-  private void addPrimaryGroupToModel(ModelMap model, DomainComputer computer) {
-    Optional.ofNullable(computer)
-        .map(DomainComputer::getPrimaryGroupId)
-        .flatMap(domainGroupService::getGroupByPrimaryGroupId)
-        .ifPresent(group -> model.addAttribute("primaryGroup", group));
-
   }
 }

@@ -24,7 +24,6 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
-import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -34,83 +33,79 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The type GroupsController.
  *
  * @author Christian Bremer
  */
 @Controller
-public class UserMembershipsController extends AbstractEditController
+public class GroupMembershipsController extends AbstractEditController
     implements PageableComponent, OrganizationalUnitComponent {
-
-  private final DomainUserService domainUserService;
 
   private final DomainGroupService domainGroupService;
 
-  public UserMembershipsController(
+  public GroupMembershipsController(
       DomainControllerProperties domainControllerProperties,
       LocaleResolver localeResolver,
-      DomainUserService domainUserService,
       DomainGroupService domainGroupService) {
     super(domainControllerProperties, localeResolver);
-    this.domainUserService = domainUserService;
     this.domainGroupService = domainGroupService;
   }
 
   @Override
   public String getDefaultSort() {
-    return USER_SORT;
+    return GROUP_SORT;
   }
 
-  @GetMapping(path = "/admin/user-memberships-direct")
-  public String displayUserEditMembershipsDirect(
-      @RequestParam(value = "user", required = false) String userName,
+  @GetMapping(path = "/admin/group-memberships-direct")
+  public String displayGroupEditMembershipsDirect(
+      @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
-    return displayUserEditMemberships(
-        true, userName, ou, searchScope, model, redirectAttributes);
+    return displayGroupEditMemberships(
+        true, groupName, ou, searchScope, model, redirectAttributes);
   }
 
-  @GetMapping(path = "/admin/user-memberships-resolved")
-  public String displayUserEditMembershipsResolved(
-      @RequestParam(value = "user", required = false) String userName,
+  @GetMapping(path = "/admin/group-memberships-resolved")
+  public String displayGroupEditMembershipsResolved(
+      @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
-    return displayUserEditMemberships(
-        false, userName, ou, searchScope, model, redirectAttributes);
+    return displayGroupEditMemberships(
+        false, groupName, ou, searchScope, model, redirectAttributes);
   }
 
-  private String displayUserEditMemberships(
+  private String displayGroupEditMemberships(
       boolean direct,
-      String userName,
+      String groupName,
       Dn ou,
       TreeSearchScope searchScope,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
-    return Optional.ofNullable(userName)
-        .flatMap(name -> domainUserService.getUser(userName, ou, searchScope))
-        .map(user -> {
-          model.addAttribute("user", user);
+    return Optional.ofNullable(groupName)
+        .flatMap(name -> domainGroupService.getGroup(groupName, ou, searchScope))
+        .map(group -> {
+          model.addAttribute("group", group);
           Stream<DomainGroup> memberships;
           String page;
           if (direct) {
-            memberships = domainGroupService.getMemberships(userName, ou, searchScope);
-            page = "admin/user-memberships-direct";
+            memberships = domainGroupService.getMemberships(groupName, ou, searchScope);
+            page = "admin/group-memberships-direct";
           } else {
-            memberships = domainGroupService.resolveMemberships(userName, ou, searchScope);
-            page = "admin/user-memberships-resolved";
+            memberships = domainGroupService.resolveMemberships(groupName, ou, searchScope);
+            page = "admin/group-memberships-resolved";
           }
           model.addAttribute("memberships", memberships.toList());
           return page;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, "users"));
+            redirectAttributes, "Group", "todo", groupName, "groups"));
   }
 
 }
