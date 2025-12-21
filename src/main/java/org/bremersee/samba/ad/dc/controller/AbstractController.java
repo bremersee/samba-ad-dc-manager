@@ -18,7 +18,15 @@ public abstract class AbstractController {
 
   public static final String COMPUTER_SORT = "name";
 
+  public static final String DHCP_LEASE_SORT = "ip";
+
+  public static final String DNS_ENTRY_SORT = "name;type;value";
+
   public static final String GROUP_SORT = "samAccountName";
+
+  public static final String OU_SORT = "nameTree";
+
+  public static final String USER_SORT = "lastName;firstName;samAccountName";
 
   public static final String QUERY = "q";
 

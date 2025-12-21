@@ -25,7 +25,6 @@ import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.bremersee.samba.ad.dc.controller.DnToolProvider;
-import org.bremersee.samba.ad.dc.controller.SortOrderConstants;
 import org.bremersee.samba.ad.dc.controller.ui.shared.LoggerProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.MessageProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -45,7 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Getter
 public abstract class UiController extends AbstractController implements LoggerProvider,
-    DnToolProvider, MessageProvider, RedirectComponent, ErrorCode, SortOrderConstants {
+    DnToolProvider, MessageProvider, RedirectComponent, ErrorCode {
 
   protected static final String COMPUTER = "computer";
 
