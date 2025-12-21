@@ -7,7 +7,6 @@ import org.bremersee.samba.ad.dc.controller.ui.model.UserEditModel;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.model.ImmutableDomainUser;
-import org.bremersee.samba.ad.dc.model.ModifiableDomainUserAccountControl;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -20,16 +19,16 @@ public interface UserEditModelMapper {
   UserEditModelMapper INSTANCE = Mappers.getMapper(UserEditModelMapper.class);
 
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
+  @Mapping(target = "enabled", source = "accountControl.enabled")
+  @Mapping(
+      target = "passwordExpirationEnabled",
+      source = "accountControl.passwordExpirationEnabled")
   @Mapping(target = "noExpiry", source = "source", qualifiedByName = "mapNoExpiry")
   @Mapping(target = "avatar", ignore = true)
   @Mapping(target = "removeAvatar", ignore = true)
   @Mapping(target = "renameNamesAutomatically", ignore = true)
+  @Mapping(target = "accountExpiresIso", ignore = true)
   UserEditModel map(DomainUser source);
-
-  default ModifiableDomainUserAccountControl mapInternal(
-      DomainUserAccountControl domainUserAccountControl) {
-    return ModifiableDomainUserAccountControl.create().from(domainUserAccountControl);
-  }
 
   @Named("mapNoExpiry")
   default boolean mapNoExpiryInternal(DomainUser source) {
@@ -44,6 +43,7 @@ public interface UserEditModelMapper {
       target = "accountExpires",
       source = "source",
       qualifiedByName = "mergeAccountExpiresInternal")
+  @Mapping(target = "accountControl", source = "source", qualifiedByName = "mergeAccountControl")
   @Mapping(target = "distinguishedName", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)
@@ -64,6 +64,17 @@ public interface UserEditModelMapper {
       return null;
     }
     return source.getAccountExpires();
+  }
+
+  @Named("mergeAccountControl")
+  default DomainUserAccountControl mergeAccountControlInternal(UserEditModel source) {
+    if (isNull(source)) {
+      return null;
+    }
+    return DomainUserAccountControl.builder()
+        .enabled(source.isEnabled())
+        .passwordExpirationEnabled(source.isPasswordExpirationEnabled())
+        .build();
   }
 
 }

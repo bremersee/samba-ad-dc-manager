@@ -172,7 +172,8 @@ public class UserAddController extends UiController
       UserAddModel addModel) {
 
     DomainUser user = UserAddModelMapper.INSTANCE.map(addModel);
-    Dn ou = addModel.getNewOuDn();
+    Dn ou = addModel.getNewOuDn()
+        .orElseGet(() -> getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()));
     boolean useUsernameAsCn = addModel.isUseUsernameAsCn();
     boolean sendEmail = addModel.isSendEmail();
 

@@ -19,20 +19,22 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
-import java.util.Optional;
-import lombok.Data;
-import org.bremersee.samba.ad.dc.misc.DnTool;
-import org.bremersee.samba.ad.dc.model.ModifiableDomainUserAccountControl;
-import org.ldaptive.dn.Dn;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * The type DomainUserEditRequest.
+ * The user edit model.
  *
  * @author Christian Bremer
  */
-@Data
-public class UserEditModel implements Serializable {
+@Getter
+@Setter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class UserEditModel extends UserModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -41,155 +43,24 @@ public class UserEditModel implements Serializable {
 
   private boolean removeAvatar;
 
-  private String newOu;
-
-  private String samAccountName;
-
   private boolean renameNamesAutomatically = true;
 
-  private ModifiableDomainUserAccountControl accountControl;
+  private boolean enabled = true;
 
-  private boolean noExpiry; // TODO add checkbox
+  private boolean passwordExpirationEnabled = false;
 
-  private OffsetDateTime accountExpires; // TODO how does it interact with passwordExpirationEnabled?
+  private boolean noExpiry = true;
 
-  private boolean enabled = true; // TODO use account control
-
-  private boolean passwordExpirationEnabled = false; // TODO use account control
+  private OffsetDateTime accountExpires;
 
   private String userPrincipalName;
 
   private Integer primaryGroupId;
 
   /**
-   * User's first name.
+   * Instantiates a new user edit model.
    */
-  private String firstName;
-
-  /**
-   * User's last name.
-   */
-  private String lastName;
-
-  /**
-   * User's display name.
-   */
-  private String displayName;
-
-  /**
-   * User's initials.
-   */
-  private String initials;
-
-  /**
-   * User's preferred language. ISO 639-1 language codes. The combinations like de-DE and en-US with
-   * ISO-639 and ISO-3166 also work.
-   */
-  private String preferredLanguage;
-
-  /**
-   * User's email address.
-   */
-  private String email;
-
-  /**
-   * User's mobile phone number.
-   */
-  private String mobile;
-
-  /**
-   * User's telephone number.
-   */
-  private String telephoneNumber;
-
-  /**
-   * A description of the user.
-   */
-  private String description;
-
-  /**
-   * User's home directory path.
-   */
-  private String homeDirectory;
-
-  /**
-   * User's home drive letter.
-   */
-  private String homeDrive;
-
-  /**
-   * User's profile path.
-   */
-  private String profilePath;
-
-  /**
-   * User's logon script path.
-   */
-  private String scriptPath;
-
-  /**
-   * User's company.
-   */
-  private String company;
-
-  /**
-   * User's job title.
-   */
-  private String title;
-
-  /**
-   * User's department.
-   */
-  private String department;
-
-  /**
-   * User's office location.
-   */
-  private String physicalDeliveryOfficeName;
-
-  /**
-   * User's Unix/RFC2307 username.
-   */
-  private String uid;
-
-  /**
-   * User's Unix/RFC2307 numeric UID.
-   */
-  private Integer uidNumber;
-
-  /**
-   * User's Unix/RFC2307 primary GID number.
-   */
-  private Integer gidNumber;
-
-  /**
-   * User's Unix/RFC2307 login shell.
-   */
-  private String loginShell;
-
-  /**
-   * User's Unix/RFC2307 home directory.
-   */
-  private String unixHomeDirectory;
-
-  /**
-   * User's Unix/RFC2307 GECOS field.
-   */
-  private String gecos;
-
-  /**
-   * User's Unix/RFC2307 NIS domain.
-   */
-  private String nisDomain;
-
   public UserEditModel() {
-    accountControl = ModifiableDomainUserAccountControl.create();
+    super();
   }
-
-  public Optional<Dn> getNewOuDn() {
-    return Optional.ofNullable(newOu)
-        .filter(DnTool::isValidDn)
-        .map(Dn::new);
-  }
-
 }

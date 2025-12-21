@@ -16,22 +16,15 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
-import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.ldaptive.dn.Dn;
 
 /**
  * The user add model.
@@ -40,17 +33,12 @@ import org.ldaptive.dn.Dn;
  */
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString(exclude = {"password"})
-@NoArgsConstructor
-public class UserAddModel implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+@ToString(exclude = {"password"}, callSuper = true)
+public class UserAddModel extends UserModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  private String newOu;
-
-  private String samAccountName;
 
   private boolean useUsernameAsCn = true;
 
@@ -62,128 +50,7 @@ public class UserAddModel implements Serializable {
 
   private OffsetDateTime accountExpires = OffsetDateTime.now();
 
-  /**
-   * User's first name.
-   */
-  private String firstName;
-
-  /**
-   * User's last name.
-   */
-  private String lastName;
-
-  /**
-   * User's display name.
-   */
-  private String displayName;
-
-  /**
-   * User's initials.
-   */
-  private String initials;
-
-  /**
-   * User's preferred language. ISO 639-1 language codes. The combinations like de-DE and en-US with
-   * ISO-639 and ISO-3166 also work.
-   */
-  private String preferredLanguage;
-
-  /**
-   * User's email address.
-   */
-  private String email;
-
   private boolean sendEmail;
-
-  /**
-   * User's mobile phone number.
-   */
-  private String mobile;
-
-  /**
-   * User's telephone number.
-   */
-  private String telephoneNumber;
-
-  /**
-   * A description of the user.
-   */
-  private String description;
-
-  /**
-   * User's home directory path.
-   */
-  private String homeDirectory;
-
-  /**
-   * User's home drive letter.
-   */
-  private String homeDrive;
-
-  /**
-   * User's profile path.
-   */
-  private String profilePath;
-
-  /**
-   * User's logon script path.
-   */
-  private String scriptPath;
-
-  /**
-   * User's company.
-   */
-  private String company;
-
-  /**
-   * User's job title.
-   */
-  private String title;
-
-  /**
-   * User's department.
-   */
-  private String department;
-
-  /**
-   * User's office location.
-   */
-  private String physicalDeliveryOfficeName;
-
-  /**
-   * User's Unix/RFC2307 username.
-   */
-  private String uid;
-
-  /**
-   * User's Unix/RFC2307 numeric UID.
-   */
-  private Integer uidNumber;
-
-  /**
-   * User's Unix/RFC2307 primary GID number.
-   */
-  private Integer gidNumber;
-
-  /**
-   * User's Unix/RFC2307 login shell.
-   */
-  private String loginShell;
-
-  /**
-   * User's Unix/RFC2307 home directory.
-   */
-  private String unixHomeDirectory;
-
-  /**
-   * User's Unix/RFC2307 GECOS field.
-   */
-  private String gecos;
-
-  /**
-   * User's Unix/RFC2307 NIS domain.
-   */
-  private String nisDomain;
 
   /**
    * User's password.
@@ -192,6 +59,20 @@ public class UserAddModel implements Serializable {
 
   private boolean generateRandomPassword;
 
+  /**
+   * Instantiates a new user add model.
+   */
+  public UserAddModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new user add model.
+   *
+   * @param properties the properties
+   * @param passwordInformation the password information
+   * @param isRfc2307Enabled the is rfc 2307 enabled
+   */
   public UserAddModel(
       DomainUserProperties properties,
       PasswordInformation passwordInformation,
@@ -215,38 +96,6 @@ public class UserAddModel implements Serializable {
       setUid(properties.getDefaultUid());
       setUnixHomeDirectory(properties.getDefaultUnixHomeDirectory());
     }
-  }
-
-  public Dn getNewOuDn() {
-    if (DnTool.isValidDn(newOu)) {
-      return new Dn(newOu);
-    }
-    return null;
-  }
-
-  public OffsetDateTime getAccountExpires() {
-    if (noExpiry) {
-      return null;
-    }
-    return accountExpires;
-  }
-
-  public String getAccountExpiresIso() {
-    OffsetDateTime dateTime;
-    if (isEmpty(accountExpires)) {
-      dateTime = OffsetDateTime.now(ZoneOffset.UTC);
-    } else {
-      dateTime = accountExpires.withOffsetSameInstant(ZoneOffset.UTC);
-    }
-    return dateTime.format(DateTimeFormatter.ISO_DATE_TIME);
-  }
-
-  public void setAccountExpiresIso(String accountExpiresIso) {
-    if (isEmpty(accountExpiresIso)) {
-      this.accountExpires = null;
-      return;
-    }
-    this.accountExpires = OffsetDateTime.parse(accountExpiresIso, DateTimeFormatter.ISO_DATE_TIME);
   }
 
 }

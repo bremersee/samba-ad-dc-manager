@@ -16,7 +16,6 @@ import org.springframework.lang.Nullable;
     get = {"get*", "is*"},
     withUnaryOperator = "with*")
 @Value.Immutable
-@Value.Modifiable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainInfo.class)
 @JsonDeserialize(as = ImmutableDomainInfo.class)

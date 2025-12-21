@@ -21,7 +21,6 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
     get = {"get*", "is*"},
     withUnaryOperator = "with*")
 @Value.Immutable
-@Value.Modifiable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainUserAccountControl.class)
 @JsonDeserialize(as = ImmutableDomainUserAccountControl.class)

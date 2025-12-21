@@ -22,10 +22,10 @@ public interface UserAddModelMapper {
   @Mapping(target = "logonCount", ignore = true)
   @Mapping(target = "passwordLastSet", ignore = true)
   @Mapping(target = "userPrincipalName", ignore = true)
-  @Mapping(source = "enabled", target = "accountControl.enabled")
+  @Mapping(target = "accountControl.enabled", source = "enabled")
   @Mapping(
-      source = "passwordExpirationEnabled",
-      target = "accountControl.passwordExpirationEnabled")
+      target = "accountControl.passwordExpirationEnabled",
+      source = "passwordExpirationEnabled")
   DomainUser map(UserAddModel source);
 
 }
