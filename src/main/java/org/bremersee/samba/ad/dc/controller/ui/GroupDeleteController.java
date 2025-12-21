@@ -44,7 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class GroupDeleteController extends AbstractEditController implements PageableComponent,
+public class GroupDeleteController extends UiController implements PageableComponent,
     OrganizationalUnitComponent {
 
   private final DomainGroupService domainGroupService;

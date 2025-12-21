@@ -51,6 +51,12 @@ public abstract class UiController extends AbstractController implements LoggerP
 
   protected static final String COMPUTERS = "computers";
 
+  protected static final String GROUP = "group";
+
+  protected static final String GROUPS = "groups";
+
+  protected static final String SAM_ACCOUNT_NAME = "samAccountName";
+
   private final Logger logger;
 
   private final DomainControllerProperties properties;

@@ -18,6 +18,8 @@ public abstract class AbstractController {
 
   public static final String COMPUTER_SORT = "name";
 
+  public static final String GROUP_SORT = "samAccountName";
+
   public static final String QUERY = "q";
 
   public static final String QUERY_DEFAULT = "";

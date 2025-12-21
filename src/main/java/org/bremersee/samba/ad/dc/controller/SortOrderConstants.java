@@ -25,7 +25,7 @@ public interface SortOrderConstants {
 
   String USER_SORT = "lastName;firstName;samAccountName";
 
-  String GROUP_SORT = "samAccountName";
+  //String GROUP_SORT = "samAccountName";
 
   //String COMPUTER_SORT = "name";
 

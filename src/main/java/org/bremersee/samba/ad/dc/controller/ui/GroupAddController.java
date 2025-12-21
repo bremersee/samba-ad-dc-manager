@@ -22,9 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.GroupControllerConstants;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupAddModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.GroupAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DomainGroupTypesComponent;
@@ -34,10 +32,11 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.service.DomainService;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -81,7 +80,7 @@ public class GroupAddController extends UiController implements PageableComponen
 
   @Override
   public String getDefaultSort() {
-    return GroupControllerConstants.GROUP_SORT;
+    return GROUP_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -158,17 +157,17 @@ public class GroupAddController extends UiController implements PageableComponen
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Group name is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Group name contains illegal characters.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Group name already exists.");
         break;
       }

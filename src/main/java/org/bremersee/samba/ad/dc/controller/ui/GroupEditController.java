@@ -22,22 +22,21 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.service.DomainService;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.controller.GroupControllerConstants;
-import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupEditModelMapper;
-import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditModel;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -80,7 +79,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
 
   @Override
   public String getDefaultSort() {
-    return GroupControllerConstants.GROUP_SORT;
+    return GROUP_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -99,7 +98,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
     return Optional.ofNullable(groupName)
         .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
         .map(group -> {
-          model.addAttribute(GroupControllerConstants.GROUP, group);
+          model.addAttribute(GROUP, group);
           GroupEditModel editModel = GroupEditModelMapper.INSTANCE.map(group);
           model.addAttribute("editModel", editModel);
           return "group/group-edit";
@@ -110,7 +109,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
             "todo",
             groupName,
             PAGE_AND_OU_PARAMS,
-            GroupControllerConstants.GROUPS));
+            GROUPS));
   }
 
   @PostMapping(path = "/management/group-edit")
@@ -136,7 +135,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
             "todo",
             oldSamAccountName,
             PAGE_AND_OU_PARAMS,
-            GroupControllerConstants.GROUPS));
+            GROUPS));
   }
 
   private String updateGroup(
@@ -164,7 +163,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
       Map<String, Object> parameters = getParamterMap(updatedGroup.getDn().getParent());
       String redirect = getRedirectUri("group-edit?name={{group.samAccountName}}",
           PAGE_AND_OU_PARAMS,
-          putToParameterMap(parameters, GroupControllerConstants.GROUP, updatedGroup));
+          putToParameterMap(parameters, GROUP, updatedGroup));
       logRedirectTo("Group successfully updated.", redirect);
       return redirect;
 
@@ -177,7 +176,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
       model.addAttribute(
           AbstractController.OU,
           partialUpdatedGroup.getDn().getParent().format());
-      model.addAttribute(GroupControllerConstants.GROUP, partialUpdatedGroup);
+      model.addAttribute(GROUP, partialUpdatedGroup);
       return "group/group-edit";
     }
   }
@@ -190,17 +189,17 @@ public class GroupEditController extends AbstractEditController implements Pagea
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Group name is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Group name contains illegal characters.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Group name already exists.");
         break;
       }
@@ -210,7 +209,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
         break;
       }
       case EC_DN_ALREADY_EXISTS: {
-        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Distinguished name already exists.");
         break;
       }
