@@ -16,7 +16,7 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.samaccount.computer.repository.mapper.DomainComputerLdapMapper;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
