@@ -40,7 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type ComputersController.
+ * The computer delete controller.
  *
  * @author Christian Bremer
  */
@@ -154,7 +154,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
       return false;
     }
     return Optional.ofNullable(computer.getName())
-        .filter(name -> name.equalsIgnoreCase(deleteModel.getSamAccountName()))
+        .filter(name -> name.equalsIgnoreCase(deleteModel.getVerificationName()))
         .isPresent();
   }
 

@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Groups</title>
+  <title>Management</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -57,27 +57,27 @@
 
   <div class="d-grid gap-2 col-6 mx-auto">
     <a class="btn btn-outline-secondary" href="users.html"
-       th:href="@{/users(ou=${ou},scope=${scope})}">
+       th:href="@{users(ou=${ou},scope=${scope})}">
       Users
     </a>
     <a class="btn btn-outline-secondary" href="groups.html"
-       th:href="@{/groups(ou=${ou},scope=${scope})}">
+       th:href="@{groups(ou=${ou},scope=${scope})}">
       Groups
     </a>
     <a class="btn btn-outline-secondary" href="computers.html"
-       th:href="@{/computers}">
+       th:href="@{computers}">
       Computers
     </a>
     <a class="btn btn-outline-secondary" href="organizational-units.html"
-       th:href="@{/organizational-units}">
+       th:href="@{organizational-units}">
       Organizational Units
     </a>
     <a id="showDns" class="btn btn-outline-secondary show-spinner" href="dns-zones.html"
-       th:href="@{/dns-zones}">
+       th:href="@{dns-zones}">
       DNS
     </a>
     <a id="showDhcp" class="btn btn-outline-secondary show-spinner" href="dhcp-leases.html"
-       th:href="@{/dhcp-leases}">
+       th:href="@{dhcp-leases}">
       DHCP
     </a>
   </div>

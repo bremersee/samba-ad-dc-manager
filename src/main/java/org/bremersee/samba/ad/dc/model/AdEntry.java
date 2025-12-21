@@ -46,6 +46,21 @@ public interface AdEntry extends DistinguishedNameProvider {
   }
 
   /**
+   * Gets parent distinguished name.
+   *
+   * @return the parent distinguished name
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default String getParentDistinguishedName() {
+    return Optional.ofNullable(getDn())
+        .map(Dn::getParent)
+        .map(dn -> dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+        .orElse(null);
+  }
+
+  /**
    * Gets parent distinguished name normalized.
    *
    * @return the parent distinguished name

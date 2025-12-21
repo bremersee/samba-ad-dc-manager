@@ -95,7 +95,7 @@ public class ComputersController extends UiController
     Pageable pageable = PageRequest.of(page, size, sortMapper.toSort(sort));
     DomainComputerPage computerPage = new DomainComputerPage(domainComputerService.getComputers(
         pageable, query, ou, ouDropdown.getSelectedScope()));
-    model.addAttribute(PAGE, computerPage);
+    model.addAttribute("computerPage", computerPage);
     return "management/computers";
   }
 

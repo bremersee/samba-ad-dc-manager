@@ -36,9 +36,14 @@ public class ManagementController extends UiController
     super(properties, localeResolver);
   }
 
-  @GetMapping("/management")
-  public String displayAdminHome() {
-    return "common/management";
+  @GetMapping("/management/index")
+  public String displayManagementIndex() {
+    return "management/index";
+  }
+
+  @GetMapping({"/management", "/management/"})
+  public String displayManagement() {
+    return "redirect:/management/index";
   }
 
 }
