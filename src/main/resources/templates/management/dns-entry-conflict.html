@@ -235,6 +235,9 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
+    $( globalThis ).on('pageshow', function () {
+      loadingSpinnerModal.hide();
+    });
     $('#dnsEntryConflictForm').on('submit', function () {
       loadingSpinnerModal.show();
     });

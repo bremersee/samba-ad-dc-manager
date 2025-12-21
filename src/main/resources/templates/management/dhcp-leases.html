@@ -257,6 +257,9 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
+    $( globalThis ).on('pageshow', function () {
+      loadingSpinnerModal.hide();
+    });
 
     function search() {
       const value = searchInput.val();

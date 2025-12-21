@@ -274,6 +274,9 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
+    $( globalThis ).on('pageshow', function () {
+      loadingSpinnerModal.hide();
+    });
     $('#editDnsEntryForm').on('submit', function () {
       loadingSpinnerModal.show();
     });

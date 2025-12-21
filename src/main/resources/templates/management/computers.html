@@ -211,6 +211,9 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
+    $( globalThis ).on('pageshow', function () {
+      loadingSpinnerModal.hide();
+    });
 
     const searchInput = $('#q');
     searchInput.typeWatch({

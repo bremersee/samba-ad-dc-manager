@@ -202,6 +202,9 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
+    $( globalThis ).on('pageshow', function () {
+      loadingSpinnerModal.hide();
+    });
 
     function moveCursorToEnd(input) {
       const length = input.value.length;
