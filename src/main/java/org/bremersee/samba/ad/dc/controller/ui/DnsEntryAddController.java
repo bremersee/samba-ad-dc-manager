@@ -46,7 +46,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsEntryAddController extends AbstractEditController implements PageableComponent,
+public class DnsEntryAddController extends UiController implements PageableComponent,
     DnsZoneTypeComponent {
 
   private final DnsService dnsService;

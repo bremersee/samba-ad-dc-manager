@@ -44,7 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsZoneDeleteController extends AbstractEditController
+public class DnsZoneDeleteController extends UiController
     implements CurrentPageNameProvider, PageableComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;

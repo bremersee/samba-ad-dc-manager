@@ -35,7 +35,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class DnsZoneInfoController extends AbstractEditController
+public class DnsZoneInfoController extends UiController
     implements CurrentPageNameProvider, PageableComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;

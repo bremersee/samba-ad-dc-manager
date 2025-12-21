@@ -78,7 +78,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
           return "admin/group-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, "groups"));
+            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
   @PostMapping(path = "/admin/group-delete")
@@ -103,7 +103,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Group", "todo", deleteRequest.getSamAccountName(),
-            "groups"));
+            PAGE_AND_OU_PARAMS, GROUPS));
   }
 
   private String deleteGroup(

@@ -47,7 +47,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class GroupEditMembersController extends AbstractEditController implements PageableComponent,
+public class GroupEditMembersController extends UiController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
   private final DomainService domainService;
@@ -105,7 +105,7 @@ public class GroupEditMembersController extends AbstractEditController implement
           return "admin/group-edit-members";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, "groups"));
+            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
   @PostMapping(path = "/admin/group-edit-members")
@@ -141,7 +141,7 @@ public class GroupEditMembersController extends AbstractEditController implement
           return redirect;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, "groups"));
+            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
 }

@@ -44,7 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class OrganizationalUnitDeleteController extends AbstractEditController
+public class OrganizationalUnitDeleteController extends UiController
     implements PageableComponent, RedirectComponent {
 
   private final OrganizationalUnitService organizationalUnitService;
@@ -87,7 +87,7 @@ public class OrganizationalUnitDeleteController extends AbstractEditController
           return "admin/organizational-unit-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name, "organizational-units"));
+            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
   @PostMapping(path = "/admin/organizational-unit-delete")
@@ -137,7 +137,7 @@ public class OrganizationalUnitDeleteController extends AbstractEditController
           return redirect;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name, "organizational-units"));
+            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
 }

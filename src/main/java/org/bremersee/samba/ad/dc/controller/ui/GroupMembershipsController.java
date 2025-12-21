@@ -38,7 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class GroupMembershipsController extends AbstractEditController
+public class GroupMembershipsController extends UiController
     implements PageableComponent, OrganizationalUnitComponent {
 
   private final DomainGroupService domainGroupService;
@@ -105,7 +105,7 @@ public class GroupMembershipsController extends AbstractEditController
           return page;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, "groups"));
+            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
 }

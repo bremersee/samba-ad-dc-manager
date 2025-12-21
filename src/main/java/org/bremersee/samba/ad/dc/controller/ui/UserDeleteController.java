@@ -44,7 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserDeleteController extends AbstractEditController implements PageableComponent,
+public class UserDeleteController extends UiController implements PageableComponent,
     OrganizationalUnitComponent {
 
   private final DomainUserService domainUserService;
@@ -78,7 +78,7 @@ public class UserDeleteController extends AbstractEditController implements Page
           return "admin/user-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, "users"));
+            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
   @PostMapping(path = "/admin/user-delete")
@@ -103,7 +103,7 @@ public class UserDeleteController extends AbstractEditController implements Page
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "User", "todo", deleteRequest.getSamAccountName(),
-            "users"));
+            PAGE_AND_OU_PARAMS, "users"));
   }
 
   private String deleteUser(

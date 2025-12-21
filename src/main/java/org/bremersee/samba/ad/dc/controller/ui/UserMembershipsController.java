@@ -39,7 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserMembershipsController extends AbstractEditController
+public class UserMembershipsController extends UiController
     implements PageableComponent, OrganizationalUnitComponent {
 
   private final DomainUserService domainUserService;
@@ -110,7 +110,7 @@ public class UserMembershipsController extends AbstractEditController
           return page;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, "users"));
+            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
 }

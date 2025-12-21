@@ -50,7 +50,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class OrganizationalUnitEditController extends AbstractEditController
+public class OrganizationalUnitEditController extends UiController
     implements PageableComponent, RedirectComponent {
 
   private final OrganizationalUnitService organizationalUnitService;
@@ -101,7 +101,7 @@ public class OrganizationalUnitEditController extends AbstractEditController
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Organizational Unit", "todo", name,
-            "organizational-units"));
+            PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
   @PostMapping(path = "/admin/organizational-unit-edit")
@@ -127,7 +127,7 @@ public class OrganizationalUnitEditController extends AbstractEditController
             ou, ouEditRequest, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Organizational Unit", "todo", name,
-            "organizational-units"));
+            PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
   private String updateOrganizationalUnit(

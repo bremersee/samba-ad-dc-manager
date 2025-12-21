@@ -38,7 +38,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @author Christian Bremer
  */
 @Controller
-public class DnsZoneEntriesController extends AbstractEditController
+public class DnsZoneEntriesController extends UiController
     implements CurrentPageNameProvider, PageableComponent, DnsZoneTypeComponent {
 
   private final SortMapper sortMapper;

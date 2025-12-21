@@ -45,7 +45,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class ComputerDeleteController extends AbstractEditController implements PageableComponent,
+public class ComputerDeleteController extends UiController implements PageableComponent,
     OrganizationalUnitComponent {
 
   private final DomainComputerService domainComputerService;

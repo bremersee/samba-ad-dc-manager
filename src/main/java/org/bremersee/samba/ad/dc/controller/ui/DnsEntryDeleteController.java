@@ -45,7 +45,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsEntryDeleteController extends AbstractEditController implements PageableComponent,
+public class DnsEntryDeleteController extends UiController implements PageableComponent,
     DnsZoneTypeComponent {
 
   private final DnsService dnsService;

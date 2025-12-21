@@ -61,7 +61,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserEditController extends AbstractEditController implements PageableComponent,
+public class UserEditController extends UiController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
   private final DomainService domainService;

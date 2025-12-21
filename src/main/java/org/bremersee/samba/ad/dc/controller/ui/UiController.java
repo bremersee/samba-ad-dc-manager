@@ -39,7 +39,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UiController.
+ * The base Ui controller.
  *
  * @author Christian Bremer
  */
@@ -77,18 +77,6 @@ public abstract class UiController extends AbstractController implements LoggerP
     this.localeResolver = localeResolver;
   }
 
-  @Deprecated
-  protected String entityNotFoundRedirect(
-      RedirectAttributes redirectAttributes,
-      String entityType,
-      String i18nCode,
-      String entityName,
-      String redirect) {
-
-    return entityNotFoundRedirect(redirectAttributes, entityType, i18nCode, entityName,
-        PAGE_AND_OU_PARAMS, redirect);
-  }
-
   protected String entityNotFoundRedirect(
       RedirectAttributes redirectAttributes,
       String entityType,
@@ -101,7 +89,7 @@ public abstract class UiController extends AbstractController implements LoggerP
     RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,
         i18nCode, String.valueOf(entityName));
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
-    String redirectUri = getRedirectUri(redirect, PAGE_AND_OU_PARAMS, getParamterMap());
+    String redirectUri = getRedirectUri(redirect, parameterTemplate, getParamterMap());
     logRedirectTo(msg, redirectUri);
     return redirectUri;
   }

@@ -39,7 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class ComputerMembershipsController extends AbstractEditController
+public class ComputerMembershipsController extends UiController
     implements PageableComponent, OrganizationalUnitComponent {
 
   private final DomainComputerService domainComputerService;

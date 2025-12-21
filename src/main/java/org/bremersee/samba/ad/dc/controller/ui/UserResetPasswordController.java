@@ -48,7 +48,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserResetPasswordController extends AbstractEditController implements
+public class UserResetPasswordController extends UiController implements
     PageableComponent,
     OrganizationalUnitComponent {
 
@@ -92,7 +92,7 @@ public class UserResetPasswordController extends AbstractEditController implemen
           return "admin/user-reset-password";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, "users"));
+            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
   @PostMapping(path = "/admin/user-reset-password")
@@ -111,7 +111,7 @@ public class UserResetPasswordController extends AbstractEditController implemen
             user, passwordRequest, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "User", "todo", passwordRequest.getSamAccountName(),
-            "users"));
+            PAGE_AND_OU_PARAMS, "users"));
   }
 
   private String resetPassword(
