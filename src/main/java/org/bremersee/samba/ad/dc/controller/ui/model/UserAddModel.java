@@ -42,14 +42,6 @@ public class UserAddModel extends UserModel implements Serializable {
 
   private boolean useUsernameAsCn = true;
 
-  private boolean enabled = true;
-
-  private boolean passwordExpirationEnabled = false;
-
-  private boolean noExpiry = true;
-
-  private OffsetDateTime accountExpires = OffsetDateTime.now();
-
   private boolean sendEmail;
 
   /**

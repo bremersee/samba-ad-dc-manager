@@ -18,7 +18,6 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,14 +43,6 @@ public class UserEditModel extends UserModel implements Serializable {
   private boolean removeAvatar;
 
   private boolean renameNamesAutomatically = true;
-
-  private boolean enabled = true;
-
-  private boolean passwordExpirationEnabled = false;
-
-  private boolean noExpiry = true;
-
-  private OffsetDateTime accountExpires;
 
   private String userPrincipalName;
 

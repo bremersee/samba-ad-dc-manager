@@ -242,16 +242,19 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
     var modifications = new ArrayList<>(Arrays.asList(samAccountLdapMapper
         .mapAndComputeModifications(source, destination)));
 
-    Optional.ofNullable(source.getAccountExpires())
-        .filter(expires -> expires.isBefore(MAX_EXPIRES))
-        .ifPresentOrElse(
-            expires -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, expires),
-            () -> AdConstants.USER_ACCOUNT_EXPIRES.setValue(
-                destination,
-                NEVER_EXPIRES,
-                // The value decoder interprets '0' as null. But null would remove the attribute
-                // and that is not allowed.
-                (oldValue, newValue) -> nonNull(oldValue)));
+    if (isEmpty(source.getAccountExpires()) || source.getAccountExpires().isAfter(MAX_EXPIRES)) {
+      AdConstants.USER_ACCOUNT_EXPIRES
+          .setValue(
+              destination,
+              NEVER_EXPIRES,
+              // The value decoder interprets '0' as null. But null would remove the attribute
+              // and that is not allowed.
+              (oldValue, newValue) -> nonNull(oldValue))
+          .ifPresent(modifications::add);
+    } else {
+      AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, source.getAccountExpires())
+          .ifPresent(modifications::add);
+    }
 
     String company = source.getCompany();
     setAttribute(destination, AdConstants.USER_COMPANY, company, modifications);
