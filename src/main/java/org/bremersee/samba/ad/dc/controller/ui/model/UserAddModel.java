@@ -16,24 +16,21 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
-import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.ldaptive.dn.Dn;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 /**
- * The type DomainUserAddRequest.
+ * The user add model.
  *
  * @author Christian Bremer
  */
@@ -42,12 +39,10 @@ import org.mapstruct.factory.Mappers;
 @EqualsAndHashCode
 @ToString(exclude = {"password"})
 @NoArgsConstructor
-public class DomainUserAddRequest implements Serializable {
+public class UserAddModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  public static final DomainUserAddMapper MAPPER = Mappers.getMapper(DomainUserAddMapper.class);
 
   private String newOu;
 
@@ -58,6 +53,10 @@ public class DomainUserAddRequest implements Serializable {
   private boolean enabled = true;
 
   private boolean passwordExpirationEnabled = false;
+
+  private boolean noExpiry = true;
+
+  private OffsetDateTime accountExpires;
 
   /**
    * User's first name.
@@ -189,7 +188,11 @@ public class DomainUserAddRequest implements Serializable {
 
   private boolean generateRandomPassword;
 
-  public DomainUserAddRequest(DomainUserProperties properties, boolean isRfc2307Enabled) {
+  public UserAddModel(
+      DomainUserProperties properties,
+      PasswordInformation passwordInformation,
+      boolean isRfc2307Enabled) {
+    int passwordAgeInDays = passwordInformation.getMaximumPasswordAgeInDays();
     setUseUsernameAsCn(properties.isUseUsernameAsCn());
     setCompany(properties.getDefaultCompany());
     setDisplayName(properties.getDefaultDisplayName());
@@ -210,20 +213,10 @@ public class DomainUserAddRequest implements Serializable {
   }
 
   public Dn getNewOuDn() {
-    if (isEmpty(newOu)) {
-      return null;
+    if (DnTool.isValidDn(newOu)) {
+      return new Dn(newOu);
     }
-    return new Dn(newOu);
+    return null;
   }
 
-  @Mapper
-  public interface DomainUserAddMapper {
-
-    @Mapping(source = "enabled", target = "accountControl.enabled")
-    @Mapping(
-        source = "passwordExpirationEnabled",
-        target = "accountControl.passwordExpirationEnabled")
-    DomainUser mapToDomainUser(DomainUserAddRequest request);
-
-  }
 }

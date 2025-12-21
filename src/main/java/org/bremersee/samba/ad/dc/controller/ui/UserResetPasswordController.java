@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserResetPasswordRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.UserResetPasswordModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -88,7 +88,7 @@ public class UserResetPasswordController extends UiController implements
         .flatMap(name -> domainUserService.getUser(userName, ou, searchScope))
         .map(user -> {
           model.addAttribute("user", user);
-          model.addAttribute("passwordRequest", new DomainUserResetPasswordRequest(user));
+          model.addAttribute("passwordRequest", new UserResetPasswordModel(user));
           return "management/user-reset-password";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -99,7 +99,7 @@ public class UserResetPasswordController extends UiController implements
   public String resetPassword(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute("passwordRequest") DomainUserResetPasswordRequest passwordRequest,
+      @ModelAttribute("passwordRequest") UserResetPasswordModel passwordRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -116,7 +116,7 @@ public class UserResetPasswordController extends UiController implements
 
   private String resetPassword(
       DomainUser user,
-      DomainUserResetPasswordRequest passwordRequest,
+      UserResetPasswordModel passwordRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {

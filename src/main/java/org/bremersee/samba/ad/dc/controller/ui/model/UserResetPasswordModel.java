@@ -24,7 +24,7 @@ import org.bremersee.samba.ad.dc.model.DomainUser;
 
 @Data
 @NoArgsConstructor
-public class DomainUserResetPasswordRequest implements Serializable {
+public class UserResetPasswordModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -35,7 +35,7 @@ public class DomainUserResetPasswordRequest implements Serializable {
 
   private boolean generateRandomPassword;
 
-  public DomainUserResetPasswordRequest(DomainUser user) {
+  public UserResetPasswordModel(DomainUser user) {
     this.samAccountName = user.getSamAccountName();
   }
 

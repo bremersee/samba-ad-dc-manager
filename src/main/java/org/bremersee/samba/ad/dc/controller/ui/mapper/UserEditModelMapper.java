@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.controller.ui.mapper;
 import static java.util.Objects.isNull;
 
 import java.time.OffsetDateTime;
-import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.model.UserEditModel;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.model.ImmutableDomainUser;
@@ -15,16 +15,16 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface DomainUserEditModelMapper {
+public interface UserEditModelMapper {
 
-  DomainUserEditModelMapper INSTANCE = Mappers.getMapper(DomainUserEditModelMapper.class);
+  UserEditModelMapper INSTANCE = Mappers.getMapper(UserEditModelMapper.class);
 
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
   @Mapping(target = "noExpiry", source = "source", qualifiedByName = "mapNoExpiry")
   @Mapping(target = "avatar", ignore = true)
   @Mapping(target = "removeAvatar", ignore = true)
   @Mapping(target = "renameNamesAutomatically", ignore = true)
-  DomainUserEditModel map(DomainUser source);
+  UserEditModel map(DomainUser source);
 
   default ModifiableDomainUserAccountControl mapInternal(
       DomainUserAccountControl domainUserAccountControl) {
@@ -36,7 +36,7 @@ public interface DomainUserEditModelMapper {
     return isNull(source.getAccountExpires());
   }
 
-  default DomainUser merge(DomainUserEditModel source, DomainUser existingDomainUser) {
+  default DomainUser merge(UserEditModel source, DomainUser existingDomainUser) {
     return mergeInternal(source, DomainUser.builder().from(existingDomainUser));
   }
 
@@ -55,11 +55,11 @@ public interface DomainUserEditModelMapper {
   @Mapping(target = "password", ignore = true)
   @Mapping(target = "passwordLastSet", ignore = true)
   DomainUser mergeInternal(
-      DomainUserEditModel source,
+      UserEditModel source,
       @MappingTarget ImmutableDomainUser.Builder target);
 
   @Named("mergeAccountExpiresInternal")
-  default OffsetDateTime mergeAccountExpiresInternal(DomainUserEditModel source) {
+  default OffsetDateTime mergeAccountExpiresInternal(UserEditModel source) {
     if (source.isNoExpiry()) {
       return null;
     }

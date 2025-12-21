@@ -26,7 +26,8 @@ import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserAddRequest;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.UserAddModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.UserAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.FieldTemplateComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
@@ -53,7 +54,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The user add controller.
  *
  * @author Christian Bremer
  */
@@ -110,34 +111,34 @@ public class UserAddController extends UiController
       ModelMap model) {
 
     getLogger().debug("displayUserAdd({})", ou);
-    DomainUserAddRequest userAddRequest = createAddRequest(ou);
-    model.addAttribute("userAddRequest", userAddRequest);
+    UserAddModel addModel = newUserAddModel(ou);
+    model.addAttribute("addModel", addModel);
     return "management/user-add";
   }
 
   @PostMapping(path = "/management/user-add")
   public String addUser(
-      @ModelAttribute(name = "userAddRequest") DomainUserAddRequest userAddRequest,
+      @ModelAttribute(name = "addModel") UserAddModel addModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("addUser({})", userAddRequest);
+    getLogger().debug("addUser({})", addModel);
 
-    processTemplates(bindingResult, userAddRequest);
+    processTemplates(bindingResult, addModel);
 
-    if (!isEmpty(userAddRequest.getEmail())
-        && !emailPattern.matcher(userAddRequest.getEmail()).matches()) {
+    if (!isEmpty(addModel.getEmail())
+        && !emailPattern.matcher(addModel.getEmail()).matches()) {
       bindingResult.rejectValue("email", "code",
           "Email is invalid.");
     }
-    if (userAddRequest.isSendEmail() && isEmpty(userAddRequest.getEmail())) {
+    if (addModel.isSendEmail() && isEmpty(addModel.getEmail())) {
       bindingResult.rejectValue("email", "code",
           "If you want to send an invitation email, you have to enter an email address.");
     }
-    if (userAddRequest.isGenerateRandomPassword()) {
-      userAddRequest.setPassword(null);
-    } else if (isEmpty(userAddRequest.getPassword())) {
+    if (addModel.isGenerateRandomPassword()) {
+      addModel.setPassword(null);
+    } else if (isEmpty(addModel.getPassword())) {
       bindingResult.rejectValue("password", "code",
           "Password is required.");
     }
@@ -146,7 +147,7 @@ public class UserAddController extends UiController
       return "management/user-add";
     }
 
-    DomainUser addedUser = addUser(bindingResult, userAddRequest);
+    DomainUser addedUser = addUser(bindingResult, addModel);
 
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding user failed. Some fields were invalid.");
@@ -168,14 +169,12 @@ public class UserAddController extends UiController
 
   private DomainUser addUser(
       BindingResult bindingResult,
-      DomainUserAddRequest userAddRequest) {
+      UserAddModel addModel) {
 
-    DomainUser user = DomainUserAddRequest.MAPPER.mapToDomainUser(userAddRequest);
-    Dn ou = Optional.ofNullable(userAddRequest.getNewOu())
-        .map(Dn::new)
-        .orElseGet(() -> new Dn(getProperties().getUser().getDefaultOu()));
-    boolean useUsernameAsCn = userAddRequest.isUseUsernameAsCn();
-    boolean sendEmail = userAddRequest.isSendEmail();
+    DomainUser user = UserAddModelMapper.INSTANCE.map(addModel);
+    Dn ou = addModel.getNewOuDn();
+    boolean useUsernameAsCn = addModel.isUseUsernameAsCn();
+    boolean sendEmail = addModel.isSendEmail();
 
     try {
       return domainUserService.addUser(user, ou, useUsernameAsCn, sendEmail);
@@ -190,17 +189,17 @@ public class UserAddController extends UiController
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof DomainUserAddRequest, "Illegal bind target.");
-    DomainUserAddRequest userAddRequest = (DomainUserAddRequest) bindTarget;
+    Assert.isTrue(bindTarget instanceof UserAddModel, "Illegal bind target.");
+    UserAddModel addModel = (UserAddModel) bindTarget;
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Username is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Username contains illegal characters.");
         break;
       }
@@ -215,10 +214,10 @@ public class UserAddController extends UiController
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
             "Username already exists.");
         replaceInvalidUsernameWithDefaults(
-            userAddRequest, getProperties().getUser(), isRfc2307Enabled());
+            addModel, getProperties().getUser(), isRfc2307Enabled());
         break;
       }
       case EC_UID_ALREADY_EXISTS: {
@@ -253,9 +252,11 @@ public class UserAddController extends UiController
     }
   }
 
-  private DomainUserAddRequest createAddRequest(Dn ou) {
-    DomainUserAddRequest addRequest = new DomainUserAddRequest(
-        getProperties().getUser(), isRfc2307Enabled());
+  private UserAddModel newUserAddModel(Dn ou) {
+    UserAddModel addRequest = new UserAddModel(
+        getProperties().getUser(),
+        domainService.getPasswordInformation(),
+        isRfc2307Enabled());
     addRequest.setNewOu(Optional.ofNullable(ou)
         .filter(DnTool::isValidDn)
         .filter(dn -> !dn.isSame(getDnTool().getBaseDn()))
@@ -264,7 +265,7 @@ public class UserAddController extends UiController
     return addRequest;
   }
 
-  private void processTemplates(BindingResult bindingResult, DomainUserAddRequest addRequest) {
+  private void processTemplates(BindingResult bindingResult, UserAddModel addRequest) {
     Map<String, Object> map = Map.of("user", addRequest);
 
     String value = processTemplatedField(bindingResult, "company", addRequest.getCompany(), map);
@@ -320,7 +321,7 @@ public class UserAddController extends UiController
   }
 
   private void replaceInvalidUsernameWithDefaults(
-      DomainUserAddRequest addRequest,
+      UserAddModel addRequest,
       DomainUserProperties properties,
       boolean isRfc2307Enabled) {
 

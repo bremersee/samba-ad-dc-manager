@@ -32,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Christian Bremer
  */
 @Data
-public class DomainUserEditModel implements Serializable {
+public class UserEditModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -49,9 +49,9 @@ public class DomainUserEditModel implements Serializable {
 
   private ModifiableDomainUserAccountControl accountControl;
 
-  private OffsetDateTime accountExpires; // TODO how does it interact with passwordExpirationEnabled?
-
   private boolean noExpiry; // TODO add checkbox
+
+  private OffsetDateTime accountExpires; // TODO how does it interact with passwordExpirationEnabled?
 
   private boolean enabled = true; // TODO use account control
 
@@ -182,7 +182,7 @@ public class DomainUserEditModel implements Serializable {
    */
   private String nisDomain;
 
-  public DomainUserEditModel() {
+  public UserEditModel() {
     accountControl = ModifiableDomainUserAccountControl.create();
   }
 

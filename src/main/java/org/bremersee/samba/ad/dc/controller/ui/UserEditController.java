@@ -27,8 +27,8 @@ import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.mapper.DomainUserEditModelMapper;
-import org.bremersee.samba.ad.dc.controller.ui.model.DomainUserEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.UserEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.UserEditModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -119,7 +119,7 @@ public class UserEditController extends UiController implements PageableComponen
           List<DomainGroup> groups = domainGroupService.getMemberships(userName, ou, searchScope)
               .toList();
           model.addAttribute("groups", groups);
-          DomainUserEditModel editModel = DomainUserEditModelMapper.INSTANCE.map(user);
+          UserEditModel editModel = UserEditModelMapper.INSTANCE.map(user);
           model.addAttribute("userEditRequest", editModel);
           return "management/user-edit";
         })
@@ -135,7 +135,7 @@ public class UserEditController extends UiController implements PageableComponen
       @RequestParam(value = "previousLastName", required = false) String previousLastName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "userEditRequest") DomainUserEditModel editModel,
+      @ModelAttribute(name = "userEditRequest") UserEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -159,13 +159,13 @@ public class UserEditController extends UiController implements PageableComponen
 
   private String updateUser(
       DomainUser existingUser,
-      DomainUserEditModel editModel,
+      UserEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
     String oldSamAccountName = existingUser.getSamAccountName();
-    DomainUser newUser = DomainUserEditModelMapper.INSTANCE.merge(editModel, existingUser);
+    DomainUser newUser = UserEditModelMapper.INSTANCE.merge(editModel, existingUser);
     try {
       Dn newOu = editModel.getNewOuDn()
           .map(ou -> getDnTool().addBaseDn(ou))
@@ -213,7 +213,7 @@ public class UserEditController extends UiController implements PageableComponen
     }
   }
 
-  public void replaceNames(DomainUserEditModel userEditRequest, String oldName, String newName) {
+  public void replaceNames(UserEditModel userEditRequest, String oldName, String newName) {
     if (isEmpty(userEditRequest) || isEmpty(oldName)) {
       return;
     }
@@ -250,7 +250,7 @@ public class UserEditController extends UiController implements PageableComponen
     }
   }
 
-  private void updateAvatar(BindingResult bindingResult, DomainUserEditModel userEditRequest) {
+  private void updateAvatar(BindingResult bindingResult, UserEditModel userEditRequest) {
     if (userEditRequest.isRemoveAvatar()) {
       domainUserService.removeUserAvatar(userEditRequest.getSamAccountName());
     } else if (!isEmpty(userEditRequest.getAvatar()) && !userEditRequest.getAvatar().isEmpty()) {
@@ -268,7 +268,7 @@ public class UserEditController extends UiController implements PageableComponen
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof DomainUserEditModel, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof UserEditModel, "Illegal bind target.");
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {

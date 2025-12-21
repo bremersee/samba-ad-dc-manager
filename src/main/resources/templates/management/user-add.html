@@ -63,7 +63,7 @@
   </div>
 
   <div>
-    <form th:action="@{user-add}" th:object="${userAddRequest}" action="#" method="post">
+    <form th:action="@{user-add}" th:object="${addModel}" action="#" method="post">
       <input type="hidden" name="page" th:value="${page}"/>
       <input type="hidden" name="size" th:value="${size}"/>
       <input type="hidden" name="sort" th:value="${sort}"/>
