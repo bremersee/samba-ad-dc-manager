@@ -28,7 +28,7 @@ import org.bremersee.samba.ad.dc.model.DomainGroupType.Scope;
 import org.ldaptive.dn.Dn;
 
 /**
- * The type DomainGroupAddRequest.
+ * The group add model.
  *
  * @author Christian Bremer
  */

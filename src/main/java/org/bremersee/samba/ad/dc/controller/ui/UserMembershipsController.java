@@ -34,7 +34,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The user memberships controller.
  *
  * @author Christian Bremer
  */

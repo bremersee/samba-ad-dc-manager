@@ -16,30 +16,56 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.ldaptive.dn.Dn;
 
 /**
- * The type DomainGroupAddRequest.
+ * The organizational unit edit model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class OrganizationalUnitDeleteRequest implements Serializable {
+public class OrganizationalUnitEditModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   private String ou;
 
-  private String verificationName;
+  private String parentOu;
 
-  public OrganizationalUnitDeleteRequest(OrganizationalUnit ou) {
+  private String name;
+
+  private String description;
+
+  public OrganizationalUnitEditModel(OrganizationalUnit ou) {
     this.ou = ou.getDistinguishedName();
+    this.parentOu = ou.getDn().getParent().format();
+    this.name = ou.getName();
+    this.description = ou.getDescription();
+  }
+
+  public Dn getParentOuDn() {
+    if (isEmpty(parentOu)) {
+      return null;
+    }
+    return new Dn(parentOu);
+  }
+
+  public void update(OrganizationalUnit ou) {
+    if (isEmpty(ou)) {
+      return;
+    }
+    // TODO immutable
+    //ou.setName(getName());
+    //ou.setDescription(getDescription());
   }
 
 }

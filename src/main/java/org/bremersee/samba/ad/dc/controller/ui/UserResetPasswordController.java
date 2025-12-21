@@ -43,7 +43,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The user reset password controller.
  *
  * @author Christian Bremer
  */

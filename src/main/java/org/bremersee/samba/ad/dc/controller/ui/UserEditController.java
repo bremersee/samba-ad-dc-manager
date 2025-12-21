@@ -56,7 +56,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The user edit controller.
  *
  * @author Christian Bremer
  */
@@ -120,7 +120,7 @@ public class UserEditController extends UiController implements PageableComponen
               .toList();
           model.addAttribute("groups", groups);
           UserEditModel editModel = UserEditModelMapper.INSTANCE.map(user);
-          model.addAttribute("userEditRequest", editModel);
+          model.addAttribute("editModel", editModel);
           return "management/user-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -135,7 +135,7 @@ public class UserEditController extends UiController implements PageableComponen
       @RequestParam(value = "previousLastName", required = false) String previousLastName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "userEditRequest") UserEditModel editModel,
+      @ModelAttribute(name = "editModel") UserEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {

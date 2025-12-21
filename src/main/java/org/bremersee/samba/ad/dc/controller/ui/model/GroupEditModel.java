@@ -25,7 +25,7 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.ldaptive.dn.Dn;
 
 /**
- * The group add model.
+ * The group edit model.
  *
  * @author Christian Bremer
  */

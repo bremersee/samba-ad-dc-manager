@@ -22,22 +22,19 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.dn.Dn;
 
 /**
- * The type DomainGroupAddRequest.
+ * The organizational unit add model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class OrganizationalUnitEditRequest implements Serializable {
+public class OrganizationalUnitAddModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  private String ou;
 
   private String parentOu;
 
@@ -45,27 +42,11 @@ public class OrganizationalUnitEditRequest implements Serializable {
 
   private String description;
 
-  public OrganizationalUnitEditRequest(OrganizationalUnit ou) {
-    this.ou = ou.getDistinguishedName();
-    this.parentOu = ou.getDn().getParent().format();
-    this.name = ou.getName();
-    this.description = ou.getDescription();
-  }
-
   public Dn getParentOuDn() {
     if (isEmpty(parentOu)) {
       return null;
     }
     return new Dn(parentOu);
-  }
-
-  public void update(OrganizationalUnit ou) {
-    if (isEmpty(ou)) {
-      return;
-    }
-    // TODO immutable
-    //ou.setName(getName());
-    //ou.setDescription(getDescription());
   }
 
 }

@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Users</title>
+  <title>Edit user</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -57,7 +57,7 @@
     Status message
   </div>
 
-  <div th:if="${userEditRequest != null}">
+  <div th:if="${editModel != null}">
     <div class="row mb-4">
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="users.html"
@@ -113,7 +113,7 @@
     </ul>
 
     <div class="mx-0 mx-sm-1 mx-md-3">
-      <form th:action="@{user-edit}" th:object="${userEditRequest}" action="#" method="post"
+      <form th:action="@{user-edit}" th:object="${editModel}" action="#" method="post"
             enctype="multipart/form-data">
         <input type="hidden" name="page" th:value="${page}"/>
         <input type="hidden" name="size" th:value="${size}"/>
@@ -125,9 +125,11 @@
         <input type="hidden" name="user" th:value="${user.samAccountName}"/>
 
         <input type="hidden" name="previousSamAccountName"
-               th:value="${userEditRequest.samAccountName}"/>
-        <input type="hidden" name="previousFirstName" th:value="${userEditRequest.firstName}"/>
-        <input type="hidden" name="previousLastName" th:value="${userEditRequest.lastName}"/>
+               th:value="${editModel.samAccountName}"/>
+        <input type="hidden" name="previousFirstName" th:value="${editModel.firstName}"/>
+        <input type="hidden" name="previousLastName" th:value="${editModel.lastName}"/>
+
+        <input type="hidden" id="accountExpires" name="accountExpires" th:field="*{accountExpiresIso}" />
 
         <div class="mb-3">
           <label for="newAvatar" class="form-label">Avatar</label>
@@ -147,7 +149,6 @@
             Remove avatar
           </label>
         </div>
-
 
         <div class="mb-3">
           <label for="newOu" class="form-label">Organizational Unit</label>
@@ -202,6 +203,29 @@
           <label class="form-check-label" for="passwordExpirationEnabled">
             Password expiration enabled
           </label>
+        </div>
+
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" role="switch"
+                 id="noExpiry"
+                 name="noExpiry"
+                 th:field="*{noExpiry}"/>
+          <label for="noExpiry" class="form-label">
+            No expiry
+          </label>
+        </div>
+
+        <div id="accountExpiresUiDiv" class="mb-3">
+          <label for="accountExpiresUi" class="form-label">Account expires</label>
+          <input type="datetime-local" class="form-control" id="accountExpiresUi" name="accountExpiresUi"
+                 aria-describedby="accountExpiresUiValidation" value=""
+                 th:classappend="${#fields.hasErrors('accountExpires')} ? 'is-invalid' : ''"/>
+          <div id="accountExpiresUiHelp" class="form-text">
+            Please enter the expiration date-time of the account.
+          </div>
+          <div id="accountExpiresUiValidation" class="invalid-feedback"
+               th:text="${#fields.hasErrors('accountExpires')} ? ${#fields.errors('accountExpires')[0]} : ''">
+          </div>
         </div>
 
         <div class="mb-3">
@@ -427,6 +451,26 @@
 <script type="text/javascript" th:inline="javascript">
   //<![CDATA[
   "use strict";
+  function convertNumber(n) {
+    let s = '' + n;
+    if (s.length < 2) {
+      s = '0' + s;
+    }
+    return s;
+  }
+
+  function convertToLocalDateTime(isoValue) {
+    console.log("Converting " + isoValue);
+    if (typeof isoValue === 'string' && isoValue !== '') {
+      const dt = isoValue === "" ? new Date() : new Date(isoValue);
+      const r =  dt.getFullYear() + "-" + convertNumber(dt.getMonth() + 1) + "-" + convertNumber(dt.getDate())
+          + "T" + convertNumber(dt.getHours()) + ":" + convertNumber(dt.getMinutes());
+      console.log(isoValue + " -> " + r);
+      return r;
+    }
+    return "";
+  }
+
   $(document).ready(function () {
     const loadingSpinnerModal = new bootstrap.Modal('#loadingSpinnerModal');
     $('a.show-spinner').on('click', function () {
@@ -434,6 +478,44 @@
     });
     $( globalThis ).on('pageshow', function () {
       loadingSpinnerModal.hide();
+    });
+
+    const accountExpiresUiIsoValue = /*[[${editModel.accountExpiresIso}]]*/ "";
+    const accountExpiresUi = $('#accountExpiresUi');
+    const accountExpires = $('#accountExpires');
+    const noExpiry = /*[[${editModel.noExpiry}]]*/ true;
+    accountExpiresUi.prop('readonly', noExpiry);
+    accountExpiresUi.prop('disabled', noExpiry);
+    if (!noExpiry) {
+      accountExpiresUi.val(convertToLocalDateTime(accountExpiresUiIsoValue));
+    }
+    accountExpiresUi.on("change", function () {
+      const v = $(this).val();
+      if (typeof v === 'string' && v !== '') {
+        console.log("Input = " + v);
+        const d = new Date(v).toISOString();
+        console.log("Iso = " + d);
+        accountExpires.val(d);
+      } else {
+        accountExpires.val('');
+      }
+    });
+    $('#noExpiry').on("change", function () {
+      const checkbox = $(this);
+      if (checkbox.is(':checked')) {
+        accountExpiresUi.prop('readonly', true);
+        accountExpiresUi.prop('disabled', true);
+        accountExpiresUi.val('');
+        accountExpires.val('');
+      } else {
+        accountExpiresUi.prop('readonly', false);
+        accountExpiresUi.prop('disabled', false);
+        if (accountExpiresUi.val() === '') {
+          const v = convertToLocalDateTime(accountExpiresUiIsoValue);
+          accountExpiresUi.val(v);
+          accountExpires.val(new Date(v).toISOString());
+        }
+      }
     });
 
     const avatarImage = document.getElementById("avatarImage");

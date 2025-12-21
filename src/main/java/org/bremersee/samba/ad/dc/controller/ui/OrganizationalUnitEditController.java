@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitEditRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitEditModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -95,7 +95,7 @@ public class OrganizationalUnitEditController extends UiController
         .flatMap(organizationalUnitService::getOrganizationalUnit)
         .map(ou -> {
           model.addAttribute("organizationalUnit", ou);
-          OrganizationalUnitEditRequest ouEditRequest = new OrganizationalUnitEditRequest(ou);
+          OrganizationalUnitEditModel ouEditRequest = new OrganizationalUnitEditModel(ou);
           model.put("ouEditRequest", ouEditRequest);
           return "management/organizational-unit-edit";
         })
@@ -106,7 +106,7 @@ public class OrganizationalUnitEditController extends UiController
 
   @PostMapping(path = "/management/organizational-unit-edit")
   public String updateOrganizationalUnit(
-      @ModelAttribute(name = "ouEditRequest") OrganizationalUnitEditRequest ouEditRequest,
+      @ModelAttribute(name = "ouEditRequest") OrganizationalUnitEditModel ouEditRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -132,7 +132,7 @@ public class OrganizationalUnitEditController extends UiController
 
   private String updateOrganizationalUnit(
       OrganizationalUnit ou,
-      OrganizationalUnitEditRequest ouEditRequest,
+      OrganizationalUnitEditModel ouEditRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -168,7 +168,7 @@ public class OrganizationalUnitEditController extends UiController
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof OrganizationalUnitEditRequest, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof OrganizationalUnitEditModel, "Illegal bind target.");
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_OU_NAME_REQUIRED: {

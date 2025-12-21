@@ -32,13 +32,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type UsersController.
+ * The user list controller.
  *
  * @author Christian Bremer
  */
@@ -80,7 +79,7 @@ public class UsersController extends UiController
     return "users";
   }
 
-  @RequestMapping(path = "/management/users", method = RequestMethod.GET)
+  @GetMapping(path = "/management/users")
   public String displayUsers(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,

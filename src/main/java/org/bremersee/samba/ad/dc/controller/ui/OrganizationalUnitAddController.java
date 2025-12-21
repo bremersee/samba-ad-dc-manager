@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitAddRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -75,7 +75,7 @@ public class OrganizationalUnitAddController extends UiController
   @GetMapping(path = "/management/organizational-unit-add")
   public String displayOrganizationalUnitAdd(ModelMap model) {
     getLogger().debug("displayOrganizationalUnitAdd()");
-    OrganizationalUnitAddRequest ouAddRequest = new OrganizationalUnitAddRequest();
+    OrganizationalUnitAddModel ouAddRequest = new OrganizationalUnitAddModel();
     ouAddRequest.setParentOu(getDnTool().getBaseDn().format());
     model.addAttribute("ouAddRequest", ouAddRequest);
     return "management/organizational-unit-add";
@@ -83,7 +83,7 @@ public class OrganizationalUnitAddController extends UiController
 
   @PostMapping(path = "/management/organizational-unit-add")
   public String addOrganizationalUnit(
-      @ModelAttribute(name = "ouAddRequest") OrganizationalUnitAddRequest ouAddRequest,
+      @ModelAttribute(name = "ouAddRequest") OrganizationalUnitAddModel ouAddRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -125,7 +125,7 @@ public class OrganizationalUnitAddController extends UiController
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof OrganizationalUnitAddRequest, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof OrganizationalUnitAddModel, "Illegal bind target.");
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_OU_NAME_REQUIRED: {

@@ -5,6 +5,9 @@ import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The dns zone delete model.
+ */
 @Data
 @NoArgsConstructor
 public class DnsZoneDeleteModel implements Serializable {

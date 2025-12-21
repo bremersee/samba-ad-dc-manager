@@ -31,7 +31,7 @@ import lombok.Setter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 
 /**
- * The type DomainGroupAddRequest.
+ * The GroupEditMembersModel.
  *
  * @author Christian Bremer
  */

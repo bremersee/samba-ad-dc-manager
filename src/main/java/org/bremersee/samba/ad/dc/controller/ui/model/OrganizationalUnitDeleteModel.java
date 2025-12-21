@@ -16,37 +16,30 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ldaptive.dn.Dn;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 
 /**
- * The type DomainGroupAddRequest.
+ * The organizational unit delete model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class OrganizationalUnitAddRequest implements Serializable {
+public class OrganizationalUnitDeleteModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private String parentOu;
+  private String ou;
 
-  private String name;
+  private String verificationName;
 
-  private String description;
-
-  public Dn getParentOuDn() {
-    if (isEmpty(parentOu)) {
-      return null;
-    }
-    return new Dn(parentOu);
+  public OrganizationalUnitDeleteModel(OrganizationalUnit ou) {
+    this.ou = ou.getDistinguishedName();
   }
 
 }

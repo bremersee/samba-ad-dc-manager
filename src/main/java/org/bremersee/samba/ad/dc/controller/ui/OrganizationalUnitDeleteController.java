@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import java.util.Map;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDeleteRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -81,7 +81,7 @@ public class OrganizationalUnitDeleteController extends UiController
           boolean hasChildren = organizationalUnitService
               .hasChildren(ou.getDn());
           model.addAttribute("hasChildren", hasChildren);
-          OrganizationalUnitDeleteRequest ouDeleteRequest = new OrganizationalUnitDeleteRequest(
+          OrganizationalUnitDeleteModel ouDeleteRequest = new OrganizationalUnitDeleteModel(
               ou);
           model.put("ouDeleteRequest", ouDeleteRequest);
           return "management/organizational-unit-delete";
@@ -92,7 +92,7 @@ public class OrganizationalUnitDeleteController extends UiController
 
   @PostMapping(path = "/management/organizational-unit-delete")
   public String deleteOrganizationalUnit(
-      @ModelAttribute(name = "ouDeleteRequest") OrganizationalUnitDeleteRequest ouDeleteRequest,
+      @ModelAttribute(name = "ouDeleteRequest") OrganizationalUnitDeleteModel ouDeleteRequest,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
