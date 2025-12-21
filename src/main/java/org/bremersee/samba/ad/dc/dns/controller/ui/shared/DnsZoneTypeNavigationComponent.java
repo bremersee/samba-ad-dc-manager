@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.dns.controller.ui.shared;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 

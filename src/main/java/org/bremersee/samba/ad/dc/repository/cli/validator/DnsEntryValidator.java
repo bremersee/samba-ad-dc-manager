@@ -1,0 +1,39 @@
+package org.bremersee.samba.ad.dc.repository.cli.validator;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseValidator;
+import org.bremersee.exception.ServiceException;
+
+abstract class DnsEntryValidator implements CommandExecutorResponseValidator {
+
+  abstract String getExpectedResponse();
+
+  abstract String getAction();
+
+  abstract String getErrorCode();
+
+  @Override
+  public void validate(CommandExecutorResponse response) {
+    if (isNull(response.getStdout())
+        || !response.getStdout().toLowerCase().contains(getExpectedResponse().toLowerCase())) {
+
+      String error;
+      if (nonNull(response.getStderr())) {
+        int index = response.getStderr().indexOf('\n');
+        if (index > 0) {
+          error = ": " + response.getStderr().substring(0, index);
+        } else {
+          error = ": " + response.getStderr();
+        }
+      } else {
+        error = ".";
+      }
+      throw ServiceException.internalServerError(
+          String.format("%s dns entry failed%s", getAction(), error),
+          getErrorCode());
+    }
+  }
+}

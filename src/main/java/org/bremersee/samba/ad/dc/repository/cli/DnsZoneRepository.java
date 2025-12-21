@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui.shared;
+package org.bremersee.samba.ad.dc.repository.cli;
 
-import org.bremersee.samba.ad.dc.controller.AbstractController;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.annotation.Validated;
 
 /**
- * The interface DnsZoneTypeComponent.
+ * The interface DnsRepository.
  *
  * @author Christian Bremer
  */
-public interface DnsZoneTypeComponent {
+@Validated
+public interface DnsZoneRepository {
 
-  @ModelAttribute("zoneType")
-  default String addDnsZoneType(
-      @RequestParam(name = AbstractController.ZONE_TYPE,
-          defaultValue = AbstractController.ZONE_TYPE_DEFAULT)
-      DnsZoneType zoneType) {
-    return zoneType.getParameterValue();
-  }
+  List<String> getDnsZoneNames(@NotNull DnsZoneType type);
+
+  DnsZone getDnsZone(@NotEmpty String zoneName);
+
+  @NotNull
+  DnsZone createDnsZone(@NotEmpty String zoneName);
+
+  void deleteDnsZone(@NotEmpty String zoneName);
 
 }

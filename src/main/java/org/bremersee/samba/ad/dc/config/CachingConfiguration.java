@@ -27,7 +27,7 @@ import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.dns.model.DhcpLease;
+import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
 

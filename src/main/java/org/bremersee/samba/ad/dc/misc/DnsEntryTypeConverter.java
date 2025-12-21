@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui.shared;
+package org.bremersee.samba.ad.dc.misc;
 
-import org.bremersee.samba.ad.dc.controller.AbstractController;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
- * The interface DnsZoneTypeComponent.
+ * The type DnsEntryTypeConverter.
  *
  * @author Christian Bremer
  */
-public interface DnsZoneTypeComponent {
+@Component
+public class DnsEntryTypeConverter implements Converter<String, DnsEntryType> {
 
-  @ModelAttribute("zoneType")
-  default String addDnsZoneType(
-      @RequestParam(name = AbstractController.ZONE_TYPE,
-          defaultValue = AbstractController.ZONE_TYPE_DEFAULT)
-      DnsZoneType zoneType) {
-    return zoneType.getParameterValue();
+  @Override
+  public DnsEntryType convert(@NonNull String source) {
+    return DnsEntryType.fromValue(source, null);
   }
-
 }
