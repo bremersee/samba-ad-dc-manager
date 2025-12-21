@@ -16,8 +16,8 @@
 
 package org.bremersee.samba.ad.dc.common.controller;
 
-import org.bremersee.samba.ad.dc.common.DefaultDnTool;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 
 /**
  * The interface DnToolProvider.

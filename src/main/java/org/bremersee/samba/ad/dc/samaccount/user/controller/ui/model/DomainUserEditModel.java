@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import lombok.Data;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.samaccount.user.model.ModifiableDomainUserAccountControl;
 import org.ldaptive.dn.Dn;
 import org.springframework.web.multipart.MultipartFile;

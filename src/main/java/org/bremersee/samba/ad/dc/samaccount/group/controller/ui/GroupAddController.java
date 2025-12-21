@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.samaccount.group.controller.GroupControllerConstants;

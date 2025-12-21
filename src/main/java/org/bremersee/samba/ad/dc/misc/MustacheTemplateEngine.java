@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.common.service;
+package org.bremersee.samba.ad.dc.misc;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 

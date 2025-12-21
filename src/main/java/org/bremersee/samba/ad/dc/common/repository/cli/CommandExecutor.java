@@ -17,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.common.DefaultDnTool;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 
 @Slf4j

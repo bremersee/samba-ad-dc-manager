@@ -11,7 +11,7 @@ import java.util.Set;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.AdConstants;
 import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
 import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;

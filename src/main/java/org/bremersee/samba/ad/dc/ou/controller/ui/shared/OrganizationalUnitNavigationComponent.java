@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.ou.controller.ui.shared;
 
 import java.util.List;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.common.controller.DnToolProvider;

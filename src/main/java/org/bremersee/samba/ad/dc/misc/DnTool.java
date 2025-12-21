@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.common;
+package org.bremersee.samba.ad.dc.misc;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 

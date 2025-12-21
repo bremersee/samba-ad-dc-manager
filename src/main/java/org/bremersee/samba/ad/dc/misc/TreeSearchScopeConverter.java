@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.common.converter;
+package org.bremersee.samba.ad.dc.misc;
 
 import static java.util.Objects.isNull;
 

@@ -6,7 +6,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;

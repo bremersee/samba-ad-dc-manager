@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.common;
+package org.bremersee.samba.ad.dc.misc;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.ldaptive.dn.Dn;

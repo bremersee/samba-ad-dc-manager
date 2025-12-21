@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.ldaptive.dn.Dn;
 
 @Data

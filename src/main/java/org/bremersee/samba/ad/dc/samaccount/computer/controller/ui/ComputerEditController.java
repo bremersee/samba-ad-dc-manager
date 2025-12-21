@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;

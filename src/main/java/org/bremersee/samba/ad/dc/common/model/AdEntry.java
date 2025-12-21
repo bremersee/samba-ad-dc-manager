@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.immutables.value.Value;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;

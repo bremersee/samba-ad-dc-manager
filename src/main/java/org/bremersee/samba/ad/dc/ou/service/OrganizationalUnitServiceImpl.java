@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.ou.repository.OrganizationalUnitRepository;
