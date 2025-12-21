@@ -63,14 +63,14 @@
             Manage
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/users}">Users</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/groups}">Groups</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/computers}">Computers</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/users}">Users</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/groups}">Groups</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/computers}">Computers</a></li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/organizational-units}">Organizational Units</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/organizational-units}">Organizational Units</a></li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/admin/dns-zones}">DNS</a></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/admin/dhcp-leases}">DHCP</a></li>
+            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/templates/management/dns-zones}">DNS</a></li>
+            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/templates/management/dhcp-leases}">DHCP</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown" th:if="${ouDropdown != null}">
@@ -78,14 +78,14 @@
             Manage
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/users(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Users</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/groups(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Groups</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/computers}">Computers</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/users(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Users</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/groups(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Groups</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/computers}">Computers</a></li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/admin/organizational-units}">Organizational Units</a></li>
+            <li><a class="dropdown-item" href="#" th:href="@{/templates/management/organizational-units}">Organizational Units</a></li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/admin/dns-zones}">DNS</a></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/admin/dhcp-leases}">DHCP</a></li>
+            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/templates/management/dns-zones}">DNS</a></li>
+            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/templates/management/dhcp-leases}">DHCP</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown" th:if="${ouDropdown != null}">

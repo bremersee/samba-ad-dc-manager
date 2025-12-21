@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
@@ -59,7 +58,7 @@ public class ComputerMembershipsController extends AbstractEditController
 
   @Override
   public String getDefaultSort() {
-    return ComputerControllerConstants.COMPUTER_SORT;
+    return COMPUTER_SORT;
   }
 
   @GetMapping(path = "/management/computer-memberships-direct")
@@ -97,7 +96,7 @@ public class ComputerMembershipsController extends AbstractEditController
     return Optional.ofNullable(computerName)
         .flatMap(name -> domainComputerService.getComputer(computerName, ou, searchScope))
         .map(computer -> {
-          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          model.addAttribute(COMPUTER, computer);
           Stream<DomainGroup> memberships;
           String page;
           if (direct) {
@@ -116,7 +115,7 @@ public class ComputerMembershipsController extends AbstractEditController
             "todo",
             computerName,
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            COMPUTERS));
   }
 
 }

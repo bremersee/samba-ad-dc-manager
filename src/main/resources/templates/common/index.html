@@ -57,27 +57,27 @@
 
   <div class="d-grid gap-2 col-6 mx-auto">
     <a class="btn btn-outline-secondary" href="users.html"
-       th:href="@{admin/users(ou=${ou},scope=${scope})}">
+       th:href="@{../management/users(ou=${ou},scope=${scope})}">
       Users
     </a>
     <a class="btn btn-outline-secondary" href="groups.html"
-       th:href="@{admin/groups(ou=${ou},scope=${scope})}">
+       th:href="@{../management/groups(ou=${ou},scope=${scope})}">
       Groups
     </a>
     <a class="btn btn-outline-secondary" href="computers.html"
-       th:href="@{admin/computers}">
+       th:href="@{../management/computers}">
       Computers
     </a>
     <a class="btn btn-outline-secondary" href="organizational-units.html"
-       th:href="@{admin/organizational-units}">
+       th:href="@{../management/organizational-units}">
       Organizational Units
     </a>
     <a id="showDns" class="btn btn-outline-secondary show-spinner" href="dns-zones.html"
-       th:href="@{admin/dns-zones}">
+       th:href="@{../management/dns-zones}">
       DNS
     </a>
     <a id="showDhcp" class="btn btn-outline-secondary show-spinner" href="dhcp-leases.html"
-       th:href="@{admin/dhcp-leases}">
+       th:href="@{../management/dhcp-leases}">
       DHCP
     </a>
   </div>

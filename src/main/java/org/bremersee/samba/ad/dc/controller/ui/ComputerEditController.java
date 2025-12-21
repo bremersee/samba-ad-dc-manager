@@ -21,23 +21,22 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.ComputerEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.ComputerEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.service.DomainService;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
-import org.bremersee.samba.ad.dc.controller.ui.mapper.ComputerEditModelMapper;
-import org.bremersee.samba.ad.dc.controller.ui.model.ComputerEditModel;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -84,7 +83,7 @@ public class ComputerEditController extends UiController implements PageableComp
 
   @Override
   public String getDefaultSort() {
-    return ComputerControllerConstants.COMPUTER_SORT;
+    return COMPUTER_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -103,7 +102,7 @@ public class ComputerEditController extends UiController implements PageableComp
     return Optional.ofNullable(computerName)
         .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
         .map(computer -> {
-          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          model.addAttribute(COMPUTER, computer);
           addPrimaryGroupToModel(model, computer);
           ComputerEditModel editModel = ComputerEditModelMapper.INSTANCE.map(computer);
           model.addAttribute("editModel", editModel);
@@ -115,7 +114,7 @@ public class ComputerEditController extends UiController implements PageableComp
             "todo",
             computerName,
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            COMPUTERS));
   }
 
   @PostMapping(path = "/management/computer-edit")
@@ -140,7 +139,7 @@ public class ComputerEditController extends UiController implements PageableComp
             "todo",
             samAccountName,
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            COMPUTERS));
   }
 
   private String updateComputer(
@@ -175,7 +174,7 @@ public class ComputerEditController extends UiController implements PageableComp
           PAGE_AND_OU_PARAMS,
           putToParameterMap(
               parameters,
-              ComputerControllerConstants.COMPUTER,
+              COMPUTER,
               updatedComputer));
       logRedirectTo("Computer successfully updated.", redirect);
       return redirect;
@@ -189,7 +188,7 @@ public class ComputerEditController extends UiController implements PageableComp
       model.addAttribute(
           AbstractController.OU,
           partialUpdatedComputer.getDn().getParent().format());
-      model.addAttribute(ComputerControllerConstants.COMPUTER, partialUpdatedComputer);
+      model.addAttribute(COMPUTER, partialUpdatedComputer);
       addPrimaryGroupToModel(model, partialUpdatedComputer);
       return "computer/computer-edit";
     }

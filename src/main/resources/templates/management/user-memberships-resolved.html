@@ -136,7 +136,7 @@
       </div>
 
       <div class="list-group list-group-flush" th:if="${not #lists.isEmpty(memberships)}">
-        <a th:each="entry : ${memberships}" href="../group/group-edit-members.html"
+        <a th:each="entry : ${memberships}" href="group-edit-members.html"
            th:href="@{group-edit-members(name=${entry.samAccountName},ou=${entry.parentDistinguishedName})}"
            class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between">

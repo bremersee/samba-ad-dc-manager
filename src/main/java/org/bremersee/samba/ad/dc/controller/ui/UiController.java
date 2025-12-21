@@ -47,6 +47,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public abstract class UiController extends AbstractController implements LoggerProvider,
     DnToolProvider, MessageProvider, RedirectComponent, ErrorCode, SortOrderConstants {
 
+  protected static final String COMPUTER = "computer";
+
+  protected static final String COMPUTERS = "computers";
+
   private final Logger logger;
 
   private final DomainControllerProperties properties;

@@ -10,10 +10,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.DomainComputerPage;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
@@ -88,7 +87,7 @@ public class ComputerApiController extends ApiController {
       @RequestParam(name = "scope", required = false)
       TreeSearchScope scope) {
 
-    Sort sort = sortMapper.toSort(sortOrder, ComputerControllerConstants.COMPUTER_SORT);
+    Sort sort = sortMapper.toSort(sortOrder, COMPUTER_SORT);
     Pageable pageable = PageRequest.of(page, size, sort);
     Page<DomainComputer> computerPage = domainComputerService
         .getComputers(pageable, query, ou, scope);

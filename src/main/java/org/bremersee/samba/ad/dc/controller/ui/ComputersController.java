@@ -19,15 +19,14 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigationComponent;
-import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
-import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainComputerPage;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,7 +71,7 @@ public class ComputersController extends UiController
 
   @Override
   public String getDefaultSort() {
-    return ComputerControllerConstants.COMPUTER_SORT;
+    return COMPUTER_SORT;
   }
 
   @Override
@@ -84,7 +83,7 @@ public class ComputersController extends UiController
   public String displayComputers(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
-      @RequestParam(name = SORT, defaultValue = ComputerControllerConstants.COMPUTER_SORT)
+      @RequestParam(name = SORT, defaultValue = COMPUTER_SORT)
       SortOrder sort,
       @RequestParam(name = QUERY, required = false) String query,
       @RequestParam(name = OU, required = false) Dn ou,

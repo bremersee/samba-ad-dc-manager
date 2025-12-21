@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/users")
-public class UserApiController {
+public class UserApiController extends ApiController {
 
   private final DomainUserService domainUserService;
 

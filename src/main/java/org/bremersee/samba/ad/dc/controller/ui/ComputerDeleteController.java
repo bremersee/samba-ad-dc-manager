@@ -19,15 +19,14 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.SamAccountDeleteModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
-import org.bremersee.samba.ad.dc.controller.ui.model.SamAccountDeleteModel;
-import org.bremersee.samba.ad.dc.controller.ComputerControllerConstants;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
@@ -61,7 +60,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
 
   @Override
   public String getDefaultSort() {
-    return ComputerControllerConstants.COMPUTER_SORT;
+    return COMPUTER_SORT;
   }
 
   @GetMapping(path = "/management/computer-delete")
@@ -75,17 +74,17 @@ public class ComputerDeleteController extends AbstractEditController implements 
     return Optional.ofNullable(computerName)
         .flatMap(name -> domainComputerService.getComputer(computerName, ou, searchScope))
         .map(computer -> {
-          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          model.addAttribute(COMPUTER, computer);
           model.addAttribute("deleteModel", new SamAccountDeleteModel(computer));
           return "computer/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
-            ComputerControllerConstants.COMPUTER,
+            COMPUTER,
             "todo",
             computerName,
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            COMPUTERS));
   }
 
   @PostMapping(path = "/management/computer-delete")
@@ -108,16 +107,16 @@ public class ComputerDeleteController extends AbstractEditController implements 
               "verificationName",
               "todo",
               "The name doesn't match.");
-          model.addAttribute(ComputerControllerConstants.COMPUTER, computer);
+          model.addAttribute(COMPUTER, computer);
           return "computer/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
-            ComputerControllerConstants.COMPUTER,
+            COMPUTER,
             "todo",
             deleteModel.getSamAccountName(),
             PAGE_AND_OU_PARAMS,
-            ComputerControllerConstants.COMPUTERS));
+            COMPUTERS));
   }
 
   private String deleteComputer(
@@ -144,7 +143,7 @@ public class ComputerDeleteController extends AbstractEditController implements 
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     String redirect = getRedirectUri(
-        ComputerControllerConstants.COMPUTERS,
+        COMPUTERS,
         PAGE_AND_OU_PARAMS,
         getParamterMap());
     logRedirectTo("Computer deletion message.", redirect);

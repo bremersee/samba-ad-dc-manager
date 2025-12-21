@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Groups</title>
+  <title>Dns Zones</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -51,36 +50,63 @@
 
   <div th:replace="~{fragments/loading-spinner :: loading-spinner}"></div>
 
-  <div class="d-flex justify-content-center mb-4">
-    <h3>Samba AD DC Management</h3>
+  <div class="row mb-4">
+    <div class="col-1">
+      <a class="btn btn-outline-secondary" href="home.html"
+         th:href="@{../management}">
+        <span class="fa fa-backward"></span>
+      </a>
+    </div>
+    <div class="col">
+      <div class="container">
+        <div class="d-flex justify-content-center">
+          <h3 th:text="#{${zoneTypeDropdown.selectedZoneType.i18nCode}}">Primary Zones</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-1"></div>
   </div>
 
-  <div class="d-grid gap-2 col-6 mx-auto">
-    <a class="btn btn-outline-secondary" href="users.html"
-       th:href="@{admin/users(ou=${ou},scope=${scope})}">
-      Users
-    </a>
-    <a class="btn btn-outline-secondary" href="../group/groups.html"
-       th:href="@{admin/groups(ou=${ou},scope=${scope})}">
-      Groups
-    </a>
-    <a class="btn btn-outline-secondary" href="../computer/computers.html"
-       th:href="@{admin/computers}">
-      Computers
-    </a>
-    <a class="btn btn-outline-secondary" href="organizational-units.html"
-       th:href="@{admin/organizational-units}">
-      Organizational Units
-    </a>
-    <a id="showDns" class="btn btn-outline-secondary show-spinner" href="dns-zones.html"
-       th:href="@{admin/dns-zones}">
-      DNS
-    </a>
-    <a id="showDhcp" class="btn btn-outline-secondary show-spinner" href="dhcp-leases.html"
-       th:href="@{admin/dhcp-leases}">
-      DHCP
+  <!--suppress ThymeleafVariablesResolveInspection -->
+  <div th:if="${rmsg != null}"
+       class="alert alert-success"
+       th:class="${rmsg != null} ? ${rmsg.msgType.cssClass} : ''" role="alert"
+       th:text="${rmsg != null} ? ${rmsg.msg} : ''">
+    Status message
+  </div>
+
+  <div class="mb-3 p-3 border border-1">
+    <div class="row justify-content-between">
+      <div class="col col-auto">
+      </div>
+      <div class="col col-auto mt-sm-2 mt-md-0">
+        <a id="addZone" href="dns-zone-create.html" title="Add zone" class="btn btn-outline-primary"
+           th:href="@{dns-zone-create}">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${#lists.isEmpty(dnsZoneNames)}"
+       class="alert alert-info" role="alert">
+    No dns zones were found.
+  </div>
+
+  <div id="content-list" class="list-group list-group-flush" th:if="${not #lists.isEmpty(dnsZoneNames)}">
+    <a th:each="zoneName : ${dnsZoneNames}" href="#"
+       th:href="@{dns-zone-entries(zone-name=${zoneName},zone-type=${zoneTypeDropdown.selectedZoneType.parameterValue})}"
+       class="list-group-item list-group-item-action show-spinner">
+      <div class="d-flex w-100 justify-content-between">
+        <h6 class="mb-1"
+            th:text="${zoneName}">
+          intranet
+        </h6>
+        <span class="fa-solid fa-globe" aria-hidden="true"></span>
+      </div>
     </a>
   </div>
+
 </main>
 <script type="text/javascript" th:inline="javascript">
   //<![CDATA[
