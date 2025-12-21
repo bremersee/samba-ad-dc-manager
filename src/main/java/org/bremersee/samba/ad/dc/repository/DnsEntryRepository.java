@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.cli;
+package org.bremersee.samba.ad.dc.repository;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import org.bremersee.samba.ad.dc.model.DnsZone;
-import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -29,15 +28,18 @@ import org.springframework.validation.annotation.Validated;
  * @author Christian Bremer
  */
 @Validated
-public interface DnsZoneRepository {
+public interface DnsEntryRepository {
 
-  List<String> getDnsZoneNames(@NotNull DnsZoneType type);
+  String ZONE_ENTRIES_NODE_NAME = "@";
 
-  DnsZone getDnsZone(@NotEmpty String zoneName);
+  List<DnsEntry> getDnsEntries(@NotEmpty String zoneName);
 
-  @NotNull
-  DnsZone createDnsZone(@NotEmpty String zoneName);
+  DnsEntry addCommonAttributes(@NotNull DnsEntry entry);
 
-  void deleteDnsZone(@NotEmpty String zoneName);
+  void addDnsEntry(@NotNull DnsEntry entry);
+
+  void updateDnsEntry(@NotNull DnsEntry entry, @NotEmpty String newValue);
+
+  void deleteDnsEntry(@NotNull DnsEntry entry);
 
 }

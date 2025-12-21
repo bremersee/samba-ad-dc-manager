@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutor;
 import org.bremersee.samba.ad.dc.domain.repository.cli.parser.HostNameParser;
-import org.bremersee.samba.ad.dc.domain.repository.HostNameSupplier;
+import org.bremersee.samba.ad.dc.repository.HostNameSupplier;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.springframework.stereotype.Component;
 

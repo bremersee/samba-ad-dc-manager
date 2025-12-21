@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.cli;
+package org.bremersee.samba.ad.dc.repository;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.repository.AdRepository;
-import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;

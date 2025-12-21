@@ -18,8 +18,8 @@ package org.bremersee.samba.ad.dc.domain.service;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
-import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
+import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.springframework.validation.annotation.Validated;
 
 /**

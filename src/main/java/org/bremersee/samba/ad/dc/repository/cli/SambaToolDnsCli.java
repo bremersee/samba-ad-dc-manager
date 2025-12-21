@@ -8,6 +8,7 @@ import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.repository.SambaToolDns;
 import org.bremersee.samba.ad.dc.repository.cli.parser.DnsEntriesParser;
 import org.bremersee.samba.ad.dc.repository.cli.parser.DnsZoneListParser;
 import org.bremersee.samba.ad.dc.repository.cli.parser.DnsZoneParser;

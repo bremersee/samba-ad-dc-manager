@@ -30,7 +30,7 @@ import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.samaccount.common.repository.SamAccountRepository;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.mapper.DomainGroupLdapMapper;

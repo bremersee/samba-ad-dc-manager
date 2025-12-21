@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository.cli;
+package org.bremersee.samba.ad.dc.repository;
 
 import java.util.List;
 import org.bremersee.samba.ad.dc.model.DhcpLease;

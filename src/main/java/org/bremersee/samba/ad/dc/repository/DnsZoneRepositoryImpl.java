@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.cli;
+package org.bremersee.samba.ad.dc.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;

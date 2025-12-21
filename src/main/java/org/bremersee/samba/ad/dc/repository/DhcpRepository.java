@@ -14,33 +14,25 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.cli;
+package org.bremersee.samba.ad.dc.repository;
 
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 /**
- * The dhcp repository implementation.
+ * The dhcp repository.
  *
  * @author Christian Bremer
  */
-@Component("dhcpRepository")
-@Slf4j
-public class DhcpRepositoryImpl implements DhcpRepository {
+@Validated
+public interface DhcpRepository {
 
-  private final DhcpLeaseListTool dhcpTool;
-
-  public DhcpRepositoryImpl(DhcpLeaseListTool dhcpTool) {
-    this.dhcpTool = dhcpTool;
-  }
-
-  @Cacheable(cacheNames = "dhcpLeasesCache")
-  @Override
-  public List<DhcpLease> findActive() {
-    return dhcpTool.findActive();
-  }
+  /**
+   * Find active dhcp leases.
+   *
+   * @return the dhcp leases
+   */
+  List<DhcpLease> findActive();
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.domain.repository;
+package org.bremersee.samba.ad.dc.repository;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -25,11 +25,9 @@ import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.repository.AdConstants;
-import org.bremersee.samba.ad.dc.repository.AdRepository;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
-import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
+import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.ad.SecurityIdentifier;
