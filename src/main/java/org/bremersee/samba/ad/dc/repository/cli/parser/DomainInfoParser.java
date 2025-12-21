@@ -103,9 +103,9 @@ public interface DomainInfoParser
         findValue(line, NETBIOS_DOMAIN)
             .ifPresent(info::netbiosDomain);
         findValue(line, DC_NETBIOS_NAME)
-            .ifPresent(info::domainControllerNetrbiosName);
+            .ifPresent(info::domainControllerNetbiosName);
         findValue(line, DC_NAME)
-            .ifPresent(info::domainControllerNetrbiosName);
+            .ifPresent(info::domainControllerName);
         findValue(line, SERVER_SITE)
             .ifPresent(info::serverSite);
         findValue(line, CLIENT_SITE)

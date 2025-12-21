@@ -35,7 +35,7 @@ public interface DomainInfo {
   String getDomainControllerName();
 
   @Nullable
-  String getDomainControllerNetrbiosName();
+  String getDomainControllerNetbiosName();
 
   @Nullable
   String getServerSite();

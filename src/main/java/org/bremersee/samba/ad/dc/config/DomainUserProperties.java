@@ -24,7 +24,7 @@ import lombok.Data;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 
 /**
- * The type DomainUserProperties.
+ * The domain user properties.
  *
  * @author Christian Bremer
  */
