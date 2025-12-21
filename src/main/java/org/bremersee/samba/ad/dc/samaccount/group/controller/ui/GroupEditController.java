@@ -22,19 +22,23 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.common.controller.AbstractController;
 import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model.DomainGroupEditRequest;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.GroupControllerConstants;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.mapper.GroupEditModelMapper;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model.GroupEditModel;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
+import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -48,7 +52,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The group edit controller.
  *
  * @author Christian Bremer
  */
@@ -77,7 +81,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
 
   @Override
   public String getDefaultSort() {
-    return GROUP_SORT;
+    return GroupControllerConstants.GROUP_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -85,7 +89,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
     return domainService.isRfc2307Enabled();
   }
 
-  @GetMapping(path = "/admin/group-edit")
+  @GetMapping(path = "/management/group-edit")
   public String displayGroupEdit(
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -96,53 +100,62 @@ public class GroupEditController extends AbstractEditController implements Pagea
     return Optional.ofNullable(groupName)
         .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
         .map(group -> {
-          model.addAttribute("group", group);
-          DomainGroupEditRequest req = DomainGroupEditRequest.MAPPER.map(group);
-          model.addAttribute("groupEditRequest", req);
-          return "admin/group-edit";
+          model.addAttribute(GroupControllerConstants.GROUP, group);
+          GroupEditModel editModel = GroupEditModelMapper.INSTANCE.map(group);
+          model.addAttribute("editModel", editModel);
+          return "group/group-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, "groups"));
+            redirectAttributes,
+            "Group",
+            "todo",
+            groupName,
+            PAGE_AND_OU_PARAMS,
+            GroupControllerConstants.GROUPS));
   }
 
-  @PostMapping(path = "/admin/group-edit")
+  @PostMapping(path = "/management/group-edit")
   public String updateGroup(
       @RequestParam(value = "name", required = false) String oldSamAccountName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "groupEditRequest") DomainGroupEditRequest groupEditRequest,
+      @ModelAttribute(name = "editModel") GroupEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("updateGroup({}, {})", oldSamAccountName, groupEditRequest);
+    getLogger().debug("updateGroup({}, {})", oldSamAccountName, editModel);
 
     return Optional.ofNullable(oldSamAccountName)
-        .or(() -> Optional.ofNullable(groupEditRequest.getSamAccountName()))
+        .or(() -> Optional.ofNullable(editModel.getSamAccountName()))
         .flatMap(oldName -> domainGroupService.getGroup(oldName, ou, searchScope))
         .map(existingGroup -> updateGroup(
-            existingGroup, groupEditRequest, model, bindingResult, redirectAttributes))
+            existingGroup, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", oldSamAccountName, PAGE_AND_OU_PARAMS, "groups"));
+            redirectAttributes,
+            "Group",
+            "todo",
+            oldSamAccountName,
+            PAGE_AND_OU_PARAMS,
+            GroupControllerConstants.GROUPS));
   }
 
   private String updateGroup(
       DomainGroup existingGroup,
-      DomainGroupEditRequest groupEditRequest,
+      GroupEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
     String oldSamAccountName = existingGroup.getSamAccountName();
-    DomainGroupEditRequest.MAPPER.update(existingGroup, groupEditRequest);
-    Dn ou = groupEditRequest.getNewOuDn();
+    DomainGroup newGroup = GroupEditModelMapper.INSTANCE.merge(editModel, existingGroup);
     try {
-      Dn parentDn = existingGroup.getDn().getParent();
-      Dn ouDn = getDnTool().addBaseDn(ou);
-      Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
+      Dn newOu = editModel.getNewOuDn()
+          .map(ou -> getDnTool().addBaseDn(ou))
+          .filter(ou -> !DnTool.isSameDn(ou, existingGroup.getDn().getParent()))
+          .orElse(null);
       DomainGroup updatedGroup = domainGroupService
-          .updateGroup(oldSamAccountName, existingGroup, newOu);
-
+          .updateGroup(oldSamAccountName, newGroup, newOu);
       model.clear();
       String msg = String.format("Group '%s' was successfully updated.", updatedGroup.getName());
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
@@ -151,18 +164,22 @@ public class GroupEditController extends AbstractEditController implements Pagea
 
       Map<String, Object> parameters = getParamterMap(updatedGroup.getDn().getParent());
       String redirect = getRedirectUri("group-edit?name={{group.samAccountName}}",
-          PAGE_AND_OU_PARAMS, putToParameterMap(parameters, "group", updatedGroup));
+          PAGE_AND_OU_PARAMS,
+          putToParameterMap(parameters, GroupControllerConstants.GROUP, updatedGroup));
       logRedirectTo("Group successfully updated.", redirect);
       return redirect;
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);
-      // TODO immutable
-      //existingGroup.setSamAccountName(oldSamAccountName);
-      model.addAttribute("group", DomainGroup.builder()
-              .samAccountName(oldSamAccountName)
-          .build());
-      return "admin/group-edit";
+      String newSamAccountName = newGroup.getSamAccountName();
+      DomainGroup partialUpdatedGroup = domainGroupService.getGroup(oldSamAccountName, null, null)
+          .or(() -> domainGroupService.getGroup(newSamAccountName, null, null))
+          .orElse(existingGroup);
+      model.addAttribute(
+          AbstractController.OU,
+          partialUpdatedGroup.getDn().getParent().format());
+      model.addAttribute(GroupControllerConstants.GROUP, partialUpdatedGroup);
+      return "group/group-edit";
     }
   }
 
@@ -170,21 +187,21 @@ public class GroupEditController extends AbstractEditController implements Pagea
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof DomainGroupEditRequest, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof GroupEditModel, "Illegal bind target.");
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Group name is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Group name contains illegal characters.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Group name already exists.");
         break;
       }
@@ -194,7 +211,7 @@ public class GroupEditController extends AbstractEditController implements Pagea
         break;
       }
       case EC_DN_ALREADY_EXISTS: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Distinguished name already exists.");
         break;
       }

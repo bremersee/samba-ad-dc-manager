@@ -160,7 +160,7 @@ public class OrganizationalUnitEditController extends AbstractEditController
     String redirect = getRedirectUri(
         "organizational-unit-edit?name={{name}}",
         PAGE_AND_OU_PARAMS,
-        putToParameterMap(parameters, "name", updatedOu.getDistinguishedNameUnformatted()));
+        putToParameterMap(parameters, "name", updatedOu.getDistinguishedName()));
     logRedirectTo("Organizational unit successfully added.", redirect);
     return redirect;
   }

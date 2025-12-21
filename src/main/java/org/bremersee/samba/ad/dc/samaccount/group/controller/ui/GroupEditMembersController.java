@@ -23,7 +23,7 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model.DomainGroupEditMembersRequest;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model.GroupEditMembersModel;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
@@ -102,7 +102,7 @@ public class GroupEditMembersController extends AbstractEditController implement
         .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
         .map(group -> {
           model.addAttribute("group", group);
-          model.addAttribute("editRequest", new DomainGroupEditMembersRequest(group));
+          model.addAttribute("editRequest", new GroupEditMembersModel(group));
           return "admin/group-edit-members";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -114,7 +114,7 @@ public class GroupEditMembersController extends AbstractEditController implement
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "editRequest") DomainGroupEditMembersRequest editRequest,
+      @ModelAttribute(name = "editRequest") GroupEditMembersModel editRequest,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 

@@ -13,11 +13,12 @@ import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 import org.springframework.lang.Nullable;
 
 @Schema(description = "The domain group.")
 @Value.Style(
-    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
@@ -95,15 +96,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
    *
    * @return the builder
    */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableDomainGroup.Builder {
-
+  static ImmutableDomainGroup.Builder builder() {
+    return ImmutableDomainGroup.builder();
   }
 
 }

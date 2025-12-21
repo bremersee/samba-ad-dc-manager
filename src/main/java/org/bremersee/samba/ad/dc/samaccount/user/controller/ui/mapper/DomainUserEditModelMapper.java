@@ -3,13 +3,11 @@ package org.bremersee.samba.ad.dc.samaccount.user.controller.ui.mapper;
 import static java.util.Objects.isNull;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
 import org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model.DomainUserEditModel;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.samaccount.user.model.ImmutableDomainUser;
 import org.bremersee.samba.ad.dc.samaccount.user.model.ModifiableDomainUserAccountControl;
-import org.ldaptive.dn.Dn;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -21,7 +19,7 @@ public interface DomainUserEditModelMapper {
 
   DomainUserEditModelMapper INSTANCE = Mappers.getMapper(DomainUserEditModelMapper.class);
 
-  @Mapping(target = "newOu", source = "dn", qualifiedByName = "mapDistinguishedNameToNewOu")
+  @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
   @Mapping(target = "noExpiry", source = "source", qualifiedByName = "mapNoExpiry")
   @Mapping(target = "avatar", ignore = true)
   @Mapping(target = "removeAvatar", ignore = true)
@@ -31,14 +29,6 @@ public interface DomainUserEditModelMapper {
   default ModifiableDomainUserAccountControl mapInternal(
       DomainUserAccountControl domainUserAccountControl) {
     return ModifiableDomainUserAccountControl.create().from(domainUserAccountControl);
-  }
-
-  @Named("mapDistinguishedNameToNewOu")
-  default String mapDistinguishedNameToNewOuInternal(Dn dn) {
-    return Optional.ofNullable(dn)
-        .map(Dn::getParent)
-        .map(Dn::format)
-        .orElse(null);
   }
 
   @Named("mapNoExpiry")

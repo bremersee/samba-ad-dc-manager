@@ -26,15 +26,16 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
-import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
@@ -135,44 +136,44 @@ public class UserEditController extends AbstractEditController implements Pageab
       @RequestParam(value = "previousLastName", required = false) String previousLastName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "userEditRequest") DomainUserEditModel userEditRequest,
+      @ModelAttribute(name = "userEditRequest") DomainUserEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("updateUser({})", userEditRequest);
+    getLogger().debug("updateUser({})", editModel);
 
-    if (userEditRequest.isRenameNamesAutomatically()) {
-      replaceNames(userEditRequest, previousSamAccountName, userEditRequest.getSamAccountName());
-      replaceNames(userEditRequest, previousFirstName, userEditRequest.getFirstName());
-      replaceNames(userEditRequest, previousLastName, userEditRequest.getLastName());
+    if (editModel.isRenameNamesAutomatically()) {
+      replaceNames(editModel, previousSamAccountName, editModel.getSamAccountName());
+      replaceNames(editModel, previousFirstName, editModel.getFirstName());
+      replaceNames(editModel, previousLastName, editModel.getLastName());
     }
 
     return Optional.ofNullable(oldSamAccountName)
-        .or(() -> Optional.ofNullable(userEditRequest.getSamAccountName()))
+        .or(() -> Optional.ofNullable(editModel.getSamAccountName()))
         .flatMap(oldName -> domainUserService.getUser(oldName, ou, searchScope))
         .map(existingUser -> updateUser(
-            existingUser, userEditRequest, model, bindingResult, redirectAttributes))
+            existingUser, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "User", "todo", oldSamAccountName, PAGE_AND_OU_PARAMS, "users"));
   }
 
   private String updateUser(
       DomainUser existingUser,
-      DomainUserEditModel userEditModel,
+      DomainUserEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
     String oldSamAccountName = existingUser.getSamAccountName();
-    DomainUser newUser = DomainUserEditModelMapper.INSTANCE.merge(userEditModel, existingUser);
-    Dn ou = userEditModel.getNewOuDn();
-    Dn parentDn = existingUser.getDn().getParent();
-    Dn ouDn = getDnTool().addBaseDn(ou);
-    Dn newOu = parentDn.isSame(ouDn) ? null : ouDn;
+    DomainUser newUser = DomainUserEditModelMapper.INSTANCE.merge(editModel, existingUser);
     try {
+      Dn newOu = editModel.getNewOuDn()
+          .map(ou -> getDnTool().addBaseDn(ou))
+          .filter(ou -> !DnTool.isSameDn(ou, existingUser.getDn().getParent()))
+          .orElse(null);
       DomainUser updatedUser = domainUserService.updateUser(oldSamAccountName, newUser, newOu);
-      updateAvatar(bindingResult, userEditModel);
+      updateAvatar(bindingResult, editModel);
 
       model.clear();
       String defaultMsg = String
@@ -190,25 +191,23 @@ public class UserEditController extends AbstractEditController implements Pageab
     } catch (ServiceException e) {
       handleException(bindingResult, e);
       getLogger().debug("Updating user failed. Some fields were invalid.");
-      String currentSamAccountName = Optional.ofNullable(newUser)
-          .map(DomainUser::getSamAccountName)
-          .orElse(oldSamAccountName);
-      Dn currentOu = Optional.ofNullable(newUser)
-          .map(DomainUser::getDn)
-          .map(Dn::getParent)
-          .orElse(parentDn);
-      DomainUser currentUser = domainUserService
-          .getUser(oldSamAccountName, parentDn, TreeSearchScope.ONELEVEL)
-          .or(() -> domainUserService.getUser(currentSamAccountName, currentOu,
-              TreeSearchScope.ONELEVEL))
-          .orElseThrow(() -> ServiceException.internalServerError(String
-              .format("Domain user '%s' was not found.", currentSamAccountName)));
-      model.addAttribute("user", currentUser);
-      boolean avatarExists = domainUserService.existsAvatarInActiveDirectory(
-          currentSamAccountName, currentOu, TreeSearchScope.ONELEVEL);
+      String newSamAccountName = newUser.getSamAccountName();
+      DomainUser partialUpdatedUser = domainUserService
+          .getUser(oldSamAccountName, null, null)
+          .or(() -> domainUserService.getUser(newSamAccountName, null, null))
+          .orElse(existingUser);
+      model.addAttribute("user", partialUpdatedUser);
+      boolean avatarExists = domainUserService
+          .existsAvatarInActiveDirectory(
+              partialUpdatedUser.getSamAccountName(),
+              partialUpdatedUser.getDn().getParent(),
+              TreeSearchScope.ONELEVEL);
       model.addAttribute("avatarExists", avatarExists);
       List<DomainGroup> groups = domainGroupService
-          .getMemberships(currentSamAccountName, currentOu, TreeSearchScope.ONELEVEL)
+          .getMemberships(
+              partialUpdatedUser.getSamAccountName(),
+              partialUpdatedUser.getDn().getParent(),
+              TreeSearchScope.ONELEVEL)
           .toList();
       model.addAttribute("groups", groups);
       return "admin/user-edit";

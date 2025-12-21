@@ -77,7 +77,7 @@
                 aria-describedby="newOuValidation"
                 th:classappend="${#fields.hasErrors('newOu')} ? 'is-invalid' : ''"
                 th:field="*{newOu}">
-          <option th:each="o : ${ous}" th:value="${o.distinguishedName}" th:text="${o.nameTree}">
+          <option th:each="o : ${ous}" th:value="${o.distinguishedNameNormalized}" th:text="${o.nameTree}">
             Users
           </option>
         </select>

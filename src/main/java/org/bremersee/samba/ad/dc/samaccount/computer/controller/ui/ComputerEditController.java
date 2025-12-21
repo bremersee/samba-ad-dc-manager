@@ -124,17 +124,17 @@ public class ComputerEditController extends UiController implements PageableComp
       @RequestParam(value = "samAccountName", required = false) String samAccountName,
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "computerEditRequest") ComputerEditModel computerEditRequest,
+      @ModelAttribute(name = "editModel") ComputerEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("updateComputer({}, {})", samAccountName, computerEditRequest);
+    getLogger().debug("updateComputer({}, {})", samAccountName, editModel);
 
     return Optional.ofNullable(samAccountName)
         .flatMap(name -> domainComputerService.getComputer(name, ou, searchScope))
         .map(existingComputer -> updateComputer(
-            existingComputer, computerEditRequest, model, bindingResult, redirectAttributes))
+            existingComputer, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",

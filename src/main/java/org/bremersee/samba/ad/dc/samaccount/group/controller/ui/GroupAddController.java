@@ -25,12 +25,14 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.GroupControllerConstants;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.mapper.GroupAddModelMapper;
+import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model.GroupAddModel;
 import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.shared.DomainGroupTypesComponent;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
-import org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model.DomainGroupAddRequest;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
@@ -80,7 +82,7 @@ public class GroupAddController extends UiController implements PageableComponen
 
   @Override
   public String getDefaultSort() {
-    return GROUP_SORT;
+    return GroupControllerConstants.GROUP_SORT;
   }
 
   @ModelAttribute("rfc2307Enabled")
@@ -88,7 +90,7 @@ public class GroupAddController extends UiController implements PageableComponen
     return domainService.isRfc2307Enabled();
   }
 
-  @GetMapping(path = "/admin/group-add")
+  @GetMapping(path = "/management/group-add")
   public String displayGroupAdd(
       @RequestParam(name = OU, required = false) Dn ou,
       ModelMap model) {
@@ -98,26 +100,25 @@ public class GroupAddController extends UiController implements PageableComponen
         .filter(DnTool::isValidDn)
         .filter(dn -> !dn.isSame(getDnTool().getBaseDn()))
         .orElseGet(() -> getDnTool().addBaseDn(getProperties().getGroup().getDefaultOu()));
-    DomainGroupAddRequest groupAddRequest = new DomainGroupAddRequest(
-        ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
-    model.addAttribute("groupAddRequest", groupAddRequest);
-    return "admin/group-add";
+    GroupAddModel addModel = new GroupAddModel(ouDn.format());
+    model.addAttribute("addModel", addModel);
+    return "group/group-add";
   }
 
-  @PostMapping(path = "/admin/group-add")
+  @PostMapping(path = "/management/group-add")
   public String addGroup(
-      @ModelAttribute(name = "groupAddRequest") DomainGroupAddRequest groupAddRequest,
+      @ModelAttribute(name = "addModel") GroupAddModel addModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("addGroup({})", groupAddRequest);
+    getLogger().debug("addGroup({})", addModel);
 
-    DomainGroup addedGroup = addGroup(bindingResult, groupAddRequest);
+    DomainGroup addedGroup = addGroup(bindingResult, addModel);
 
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding group failed. Some fields were invalid.");
-      return "admin/group-add";
+      return "group/group-add";
     }
 
     model.clear();
@@ -135,11 +136,10 @@ public class GroupAddController extends UiController implements PageableComponen
 
   private DomainGroup addGroup(
       BindingResult bindingResult,
-      DomainGroupAddRequest groupAddRequest) {
+      GroupAddModel addModel) {
 
-    DomainGroup group = DomainGroupAddRequest.MAPPER.mapToDomainGroup(groupAddRequest);
-    Dn ou = Optional.ofNullable(groupAddRequest.getNewOu())
-        .map(Dn::new)
+    DomainGroup group = GroupAddModelMapper.INSTANCE.map(addModel);
+    Dn ou = Optional.ofNullable(addModel.getNewOuDn())
         .orElseGet(() -> new Dn(getProperties().getGroup().getDefaultOu()));
 
     try {
@@ -155,36 +155,36 @@ public class GroupAddController extends UiController implements PageableComponen
 
     Object bindTarget = bindingResult.getTarget();
     getLogger().debug("handleException of bind target '{}'", bindTarget, serviceException);
-    Assert.isTrue(bindTarget instanceof DomainGroupAddRequest, "Illegal bind target.");
+    Assert.isTrue(bindTarget instanceof GroupAddModel, "Illegal bind target.");
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue("group.samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Group name is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue("group.samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Group name contains illegal characters.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue("group.samAccountName", "code",
+        bindingResult.rejectValue(GroupControllerConstants.SAM_ACCOUNT_NAME, "code",
             "Group name already exists.");
         break;
       }
       case EC_GID_NUMBER_ALREADY_EXISTS: {
-        bindingResult.rejectValue("group.gidNumber", "code",
+        bindingResult.rejectValue("gidNumber", "code",
             "Unix GID number already exists.");
         break;
       }
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("ou", "code",
+        bindingResult.rejectValue("newOu", "code",
             "Organizational unit is empty.");
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("ou", "code",
+        bindingResult.rejectValue("newOu", "code",
             "Organizational unit was not found.");
         break;
       }

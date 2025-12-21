@@ -34,29 +34,29 @@ public interface AdEntry extends DistinguishedNameProvider {
   String getDistinguishedName();
 
   /**
-   * Gets distinguished name unformatted.
+   * Gets distinguished name normalized.
    *
-   * @return the distinguished name unformatted
+   * @return the distinguished name normalized
    */
   @Hidden
   @JsonIgnore
   @Value.Lazy
-  default String getDistinguishedNameUnformatted() {
-    return isEmpty(getDn()) ? null : getDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+  default String getDistinguishedNameNormalized() {
+    return isEmpty(getDn()) ? null : getDn().format();
   }
 
   /**
-   * Gets parent distinguished name.
+   * Gets parent distinguished name normalized.
    *
    * @return the parent distinguished name
    */
   @Hidden
   @JsonIgnore
   @Value.Lazy
-  default String getParentDistinguishedName() {
+  default String getParentDistinguishedNameNormalized() {
     return Optional.ofNullable(getDn())
         .map(Dn::getParent)
-        .map(dn -> dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+        .map(Dn::format)
         .orElse(null);
   }
 

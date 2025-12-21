@@ -16,19 +16,16 @@
 
 package org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
+import org.bremersee.samba.ad.dc.common.DnTool;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Purpose;
+import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Scope;
 import org.ldaptive.dn.Dn;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
 
 /**
  * The type DomainGroupAddRequest.
@@ -37,16 +34,18 @@ import org.mapstruct.factory.Mappers;
  */
 @Data
 @NoArgsConstructor
-public class DomainGroupEditRequest implements Serializable {
+public class GroupAddModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public static final DomainGroupEditMapper MAPPER = Mappers.getMapper(DomainGroupEditMapper.class);
-
   private String newOu;
 
   private String samAccountName;
+
+  private String groupScope;
+
+  private String groupPurpose;
 
   /**
    * The email address of the group.
@@ -68,28 +67,35 @@ public class DomainGroupEditRequest implements Serializable {
    */
   private String nisDomain;
 
-  public Dn getNewOuDn() {
-    if (isEmpty(newOu)) {
-      return null;
-    }
-    return new Dn(newOu);
+  public GroupAddModel(String newOu) {
+    this.newOu = newOu;
+    this.groupScope = Scope.GLOBAL.name();
+    this.groupPurpose = Purpose.SECURITY.name();
   }
 
-  @Mapper
-  public interface DomainGroupEditMapper {
-
-    @Mapping(source = "dn", target = "newOu")
-    DomainGroupEditRequest map(DomainGroup domainGroup);
-
-    default String mapToNewOu(Dn distinguishedName) {
-      return Optional.ofNullable(distinguishedName)
-          .map(Dn::getParent)
-          .map(Dn::format)
-          .orElse(null);
+  public Dn getNewOuDn() {
+    if (DnTool.isValidDn(newOu)) {
+      return new Dn(newOu);
     }
+    return null;
+  }
 
-    void update(@MappingTarget DomainGroup existingDomainGroup,
-        DomainGroupEditRequest domainGroupEditRequest);
+  private Scope getSelectedGroupScope() {
+    return Optional.ofNullable(groupScope)
+        .map(Scope::fromString)
+        .orElse(Scope.GLOBAL);
+  }
+
+  private Purpose getSelectedGroupPurpose() {
+    return Optional.ofNullable(groupPurpose)
+        .map(Purpose::fromString)
+        .orElse(Purpose.SECURITY);
+  }
+
+  public DomainGroupType getSelectedGroupType() {
+    return DomainGroupType.from(
+        getSelectedGroupScope(),
+        getSelectedGroupPurpose());
   }
 
 }

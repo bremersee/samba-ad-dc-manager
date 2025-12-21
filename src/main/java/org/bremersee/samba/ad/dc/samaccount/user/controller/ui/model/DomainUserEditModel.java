@@ -16,24 +16,14 @@
 
 package org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import lombok.Data;
-import org.bremersee.samba.ad.dc.common.repository.AdConstants;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUserAccountControl;
-import org.bremersee.samba.ad.dc.samaccount.user.model.ImmutableDomainUser;
+import org.bremersee.samba.ad.dc.common.DnTool;
 import org.bremersee.samba.ad.dc.samaccount.user.model.ModifiableDomainUserAccountControl;
 import org.ldaptive.dn.Dn;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -46,8 +36,6 @@ public class DomainUserEditModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  public static final DomainUserEditMapper MAPPER = Mappers.getMapper(DomainUserEditMapper.class);
 
   private transient MultipartFile avatar;
 
@@ -198,72 +186,10 @@ public class DomainUserEditModel implements Serializable {
     accountControl = ModifiableDomainUserAccountControl.create();
   }
 
-  public Dn getNewOuDn() {
-    if (isEmpty(newOu)) {
-      return null;
-    }
-    return new Dn(newOu);
-  }
-
-  @Mapper
-  public interface ToDomainUserMapper {
-
-    DomainUser update(
-        DomainUserEditModel source,
-        @MappingTarget ImmutableDomainUser.Builder target);
-
-  }
-
-  @Mapper
-  public interface DomainUserEditMapper {
-
-    //@Mapping(source = "dn", target = "newOu")
-    /*
-    @Mapping(source = "accountControl.enabled", target = "enabled")
-    @Mapping(
-        source = "accountControl.passwordExpirationEnabled",
-        target = "passwordExpirationEnabled")
-
-     */
-    @Mapping(source = "dn", target = "newOu")
-    DomainUserEditModel map(DomainUser domainUser);
-
-    default ModifiableDomainUserAccountControl map(
-        DomainUserAccountControl domainUserAccountControl) {
-      return ModifiableDomainUserAccountControl.create().from(domainUserAccountControl);
-    }
-
-    default String mapToNewOu(Dn distinguishedName) {
-      return Optional.ofNullable(distinguishedName)
-          .map(Dn::getParent)
-          .map(Dn::format)
-          .orElse(null);
-    }
-
-    // TODO
-    /*
-    @Mapping(source = "enabled", target = "accountControl.enabled")
-    @Mapping(
-        source = "passwordExpirationEnabled",
-        target = "accountControl.passwordExpirationEnabled")
-
-     */
-    void update(@MappingTarget DomainUser existingDomainUser,
-        DomainUserEditModel domainUserEditRequest);
-
-    // geht nur mit public
-    @Mapping(target = "accountControl", source = "source", qualifiedByName = "mapToAccountControl")
-    void up(@MappingTarget ImmutableDomainUser.Builder existingDomainUser,
-        DomainUserEditModel source);
-
-    @Named("mapToAccountControl")
-    DomainUserAccountControl mapToAccountControl(DomainUserEditModel domainUserEditRequest);
-
-    default DomainUser updateExisting(DomainUser target, DomainUserEditModel source) {
-      var builder = DomainUser.builder().from(target);
-      up(builder, source);
-      return builder.build();
-    }
+  public Optional<Dn> getNewOuDn() {
+    return Optional.ofNullable(newOu)
+        .filter(DnTool::isValidDn)
+        .map(Dn::new);
   }
 
 }

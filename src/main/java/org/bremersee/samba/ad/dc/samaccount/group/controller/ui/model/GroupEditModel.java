@@ -14,32 +14,56 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.ou.controller.ui.model;
+package org.bremersee.samba.ad.dc.samaccount.group.controller.ui.model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.common.DnTool;
+import org.ldaptive.dn.Dn;
 
 /**
- * The type DomainGroupAddRequest.
+ * The group add model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class OrganizationalUnitDeleteRequest implements Serializable {
+public class GroupEditModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private String ou;
+  private String newOu;
 
-  private String verificationName;
+  private String samAccountName;
 
-  public OrganizationalUnitDeleteRequest(OrganizationalUnit ou) {
-    this.ou = ou.getDistinguishedName();
+  /**
+   * The email address of the group.
+   */
+  private String email;
+
+  /**
+   * A description of the domain group.
+   */
+  private String description;
+
+  /**
+   * Group's Unix/RFC2307 GID number.
+   */
+  private Integer gidNumber;
+
+  /**
+   * Group's Unix/RFC2307 NIS domain.
+   */
+  private String nisDomain;
+
+  public Optional<Dn> getNewOuDn() {
+    return Optional.ofNullable(newOu)
+        .filter(DnTool::isValidDn)
+        .map(Dn::new);
   }
 
 }

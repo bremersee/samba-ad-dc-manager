@@ -117,7 +117,7 @@ public class OrganizationalUnitAddController extends UiController
     String redirect = getRedirectUri(
         "organizational-unit-edit?name={{name}}",
         PAGE_AND_OU_PARAMS,
-        putToParameterMap(parameters, "name", addedOu.getDistinguishedNameUnformatted()));
+        putToParameterMap(parameters, "name", addedOu.getDistinguishedName()));
     logRedirectTo("Organizational unit successfully added.", redirect);
     return redirect;
   }

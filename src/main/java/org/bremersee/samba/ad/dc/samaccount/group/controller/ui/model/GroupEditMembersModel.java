@@ -37,14 +37,14 @@ import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
  */
 @Setter
 @NoArgsConstructor
-public class DomainGroupEditMembersRequest implements Serializable {
+public class GroupEditMembersModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   private List<String> membersBase64;
 
-  public DomainGroupEditMembersRequest(DomainGroup domainGroup) {
+  public GroupEditMembersModel(DomainGroup domainGroup) {
     this.membersBase64 = Stream.ofNullable(domainGroup)
         .map(DomainGroup::getMembers)
         .flatMap(Collection::stream)

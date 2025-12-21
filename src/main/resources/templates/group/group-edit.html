@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Users</title>
+  <title>Edit group</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -59,7 +59,7 @@
     Status message
   </div>
 
-  <div th:if="${groupEditRequest != null}">
+  <div th:if="${editModel != null}">
     <div class="row mb-4">
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="groups.html"
@@ -108,7 +108,7 @@
       </li>
     </ul>
 
-    <form th:action="@{group-edit}" th:object="${groupEditRequest}" action="#" method="post"
+    <form th:action="@{group-edit}" th:object="${editModel}" action="#" method="post"
           class="mx-0 mx-sm-1 mx-md-3">
 
       <input type="hidden" name="page" th:value="${page}"/>
@@ -126,7 +126,7 @@
                 aria-describedby="newOuValidation"
                 th:classappend="${#fields.hasErrors('newOu')} ? 'is-invalid' : ''"
                 th:field="*{newOu}">
-          <option th:each="o : ${ous}" th:value="${o.distinguishedName}" th:text="${o.nameTree}">
+          <option th:each="o : ${ous}" th:value="${o.distinguishedNameNormalized}" th:text="${o.nameTree}">
             Users
           </option>
         </select>
