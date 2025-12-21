@@ -18,12 +18,12 @@ package org.bremersee.samba.ad.dc.samaccount.user.controller.ui;
 
 import java.util.Map;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
+import org.bremersee.samba.ad.dc.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganizationalUnitComponent;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteModel;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;

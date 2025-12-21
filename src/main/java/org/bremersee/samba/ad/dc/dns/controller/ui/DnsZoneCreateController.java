@@ -18,9 +18,9 @@ package org.bremersee.samba.ad.dc.dns.controller.ui;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.dns.model.DnsZone;
 import org.bremersee.samba.ad.dc.dns.servive.DnsService;
 import org.bremersee.exception.ServiceException;

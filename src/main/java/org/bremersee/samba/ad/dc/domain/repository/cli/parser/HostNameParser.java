@@ -22,8 +22,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.common.repository.cli.AbstractCommandExecutorResponseParser;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
  * The interface HostNameResponseParser.

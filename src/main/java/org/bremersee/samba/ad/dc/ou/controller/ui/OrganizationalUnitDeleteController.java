@@ -18,13 +18,13 @@ package org.bremersee.samba.ad.dc.ou.controller.ui;
 
 import java.util.Map;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
+import org.bremersee.samba.ad.dc.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.ou.controller.ui.model.OrganizationalUnitDeleteRequest;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.NameValue;

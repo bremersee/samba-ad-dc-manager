@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.common.controller.api.ApiController;
+import org.bremersee.samba.ad.dc.controller.api.ApiController;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.computer.controller.ComputerControllerConstants;
 import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;

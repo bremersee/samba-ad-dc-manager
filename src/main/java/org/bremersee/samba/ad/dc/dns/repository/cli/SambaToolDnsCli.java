@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.dns.repository.cli;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
+import org.bremersee.samba.ad.dc.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntry;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntryType;

@@ -23,8 +23,8 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 
 /**

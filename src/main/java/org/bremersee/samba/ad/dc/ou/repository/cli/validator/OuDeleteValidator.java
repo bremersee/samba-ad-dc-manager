@@ -1,8 +1,8 @@
 package org.bremersee.samba.ad.dc.ou.repository.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
-import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.validator.SambaToolValidator;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 

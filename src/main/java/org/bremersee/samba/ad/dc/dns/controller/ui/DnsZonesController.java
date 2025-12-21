@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.dns.controller.ui;
 
 import java.util.List;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.dns.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.dns.controller.ui.shared.DnsZoneTypeNavigationComponent;
 import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;

@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.samaccount.user.controller.ui;
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model.ChangePasswordRequest;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;

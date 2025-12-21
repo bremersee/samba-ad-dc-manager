@@ -23,10 +23,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.common.repository.cli.AbstractCommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntry;
 import org.bremersee.samba.ad.dc.dns.model.DnsEntryType;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
  * The interface DnsEntriesParser.

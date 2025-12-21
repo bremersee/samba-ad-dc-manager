@@ -17,9 +17,9 @@
 package org.bremersee.samba.ad.dc.ou.controller.ui;
 
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.controller.ui.UiController;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.CurrentPageNameProvider;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.UiController;
+import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.ou.model.OrganizationalUnitPage;
 import org.bremersee.samba.ad.dc.ou.service.OrganizationalUnitService;
 import org.springframework.data.domain.PageRequest;

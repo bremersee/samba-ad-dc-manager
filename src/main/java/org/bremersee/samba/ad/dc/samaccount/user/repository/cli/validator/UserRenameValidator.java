@@ -1,9 +1,9 @@
 package org.bremersee.samba.ad.dc.samaccount.user.repository.cli.validator;
 
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.common.repository.cli.validator.SambaToolValidator;
+import org.bremersee.samba.ad.dc.repository.cli.validator.SambaToolValidator;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.springframework.util.Assert;
 
 public class UserRenameValidator extends SambaToolValidator {

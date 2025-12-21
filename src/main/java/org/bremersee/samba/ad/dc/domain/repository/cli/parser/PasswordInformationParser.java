@@ -25,8 +25,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.domain.model.PasswordComplexity;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponse;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutorResponseParser;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
  * The password information parser.

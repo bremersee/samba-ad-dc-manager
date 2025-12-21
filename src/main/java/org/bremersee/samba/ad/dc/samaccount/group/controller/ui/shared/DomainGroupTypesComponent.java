@@ -18,8 +18,8 @@ package org.bremersee.samba.ad.dc.samaccount.group.controller.ui.shared;
 
 import java.util.List;
 import java.util.stream.Stream;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.MessageProvider;
-import org.bremersee.samba.ad.dc.common.controller.ui.shared.SelectOption;
+import org.bremersee.samba.ad.dc.controller.ui.shared.MessageProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.SelectOption;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Purpose;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupType.Scope;
 import org.springframework.web.bind.annotation.ModelAttribute;

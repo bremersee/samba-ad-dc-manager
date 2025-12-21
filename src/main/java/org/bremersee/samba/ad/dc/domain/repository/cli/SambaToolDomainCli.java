@@ -2,7 +2,7 @@ package org.bremersee.samba.ad.dc.domain.repository.cli;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.common.repository.cli.SambaToolCli;
+import org.bremersee.samba.ad.dc.repository.cli.SambaToolCli;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.domain.model.DomainInfo;
 import org.bremersee.samba.ad.dc.domain.model.PasswordInformation;

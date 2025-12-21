@@ -25,7 +25,7 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.domain.repository.DomainRepository;
 import org.bremersee.samba.ad.dc.dns.model.DnsZone;
 import org.bremersee.samba.ad.dc.dns.model.DnsZoneType;
-import org.bremersee.samba.ad.dc.common.repository.mapper.AdEntryLdapMapper;
+import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.springframework.cache.annotation.CacheEvict;

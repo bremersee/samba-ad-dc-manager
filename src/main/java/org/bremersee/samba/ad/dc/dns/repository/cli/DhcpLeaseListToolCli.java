@@ -2,7 +2,7 @@ package org.bremersee.samba.ad.dc.dns.repository.cli;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bremersee.samba.ad.dc.common.repository.cli.CommandExecutor;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutor;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.dns.model.DhcpLease;
 import org.bremersee.samba.ad.dc.dns.repository.DhcpLeaseListTool;
