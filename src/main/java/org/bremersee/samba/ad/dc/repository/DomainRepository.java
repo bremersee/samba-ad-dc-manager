@@ -55,6 +55,10 @@ public interface DomainRepository {
    */
   boolean isRfc2307Enabled();
 
+  default DomainInfo getDomainInfo() {
+    return getDomainInfo(getHostName());
+  }
+
   /**
    * Gets domain info.
    *

@@ -54,7 +54,7 @@ public class DomainUserProperties implements Serializable {
 
   private String defaultDisplayName = "{{user.firstName}} {{user.lastName}}";
 
-  private String defaultEmail = "{{user.samAccountName}}@{{properties.domainName}}";
+  private String defaultEmail = "{{user.samAccountName}}@{{domain.domainInfo.domain}}";
 
   private String defaultGecos = "{{user.firstName}} {{user.lastName}}";
 

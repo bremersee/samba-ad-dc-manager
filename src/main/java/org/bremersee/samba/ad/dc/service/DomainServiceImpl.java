@@ -49,7 +49,7 @@ public class DomainServiceImpl implements DomainService, TemplateEngineContextSu
 
   @Override
   public DomainInfo getDomainInfo() {
-    return getDomainInfo(domainRepository.getHostName());
+    return domainRepository.getDomainInfo();
   }
 
   @Override
