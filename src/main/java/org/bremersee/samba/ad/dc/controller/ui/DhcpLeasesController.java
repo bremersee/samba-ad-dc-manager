@@ -31,7 +31,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DhcpLeasePage;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
-import org.bremersee.samba.ad.dc.servive.DnsService;
+import org.bremersee.samba.ad.dc.service.DnsService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;

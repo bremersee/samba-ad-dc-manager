@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
-import org.bremersee.samba.ad.dc.servive.DnsService;
+import org.bremersee.samba.ad.dc.service.DnsService;
 
 /**
  * The type DnsEntryAddRequest.
