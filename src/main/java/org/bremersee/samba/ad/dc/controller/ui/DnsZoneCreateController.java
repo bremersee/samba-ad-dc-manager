@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.UiController;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsZone;

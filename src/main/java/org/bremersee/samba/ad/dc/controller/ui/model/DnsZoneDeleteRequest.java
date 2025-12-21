@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.dns.controller.ui.model;
+package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

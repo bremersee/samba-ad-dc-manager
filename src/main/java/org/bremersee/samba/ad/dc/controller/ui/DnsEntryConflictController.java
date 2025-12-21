@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.dns.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.dns.controller.ui.model.DnsEntryDeleteRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteRequest;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsEntry;

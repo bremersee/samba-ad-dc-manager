@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui.shared;
+package org.bremersee.samba.ad.dc.controller.ui.shared;
 
 import java.io.Serial;
 import java.io.Serializable;

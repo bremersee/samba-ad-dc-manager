@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui.model;
+package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import static java.util.Objects.nonNull;
 import static org.springframework.util.ObjectUtils.isEmpty;

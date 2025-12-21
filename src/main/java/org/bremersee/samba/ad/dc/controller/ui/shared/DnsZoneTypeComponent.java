@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui.model;
+package org.bremersee.samba.ad.dc.controller.ui.shared;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * The type DnsEntryDeleteRequest.
+ * The interface DnsZoneTypeComponent.
  *
  * @author Christian Bremer
  */
-@Data
-@NoArgsConstructor
-public class DnsEntryDeleteRequest {
+public interface DnsZoneTypeComponent {
 
-  private String verificationName;
-
-  private boolean deleteReverseEntry;
+  @ModelAttribute("zoneType")
+  default String addDnsZoneType(
+      @RequestParam(name = AbstractController.ZONE_TYPE,
+          defaultValue = AbstractController.ZONE_TYPE_DEFAULT)
+      DnsZoneType zoneType) {
+    return zoneType.getParameterValue();
+  }
 
 }

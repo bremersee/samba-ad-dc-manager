@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.dns.controller.ui;
+package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.List;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.UiController;
-import org.bremersee.samba.ad.dc.dns.controller.ui.shared.DnsZoneTypeComponent;
-import org.bremersee.samba.ad.dc.dns.controller.ui.shared.DnsZoneTypeNavigationComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeNavigationComponent;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.servive.DnsService;
 import org.springframework.stereotype.Controller;
