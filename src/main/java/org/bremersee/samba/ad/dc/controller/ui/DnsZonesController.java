@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type DnsZonesController.
+ * The dns zones controller.
  *
  * @author Christian Bremer
  */

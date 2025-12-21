@@ -20,7 +20,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -39,7 +39,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type DnsEntryDeleteController.
+ * The dns entry delete controller.
  *
  * @author Christian Bremer
  */
@@ -65,9 +65,9 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
   @GetMapping(path = "/management/dns-entry-delete")
   public String displayDeleteDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @RequestParam(name = "name") String name,
-      @RequestParam(name = "type") DnsEntryType type,
-      @RequestParam(name = "value") String value,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
       ModelMap model) {
 
     log.debug("displayDeleteDnsEntry({}, {}, {}, {})", zoneName, name, type, value);
@@ -78,11 +78,11 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
         .value(value)
         .build();
     model.addAttribute("dnsEntry", dnsEntry);
-    DnsEntryDeleteRequest deleteRequest = new DnsEntryDeleteRequest();
+    DnsEntryDeleteModel deleteModel = new DnsEntryDeleteModel();
     boolean mayHaveReverseEntry = mayHaveReverseEntry(dnsEntry);
     model.addAttribute("mayHaveReverseEntry", mayHaveReverseEntry);
-    deleteRequest.setDeleteReverseEntry(mayHaveReverseEntry);
-    model.addAttribute("dnsEntryDeleteRequest", deleteRequest);
+    deleteModel.setDeleteReverseEntry(mayHaveReverseEntry);
+    model.addAttribute("dnsEntryDeleteModel", deleteModel);
     return "management/dns-entry-delete";
   }
 
@@ -92,12 +92,12 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
       @RequestParam(name = "name") String name,
       @RequestParam(name = "type") DnsEntryType type,
       @RequestParam(name = "value") String value,
-      @ModelAttribute(name = "dnsEntryDeleteRequest") DnsEntryDeleteRequest deleteRequest,
+      @ModelAttribute(name = "dnsEntryDeleteModel") DnsEntryDeleteModel deleteModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    log.debug("deleteDnsEntry({}, {}, {}, {}, {})", zoneName, name, type, value, deleteRequest);
+    log.debug("deleteDnsEntry({}, {}, {}, {}, {})", zoneName, name, type, value, deleteModel);
 
     DnsEntry dnsEntry = DnsEntry.builder()
         .zoneName(zoneName)
@@ -105,7 +105,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
         .type(type)
         .value(value)
         .build();
-    if (!name.equalsIgnoreCase(deleteRequest.getVerificationName())) {
+    if (!name.equalsIgnoreCase(deleteModel.getVerificationName())) {
       bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
       model.addAttribute("dnsEntry", dnsEntry);
       model.addAttribute("mayHaveReverseEntry", mayHaveReverseEntry(dnsEntry));
@@ -116,7 +116,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
     try {
       dnsService.deleteDnsEntry(dnsEntry);
 
-      if (deleteRequest.isDeleteReverseEntry() && (DnsEntryType.A.equals(type)
+      if (deleteModel.isDeleteReverseEntry() && (DnsEntryType.A.equals(type)
           || DnsEntryType.AAAA.equals(type) || DnsEntryType.PTR.equals(type))) {
         dnsService.findReverseDnsEntry(dnsEntry)
             .ifPresent(dnsService::deleteDnsEntry);

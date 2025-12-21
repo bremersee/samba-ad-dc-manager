@@ -76,7 +76,7 @@
     <div class="col-1"></div>
   </div>
 
-  <form id="editDnsEntryForm" th:action="@{dns-entry-add}" th:object="${dnsEntryAddRequest}"
+  <form id="editDnsEntryForm" th:action="@{dns-entry-add}" th:object="${dnsEntryAddModel}"
         action="#" method="post">
     <input type="hidden" name="page" th:value="${page}"/>
     <input type="hidden" name="size" th:value="${size}"/>

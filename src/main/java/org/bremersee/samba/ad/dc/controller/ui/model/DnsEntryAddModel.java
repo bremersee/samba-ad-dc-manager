@@ -19,6 +19,8 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,13 +29,16 @@ import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.service.DnsService;
 
 /**
- * The type DnsEntryAddRequest.
+ * The dns entry add model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class DnsEntryAddRequest {
+public class DnsEntryAddModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private String name;
 
@@ -49,7 +54,7 @@ public class DnsEntryAddRequest {
 
   private String valueOfReverseEntry;
 
-  public DnsEntryAddRequest(String zoneName) {
+  public DnsEntryAddModel(String zoneName) {
     if (nonNull(zoneName) && zoneName.toLowerCase().endsWith(DnsService.REVERSE_ZONE_POSTFIX)) {
       type = DnsEntryType.PTR;
     }

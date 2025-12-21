@@ -96,7 +96,7 @@
   </ul>
 
   <div class="mx-0 mx-sm-1 mx-md-3">
-    <form id="editDnsEntryForm" th:action="@{dns-entry-edit}" th:object="${dnsEntryEditRequest}"
+    <form id="editDnsEntryForm" th:action="@{dns-entry-edit}" th:object="${dnsEntryEditModel}"
           action="#" method="post">
       <input type="hidden" name="page" th:value="${page}"/>
       <input type="hidden" name="size" th:value="${size}"/>

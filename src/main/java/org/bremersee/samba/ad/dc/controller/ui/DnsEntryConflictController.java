@@ -16,13 +16,15 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
+import static java.util.Objects.nonNull;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -41,7 +43,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type DnsEntryEditController.
+ * The dns entry conflict controller.
  *
  * @author Christian Bremer
  */
@@ -67,9 +69,9 @@ public class DnsEntryConflictController extends UiController implements Pageable
   @GetMapping(path = "/management/dns-entry-conflict")
   public String displayDnsEntryConflict(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @RequestParam(name = "name") String name,
-      @RequestParam(name = "type") DnsEntryType type,
-      @RequestParam(name = "value") String value,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
@@ -83,17 +85,18 @@ public class DnsEntryConflictController extends UiController implements Pageable
         .map(entry -> {
           if (!entry.isConflict()) {
             Map<String, Object> parameters = getParamterMap();
-            parameters = putToParameterMap(parameters, "name", name);
-            parameters = putToParameterMap(parameters, "type", type);
-            parameters = putToParameterMap(parameters, "value", value);
+            parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, name);
+            parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, type);
+            parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, value);
             return getRedirectUri("dns-entry-edit", PAGE_AND_DNS_ENTRY_PARAMS, parameters);
           }
           model.addAttribute("dnsEntry", entry);
           List<DnsEntry> dnsEntries = dnsService.findDnsEntriesConflictingWith(entry)
+              .filter(e -> nonNull(e.getModified()))
               .sorted(Comparator.comparing(DnsEntry::getModified).reversed())
               .toList();
           model.addAttribute("dnsEntries", dnsEntries);
-          model.addAttribute("dnsEntryDeleteRequest", new DnsEntryDeleteRequest());
+          model.addAttribute("dnsEntryDeleteModel", new DnsEntryDeleteModel());
           return "management/dns-entry-conflict";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -104,16 +107,16 @@ public class DnsEntryConflictController extends UiController implements Pageable
   @PostMapping(path = "/management/dns-entry-conflict")
   public String deleteDnsEntryConflict(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @RequestParam(name = "name") String name,
-      @RequestParam(name = "type") DnsEntryType type,
-      @RequestParam(name = "value") String value,
-      @ModelAttribute(name = "dnsEntryDeleteRequest") DnsEntryDeleteRequest deleteRequest,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
+      @ModelAttribute(name = "dnsEntryDeleteModel") DnsEntryDeleteModel deleteModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
     log.debug("deleteDnsEntryConflict({}, {}, {}, {}, {})",
-        zoneName, name, type, value, deleteRequest);
+        zoneName, name, type, value, deleteModel);
 
     return dnsService.findDnsEntry(DnsEntry.builder()
             .zoneName(zoneName)
@@ -122,10 +125,11 @@ public class DnsEntryConflictController extends UiController implements Pageable
             .value(value)
             .build())
         .map(entry -> {
-          if (!entry.getDisplayName().equals(deleteRequest.getVerificationName())) {
+          if (!entry.getDisplayName().equals(deleteModel.getVerificationName())) {
             bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
             model.addAttribute("dnsEntry", entry);
             List<DnsEntry> dnsEntries = dnsService.findDnsEntriesConflictingWith(entry)
+                .filter(e -> nonNull(e.getModified()))
                 .sorted(Comparator.comparing(DnsEntry::getModified).reversed())
                 .toList();
             model.addAttribute("dnsEntries", dnsEntries);

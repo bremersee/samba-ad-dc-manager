@@ -107,7 +107,7 @@
         </a>
       </div>
       <form id="deleteDnsEntryForm" th:action="@{dns-entry-delete}"
-            th:object="${dnsEntryDeleteRequest}" action="#" method="post">
+            th:object="${dnsEntryDeleteModel}" action="#" method="post">
         <input type="hidden" name="page" th:value="${page}"/>
         <input type="hidden" name="size" th:value="${size}"/>
         <input type="hidden" name="sort" th:value="${sort}"/>

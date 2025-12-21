@@ -16,17 +16,22 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * The type DnsEntryDeleteRequest.
+ * The dns entry delete model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class DnsEntryDeleteRequest {
+public class DnsEntryDeleteModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private String verificationName;
 

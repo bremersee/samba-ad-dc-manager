@@ -18,19 +18,24 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import static java.util.Objects.nonNull;
 
+import java.io.Serial;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 
 /**
- * The type DnsEntryEditRequest.
+ * The dns entry edit model.
  *
  * @author Christian Bremer
  */
 @Data
 @NoArgsConstructor
-public class DnsEntryEditRequest {
+public class DnsEntryEditModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private String newName;
 
@@ -44,11 +49,11 @@ public class DnsEntryEditRequest {
 
   private String newValueOfReverseEntry;
 
-  public DnsEntryEditRequest(DnsEntry dnsEntry) {
+  public DnsEntryEditModel(DnsEntry dnsEntry) {
     this(dnsEntry, null);
   }
 
-  public DnsEntryEditRequest(DnsEntry dnsEntry, DnsEntry reverseDnsEntry) {
+  public DnsEntryEditModel(DnsEntry dnsEntry, DnsEntry reverseDnsEntry) {
     this.newName = dnsEntry.getName();
     this.newType = dnsEntry.getType();
     this.newValue = dnsEntry.getValue();

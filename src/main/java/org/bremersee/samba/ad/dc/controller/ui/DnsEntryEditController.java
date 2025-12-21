@@ -22,7 +22,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryEditRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryEditModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -40,7 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type DnsEntryEditController.
+ * The dns entry edit controller.
  *
  * @author Christian Bremer
  */
@@ -66,9 +66,9 @@ public class DnsEntryEditController extends UiController implements PageableComp
   @GetMapping(path = "/management/dns-entry-edit")
   public String displayEditDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @RequestParam(name = "name") String name,
-      @RequestParam(name = "type") DnsEntryType type,
-      @RequestParam(name = "value") String value,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
@@ -82,24 +82,24 @@ public class DnsEntryEditController extends UiController implements PageableComp
         .map(entry -> {
           if (entry.isConflict()) {
             Map<String, Object> parameters = getParamterMap();
-            parameters = putToParameterMap(parameters, "name", name);
-            parameters = putToParameterMap(parameters, "type", type);
-            parameters = putToParameterMap(parameters, "value", value);
+            parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, name);
+            parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, type);
+            parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, value);
             return getRedirectUri("dns-entry-conflict", PAGE_AND_DNS_ENTRY_PARAMS, parameters);
           }
           model.addAttribute("dnsEntry", entry);
           model.addAttribute("types", DnsEntryType.getSupportedUpdateTypes(entry));
-          DnsEntryEditRequest entryEditRequest = dnsService.findReverseDnsEntry(entry)
+          DnsEntryEditModel editModel = dnsService.findReverseDnsEntry(entry)
               .map(reverseDnsEntry -> {
                 model.addAttribute("reverseDnsEntryExists", true);
                 model.addAttribute("reverseDnsEntry", reverseDnsEntry);
-                return new DnsEntryEditRequest(entry, reverseDnsEntry);
+                return new DnsEntryEditModel(entry, reverseDnsEntry);
               })
               .orElseGet(() -> {
                 model.addAttribute("reverseDnsEntryExists", false);
-                return new DnsEntryEditRequest(entry);
+                return new DnsEntryEditModel(entry);
               });
-          model.addAttribute("dnsEntryEditRequest", entryEditRequest);
+          model.addAttribute("dnsEntryEditModel", editModel);
           return "management/dns-entry-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -110,19 +110,19 @@ public class DnsEntryEditController extends UiController implements PageableComp
   @PostMapping(path = "/management/dns-entry-edit")
   public String updateDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @RequestParam(name = "name") String name,
-      @RequestParam(name = "type") DnsEntryType type,
-      @RequestParam(name = "value") String value,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
       @RequestParam(name = "reverse-zone-name", required = false) String reverseZoneName,
       @RequestParam(name = "reverse-name", required = false) String reverseName,
       @RequestParam(name = "reverse-type", required = false) DnsEntryType reverseType,
       @RequestParam(name = "reverse-value", required = false) String reverseValue,
-      @ModelAttribute(name = "dnsEntryEditRequest") DnsEntryEditRequest dnsEntryEditRequest,
+      @ModelAttribute(name = "dnsEntryEditModel") DnsEntryEditModel editModel,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
     log.debug("updateDnsEntry({}, {}, {}, {}, {})",
-        zoneName, name, type, value, dnsEntryEditRequest);
+        zoneName, name, type, value, editModel);
 
     model.clear();
     Map<String, Object> parameters = getParamterMap();
@@ -134,47 +134,46 @@ public class DnsEntryEditController extends UiController implements PageableComp
           .type(type)
           .value(value)
           .build();
-      DnsEntry updatedDnsEntry = dnsEntryEditRequest.toNewDnsEntry(zoneName);
-      if (name.equals(dnsEntryEditRequest.getNewName())
-          && type.equals(dnsEntryEditRequest.getNewType())) {
-        dnsService.updateDnsEntry(dnsEntry, dnsEntryEditRequest.getNewValue());
+      if (name.equals(editModel.getNewName())
+          && type.equals(editModel.getNewType())) {
+        dnsService.updateDnsEntry(dnsEntry, editModel.getNewValue());
       } else {
         dnsService.deleteDnsEntry(dnsEntry);
-        dnsService.addDnsEntry(dnsEntryEditRequest.toNewDnsEntry(zoneName));
+        dnsService.addDnsEntry(editModel.toNewDnsEntry(zoneName));
       }
-      if (dnsEntryEditRequest.isUpdateReverseEntry() && !isEmpty(reverseZoneName)
+      if (editModel.isUpdateReverseEntry() && !isEmpty(reverseZoneName)
           && !isEmpty(reverseName) && !isEmpty(reverseType) && !isEmpty(reverseValue)
-          && !isEmpty(dnsEntryEditRequest.getNewNameOfReverseEntry())
-          && !isEmpty(dnsEntryEditRequest.getNewValueOfReverseEntry())
-          && type.equals(updatedDnsEntry.getType())) {
+          && !isEmpty(editModel.getNewNameOfReverseEntry())
+          && !isEmpty(editModel.getNewValueOfReverseEntry())
+          && type.equals(editModel.getNewType())) {
         DnsEntry reverseDnsEntry = DnsEntry.builder()
             .zoneName(reverseZoneName)
             .name(reverseName)
             .type(reverseType)
             .value(reverseValue)
             .build();
-        if (reverseName.equals(dnsEntryEditRequest.getNewNameOfReverseEntry())) {
+        if (reverseName.equals(editModel.getNewNameOfReverseEntry())) {
           dnsService.updateDnsEntry(
-              reverseDnsEntry, dnsEntryEditRequest.getNewValueOfReverseEntry());
+              reverseDnsEntry, editModel.getNewValueOfReverseEntry());
         } else {
           dnsService.deleteDnsEntry(reverseDnsEntry);
           dnsService.addDnsEntry(DnsEntry.builder()
               .from(reverseDnsEntry)
-              .name(dnsEntryEditRequest.getNewNameOfReverseEntry())
-              .value(dnsEntryEditRequest.getNewValueOfReverseEntry())
+              .name(editModel.getNewNameOfReverseEntry())
+              .value(editModel.getNewValueOfReverseEntry())
               .build());
         }
       }
 
       String msg = String.format("Dns entry '%s' was successfully updated.",
-          updatedDnsEntry.getName());
+          editModel.getNewName());
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", updatedDnsEntry.getName());
+          "todo", editModel.getNewName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-      parameters = putToParameterMap(parameters, "name", updatedDnsEntry.getName());
-      parameters = putToParameterMap(parameters, "type", updatedDnsEntry.getType());
-      parameters = putToParameterMap(parameters, "value", updatedDnsEntry.getValue());
+      parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, editModel.getNewName());
+      parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, editModel.getNewType());
+      parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, editModel.getNewValue());
       String redirect = getRedirectUri("dns-entry-edit",
           PAGE_AND_DNS_ENTRY_PARAMS, parameters);
       logRedirectTo("Dns entry successfully updated.", redirect);

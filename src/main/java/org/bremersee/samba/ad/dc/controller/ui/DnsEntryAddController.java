@@ -21,7 +21,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryAddRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -40,7 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type DnsEntryAddController.
+ * The dns entry add controller.
  *
  * @author Christian Bremer
  */
@@ -71,32 +71,32 @@ public class DnsEntryAddController extends UiController implements PageableCompo
     log.debug("displayAddDnsEntry({})", zoneName);
     model.addAttribute("zoneName", zoneName);
     model.addAttribute("types", DnsEntryType.getSupportedAddOrDeleteTypes());
-    DnsEntryAddRequest addRequest = new DnsEntryAddRequest(zoneName);
+    DnsEntryAddModel addModel = new DnsEntryAddModel(zoneName);
     List<String> reverseZones = dnsService.getDnsZoneNames(DnsZoneType.REVERSE);
     if (!reverseZones.isEmpty()) {
-      addRequest.setReverseZoneName(reverseZones.get(0));
+      addModel.setReverseZoneName(reverseZones.get(0));
     }
     model.addAttribute("dnsReverseZones", reverseZones);
-    model.addAttribute("dnsEntryAddRequest", addRequest);
+    model.addAttribute("dnsEntryAddModel", addModel);
     return "management/dns-entry-add";
   }
 
   @PostMapping(path = "/management/dns-entry-add")
   public String addDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
-      @ModelAttribute(name = "dnsEntryAddRequest") DnsEntryAddRequest dnsEntryAddRequest,
+      @ModelAttribute(name = "dnsEntryAddModel") DnsEntryAddModel addModel,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
 
-    log.debug("addDnsEntry({}, {})", zoneName, dnsEntryAddRequest);
-    DnsEntry dnsEntry = dnsEntryAddRequest.toDnsEntry(zoneName);
+    log.debug("addDnsEntry({}, {})", zoneName, addModel);
+    DnsEntry dnsEntry = addModel.toDnsEntry(zoneName);
 
     model.clear();
     Map<String, Object> parameters = getParamterMap();
 
     try {
       dnsService.addDnsEntry(dnsEntry);
-      dnsEntryAddRequest.toReverseDnsEntry().ifPresent(dnsService::addDnsEntry);
+      addModel.toReverseDnsEntry().ifPresent(dnsService::addDnsEntry);
 
       String msg = String.format("Dns entry '%s' was successfully added.",
           dnsEntry.getDisplayName());
@@ -104,9 +104,9 @@ public class DnsEntryAddController extends UiController implements PageableCompo
           "todo", dnsEntry.getDisplayName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-      parameters = putToParameterMap(parameters, "name", dnsEntry.getName());
-      parameters = putToParameterMap(parameters, "type", dnsEntry.getType());
-      parameters = putToParameterMap(parameters, "value", dnsEntry.getValue());
+      parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, dnsEntry.getName());
+      parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, dnsEntry.getType());
+      parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, dnsEntry.getValue());
       String redirect = getRedirectUri("dns-entry-edit",
           PAGE_AND_DNS_ENTRY_PARAMS, parameters);
       logRedirectTo("Dns entry successfully added.", redirect);
@@ -114,10 +114,10 @@ public class DnsEntryAddController extends UiController implements PageableCompo
 
     } catch (ServiceException e) {
 
-      String msg = String.format("Adding of dns entry '%s' failed.", dnsEntryAddRequest.getName());
+      String msg = String.format("Adding of dns entry '%s' failed.", addModel.getName());
       log.error(msg, e);
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
-          "todo", dnsEntryAddRequest.getName());
+          "todo", addModel.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
       String redirect = getRedirectUri("dns-zone-entries",
           PAGE_AND_ZONE_NAME_PARAMS, parameters);

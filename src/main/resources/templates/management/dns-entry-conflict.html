@@ -131,7 +131,7 @@
       </div>
       <div class="mt-3">
         <form id="dnsEntryConflictForm" th:action="@{dns-entry-conflict}" action="#" method="post"
-              th:object="${dnsEntryDeleteRequest}">
+              th:object="${dnsEntryDeleteModel}">
           <input type="hidden" name="page" th:value="${page}"/>
           <input type="hidden" name="size" th:value="${size}"/>
           <input type="hidden" name="sort" th:value="${sort}"/>
