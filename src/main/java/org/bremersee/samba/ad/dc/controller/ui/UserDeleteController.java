@@ -75,7 +75,7 @@ public class UserDeleteController extends UiController implements PageableCompon
         .map(user -> {
           model.addAttribute("user", user);
           model.addAttribute("deleteRequest", new SamAccountDeleteModel(user));
-          return "admin/user-delete";
+          return "management/user-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
@@ -97,7 +97,7 @@ public class UserDeleteController extends UiController implements PageableCompon
           if (!user.getSamAccountName().equalsIgnoreCase(deleteRequest.getVerificationName())) {
             bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
             model.addAttribute("user", user);
-            return "admin/user-delete";
+            return "management/user-delete";
           }
           return deleteUser(user, model, redirectAttributes);
         })

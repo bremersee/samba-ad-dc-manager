@@ -96,7 +96,7 @@ public class UsersController extends UiController
     DomainUserPage userPage = new DomainUserPage(
         domainUserService.getUsers(pageable, query, ou, ouDropdown.getSelectedScope()));
     model.addAttribute("users", userPage);
-    return "admin/users";
+    return "management/users";
   }
 
 }

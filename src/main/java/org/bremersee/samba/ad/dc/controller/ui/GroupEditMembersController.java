@@ -102,7 +102,7 @@ public class GroupEditMembersController extends UiController implements Pageable
         .map(group -> {
           model.addAttribute("group", group);
           model.addAttribute("editRequest", new GroupEditMembersModel(group));
-          return "admin/group-edit-members";
+          return "management/group-edit-members";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));

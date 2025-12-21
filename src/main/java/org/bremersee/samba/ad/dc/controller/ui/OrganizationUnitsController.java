@@ -70,7 +70,7 @@ public class OrganizationUnitsController extends UiController
     OrganizationalUnitPage ouPage = new OrganizationalUnitPage(
         organizationalUnitService.getOrganizationalUnits(pageable, query));
     model.put("ouPage", ouPage);
-    return "admin/organizational-units";
+    return "management/organizational-units";
   }
 
 }

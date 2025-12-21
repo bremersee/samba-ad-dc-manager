@@ -75,7 +75,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
         .map(group -> {
           model.addAttribute("group", group);
           model.addAttribute("deleteRequest", new SamAccountDeleteModel(group));
-          return "admin/group-delete";
+          return "management/group-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
@@ -97,7 +97,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
           if (!group.getSamAccountName().equalsIgnoreCase(deleteRequest.getVerificationName())) {
             bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
             model.addAttribute("group", group);
-            return "admin/group-delete";
+            return "management/group-delete";
           }
           return deleteGroup(group, model, redirectAttributes);
         })

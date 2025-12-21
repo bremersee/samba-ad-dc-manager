@@ -112,7 +112,7 @@ public class UserAddController extends UiController
     getLogger().debug("displayUserAdd({})", ou);
     DomainUserAddRequest userAddRequest = createAddRequest(ou);
     model.addAttribute("userAddRequest", userAddRequest);
-    return "admin/user-add";
+    return "management/user-add";
   }
 
   @PostMapping(path = "/management/user-add")
@@ -143,14 +143,14 @@ public class UserAddController extends UiController
     }
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding user failed. Some fields were invalid.");
-      return "admin/user-add";
+      return "management/user-add";
     }
 
     DomainUser addedUser = addUser(bindingResult, userAddRequest);
 
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding user failed. Some fields were invalid.");
-      return "admin/user-add";
+      return "management/user-add";
     }
 
     model.clear();

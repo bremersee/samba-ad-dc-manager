@@ -74,7 +74,7 @@ public class DnsZoneDeleteController extends UiController
 
     model.addAttribute("zoneName", zoneName);
     model.addAttribute("dnsZoneDeleteRequest", new DnsZoneDeleteRequest());
-    return "admin/dns-zone-delete";
+    return "management/dns-zone-delete";
   }
 
   @PostMapping(path = "/management/dns-zone-delete")
@@ -90,7 +90,7 @@ public class DnsZoneDeleteController extends UiController
     if (!zoneName.equalsIgnoreCase(deleteRequest.getVerificationName())) {
       bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
       model.addAttribute("zoneName", zoneName);
-      return "admin/dns-zone-delete";
+      return "management/dns-zone-delete";
     }
 
     model.clear();

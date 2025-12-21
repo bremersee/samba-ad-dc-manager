@@ -89,7 +89,7 @@ public class UserResetPasswordController extends UiController implements
         .map(user -> {
           model.addAttribute("user", user);
           model.addAttribute("passwordRequest", new DomainUserResetPasswordRequest(user));
-          return "admin/user-reset-password";
+          return "management/user-reset-password";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
@@ -130,13 +130,13 @@ public class UserResetPasswordController extends UiController implements
         String defaultMsg = "Password doesn't match the required pattern.";
         bindingResult.rejectValue("password", "todo", defaultMsg);
         model.addAttribute("user", user);
-        return "admin/user-reset-password";
+        return "management/user-reset-password";
       }
     } else {
       String defaultMsg = "Resetting password failed. Password is required.";
       bindingResult.rejectValue("password", "todo", defaultMsg);
       model.addAttribute("user", user);
-      return "admin/user-reset-password";
+      return "management/user-reset-password";
     }
     domainUserService.updateUserPassword(user.getSamAccountName(), password,
         passwordRequest.isGenerateRandomPassword());

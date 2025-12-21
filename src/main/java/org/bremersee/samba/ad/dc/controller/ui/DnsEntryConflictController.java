@@ -94,7 +94,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
               .toList();
           model.addAttribute("dnsEntries", dnsEntries);
           model.addAttribute("dnsEntryDeleteRequest", new DnsEntryDeleteRequest());
-          return "admin/dns-entry-conflict";
+          return "management/dns-entry-conflict";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Dns Entry", "todo", name, PAGE_AND_ZONE_NAME_PARAMS,
@@ -129,7 +129,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
                 .sorted(Comparator.comparing(DnsEntry::getModified).reversed())
                 .toList();
             model.addAttribute("dnsEntries", dnsEntries);
-            return "admin/dns-entry-conflict";
+            return "management/dns-entry-conflict";
           }
           model.clear();
           try {

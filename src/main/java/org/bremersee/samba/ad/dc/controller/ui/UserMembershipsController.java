@@ -101,10 +101,10 @@ public class UserMembershipsController extends UiController
           String page;
           if (direct) {
             memberships = domainGroupService.getMemberships(userName, ou, searchScope);
-            page = "admin/user-memberships-direct";
+            page = "management/user-memberships-direct";
           } else {
             memberships = domainGroupService.resolveMemberships(userName, ou, searchScope);
-            page = "admin/user-memberships-resolved";
+            page = "management/user-memberships-resolved";
           }
           model.addAttribute("memberships", memberships.toList());
           return page;

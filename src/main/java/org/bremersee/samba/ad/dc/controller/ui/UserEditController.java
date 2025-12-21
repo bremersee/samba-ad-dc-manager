@@ -121,7 +121,7 @@ public class UserEditController extends UiController implements PageableComponen
           model.addAttribute("groups", groups);
           DomainUserEditModel editModel = DomainUserEditModelMapper.INSTANCE.map(user);
           model.addAttribute("userEditRequest", editModel);
-          return "admin/user-edit";
+          return "management/user-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
@@ -209,7 +209,7 @@ public class UserEditController extends UiController implements PageableComponen
               TreeSearchScope.ONELEVEL)
           .toList();
       model.addAttribute("groups", groups);
-      return "admin/user-edit";
+      return "management/user-edit";
     }
   }
 

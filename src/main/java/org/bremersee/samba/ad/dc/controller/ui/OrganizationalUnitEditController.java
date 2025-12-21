@@ -97,7 +97,7 @@ public class OrganizationalUnitEditController extends UiController
           model.addAttribute("organizationalUnit", ou);
           OrganizationalUnitEditRequest ouEditRequest = new OrganizationalUnitEditRequest(ou);
           model.put("ouEditRequest", ouEditRequest);
-          return "admin/organizational-unit-edit";
+          return "management/organizational-unit-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Organizational Unit", "todo", name,
@@ -145,7 +145,7 @@ public class OrganizationalUnitEditController extends UiController
     } catch (ServiceException e) {
       handleException(bindingResult, e);
       getLogger().debug("Updating organizational unit failed. Some fields were invalid.");
-      return "admin/organizational-unit-edit";
+      return "management/organizational-unit-edit";
     }
 
     model.clear();

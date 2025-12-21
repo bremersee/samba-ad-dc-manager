@@ -66,7 +66,7 @@ public class DnsZoneInfoController extends UiController
 
     try {
       model.addAttribute("zone", dnsService.getDnsZone(zoneName));
-      return "admin/dns-zone-info";
+      return "management/dns-zone-info";
 
     } catch (ServiceException serviceException) {
 

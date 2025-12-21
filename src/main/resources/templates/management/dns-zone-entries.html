@@ -253,7 +253,7 @@
       const value = searchInput.val();
       if (value !== lastSearchValue) {
         loadingSpinnerModal.show();
-        window.location.href = currentPage
+        globalThis.location.href = currentPage
             + "?page=0"
             + "&zone-name=" + encodeURIComponent(zoneName)
             + "&zone-type=" + encodeURIComponent(zoneType)

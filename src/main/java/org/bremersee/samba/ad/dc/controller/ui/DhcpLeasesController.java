@@ -109,7 +109,7 @@ public class DhcpLeasesController extends UiController
                 new RedirectMessage("No dns entry with ip address '" + ipAddress + "' was found.",
                     RedirectMessageType.WARNING));
           }
-          return "admin/dhcp-leases";
+          return "management/dhcp-leases";
         });
   }
 

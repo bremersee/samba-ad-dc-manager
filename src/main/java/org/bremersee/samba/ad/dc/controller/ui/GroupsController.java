@@ -96,7 +96,7 @@ public class GroupsController extends UiController
     DomainGroupPage groupPage = new DomainGroupPage(domainGroupService.getGroups(
         pageable, query, ou, ouDropdown.getSelectedScope()));
     model.addAttribute("groups", groupPage);
-    return "admin/groups";
+    return "management/groups";
   }
 
 }

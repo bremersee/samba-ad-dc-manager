@@ -49,7 +49,7 @@ public class DnsZoneCreateController extends UiController {
 
   @GetMapping(path = "/management/dns-zone-create")
   public String displayCreateZone() {
-    return "admin/dns-zone-create";
+    return "management/dns-zone-create";
   }
 
   @PostMapping(path = "/management/dns-zone-create")

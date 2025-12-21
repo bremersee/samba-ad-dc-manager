@@ -100,7 +100,7 @@ public class DnsEntryEditController extends UiController implements PageableComp
                 return new DnsEntryEditRequest(entry);
               });
           model.addAttribute("dnsEntryEditRequest", entryEditRequest);
-          return "admin/dns-entry-edit";
+          return "management/dns-entry-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Dns Entry", "todo", name, PAGE_AND_ZONE_NAME_PARAMS,

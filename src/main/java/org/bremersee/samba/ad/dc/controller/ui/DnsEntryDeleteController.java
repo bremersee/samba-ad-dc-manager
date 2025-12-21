@@ -83,7 +83,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
     model.addAttribute("mayHaveReverseEntry", mayHaveReverseEntry);
     deleteRequest.setDeleteReverseEntry(mayHaveReverseEntry);
     model.addAttribute("dnsEntryDeleteRequest", deleteRequest);
-    return "admin/dns-entry-delete";
+    return "management/dns-entry-delete";
   }
 
   @PostMapping(path = "/management/dns-entry-delete")
@@ -109,7 +109,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
       bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
       model.addAttribute("dnsEntry", dnsEntry);
       model.addAttribute("mayHaveReverseEntry", mayHaveReverseEntry(dnsEntry));
-      return "admin/dns-entry-delete";
+      return "management/dns-entry-delete";
     }
 
     model.clear();

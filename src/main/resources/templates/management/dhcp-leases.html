@@ -31,7 +31,7 @@
           th:src="@{/lib/bootstrap/5.3.3/js/bootstrap.min.js}"></script>
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="header"
      th:replace="~{fragments/header :: header}">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">bremersee.org</a>
@@ -53,8 +53,8 @@
 
   <div class="row mb-4">
     <div class="col-1">
-      <a class="btn btn-outline-secondary" href="home.html"
-         th:href="@{../management}">
+      <a class="btn btn-outline-secondary" href="index.html"
+         th:href="@{index}">
         <span class="fa fa-backward"></span>
       </a>
     </div>
@@ -262,7 +262,7 @@
       const value = searchInput.val();
       if (value !== lastSearchValue) {
         loadingSpinnerModal.show();
-        window.location.href = currentPage
+        globalThis.location.href = currentPage
             + "?page=0"
             + "&size=" + size
             + "&sort=" + encodeURIComponent(sort)

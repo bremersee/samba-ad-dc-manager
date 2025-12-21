@@ -79,7 +79,7 @@ public class DnsZoneEntriesController extends UiController
         dnsService.getDnsEntries(zoneName, pageable, query));
     model.addAttribute("dnsEntryPage", dnsEntryPage);
     model.addAttribute("zoneName", zoneName);
-    return "admin/dns-zone-entries";
+    return "management/dns-zone-entries";
   }
 
 }

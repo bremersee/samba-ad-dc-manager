@@ -53,7 +53,7 @@
 
   <div class="row mb-4">
     <div class="col-1">
-      <a class="btn btn-outline-secondary" href="home.html"
+      <a class="btn btn-outline-secondary" href="index.html"
          th:href="@{../management(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
         <span class="fa fa-backward"></span>
       </a>
@@ -230,7 +230,7 @@
     searchInput.typeWatch({
       callback: function (value) {
         //console.log('TypeWatch callback: (' + (this.type || this.nodeName) + ') ' + value);
-        window.location.href = currentPage
+        globalThis.location.href = currentPage
             + "?page=0"
             + "&size=" + size
             + "&sort=" + encodeURIComponent(sort)

@@ -78,7 +78,7 @@ public class OrganizationalUnitAddController extends UiController
     OrganizationalUnitAddRequest ouAddRequest = new OrganizationalUnitAddRequest();
     ouAddRequest.setParentOu(getDnTool().getBaseDn().format());
     model.addAttribute("ouAddRequest", ouAddRequest);
-    return "admin/organizational-unit-add";
+    return "management/organizational-unit-add";
   }
 
   @PostMapping(path = "/management/organizational-unit-add")
@@ -102,7 +102,7 @@ public class OrganizationalUnitAddController extends UiController
     } catch (ServiceException e) {
       handleException(bindingResult, e);
       getLogger().debug("Adding organizational unit failed. Some fields were invalid.");
-      return "admin/organizational-unit-add";
+      return "management/organizational-unit-add";
     }
 
     model.clear();

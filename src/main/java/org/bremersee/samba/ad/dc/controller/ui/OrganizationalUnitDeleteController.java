@@ -84,7 +84,7 @@ public class OrganizationalUnitDeleteController extends UiController
           OrganizationalUnitDeleteRequest ouDeleteRequest = new OrganizationalUnitDeleteRequest(
               ou);
           model.put("ouDeleteRequest", ouDeleteRequest);
-          return "admin/organizational-unit-delete";
+          return "management/organizational-unit-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS, "organizational-units"));
@@ -113,7 +113,7 @@ public class OrganizationalUnitDeleteController extends UiController
             model.addAttribute("organizationalUnit", ou);
             boolean hasChildren = organizationalUnitService.hasChildren(ou.getDn());
             model.addAttribute("hasChildren", hasChildren);
-            return "admin/organizational-unit-delete";
+            return "management/organizational-unit-delete";
           }
 
           boolean result = organizationalUnitService.delete(ou.getDn());

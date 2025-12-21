@@ -78,7 +78,7 @@ public class DnsEntryAddController extends UiController implements PageableCompo
     }
     model.addAttribute("dnsReverseZones", reverseZones);
     model.addAttribute("dnsEntryAddRequest", addRequest);
-    return "admin/dns-entry-add";
+    return "management/dns-entry-add";
   }
 
   @PostMapping(path = "/management/dns-entry-add")

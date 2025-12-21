@@ -63,7 +63,7 @@ public class DnsZonesController extends UiController
       ModelMap model) {
     List<String> dnsZones = dnsService.getDnsZoneNames(zoneType);
     model.addAttribute("dnsZoneNames", dnsZones);
-    return "admin/dns-zones";
+    return "management/dns-zones";
   }
 
 }
