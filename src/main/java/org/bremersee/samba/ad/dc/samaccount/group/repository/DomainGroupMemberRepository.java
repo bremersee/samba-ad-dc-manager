@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupMemberType;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;

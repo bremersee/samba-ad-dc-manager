@@ -21,7 +21,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 
 /**
  * The type DomainUserProperties.

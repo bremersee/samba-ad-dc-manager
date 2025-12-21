@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model.SamAccountDeleteModel;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.group.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;

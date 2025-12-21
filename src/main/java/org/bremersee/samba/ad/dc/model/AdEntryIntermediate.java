@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.common.model;
+package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

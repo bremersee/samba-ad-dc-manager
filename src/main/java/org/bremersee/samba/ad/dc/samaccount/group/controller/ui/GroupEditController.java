@@ -28,7 +28,7 @@ import org.bremersee.samba.ad.dc.common.controller.ui.AbstractEditController;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
 import org.bremersee.samba.ad.dc.ou.controller.ui.shared.OrganisationalUnitsComponent;

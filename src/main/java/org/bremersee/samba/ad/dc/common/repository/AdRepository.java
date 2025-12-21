@@ -33,7 +33,7 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.common.model.DistinguishedNameProvider;
+import org.bremersee.samba.ad.dc.model.DistinguishedNameProvider;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;

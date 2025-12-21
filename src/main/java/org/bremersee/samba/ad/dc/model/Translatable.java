@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.common.model;
+package org.bremersee.samba.ad.dc.model;
 
 public interface Translatable {
 

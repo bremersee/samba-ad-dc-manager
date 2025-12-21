@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.bremersee.ldaptive.converter.StringToDnConverter;
 import org.bremersee.samba.ad.dc.common.controller.AbstractController;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.RequestContextHolder;

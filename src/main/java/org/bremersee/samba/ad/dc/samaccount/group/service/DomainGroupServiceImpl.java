@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroup;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.samaccount.group.model.DomainGroupMembers;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.DomainGroupMemberRepository;
 import org.bremersee.samba.ad.dc.samaccount.group.repository.DomainGroupRepository;
 import org.ldaptive.dn.Dn;

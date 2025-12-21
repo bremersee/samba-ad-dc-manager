@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.UUID;
-import org.bremersee.samba.ad.dc.common.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.Nullable;

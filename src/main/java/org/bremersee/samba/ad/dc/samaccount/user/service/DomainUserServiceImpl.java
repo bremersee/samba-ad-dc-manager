@@ -23,7 +23,7 @@ import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.samaccount.user.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
 import org.bremersee.samba.ad.dc.samaccount.user.model.Password;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.AvatarRepository;
 import org.bremersee.samba.ad.dc.samaccount.user.repository.DomainUserRepository;
 import org.bremersee.pagebuilder.PageBuilder;

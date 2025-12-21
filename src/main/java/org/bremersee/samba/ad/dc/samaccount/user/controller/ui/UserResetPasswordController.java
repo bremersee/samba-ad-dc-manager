@@ -29,7 +29,7 @@ import org.bremersee.samba.ad.dc.samaccount.user.controller.ui.model.DomainUserR
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.common.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.samaccount.user.model.DomainUser;
-import org.bremersee.samba.ad.dc.common.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.domain.service.DomainService;
 import org.bremersee.samba.ad.dc.samaccount.user.service.DomainUserService;
 import org.ldaptive.dn.Dn;
