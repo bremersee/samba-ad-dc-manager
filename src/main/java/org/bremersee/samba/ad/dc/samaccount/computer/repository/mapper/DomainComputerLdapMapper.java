@@ -12,7 +12,7 @@ import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.samaccount.computer.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
-import org.bremersee.samba.ad.dc.samaccount.common.repository.mapper.SamAccountLdapMapper;
+import org.bremersee.samba.ad.dc.repository.mapper.SamAccountLdapMapper;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;

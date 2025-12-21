@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.repository.mapper;
 
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
+import org.bremersee.samba.ad.dc.model.Sid;
 import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
 

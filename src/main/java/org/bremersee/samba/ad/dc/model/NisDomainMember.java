@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.samaccount.common.model;
+package org.bremersee.samba.ad.dc.model;
 
 /**
  * The interface NisDomainMember.

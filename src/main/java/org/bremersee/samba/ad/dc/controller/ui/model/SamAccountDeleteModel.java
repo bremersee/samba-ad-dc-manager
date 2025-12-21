@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.samaccount.common.controller.ui.model;
+package org.bremersee.samba.ad.dc.controller.ui.model;
 
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
+import org.bremersee.samba.ad.dc.model.SamAccount;
 
 /**
  * The sam account delete model.

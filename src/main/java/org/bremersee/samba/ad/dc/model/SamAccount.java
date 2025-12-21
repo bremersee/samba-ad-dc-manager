@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.common.model;
+package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,8 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.List;
 import java.util.Objects;
-import org.bremersee.samba.ad.dc.model.AdEntry;
-import org.bremersee.samba.ad.dc.model.NameProvider;
 import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;

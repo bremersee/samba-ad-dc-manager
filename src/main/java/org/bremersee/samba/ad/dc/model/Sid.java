@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.common.model;
+package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

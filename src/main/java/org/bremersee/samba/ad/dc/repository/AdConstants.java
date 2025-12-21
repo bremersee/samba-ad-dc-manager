@@ -7,7 +7,7 @@ import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.ldaptive.transcoder.ValueTranscoderFactory;
 import org.bremersee.samba.ad.dc.repository.mapper.SidValueTranscoder;
-import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
+import org.bremersee.samba.ad.dc.model.Sid;
 import org.ldaptive.dn.Dn;
 
 public abstract class AdConstants {

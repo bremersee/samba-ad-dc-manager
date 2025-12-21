@@ -11,8 +11,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
 import java.util.Locale;
-import org.bremersee.samba.ad.dc.samaccount.common.model.NisDomainMember;
-import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;

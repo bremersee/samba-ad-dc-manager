@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.samaccount.common.repository.mapper;
+package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -13,10 +13,9 @@ import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
-import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;
-import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccount;
-import org.bremersee.samba.ad.dc.samaccount.common.model.SamAccountIntermediate;
-import org.bremersee.samba.ad.dc.samaccount.common.model.Sid;
+import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.bremersee.samba.ad.dc.model.SamAccountIntermediate;
+import org.bremersee.samba.ad.dc.model.Sid;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;
