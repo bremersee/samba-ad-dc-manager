@@ -74,7 +74,7 @@ public class DhcpLeasesController extends UiController
     return "dhcp-leases";
   }
 
-  @RequestMapping(path = "/admin/dhcp-leases", method = RequestMethod.GET)
+  @RequestMapping(path = "/management/dhcp-leases", method = RequestMethod.GET)
   public String displayDhcpLeases(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,

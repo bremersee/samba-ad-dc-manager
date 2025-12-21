@@ -76,7 +76,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
         .map(computer -> {
           model.addAttribute(COMPUTER, computer);
           model.addAttribute("deleteModel", new SamAccountDeleteModel(computer));
-          return "computer/computer-delete";
+          return "management/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
@@ -108,7 +108,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
               "todo",
               "The name doesn't match.");
           model.addAttribute(COMPUTER, computer);
-          return "computer/computer-delete";
+          return "management/computer-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
@@ -126,22 +126,21 @@ public class ComputerDeleteController extends UiController implements PageableCo
 
     boolean result = domainComputerService.deleteComputer(computer.getSamAccountName());
     model.clear();
-    RedirectMessage rmsg;
+    RedirectMessage redirectMessage;
     if (result) {
-      rmsg = getRedirectMessage(
+      redirectMessage = getRedirectMessage(
           RedirectMessageType.SUCCESS,
           String.format("Computer '%s' was successfully deleted.", computer.getName()),
           "todo",
           computer.getName());
     } else {
-      rmsg = getRedirectMessage(
+      redirectMessage = getRedirectMessage(
           RedirectMessageType.WARNING,
           String.format("Somehow the computer '%s' was not deleted.", computer.getName()),
           "todo",
           computer.getName());
     }
-    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
-
+    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
     String redirect = getRedirectUri(
         COMPUTERS,
         PAGE_AND_OU_PARAMS,

@@ -96,7 +96,7 @@ public class ComputersController extends UiController
     DomainComputerPage computerPage = new DomainComputerPage(domainComputerService.getComputers(
         pageable, query, ou, ouDropdown.getSelectedScope()));
     model.addAttribute(PAGE, computerPage);
-    return "computer/computers";
+    return "management/computers";
   }
 
 }

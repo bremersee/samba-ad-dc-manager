@@ -65,7 +65,7 @@ public class DnsZoneEntriesController extends UiController
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-zone-entries")
+  @GetMapping(path = "/management/dns-zone-entries")
   public String displayDnsZoneEntries(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,

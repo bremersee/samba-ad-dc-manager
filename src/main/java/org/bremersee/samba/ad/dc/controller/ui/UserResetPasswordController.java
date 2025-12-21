@@ -76,7 +76,7 @@ public class UserResetPasswordController extends UiController implements
     return domainService.getPasswordInformation().getPasswordRegex();
   }
 
-  @GetMapping(path = "/admin/user-reset-password")
+  @GetMapping(path = "/management/user-reset-password")
   public String displayUserResetPassword(
       @RequestParam(value = "user", required = false) String userName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -95,7 +95,7 @@ public class UserResetPasswordController extends UiController implements
             redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
-  @PostMapping(path = "/admin/user-reset-password")
+  @PostMapping(path = "/management/user-reset-password")
   public String resetPassword(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,

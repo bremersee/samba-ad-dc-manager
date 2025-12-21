@@ -80,7 +80,7 @@ public class UsersController extends UiController
     return "users";
   }
 
-  @RequestMapping(path = "/admin/users", method = RequestMethod.GET)
+  @RequestMapping(path = "/management/users", method = RequestMethod.GET)
   public String displayUsers(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,

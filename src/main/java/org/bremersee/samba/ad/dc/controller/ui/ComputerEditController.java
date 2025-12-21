@@ -106,7 +106,7 @@ public class ComputerEditController extends UiController implements PageableComp
           addPrimaryGroupToModel(model, computer);
           ComputerEditModel editModel = ComputerEditModelMapper.INSTANCE.map(computer);
           model.addAttribute("editModel", editModel);
-          return "computer/computer-edit";
+          return "management/computer-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
@@ -190,7 +190,7 @@ public class ComputerEditController extends UiController implements PageableComp
           partialUpdatedComputer.getDn().getParent().format());
       model.addAttribute(COMPUTER, partialUpdatedComputer);
       addPrimaryGroupToModel(model, partialUpdatedComputer);
-      return "computer/computer-edit";
+      return "management/computer-edit";
     }
   }
 

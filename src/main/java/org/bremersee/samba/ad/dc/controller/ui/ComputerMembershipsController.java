@@ -101,10 +101,10 @@ public class ComputerMembershipsController extends UiController
           String page;
           if (direct) {
             memberships = domainGroupService.getMemberships(computerName, ou, searchScope);
-            page = "computer/computer-memberships-direct";
+            page = "management/computer-memberships-direct";
           } else {
             memberships = domainGroupService.resolveMemberships(computerName, ou, searchScope);
-            page = "computer/computer-memberships-resolved";
+            page = "management/computer-memberships-resolved";
           }
           model.addAttribute("memberships", memberships.toList());
           return page;

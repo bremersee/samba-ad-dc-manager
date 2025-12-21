@@ -61,7 +61,7 @@ public class UserMembershipsController extends UiController
     return USER_SORT;
   }
 
-  @GetMapping(path = "/admin/user-memberships-direct")
+  @GetMapping(path = "/management/user-memberships-direct")
   public String displayUserEditMembershipsDirect(
       @RequestParam(value = "user", required = false) String userName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -73,7 +73,7 @@ public class UserMembershipsController extends UiController
         true, userName, ou, searchScope, model, redirectAttributes);
   }
 
-  @GetMapping(path = "/admin/user-memberships-resolved")
+  @GetMapping(path = "/management/user-memberships-resolved")
   public String displayUserEditMembershipsResolved(
       @RequestParam(value = "user", required = false) String userName,
       @RequestParam(value = OU, required = false) Dn ou,

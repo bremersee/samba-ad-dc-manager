@@ -64,7 +64,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-entry-conflict")
+  @GetMapping(path = "/management/dns-entry-conflict")
   public String displayDnsEntryConflict(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = "name") String name,
@@ -101,7 +101,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
             "dns-zone-entries"));
   }
 
-  @PostMapping(path = "/admin/dns-entry-conflict")
+  @PostMapping(path = "/management/dns-entry-conflict")
   public String deleteDnsEntryConflict(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = "name") String name,

@@ -104,7 +104,7 @@ public class UserEditController extends UiController implements PageableComponen
         .orElse(false);
   }
 
-  @GetMapping(path = "/admin/user-edit")
+  @GetMapping(path = "/management/user-edit")
   public String displayUserEdit(
       @RequestParam(value = "user", required = false) String userName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -127,7 +127,7 @@ public class UserEditController extends UiController implements PageableComponen
             redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
-  @PostMapping(path = "/admin/user-edit")
+  @PostMapping(path = "/management/user-edit")
   public String updateUser(
       @RequestParam(value = "user", required = false) String oldSamAccountName,
       @RequestParam(value = "previousSamAccountName", required = false) String previousSamAccountName,

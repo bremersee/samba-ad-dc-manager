@@ -56,7 +56,7 @@ public class GroupMembershipsController extends UiController
     return GROUP_SORT;
   }
 
-  @GetMapping(path = "/admin/group-memberships-direct")
+  @GetMapping(path = "/management/group-memberships-direct")
   public String displayGroupEditMembershipsDirect(
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -68,7 +68,7 @@ public class GroupMembershipsController extends UiController
         true, groupName, ou, searchScope, model, redirectAttributes);
   }
 
-  @GetMapping(path = "/admin/group-memberships-resolved")
+  @GetMapping(path = "/management/group-memberships-resolved")
   public String displayGroupEditMembershipsResolved(
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,

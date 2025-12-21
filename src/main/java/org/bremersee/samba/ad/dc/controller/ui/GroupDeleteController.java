@@ -62,7 +62,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
     return GROUP_SORT;
   }
 
-  @GetMapping(path = "/admin/group-delete")
+  @GetMapping(path = "/management/group-delete")
   public String displayGroupDelete(
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -81,7 +81,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
             redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
-  @PostMapping(path = "/admin/group-delete")
+  @PostMapping(path = "/management/group-delete")
   public String deleteGroup(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,

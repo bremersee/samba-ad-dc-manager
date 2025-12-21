@@ -80,7 +80,7 @@ public class GroupsController extends UiController
     return "groups";
   }
 
-  @RequestMapping(path = "/admin/groups", method = RequestMethod.GET)
+  @RequestMapping(path = "/management/groups", method = RequestMethod.GET)
   public String displayGroups(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,

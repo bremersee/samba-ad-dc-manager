@@ -59,7 +59,7 @@ public class OrganizationUnitsController extends UiController
     return "organizational-units";
   }
 
-  @RequestMapping(path = "/admin/organizational-units", method = RequestMethod.GET)
+  @RequestMapping(path = "/management/organizational-units", method = RequestMethod.GET)
   public String displayOrganizationalUnits(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,

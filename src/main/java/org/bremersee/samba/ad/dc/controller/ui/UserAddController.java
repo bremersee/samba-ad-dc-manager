@@ -104,7 +104,7 @@ public class UserAddController extends UiController
     return USER_SORT;
   }
 
-  @GetMapping(path = "/admin/user-add")
+  @GetMapping(path = "/management/user-add")
   public String displayUserAdd(
       @RequestParam(name = OU, required = false) Dn ou,
       ModelMap model) {
@@ -115,7 +115,7 @@ public class UserAddController extends UiController
     return "admin/user-add";
   }
 
-  @PostMapping(path = "/admin/user-add")
+  @PostMapping(path = "/management/user-add")
   public String addUser(
       @ModelAttribute(name = "userAddRequest") DomainUserAddRequest userAddRequest,
       ModelMap model,

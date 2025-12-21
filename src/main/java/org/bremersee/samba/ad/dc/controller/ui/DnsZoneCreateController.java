@@ -47,12 +47,12 @@ public class DnsZoneCreateController extends UiController {
     this.dnsService = dnsService;
   }
 
-  @GetMapping(path = "/admin/dns-zone-create")
+  @GetMapping(path = "/management/dns-zone-create")
   public String displayCreateZone() {
     return "admin/dns-zone-create";
   }
 
-  @PostMapping(path = "/admin/dns-zone-create")
+  @PostMapping(path = "/management/dns-zone-create")
   public String createZone(
       @RequestParam(name = "name") String name,
       RedirectAttributes redirectAttributes) {

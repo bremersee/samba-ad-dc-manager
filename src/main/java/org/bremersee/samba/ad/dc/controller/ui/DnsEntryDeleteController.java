@@ -62,7 +62,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-entry-delete")
+  @GetMapping(path = "/management/dns-entry-delete")
   public String displayDeleteDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = "name") String name,
@@ -86,7 +86,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
     return "admin/dns-entry-delete";
   }
 
-  @PostMapping(path = "/admin/dns-entry-delete")
+  @PostMapping(path = "/management/dns-entry-delete")
   public String deleteDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = "name") String name,

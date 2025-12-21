@@ -89,7 +89,7 @@ public class GroupEditMembersController extends UiController implements Pageable
         .orElseGet(DomainGroupMembers::empty);
   }
 
-  @GetMapping(path = "/admin/group-edit-members")
+  @GetMapping(path = "/management/group-edit-members")
   public String displayGroupEditMembers(
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -108,7 +108,7 @@ public class GroupEditMembersController extends UiController implements Pageable
             redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
-  @PostMapping(path = "/admin/group-edit-members")
+  @PostMapping(path = "/management/group-edit-members")
   public String updateGroupMembers(
       @RequestParam(value = "name", required = false) String groupName,
       @RequestParam(value = OU, required = false) Dn ou,

@@ -77,7 +77,7 @@ public class OrganizationalUnitEditController extends UiController
     return Stream.concat(baseStream, otherParentsStream).toList();
   }
 
-  @GetMapping(path = "/admin/organizational-unit-edit")
+  @GetMapping(path = "/management/organizational-unit-edit")
   public String displayOrganizationalUnitEdit(
       @RequestParam(value = "name", required = false) Dn ouDn,
       ModelMap model,
@@ -104,7 +104,7 @@ public class OrganizationalUnitEditController extends UiController
             PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
-  @PostMapping(path = "/admin/organizational-unit-edit")
+  @PostMapping(path = "/management/organizational-unit-edit")
   public String updateOrganizationalUnit(
       @ModelAttribute(name = "ouEditRequest") OrganizationalUnitEditRequest ouEditRequest,
       ModelMap model,

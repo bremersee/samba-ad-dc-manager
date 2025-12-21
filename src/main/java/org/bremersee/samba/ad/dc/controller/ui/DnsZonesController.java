@@ -57,7 +57,7 @@ public class DnsZonesController extends UiController
     return "";
   }
 
-  @GetMapping(path = "/admin/dns-zones")
+  @GetMapping(path = "/management/dns-zones")
   public String displayDnsZones(
       @RequestParam(name = ZONE_TYPE, defaultValue = ZONE_TYPE_DEFAULT) DnsZoneType zoneType,
       ModelMap model) {

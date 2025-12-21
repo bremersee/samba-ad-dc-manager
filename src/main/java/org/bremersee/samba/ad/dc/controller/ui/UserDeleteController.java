@@ -62,7 +62,7 @@ public class UserDeleteController extends UiController implements PageableCompon
     return USER_SORT;
   }
 
-  @GetMapping(path = "/admin/user-delete")
+  @GetMapping(path = "/management/user-delete")
   public String displayUserDelete(
       @RequestParam(value = "user", required = false) String userName,
       @RequestParam(value = OU, required = false) Dn ou,
@@ -81,7 +81,7 @@ public class UserDeleteController extends UiController implements PageableCompon
             redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
-  @PostMapping(path = "/admin/user-delete")
+  @PostMapping(path = "/management/user-delete")
   public String deleteUser(
       @RequestParam(value = OU, required = false) Dn ou,
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,

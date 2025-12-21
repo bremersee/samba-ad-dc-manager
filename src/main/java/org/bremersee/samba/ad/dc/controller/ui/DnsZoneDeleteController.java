@@ -67,7 +67,7 @@ public class DnsZoneDeleteController extends UiController
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-zone-delete")
+  @GetMapping(path = "/management/dns-zone-delete")
   public String displayDnsZoneInfo(
       @RequestParam(name = ZONE_NAME) String zoneName,
       ModelMap model) {
@@ -77,7 +77,7 @@ public class DnsZoneDeleteController extends UiController
     return "admin/dns-zone-delete";
   }
 
-  @PostMapping(path = "/admin/dns-zone-delete")
+  @PostMapping(path = "/management/dns-zone-delete")
   public String deleteDnsZone(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @ModelAttribute(name = "dnsZoneDeleteRequest") DnsZoneDeleteRequest deleteRequest,

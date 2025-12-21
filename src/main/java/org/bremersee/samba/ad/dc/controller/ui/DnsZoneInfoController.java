@@ -58,7 +58,7 @@ public class DnsZoneInfoController extends UiController
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-zone-info")
+  @GetMapping(path = "/management/dns-zone-info")
   public String displayDnsZoneInfo(
       @RequestParam(name = ZONE_NAME) String zoneName,
       ModelMap model,

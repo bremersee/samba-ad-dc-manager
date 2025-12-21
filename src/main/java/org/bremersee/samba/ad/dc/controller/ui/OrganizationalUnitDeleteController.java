@@ -62,7 +62,7 @@ public class OrganizationalUnitDeleteController extends UiController
     this.organizationalUnitService = organizationalUnitService;
   }
 
-  @GetMapping(path = "/admin/organizational-unit-delete")
+  @GetMapping(path = "/management/organizational-unit-delete")
   public String displayOrganizationalUnitDelete(
       @RequestParam(value = "name", required = false) Dn ouDn,
       ModelMap model,
@@ -90,7 +90,7 @@ public class OrganizationalUnitDeleteController extends UiController
             redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
-  @PostMapping(path = "/admin/organizational-unit-delete")
+  @PostMapping(path = "/management/organizational-unit-delete")
   public String deleteOrganizationalUnit(
       @ModelAttribute(name = "ouDeleteRequest") OrganizationalUnitDeleteRequest ouDeleteRequest,
       ModelMap model,

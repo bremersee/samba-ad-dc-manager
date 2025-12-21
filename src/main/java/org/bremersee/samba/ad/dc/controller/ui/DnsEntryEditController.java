@@ -63,7 +63,7 @@ public class DnsEntryEditController extends UiController implements PageableComp
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-entry-edit")
+  @GetMapping(path = "/management/dns-entry-edit")
   public String displayEditDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = "name") String name,
@@ -107,7 +107,7 @@ public class DnsEntryEditController extends UiController implements PageableComp
             "dns-zone-entries"));
   }
 
-  @PostMapping(path = "/admin/dns-entry-edit")
+  @PostMapping(path = "/management/dns-entry-edit")
   public String updateDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @RequestParam(name = "name") String name,

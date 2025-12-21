@@ -72,7 +72,7 @@ public class OrganizationalUnitAddController extends UiController
     return Stream.concat(baseStream, otherParentsStream).toList();
   }
 
-  @GetMapping(path = "/admin/organizational-unit-add")
+  @GetMapping(path = "/management/organizational-unit-add")
   public String displayOrganizationalUnitAdd(ModelMap model) {
     getLogger().debug("displayOrganizationalUnitAdd()");
     OrganizationalUnitAddRequest ouAddRequest = new OrganizationalUnitAddRequest();
@@ -81,7 +81,7 @@ public class OrganizationalUnitAddController extends UiController
     return "admin/organizational-unit-add";
   }
 
-  @PostMapping(path = "/admin/organizational-unit-add")
+  @PostMapping(path = "/management/organizational-unit-add")
   public String addOrganizationalUnit(
       @ModelAttribute(name = "ouAddRequest") OrganizationalUnitAddRequest ouAddRequest,
       ModelMap model,

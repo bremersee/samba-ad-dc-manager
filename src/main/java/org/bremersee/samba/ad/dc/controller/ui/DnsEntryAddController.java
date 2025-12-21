@@ -63,7 +63,7 @@ public class DnsEntryAddController extends UiController implements PageableCompo
     return DNS_ENTRY_SORT;
   }
 
-  @GetMapping(path = "/admin/dns-entry-add")
+  @GetMapping(path = "/management/dns-entry-add")
   public String displayAddDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
       ModelMap model) {
@@ -81,7 +81,7 @@ public class DnsEntryAddController extends UiController implements PageableCompo
     return "admin/dns-entry-add";
   }
 
-  @PostMapping(path = "/admin/dns-entry-add")
+  @PostMapping(path = "/management/dns-entry-add")
   public String addDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
       @ModelAttribute(name = "dnsEntryAddRequest") DnsEntryAddRequest dnsEntryAddRequest,
