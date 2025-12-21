@@ -16,9 +16,13 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,7 +60,7 @@ public class UserAddModel implements Serializable {
 
   private boolean noExpiry = true;
 
-  private OffsetDateTime accountExpires;
+  private OffsetDateTime accountExpires = OffsetDateTime.now();
 
   /**
    * User's first name.
@@ -193,6 +197,7 @@ public class UserAddModel implements Serializable {
       PasswordInformation passwordInformation,
       boolean isRfc2307Enabled) {
     int passwordAgeInDays = passwordInformation.getMaximumPasswordAgeInDays();
+    setAccountExpires(OffsetDateTime.now().plusDays(passwordAgeInDays));
     setUseUsernameAsCn(properties.isUseUsernameAsCn());
     setCompany(properties.getDefaultCompany());
     setDisplayName(properties.getDefaultDisplayName());
@@ -217,6 +222,31 @@ public class UserAddModel implements Serializable {
       return new Dn(newOu);
     }
     return null;
+  }
+
+  public OffsetDateTime getAccountExpires() {
+    if (noExpiry) {
+      return null;
+    }
+    return accountExpires;
+  }
+
+  public String getAccountExpiresIso() {
+    OffsetDateTime dateTime;
+    if (isEmpty(accountExpires)) {
+      dateTime = OffsetDateTime.now(ZoneOffset.UTC);
+    } else {
+      dateTime = accountExpires.withOffsetSameInstant(ZoneOffset.UTC);
+    }
+    return dateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+  }
+
+  public void setAccountExpiresIso(String accountExpiresIso) {
+    if (isEmpty(accountExpiresIso)) {
+      this.accountExpires = null;
+      return;
+    }
+    this.accountExpires = OffsetDateTime.parse(accountExpiresIso, DateTimeFormatter.ISO_DATE_TIME);
   }
 
 }

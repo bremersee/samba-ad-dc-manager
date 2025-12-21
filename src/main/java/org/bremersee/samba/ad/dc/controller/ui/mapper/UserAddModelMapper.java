@@ -1,8 +1,6 @@
 package org.bremersee.samba.ad.dc.controller.ui.mapper;
 
-import org.bremersee.samba.ad.dc.controller.ui.model.GroupAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.model.UserAddModel;
-import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +17,11 @@ public interface UserAddModelMapper {
   @Mapping(target = "sid", ignore = true)
   @Mapping(target = "criticalSystemObject", ignore = true)
   @Mapping(target = "memberships", ignore = true)
+  @Mapping(target = "primaryGroupId", ignore = true)
+  @Mapping(target = "lastLogon", ignore = true)
+  @Mapping(target = "logonCount", ignore = true)
+  @Mapping(target = "passwordLastSet", ignore = true)
+  @Mapping(target = "userPrincipalName", ignore = true)
   @Mapping(source = "enabled", target = "accountControl.enabled")
   @Mapping(
       source = "passwordExpirationEnabled",
