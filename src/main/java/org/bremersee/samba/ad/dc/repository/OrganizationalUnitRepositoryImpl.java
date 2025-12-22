@@ -161,14 +161,13 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     return !getLdapTemplate().findAll(searchRequest).isEmpty();
   }
 
-  // TODO
-  Dn validateOu(Dn ou) {
+  Dn validateParentOu(Dn ou) {
     Dn ouDn = isEmpty(ou) || ou.isEmpty() ? getDefaultOu() : ou;
     if (isEmpty(ouDn) || ouDn.isEmpty()) {
       throw badRequest("Organizational unit cannot be empty.", EC_EMPTY_OU_RDN);
     }
     Dn dn = getDnTool().addBaseDn(ouDn);
-    if (!isEmpty(getLdapTemplate()) && !getLdapTemplate().exists(dn.format())) {
+    if (!getLdapTemplate().exists(dn.format())) {
       throw badRequest(
           String.format("Organizational unit '%s' does not exist.", ouDn.format()),
           EC_OU_NOT_FOUND);
@@ -190,7 +189,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
         AdConstants.RDN_ATTR_NAME_OU,
         organizationalUnit.getName())));
     if (!isEmpty(parentOu) && !parentOu.isEmpty()) {
-      dn.add(validateOu(parentOu));
+      dn.add(validateParentOu(parentOu));
     }
     if (exists(dn)) {
       throw ServiceException.alreadyExistsWithErrorCode(
@@ -198,7 +197,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
           organizationalUnit.getName(),
           EC_OU_ALREADY_EXISTS);
     }
-    sambaToolOu.addOrganizationalUnit(organizationalUnit, validateOu(parentOu));
+    sambaToolOu.addOrganizationalUnit(organizationalUnit, validateParentOu(parentOu));
     return findOne(dn)
         .orElseThrow(() -> ServiceException
             .internalServerError(
@@ -245,9 +244,9 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     if (isEmpty(newParentOu) || newParentOu.isEmpty()) {
       wantedDn.add(existingDn.getParent());
     } else {
-      wantedDn.add(newParentOu);
+      wantedDn.add(validateParentOu(newParentOu));
     }
-    log.debug("Wanted ou dn:   {}", wantedDn);
+    log.debug("Wanted ou dn: {}", wantedDn);
     if (!existingDn.isSame(wantedDn) && exists(wantedDn)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           OrganizationalUnit.class.getSimpleName(),
