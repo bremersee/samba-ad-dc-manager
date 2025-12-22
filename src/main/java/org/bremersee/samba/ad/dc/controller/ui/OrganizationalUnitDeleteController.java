@@ -81,9 +81,9 @@ public class OrganizationalUnitDeleteController extends UiController
           boolean hasChildren = organizationalUnitService
               .hasChildren(ou.getDn());
           model.addAttribute("hasChildren", hasChildren);
-          OrganizationalUnitDeleteModel ouDeleteRequest = new OrganizationalUnitDeleteModel(
+          OrganizationalUnitDeleteModel deleteModel = new OrganizationalUnitDeleteModel(
               ou);
-          model.put("ouDeleteRequest", ouDeleteRequest);
+          model.put("deleteModel", deleteModel);
           return "management/organizational-unit-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -92,23 +92,23 @@ public class OrganizationalUnitDeleteController extends UiController
 
   @PostMapping(path = "/management/organizational-unit-delete")
   public String deleteOrganizationalUnit(
-      @ModelAttribute(name = "ouDeleteRequest") OrganizationalUnitDeleteModel ouDeleteRequest,
+      @ModelAttribute(name = "deleteModel") OrganizationalUnitDeleteModel deleteModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("deleteOrganizationalUnit({})", ouDeleteRequest);
-    String name = Optional.ofNullable(ouDeleteRequest.getOu())
+    getLogger().debug("deleteOrganizationalUnit({})", deleteModel);
+    String name = Optional.ofNullable(deleteModel.getOu())
         .map(Dn::new)
         .map(Dn::getRDn)
         .map(RDn::getNameValue)
         .map(NameValue::getStringValue)
         .orElse("null");
-    return Optional.ofNullable(ouDeleteRequest.getOu())
+    return Optional.ofNullable(deleteModel.getOu())
         .map(Dn::new)
         .flatMap(organizationalUnitService::getOrganizationalUnit)
         .map(ou -> {
-          if (!ou.getName().equalsIgnoreCase(ouDeleteRequest.getVerificationName())) {
+          if (!ou.getName().equalsIgnoreCase(deleteModel.getVerificationName())) {
             bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
             model.addAttribute("organizationalUnit", ou);
             boolean hasChildren = organizationalUnitService.hasChildren(ou.getDn());

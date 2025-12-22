@@ -62,7 +62,7 @@
   </div>
 
   <div>
-    <form th:action="@{organizational-unit-add}" th:object="${ouAddRequest}" action="#"
+    <form th:action="@{organizational-unit-add}" th:object="${addModel}" action="#"
           method="post">
       <input type="hidden" name="page" th:value="${page}"/>
       <input type="hidden" name="size" th:value="${size}"/>

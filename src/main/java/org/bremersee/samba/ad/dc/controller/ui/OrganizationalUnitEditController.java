@@ -98,7 +98,7 @@ public class OrganizationalUnitEditController extends UiController
           model.addAttribute("organizationalUnit", ou);
           OrganizationalUnitEditModel editModel = OrganizationalUnitEditModelMapper.INSTANCE
               .map(ou);
-          model.put("ouEditRequest", editModel);
+          model.put("editModel", editModel);
           return "management/organizational-unit-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -108,7 +108,7 @@ public class OrganizationalUnitEditController extends UiController
 
   @PostMapping(path = "/management/organizational-unit-edit")
   public String updateOrganizationalUnit(
-      @ModelAttribute(name = "ouEditRequest") OrganizationalUnitEditModel editModel,
+      @ModelAttribute(name = "editModel") OrganizationalUnitEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {

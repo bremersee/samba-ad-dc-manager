@@ -28,6 +28,7 @@ import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
@@ -268,12 +269,17 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
       currentDn = sambaToolOu
           .renameOrganizationalUnit(currentDn, organizationalUnit.getName());
     }
-    return getLdapTemplate().save(
-        OrganizationalUnit.builder()
-            .distinguishedName(currentDn.format())
+    return findOne(currentDn)
+        .map(ou -> OrganizationalUnit.builder()
+            .from(ou)
             .description(organizationalUnit.getDescription())
-            .build(),
-        ouLdapMapper);
+            .build())
+        .map(ou -> getLdapTemplate().save(ou, ouLdapMapper))
+        .orElseThrow(() -> ServiceException.internalServerError(
+            String.format(
+                "Updating organization unit '%s' failed.",
+                wantedDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER)),
+            ErrorCode.EC_UPDATING_OU_FAILED));
   }
 
   @Override

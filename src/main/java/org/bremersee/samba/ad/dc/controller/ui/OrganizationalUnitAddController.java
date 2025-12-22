@@ -75,29 +75,29 @@ public class OrganizationalUnitAddController extends UiController
   @GetMapping(path = "/management/organizational-unit-add")
   public String displayOrganizationalUnitAdd(ModelMap model) {
     getLogger().debug("displayOrganizationalUnitAdd()");
-    OrganizationalUnitAddModel ouAddRequest = new OrganizationalUnitAddModel();
-    ouAddRequest.setParentOu(getDnTool().getBaseDn().format());
-    model.addAttribute("ouAddRequest", ouAddRequest);
+    OrganizationalUnitAddModel addModel = new OrganizationalUnitAddModel();
+    addModel.setParentOu(getDnTool().getBaseDn().format());
+    model.addAttribute("addModel", addModel);
     return "management/organizational-unit-add";
   }
 
   @PostMapping(path = "/management/organizational-unit-add")
   public String addOrganizationalUnit(
-      @ModelAttribute(name = "ouAddRequest") OrganizationalUnitAddModel ouAddRequest,
+      @ModelAttribute(name = "addModel") OrganizationalUnitAddModel addModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("addOrganizationalUnit({})", ouAddRequest);
+    getLogger().debug("addOrganizationalUnit({})", addModel);
 
     OrganizationalUnit organizationalUnit = OrganizationalUnit.builder()
-        .name(ouAddRequest.getName())
-        .description(ouAddRequest.getDescription())
+        .name(addModel.getName())
+        .description(addModel.getDescription())
         .build();
 
     OrganizationalUnit addedOu;
     try {
-      addedOu = organizationalUnitService.add(organizationalUnit, ouAddRequest.getParentOuDn());
+      addedOu = organizationalUnitService.add(organizationalUnit, addModel.getParentOuDn());
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);

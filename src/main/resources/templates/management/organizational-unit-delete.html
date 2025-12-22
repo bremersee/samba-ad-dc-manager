@@ -72,7 +72,7 @@
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link" href="organizational-unit-edit.html"
-         th:href="@{organizational-unit-edit(name=${organizationalUnit.distinguishedNameUnformatted},page=${page},size=${size},q=${q})}">
+         th:href="@{organizational-unit-edit(name=${organizationalUnit.distinguishedName},page=${page},size=${size},q=${q})}">
         <span class="fa fa-edit" aria-hidden="true"></span>
       </a>
     </li>
@@ -104,7 +104,7 @@
           <span class="fas fa-clipboard" aria-hidden="true"></span>
         </a>
       </div>
-      <form th:action="@{organizational-unit-delete}" th:object="${ouDeleteRequest}" action="#"
+      <form th:action="@{organizational-unit-delete}" th:object="${deleteModel}" action="#"
             method="post">
         <input type="hidden" name="page" th:value="${page}"/>
         <input type="hidden" name="size" th:value="${size}"/>

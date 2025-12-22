@@ -79,14 +79,14 @@
       <a class="nav-link" href="organizational-unit-delete.html"
          th:classappend="${organizationalUnit.systemOu} ? 'disabled' : ''"
          th:attr="aria-disabled=${organizationalUnit.systemOu}"
-         th:href="@{organizational-unit-delete(name=${organizationalUnit.distinguishedNameUnformatted},page=${page},size=${size},q=${q})}">
+         th:href="@{organizational-unit-delete(name=${organizationalUnit.distinguishedName},page=${page},size=${size},q=${q})}">
         <span class="fa fa-trash-alt" aria-hidden="true"></span>
       </a>
     </li>
   </ul>
 
   <div class="mx-0 mx-sm-1 mx-md-3">
-    <form th:action="@{organizational-unit-edit}" th:object="${ouEditRequest}" action="#"
+    <form th:action="@{organizational-unit-edit}" th:object="${editModel}" action="#"
           method="post">
       <input type="hidden" name="page" th:value="${page}"/>
       <input type="hidden" name="size" th:value="${size}"/>
