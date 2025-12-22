@@ -49,6 +49,8 @@ abstract class UserModel implements Serializable {
 
   private String samAccountName;
 
+  private String userPrincipalName;
+
   private boolean enabled = true;
 
   private boolean passwordExpirationEnabled = false;

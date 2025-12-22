@@ -36,7 +36,7 @@ import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.PresenceFilter;
 
 /**
- * The type AbstractSamAccountRepository.
+ * The sam account repository.
  *
  * @author Christian Bremer
  */
@@ -46,8 +46,10 @@ public abstract class SamAccountRepository extends AdRepository {
   private static final Pattern samAccountNamePattern = Pattern
       .compile("^[^/\\\\\\[\\]:;|=,+?<>@â€\u009D]+$");
 
+  private final Pattern emailPattern;
+
   /**
-   * Instantiates a new abstract repository.
+   * Instantiates a new sam account repository.
    *
    * @param properties the properties
    * @param ldapTemplate the ldap template
@@ -56,6 +58,8 @@ public abstract class SamAccountRepository extends AdRepository {
       DomainControllerProperties properties,
       LdaptiveTemplate ldapTemplate) {
     super(properties, ldapTemplate);
+    this.emailPattern = getProperties().getEmailRegexFlags()
+        .compile(properties.getEmailRegex());
   }
 
   protected abstract Dn getDefaultOu();
@@ -139,6 +143,18 @@ public abstract class SamAccountRepository extends AdRepository {
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
         .build();
+  }
+
+  protected void validateEmail(String email) {
+    Optional.ofNullable(email)
+        .filter(mail -> !isEmpty(mail))
+        .ifPresent(mail -> {
+          if (!emailPattern.matcher(mail).matches()) {
+            throw ServiceException.badRequest(
+                String.format("Invalid email address: '%s'.", email),
+                EC_EMAIL_INVALID);
+          }
+        });
   }
 
   protected void validateSamAccountName(SamAccount samAccount) {

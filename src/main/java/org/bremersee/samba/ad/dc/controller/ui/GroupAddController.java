@@ -176,6 +176,11 @@ public class GroupAddController extends UiController implements PageableComponen
             "Unix GID number already exists.");
         break;
       }
+      case EC_EMAIL_INVALID: {
+        bindingResult.rejectValue("email", "code",
+            "Email is invalid.");
+        break;
+      }
       case EC_EMPTY_OU_RDN: {
         bindingResult.rejectValue("newOu", "code",
             "Organizational unit is empty.");

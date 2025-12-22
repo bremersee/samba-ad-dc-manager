@@ -21,7 +21,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
@@ -73,8 +72,6 @@ public class UserAddController extends UiController
   @Getter
   private final TemplateEngine templateEngine;
 
-  private final Pattern emailPattern;
-
   public UserAddController(
       DomainControllerProperties domainControllerProperties,
       LocaleResolver localeResolver,
@@ -87,7 +84,6 @@ public class UserAddController extends UiController
     this.domainUserService = domainUserService;
     this.organizationalUnitService = organizationalUnitService;
     this.templateEngine = templateEngine;
-    this.emailPattern = Pattern.compile(domainControllerProperties.getEmailRegex());
   }
 
   @ModelAttribute("passwordPattern")
@@ -127,11 +123,6 @@ public class UserAddController extends UiController
 
     processTemplates(bindingResult, addModel);
 
-    if (!isEmpty(addModel.getEmail())
-        && !emailPattern.matcher(addModel.getEmail()).matches()) {
-      bindingResult.rejectValue("email", "code",
-          "Email is invalid.");
-    }
     if (addModel.isSendEmail() && isEmpty(addModel.getEmail())) {
       bindingResult.rejectValue("email", "code",
           "If you want to send an invitation email, you have to enter an email address.");
@@ -231,6 +222,11 @@ public class UserAddController extends UiController
             "User's unix uid number already exists.");
         break;
       }
+      case EC_EMAIL_INVALID: {
+        bindingResult.rejectValue("email", "code",
+            "Email is invalid.");
+        break;
+      }
       case EC_PASSWORD_RESTRICTIONS: {
         bindingResult.rejectValue("password", "code",
             "Password restrictions are not met.");
@@ -283,6 +279,9 @@ public class UserAddController extends UiController
 
     value = processTemplatedField(bindingResult, "email", addRequest.getEmail(), map);
     addRequest.setEmail(value);
+
+    value = processTemplatedField(bindingResult, "userPrincipalName", addRequest.getEmail(), map);
+    addRequest.setUserPrincipalName(value);
 
     value = processTemplatedField(bindingResult, "gecos", addRequest.getGecos(), map);
     addRequest.setGecos(value);
@@ -337,6 +336,10 @@ public class UserAddController extends UiController
     if (!isEmpty(addRequest.getEmail())
         && addRequest.getEmail().toLowerCase().contains(username)) {
       addRequest.setEmail(properties.getDefaultEmail());
+    }
+    if (!isEmpty(addRequest.getUserPrincipalName())
+        && addRequest.getUserPrincipalName().toLowerCase().contains(username)) {
+      addRequest.setUserPrincipalName(properties.getDefaultUserPrincipalName());
     }
     if (!isEmpty(addRequest.getHomeDirectory())
         && addRequest.getHomeDirectory().toLowerCase().contains(username)) {

@@ -286,6 +286,11 @@ public class UserEditController extends UiController implements PageableComponen
             "Username contains illegal characters.");
         break;
       }
+      case EC_EMAIL_INVALID: {
+        bindingResult.rejectValue("email", "code",
+            "Email is invalid.");
+        break;
+      }
       case EC_ILLEGAL_FIRST_NAME: {
         bindingResult.rejectValue("firstName", "code",
             "First name contains illegal characters.");

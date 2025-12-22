@@ -74,7 +74,7 @@ public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
       noExpiryCommands.add(quote(domainUser.getSamAccountName()));
       noExpiryCommands.add("--noexpiry");
       // If it fails, it will be set by the ldap mapper.
-      execute(commands, response -> log.debug("{}", response.toOneLine()));
+      execute(noExpiryCommands, response -> log.debug("{}", response.toOneLine()));
     }
   }
 

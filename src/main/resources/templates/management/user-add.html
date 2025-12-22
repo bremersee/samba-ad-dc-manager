@@ -147,6 +147,16 @@
       </div>
 
       <div class="mb-3">
+        <label for="userPrincipalName" class="form-label">Principal name</label>
+        <input type="text" class="form-control" id="userPrincipalName" name="userPrincipalName"
+               aria-describedby="userPrincipalNameValidation" th:field="*{userPrincipalName}"
+               th:classappend="${#fields.hasErrors('userPrincipalName')} ? 'is-invalid' : ''"/>
+        <div id="userPrincipalNameValidation" class="invalid-feedback"
+             th:text="${#fields.hasErrors('userPrincipalName')} ? ${#fields.errors('userPrincipalName')[0]} : ''">
+        </div>
+      </div>
+
+      <div class="mb-3">
         <label for="firstName" class="form-label">First Name</label>
         <input type="text" class="form-control" id="firstName" name="firstName"
                aria-describedby="firstNameValidation" th:field="*{firstName}"

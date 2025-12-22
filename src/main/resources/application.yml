@@ -81,7 +81,7 @@ logging:
     ROOT: info
     com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
-    org.bremersee.dccon: debug
+    org.bremersee: debug
     org.springframework.cloud.configclient: warn
 
 ---

@@ -44,8 +44,6 @@ public class UserEditModel extends UserModel implements Serializable {
 
   private boolean renameNamesAutomatically = true;
 
-  private String userPrincipalName;
-
   private Integer primaryGroupId;
 
   /**

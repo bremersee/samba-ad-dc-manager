@@ -20,13 +20,14 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.ldaptive.SearchScope;
+import org.bremersee.spring.core.regex.RegexFlags;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,8 @@ public class DomainControllerProperties implements Serializable {
   /**
    * Email regex from <a href="https://emailregex.com/">emailregex.com</a> (RFC 5322 Official
    * Standard).
+   *
+   * <p>RFC 6530 is not supported.
    */
   public static final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+"
       + "(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
@@ -64,6 +67,9 @@ public class DomainControllerProperties implements Serializable {
   public static final int MIN_QUERY_LENGTH = 3; // TODO add to repos and javascript
 
   private String emailRegex = EMAIL_REGEX;
+
+  @NestedConfigurationProperty
+  private RegexFlags emailRegexFlags = new RegexFlags();
 
   private String hostName;
 
@@ -94,14 +100,6 @@ public class DomainControllerProperties implements Serializable {
   private String companyUrl = "http://example.org"; // mail with credentials
 
 
-  private int maximumPasswordLength = 75;
-
-  private String simplePasswordRegexTemplate = "^(?=.{%d,%d}$).*";
-
-  private String complexPasswordRegexTemplate = "(?=^.{%d,%d}$)"
-      + "((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])"
-      + "|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*";
-
   // private String ip4Regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
 
   // private String macRegex = "^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$";
@@ -109,6 +107,12 @@ public class DomainControllerProperties implements Serializable {
 
   private MailWithCredentialsProperties mailWithCredentials = new MailWithCredentialsProperties();
 
+  public RegexFlags getEmailRegexFlags() {
+    if (Objects.equals(getEmailRegex(), EMAIL_REGEX) && !emailRegexFlags.isCaseInsensitive()) {
+      emailRegexFlags.setCaseInsensitive(true);
+    }
+    return emailRegexFlags;
+  }
 
   @Data
   public static class DomainProperties implements Serializable {
@@ -116,13 +120,21 @@ public class DomainControllerProperties implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public static final String DEFAULT_DOMAIN_CONTROLLERS_OU = "OU=Domain Controllers";
+    // public static final String DEFAULT_DOMAIN_CONTROLLERS_OU = "OU=Domain Controllers";
 
-    public static final String DEFAULT_SYSTEM_OU = "CN=System";
+    // public static final String DEFAULT_SYSTEM_OU = "CN=System";
 
-    private String defaultSystemOu = DEFAULT_SYSTEM_OU;
+    // private String defaultSystemOu = DEFAULT_SYSTEM_OU;
 
-    private SearchScope defaultComputerSearchScope = SearchScope.ONELEVEL;
+    // private SearchScope defaultComputerSearchScope = SearchScope.ONELEVEL;
+
+    private int maximumPasswordLength = 75;
+
+    private String simplePasswordRegexTemplate = "^(?=.{%d,%d}$).*";
+
+    private String complexPasswordRegexTemplate = "(?=^.{%d,%d}$)"
+        + "((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])"
+        + "|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*";
 
     private String defaultNisDomain;
   }

@@ -253,10 +253,16 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
   @Override
   public DomainUser add(DomainUser domainUser, Dn ou, Boolean useUsernameAsCn) {
+
     log.debug("add({}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn);
+
     validateSamAccountName(domainUser);
-    String defaultPrincipalName = domainUser.getSamAccountName()
-        + '@' + domainRepository.getDomainInfo(domainRepository.getHostName());
+    validateEmail(domainUser.getEmail());
+
+    String defaultPrincipalName = Optional.ofNullable(domainUser.getUserPrincipalName())
+        .filter(name -> !isEmpty(name))
+        .orElseGet(() -> domainUser.getSamAccountName()
+            + '@' + domainRepository.getDomainInfo().getDomain());
     if (samAccountExists(domainUser) || existsByPrincipalName(defaultPrincipalName)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
@@ -298,8 +304,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
   @Override
   public DomainUser update(String userName, DomainUser domainUser, Dn newOu) {
+
     log.debug("update({}, {}, {})", userName, domainUser.getSamAccountName(), newOu);
+
     validateSamAccountName(domainUser);
+    validateEmail(domainUser.getEmail());
+
     if (!userName.equalsIgnoreCase(domainUser.getSamAccountName())
         && samAccountNameExists(domainUser.getSamAccountName())) {
       throw ServiceException.alreadyExistsWithErrorCode(

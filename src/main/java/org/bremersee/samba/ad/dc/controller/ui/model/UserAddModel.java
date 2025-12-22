@@ -75,6 +75,7 @@ public class UserAddModel extends UserModel implements Serializable {
     setCompany(properties.getDefaultCompany());
     setDisplayName(properties.getDefaultDisplayName());
     setEmail(properties.getDefaultEmail());
+    setUserPrincipalName(properties.getDefaultUserPrincipalName());
     setHomeDirectory(properties.getDefaultHomeDirectory());
     setHomeDrive(properties.getDefaultHomeDrive());
     setPreferredLanguage(properties.getDefaultLanguage());

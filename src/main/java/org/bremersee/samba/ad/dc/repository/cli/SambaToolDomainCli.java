@@ -44,11 +44,11 @@ public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain 
         commands,
         PasswordInformationParser.defaultParser());
     int minLength = raw.getMinimumPasswordLength();
-    int maxLength = Math.max(getProperties().getMaximumPasswordLength(), minLength);
+    int maxLength = Math.max(getProperties().getDomain().getMaximumPasswordLength(), minLength);
     return PasswordInformation.builder().from(raw)
         .maximumPasswordLength(maxLength)
-        .simplePasswordRegexTemplate(getProperties().getSimplePasswordRegexTemplate())
-        .complexPasswordRegexTemplate(getProperties().getComplexPasswordRegexTemplate())
+        .simplePasswordRegexTemplate(getProperties().getDomain().getSimplePasswordRegexTemplate())
+        .complexPasswordRegexTemplate(getProperties().getDomain().getComplexPasswordRegexTemplate())
         .build();
   }
 

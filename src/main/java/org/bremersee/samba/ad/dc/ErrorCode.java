@@ -51,6 +51,8 @@ public interface ErrorCode {
 
   String EC_DN_ALREADY_EXISTS = EC_PREFIX + "4e04709a-db4f-40bc-a193-11c75a4077ac";
 
+  String EC_EMAIL_INVALID = EC_PREFIX + "fad49270-8c66-4bff-b261-454e032e46a8";
+
   String EC_PASSWORD_RESTRICTIONS = "check_password_restrictions";
 
   String EC_SAVING_PASSWORD_FAILED = EC_PREFIX + "3b5b0cae-d223-4077-944b-e978d415e7e2";
@@ -62,8 +64,6 @@ public interface ErrorCode {
   String EC_SAM_ACCOUNT_ALREADY_EXISTS = EC_PREFIX + "7bca7443-19f3-4d44-9607-118b10882b92";
 
   String EC_SAM_ACCOUNT_NOT_FOUND = EC_PREFIX + "f5aa86e6-7430-4f8f-a4cc-a27cdd77a8e7";
-
-  String EC_MAX_MOCK_DATA = EC_PREFIX + "fad49270-8c66-4bff-b261-454e032e46a8";
 
   String EC_UID_ALREADY_EXISTS = EC_PREFIX + "a75519c6-9f25-4a9f-8be6-6c144f169e57";
 
