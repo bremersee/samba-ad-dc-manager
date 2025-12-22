@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.RDn;
 import org.springframework.lang.NonNull;
@@ -22,7 +23,7 @@ import org.springframework.lang.Nullable;
 
 @Schema(description = "The organizational unit in an active directory.")
 @Value.Style(
-    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
@@ -84,15 +85,8 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
    *
    * @return the builder
    */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableOrganizationalUnit.Builder {
-
+  static ImmutableOrganizationalUnit.Builder builder() {
+    return ImmutableOrganizationalUnit.builder();
   }
 
 }

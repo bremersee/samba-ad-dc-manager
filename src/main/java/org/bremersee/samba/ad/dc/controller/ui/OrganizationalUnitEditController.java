@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.OrganizationalUnitEditModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitEditModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -45,7 +46,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type OrganizationalUnitAddController.
+ * The organizational unit edit controller.
  *
  * @author Christian Bremer
  */
@@ -95,8 +96,9 @@ public class OrganizationalUnitEditController extends UiController
         .flatMap(organizationalUnitService::getOrganizationalUnit)
         .map(ou -> {
           model.addAttribute("organizationalUnit", ou);
-          OrganizationalUnitEditModel ouEditRequest = new OrganizationalUnitEditModel(ou);
-          model.put("ouEditRequest", ouEditRequest);
+          OrganizationalUnitEditModel editModel = OrganizationalUnitEditModelMapper.INSTANCE
+              .map(ou);
+          model.put("ouEditRequest", editModel);
           return "management/organizational-unit-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
@@ -106,25 +108,25 @@ public class OrganizationalUnitEditController extends UiController
 
   @PostMapping(path = "/management/organizational-unit-edit")
   public String updateOrganizationalUnit(
-      @ModelAttribute(name = "ouEditRequest") OrganizationalUnitEditModel ouEditRequest,
+      @ModelAttribute(name = "ouEditRequest") OrganizationalUnitEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    getLogger().debug("editOrganizationalUnit({})", ouEditRequest);
+    getLogger().debug("editOrganizationalUnit({})", editModel);
 
-    String name = Optional.ofNullable(ouEditRequest.getOu())
+    String name = Optional.ofNullable(editModel.getOu())
         .map(Dn::new)
         .map(Dn::getRDn)
         .map(RDn::getNameValue)
         .map(NameValue::getStringValue)
         .orElse("null");
 
-    return Optional.ofNullable(ouEditRequest.getOu())
+    return Optional.ofNullable(editModel.getOu())
         .map(Dn::new)
         .flatMap(organizationalUnitService::getOrganizationalUnit)
         .map(ou -> updateOrganizationalUnit(
-            ou, ouEditRequest, model, bindingResult, redirectAttributes))
+            ou, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes, "Organizational Unit", "todo", name,
             PAGE_AND_OU_PARAMS, "organizational-units"));
@@ -132,15 +134,15 @@ public class OrganizationalUnitEditController extends UiController
 
   private String updateOrganizationalUnit(
       OrganizationalUnit ou,
-      OrganizationalUnitEditModel ouEditRequest,
+      OrganizationalUnitEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    ouEditRequest.update(ou);
+    OrganizationalUnit newOu = OrganizationalUnitEditModelMapper.INSTANCE.merge(editModel, ou);
     OrganizationalUnit updatedOu;
     try {
-      updatedOu = organizationalUnitService.update(ou, ouEditRequest.getParentOuDn());
+      updatedOu = organizationalUnitService.update(newOu, editModel.getParentOuDn());
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);
@@ -190,9 +192,9 @@ public class OrganizationalUnitEditController extends UiController
       }
       case EC_ILLEGAL_SYSTEM_ENTITY_OPERATION: {
         bindingResult.rejectValue("name", "code",
-            "Organizational unit is a critical system object. Moving and renaming is permitted.");
+            "Organizational unit is a critical system object. Moving and renaming is not permitted.");
         bindingResult.rejectValue("parentOu", "code",
-            "Organizational unit is a critical system object. Moving and renaming is permitted.");
+            "Organizational unit is a critical system object. Moving and renaming is not permitted.");
         break;
       }
       default: {

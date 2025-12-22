@@ -90,7 +90,7 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
     if (isEmpty(source)) {
       return null;
     }
-    OrganizationalUnit.Builder builder = OrganizationalUnit.builder()
+    var builder = OrganizationalUnit.builder()
         .from(adEntryLdapMapper.map(source));
     AdConstants.DESCRIPTION
         .getValue(source)

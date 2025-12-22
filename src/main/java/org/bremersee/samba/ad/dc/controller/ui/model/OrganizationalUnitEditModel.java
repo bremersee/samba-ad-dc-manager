@@ -22,7 +22,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.dn.Dn;
 
 /**
@@ -45,27 +44,11 @@ public class OrganizationalUnitEditModel implements Serializable {
 
   private String description;
 
-  public OrganizationalUnitEditModel(OrganizationalUnit ou) {
-    this.ou = ou.getDistinguishedName();
-    this.parentOu = ou.getDn().getParent().format();
-    this.name = ou.getName();
-    this.description = ou.getDescription();
-  }
-
   public Dn getParentOuDn() {
     if (isEmpty(parentOu)) {
       return null;
     }
     return new Dn(parentOu);
-  }
-
-  public void update(OrganizationalUnit ou) {
-    if (isEmpty(ou)) {
-      return;
-    }
-    // TODO immutable
-    //ou.setName(getName());
-    //ou.setDescription(getDescription());
   }
 
 }
