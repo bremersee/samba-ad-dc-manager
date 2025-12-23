@@ -33,15 +33,34 @@ public interface DomainGroupMember extends SamAccount {
   @JsonProperty(value = "displayName", required = true)
   String getDisplayName();
 
-  @Schema(description = "The display name of the member.", defaultValue = "false")
-  @JsonProperty(value = "selected", defaultValue = "false")
+  @Schema(description = "Determines whether this sam account is a member of the requested group "
+      + "or not.", defaultValue = "false")
+  @JsonProperty(value = "member", defaultValue = "false")
   @Value.Default
-  default boolean isSelected() {
+  default boolean isMember() {
     return false;
   }
 
-  default boolean isPrimary() {
+  @Schema(description = "Determines whether the requested group is the primary group if this sam "
+      + "account or not.", defaultValue = "false")
+  @JsonProperty(value = "primaryMember", defaultValue = "false")
+  @Value.Default
+  default boolean isPrimaryMember() {
     return false;
+  }
+
+  default DomainGroupMember withMember(boolean isMember) {
+    return builder()
+        .from(this)
+        .member(isMember)
+        .build();
+  }
+
+  default DomainGroupMember withPrimaryMember(boolean isPrimaryMember) {
+    return builder()
+        .from(this)
+        .primaryMember(isPrimaryMember)
+        .build();
   }
 
   @Override

@@ -120,6 +120,7 @@ public class GroupEditMembersController extends UiController implements Pageable
       @RequestParam(name = "member-" + SIZE, defaultValue = "10") int size,
       @RequestParam(name = "member-" + SORT, defaultValue = "displayName") SortOrder sort,
       @RequestParam(name = "member-" + QUERY, defaultValue = "") String query,
+      @RequestParam(name = "member-primary", defaultValue = "true") boolean withPrimaryMembers,
       @RequestParam(name = "member-type-computer", defaultValue = "true") boolean typeComputer,
       @RequestParam(name = "member-type-group", defaultValue = "true") boolean typeGroup,
       @RequestParam(name = "member-type-user", defaultValue = "true") boolean typeUser,
@@ -135,6 +136,7 @@ public class GroupEditMembersController extends UiController implements Pageable
           model.addAttribute("memberPageSize", size);
           model.addAttribute("memberSort", sortMapper.getSortOrderText(sort, ""));
           model.addAttribute("memberQuery", query);
+          model.addAttribute("withPrimaryMembers", withPrimaryMembers);
           Set<DomainGroupMemberType> memberTypes = getMemberTypes(
               typeComputer, typeGroup, typeUser);
           model.addAttribute("memberTypeComputer",
@@ -145,8 +147,13 @@ public class GroupEditMembersController extends UiController implements Pageable
               memberTypes.contains(DomainGroupMemberType.USER));
           Pageable pageable = PageRequest.of(page, size, sortMapper.toSort(sort));
           Page<DomainGroupMember> memberPage = domainGroupService.getMemberSelection(
-              pageable, query, memberTypes, true, group.getSamAccountName(), ou, searchScope);
-          getLogger().info("Members found: {}", memberPage.getContent());
+              pageable,
+              query,
+              memberTypes,
+              withPrimaryMembers,
+              group.getSamAccountName(),
+              ou,
+              searchScope);
           model.addAttribute("memberPage", memberPage);
           return "management/group-edit-members";
         })

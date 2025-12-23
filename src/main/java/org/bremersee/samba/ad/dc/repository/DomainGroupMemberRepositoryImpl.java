@@ -35,6 +35,7 @@ import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
@@ -119,6 +120,30 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     return Stream.concat(primaryGroup.stream(), groups);
   }
 
+  Optional<SamAccount> findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
+    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
+    SearchRequest searchRequest;
+    if (getDnTool().isValidDnWithBaseDn(samAccountName)) {
+      searchRequest = SearchRequest.objectScopeSearchRequest(samAccountName, returnAttributes);
+    } else {
+      Dn ouDn;
+      SearchScope scope;
+      if (!DnTool.isValidDn(ou)) {
+        ouDn = getDnTool().getBaseDn();
+        scope = SearchScope.SUBTREE;
+      } else {
+        ouDn = getDnTool().addBaseDn(ou);
+        scope = requireNonNullElse(TreeSearchScopeConverter
+            .toSearchScope(searchScope), SearchScope.SUBTREE);
+      }
+      Filter filter = new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName);
+      searchRequest = searchOneRequest(samAccountName, ouDn, filter, scope, returnAttributes);
+    }
+    return getLdapTemplate().findOne(searchRequest)
+        .filter(getIgnoredEntryFilter(ou, TreeSearchScopeConverter.toSearchScope(searchScope)))
+        .map(domainGroupMemberLdapMapper::map);
+  }
+
   private boolean equals(SamAccount samAccount1, SamAccount samAccount2) {
     boolean result = Objects.equals(samAccount1, samAccount2);
     if (result) {
@@ -163,9 +188,6 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
             resolveMemberships(nextGroup.getMemberships(), groupDns)));
   }
 
-
-
-
   @Override
   public Stream<DomainGroupMember> getMemberSelection(
       String groupName,
@@ -187,19 +209,14 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         : Set.copyOf(memberTypes);
     return Stream
         .concat(
-            findMembers(memberDns, query),
-            findPossibleMembers(memberDns, group.getPrimaryGroupId(), query))
+            findDirectMembers(memberDns, query),
+            findOtherMembers(memberDns, group.getPrimaryGroupId(), withPrimaryMembers, query))
         .filter(member -> types.contains(member.getMemberType()));
   }
 
+  Stream<DomainGroupMember> findDirectMembers(Set<String> memberDnSet, String query) {
 
-
-
-
-
-  Stream<DomainGroupMember> findMembers(Set<String> memberDnSet, String query) {
-
-    log.debug("findMembers({}, {})", memberDnSet, query);
+    log.debug("findDirectMembers({}, {})", memberDnSet, query);
     String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
     return memberDnSet.stream()
         .flatMap(dn -> getLdapTemplate()
@@ -207,11 +224,9 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
             .stream())
         .map(ldapEntry -> DomainGroupMember.builder()
             .from(domainGroupMemberLdapMapper.map(ldapEntry))
-            .selected(true)
+            .member(true)
+            .primaryMember(false)
             .build())
-        .peek(member -> {
-          log.debug("Found member: {}", member);
-        })
         .filter(member -> query(member, query));
   }
 
@@ -227,11 +242,12 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         || displayName.toLowerCase().contains(lowerQuery);
   }
 
-  Stream<DomainGroupMember> findPossibleMembers(
+  Stream<DomainGroupMember> findOtherMembers(
       Set<String> excludedDns,
       Integer groupId,
+      boolean withPrimaryMembers,
       String query) {
-    log.debug("findPossibleMembers({})", excludedDns);
+    log.debug("findOtherMembers({}, {}, {}, {})", excludedDns, groupId, withPrimaryMembers, query);
     String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
     Filter findAllMembersFilter;
     Filter objectClassFilter = new OrFilter(
@@ -257,36 +273,14 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         .stream()
         .filter(getIgnoredEntryFilter())
         .filter(ldapEntry -> !excludedDns.contains(new Dn(ldapEntry.getDn()).format()))
-        .map(ldapEntry -> DomainGroupMember.builder()
-            .from(domainGroupMemberLdapMapper.map(ldapEntry))
-            .selected(false)
-            .build())
-        .filter(member -> isEmpty(groupId)
-            || !groupId.equals(member.getPrimaryGroupId()));
+        .map(domainGroupMemberLdapMapper::map)
+        .map(member -> member.withMember(isMember(member, groupId)))
+        .map(member -> member.withPrimaryMember(isMember(member, groupId)))
+        .filter(member -> withPrimaryMembers || !member.isPrimaryMember());
   }
 
-  Optional<SamAccount> findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
-    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
-    SearchRequest searchRequest;
-    if (getDnTool().isValidDnWithBaseDn(samAccountName)) {
-      searchRequest = SearchRequest.objectScopeSearchRequest(samAccountName, returnAttributes);
-    } else {
-      Dn ouDn;
-      SearchScope scope;
-      if (!DnTool.isValidDn(ou)) {
-        ouDn = getDnTool().getBaseDn();
-        scope = SearchScope.SUBTREE;
-      } else {
-        ouDn = getDnTool().addBaseDn(ou);
-        scope = requireNonNullElse(TreeSearchScopeConverter
-            .toSearchScope(searchScope), SearchScope.SUBTREE);
-      }
-      Filter filter = new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName);
-      searchRequest = searchOneRequest(samAccountName, ouDn, filter, scope, returnAttributes);
-    }
-    return getLdapTemplate().findOne(searchRequest)
-        .filter(getIgnoredEntryFilter(ou, TreeSearchScopeConverter.toSearchScope(searchScope)))
-        .map(domainGroupMemberLdapMapper::map);
+  boolean isMember(DomainGroupMember member, Integer groupId) {
+    return !isEmpty(groupId) && groupId.equals(member.getPrimaryGroupId());
   }
 
   @Override
@@ -317,24 +311,27 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     Set<DnPair> members = group.getMembers().stream()
         .map(dn -> new DnPair(dn, new Dn(dn).format()))
         .collect(Collectors.toCollection(LinkedHashSet::new));
-    Set<DnPair> add = Stream.ofNullable(membersToAdd)
-        .flatMap(Collection::stream)
-        .filter(member -> !isEmpty(member))
-        .flatMap(member -> findDnOfSamAccountName(member).stream())
-        .map(dn -> new DnPair(dn, new Dn(dn).format()))
-        .collect(Collectors.toSet());
+    Set<DnPair> add = toDnPairs(group, membersToAdd);
     members.addAll(add);
-    Set<DnPair> remove = Stream.ofNullable(membersToRemove)
-        .flatMap(Collection::stream)
-        .filter(member -> !isEmpty(member))
-        .flatMap(member -> findDnOfSamAccountName(member).stream())
-        .map(dn -> new DnPair(dn, new Dn(dn).format()))
-        .collect(Collectors.toSet());
+    Set<DnPair> remove = toDnPairs(group, membersToRemove);
     members.removeAll(remove);
     return DomainGroup.builder()
         .from(group)
         .members(members.stream().map(DnPair::dn).toList())
         .build();
+  }
+
+  private Set<DnPair> toDnPairs(DomainGroup group, Set<String> samAccounts) {
+    return Stream.ofNullable(samAccounts)
+        .flatMap(Collection::stream)
+        .filter(member -> !isEmpty(member))
+        .flatMap(member -> findSamAccount(member, null, null).stream())
+        .filter(member -> !isEmpty(member))
+        .filter(member -> !Objects
+            .equals(member.getPrimaryGroupId(), group.getPrimaryGroupId()))
+        .map(AdEntry::getDistinguishedName)
+        .map(dn -> new DnPair(dn, new Dn(dn).format()))
+        .collect(Collectors.toSet());
   }
 
   private record DnPair(String dn, String formattedDn) {

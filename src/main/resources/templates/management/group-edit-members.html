@@ -121,7 +121,7 @@
                        th:value="${memberQuery}">
                 <span class="input-group-text" th:if="${not #strings.isEmpty(memberQuery)}">
                 <a id="searchInputReset" href="#" title="Reset search"
-                   th:href="@{group-edit-members(name=${group.samAccountName},page=${page},size=${size},sort=${sort},ou=${ou},scope=${scope},member-page=${memberPageNo},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser})}"
+                   th:href="@{group-edit-members(name=${group.samAccountName},page=${page},size=${size},sort=${sort},ou=${ou},scope=${scope},member-page=${memberPageNo},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser})}"
                    th:classappend="${#strings.isEmpty(memberQuery)} ? 'disabled' : ''"
                    th:disabled="${#strings.isEmpty(memberQuery)}"
                    th:aria-disabled="${#strings.isEmpty(memberQuery)}">
@@ -133,9 +133,19 @@
           </div>
         </div>
         <div class="col col-auto mt-sm-2 mt-md-0">
-          <div id="memberTypeSwitch" class="form-switch">
+          <div class="form-switch">
             <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="userSwitch" value="user" role="switch" checked>
+              <input class="form-check-input" type="checkbox" id="primarySwitch" value="primary" role="switch"
+                     th:checked="${withPrimaryMembers}">
+              <label class="form-check-label" for="primarySwitch">
+                <span class="text-light">
+                  <span class="fas fa-star" aria-hidden="true"></span>
+                </span>
+              </label>
+            </div>
+            <div class="form-check form-check-inline ms-4">
+              <input class="form-check-input" type="checkbox" id="userSwitch" value="user" role="switch"
+                     th:checked="${memberTypeUser}">
               <label class="form-check-label" for="userSwitch">
                 <span class="text-primary">
                   <span class="fas fa-user" aria-hidden="true"></span>
@@ -143,7 +153,8 @@
               </label>
             </div>
             <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="groupSwitch" value="group" role="switch" checked>
+              <input class="form-check-input" type="checkbox" id="groupSwitch" value="group" role="switch"
+                     th:checked="${memberTypeGroup}">
               <label class="form-check-label" for="groupSwitch">
                 <span class="text-success">
                   <span class="fas fa-user-group" aria-hidden="true"></span>
@@ -151,7 +162,8 @@
               </label>
             </div>
             <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="computerSwitch" value="computer" role="switch" checked>
+              <input class="form-check-input" type="checkbox" id="computerSwitch" value="computer" role="switch"
+                     th:checked="${memberTypeComputer}">
               <label class="form-check-label" for="computerSwitch">
                 <span class="text-warning">
                   <span class="fas fa-computer" aria-hidden="true"></span>
@@ -187,11 +199,14 @@
               <span class="fas fa-question-circle" aria-hidden="true"></span>
             </span>
             <span class="ms-1" th:text="${member.displayName}">Anna</span>
+            <span class="text-light" th:if="${member.primaryMember}">
+              <span class="fas fa-star" aria-hidden="true"></span>
+            </span>
           </div>
           <div class="form-switch h6">
             <input th:id="'member-' + ${iter.index}" id="member-0"
                    th:name="'member-' + ${iter.index}" name="member-0"
-                   th:checked="${member.selected}"
+                   th:checked="${member.member}" th:disabled="${member.primaryMember}"
                    type="checkbox" class="form-check-input" role="switch" />
           </div>
         </div>
@@ -203,27 +218,27 @@
       <ul class="pagination justify-content-center">
         <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 3)}">
           <a class="page-link" href="#" aria-label="First"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=0,member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=0,member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 5)}">
           <a class="page-link" href="#" aria-label="Previous"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 5},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 5},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&mldr;</span>
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 2)}">
           <a class="page-link" href="#" th:text="${memberPage.number - 1}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 2},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 2},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             1
           </a>
         </li>
         <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 1)}">
           <a class="page-link" href="#" th:text="${memberPage.number}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 1},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 1},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             2
           </a>
         </li>
@@ -235,28 +250,28 @@
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 1)}">
           <a class="page-link" href="#" th:text="${memberPage.number + 2}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 1},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 1},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             4
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 2)}">
           <a class="page-link" href="#" th:text="${memberPage.number + 3}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 2},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 2},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             5
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 5)}">
           <a class="page-link" href="#" aria-label="Next"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 5},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 5},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&mldr;</span>
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 3)}">
           <a class="page-link" href="#" aria-label="Last"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${@paginationHelper.getTotalPages(memberPage) - 1},member-size=${memberPageSize},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${@paginationHelper.getTotalPages(memberPage) - 1},member-size=${memberPageSize},member-primary=${withPrimaryMembers},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&raquo;</span>
           </a>
         </li>
@@ -277,9 +292,13 @@
   $(document).ready(function () {
     const currentPage = /*[[${currentPage}]]*/ "group-edit-members";
     const name = /*[[${group.samAccountName}]]*/ "";
-    const memberPageNo = /*[[${memberPageNo}]]*/ "";
     const memberPageSize = /*[[${memberPageSize}]]*/ "";
     const memberSort = /*[[${memberSort}]]*/ "";
+    const memberQuery = /*[[${memberQuery}]]*/ "";
+    const withPrimaryMembers = /*[[${withPrimaryMembers}]]*/ true;
+    const memberTypeComputer = /*[[${memberTypeComputer}]]*/ true;
+    const memberTypeGroup = /*[[${memberTypeGroup}]]*/ true;
+    const memberTypeUser = /*[[${memberTypeUser}]]*/ true;
     const page = /*[[${page}]]*/ "";
     const size = /*[[${size}]]*/ "";
     const sort = /*[[${sort}]]*/ "";
@@ -295,21 +314,29 @@
       loadingSpinnerModal.hide();
     });
 
+    function redirect(memberQ, primary, computer, group, user) {
+      globalThis.location.href = currentPage
+          + "?name=" + encodeURIComponent(name)
+          + "&member-page=0"
+          + "&member-size=" + memberPageSize
+          + "&member-sort=" + encodeURIComponent(memberSort)
+          + "&member-q=" + encodeURIComponent(memberQ)
+          + "&member-primary=" + primary
+          + "&member-type-computer=" + computer
+          + "&member-type-group=" + group
+          + "&member-type-user=" + user
+          + "&page=" + page
+          + "&size=" + size
+          + "&sort=" + encodeURIComponent(sort)
+          + "&q=" + encodeURIComponent(q)
+          + "&ou=" + encodeURIComponent(ou)
+          + "&scope=" + scope;
+    }
+
     const searchInput = $('#q');
     searchInput.typeWatch({
       callback: function (value) {
-        globalThis.location.href = currentPage
-            + "?name=" + encodeURIComponent(name)
-            + "&member-page=" + memberPageNo
-            + "&member-size=" + memberPageSize
-            + "&member-sort=" + encodeURIComponent(memberSort)
-            + "&member-q=" + encodeURIComponent(value)
-            + "&page=" + page
-            + "&size=" + size
-            + "&sort=" + encodeURIComponent(sort)
-            + "&q=" + encodeURIComponent(q)
-            + "&ou=" + encodeURIComponent(ou)
-            + "&scope=" + scope;
+        redirect(value, withPrimaryMembers, memberTypeComputer, memberTypeGroup, memberTypeUser);
       },
       wait: 750,
       highlight: true,
@@ -318,14 +345,21 @@
     });
     moveCursorToEnd(searchInput[0]);
 
-    $('#memberTypeSwitch :checkbox').on("change", function () {
-      const checkbox = $(this);
-      const value = checkbox.val();
-      if (checkbox.is(':checked')) {
-        $('#memberList .member-type-' + value).show();
-      } else {
-        $('#memberList .member-type-' + value).hide();
-      }
+    $('#primarySwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, isChecked, memberTypeComputer, memberTypeGroup, memberTypeUser);
+    });
+    $('#userSwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, withPrimaryMembers, memberTypeComputer, memberTypeGroup, isChecked);
+    });
+    $('#groupSwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, withPrimaryMembers, memberTypeComputer, isChecked, memberTypeUser);
+    });
+    $('#primarySwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, withPrimaryMembers, isChecked, memberTypeGroup, memberTypeUser);
     });
   });
   //]]>
