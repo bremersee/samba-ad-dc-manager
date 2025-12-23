@@ -42,6 +42,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * The type WebSecurityConfiguration.
@@ -59,7 +60,7 @@ public class WebSecurityConfiguration {
 
   private final OAuth2ResourceServerProperties resourceServerProperties;
 
-  //private final CorsConfigurationSource corsConfigurationSource;
+  private final CorsConfigurationSource corsConfigurationSource;
 
   private final Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter;
 
@@ -68,12 +69,12 @@ public class WebSecurityConfiguration {
   public WebSecurityConfiguration(
       Environment env,
       OAuth2ResourceServerProperties resourceServerProperties,
-      //CorsConfigurationSource corsConfigurationSource,
+      CorsConfigurationSource corsConfigurationSource,
       ObjectProvider<Converter<Jwt, AbstractAuthenticationToken>> jwtConverterProvider,
       ObjectProvider<LdaptiveRememberMeServices> rememberMeServices) {
     this.env = env;
     this.resourceServerProperties = resourceServerProperties;
-    //this.corsConfigurationSource = corsConfigurationSource;
+    this.corsConfigurationSource = corsConfigurationSource;
     this.jwtAuthenticationConverter = jwtConverterProvider
         .getIfAvailable(JwtAuthenticationConverter::new);
     this.rememberMeServices = rememberMeServices.getIfAvailable();
@@ -120,8 +121,8 @@ public class WebSecurityConfiguration {
                 EndpointRequest.toAnyEndpoint(),
                 new AntPathRequestMatcher("/api/**"))))
 
-//        .cors(customizer -> customizer
-//            .configurationSource(corsConfigurationSource))
+        .cors(customizer -> customizer
+            .configurationSource(corsConfigurationSource))
 
         .headers(configurer -> configurer
             .frameOptions(FrameOptionsConfig::sameOrigin))

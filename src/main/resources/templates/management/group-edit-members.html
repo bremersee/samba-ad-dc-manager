@@ -108,7 +108,6 @@
       </li>
     </ul>
 
-
     <div class="mb-3 p-3 border border-1">
       <div class="row justify-content-between">
         <div class="col col-auto">
@@ -180,7 +179,7 @@
       No members were found.
     </div>
 
-    <div class="list-group list-group-flush" th:if="${not #lists.isEmpty(memberPage.content)}">
+    <div id="members" class="list-group list-group-flush" th:if="${not #lists.isEmpty(memberPage.content)}">
       <div class="list-group-item list-group-item-action" aria-current="true"
            th:each="member,iter : ${memberPage.content}"
            th:classappend="'member-type-' + ${member.memberType}">
@@ -206,8 +205,9 @@
           <div class="form-switch h6">
             <input th:id="'member-' + ${iter.index}" id="member-0"
                    th:name="'member-' + ${iter.index}" name="member-0"
+                   th:value="${member.distinguishedName}"
                    th:checked="${member.member}" th:disabled="${member.primaryMember}"
-                   type="checkbox" class="form-check-input" role="switch" />
+                   type="checkbox" class="form-check-input" role="switch"/>
           </div>
         </div>
         <small class="text-secondary" th:text="${member.nameTree}">CN</small>
@@ -283,6 +283,7 @@
 <script type="text/javascript" th:inline="javascript">
   //<![CDATA[
   "use strict";
+
   function moveCursorToEnd(input) {
     const length = input.value.length;
     input.focus();
@@ -290,6 +291,8 @@
   }
 
   $(document).ready(function () {
+    const csrfParameterName = /*[[${_csrf.parameterName}]]*/ "_csrf";
+    const csrfToken = /*[[${_csrf.token}]]*/ "";
     const currentPage = /*[[${currentPage}]]*/ "group-edit-members";
     const name = /*[[${group.samAccountName}]]*/ "";
     const memberPageSize = /*[[${memberPageSize}]]*/ "";
@@ -310,7 +313,7 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
-    $( globalThis ).on('pageshow', function () {
+    $(globalThis).on('pageshow', function () {
       loadingSpinnerModal.hide();
     });
 
@@ -357,9 +360,21 @@
       const isChecked = $(this).is(':checked');
       redirect(memberQuery, withPrimaryMembers, memberTypeComputer, isChecked, memberTypeUser);
     });
-    $('#primarySwitch').on("change", function () {
+    $('#computerSwitch').on("change", function () {
       const isChecked = $(this).is(':checked');
       redirect(memberQuery, withPrimaryMembers, isChecked, memberTypeGroup, memberTypeUser);
+    });
+
+    $('#members :checkbox').on("change", function () {
+      const checkbox = $(this);
+      const addMember = checkbox.is(':checked');
+      const value = checkbox.val();
+      const url = currentPage
+          + "?name=" + encodeURIComponent(name)
+          + "&member=" + encodeURIComponent(value)
+          + "&add-member=" + addMember
+          + "&" + csrfParameterName + "=" + csrfToken;
+      $.post(url);
     });
   });
   //]]>

@@ -24,28 +24,23 @@ import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditMembersModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
-import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
-import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
-import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
@@ -60,8 +55,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class GroupEditMembersController extends UiController implements PageableComponent,
     CurrentPageNameProvider, OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
-  private final DomainService domainService;
-
   private final DomainGroupService domainGroupService;
 
   @Getter
@@ -72,12 +65,10 @@ public class GroupEditMembersController extends UiController implements Pageable
   public GroupEditMembersController(
       DomainControllerProperties domainControllerProperties,
       LocaleResolver localeResolver,
-      DomainService domainService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService,
       SortMapper sortMapper) {
     super(domainControllerProperties, localeResolver);
-    this.domainService = domainService;
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
     this.sortMapper = sortMapper;
@@ -93,22 +84,22 @@ public class GroupEditMembersController extends UiController implements Pageable
     return "group-edit-members";
   }
 
-  @ModelAttribute("rfc2307Enabled")
-  public boolean isRfc2307Enabled() {
-    return domainService.isRfc2307Enabled();
-  }
+  @PostMapping(path = "/management/group-edit-members")
+  public ResponseEntity<Void> modifyMember(
+      @RequestParam(value = "name") String groupName,
+      @RequestParam(value = "member") String member,
+      @RequestParam(value = "add-member") boolean add) {
 
-  /*
-  @ModelAttribute("possibleMembers")
-  public DomainGroupMembers addMemberSelectOptions(
-      @RequestParam(value = "name", required = false) String groupName,
-      @RequestParam(value = OU, required = false) Dn ou,
-      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope) {
-    return Optional.ofNullable(groupName)
-        .map(name -> domainGroupService.findPossibleMembers(groupName, ou, searchScope))
-        .orElseGet(DomainGroupMembers::empty);
+    getLogger().info("Modify group member: {} {} of group {}",
+        add ? "Adding" : "Removing", member, groupName);
+    Set<String> memberSet = Set.of(member);
+    if (add) {
+      domainGroupService.modifyMembers(groupName, null, null, memberSet, Set.of());
+    } else {
+      domainGroupService.modifyMembers(groupName, null, null, Set.of(), memberSet);
+    }
+    return ResponseEntity.ok().build();
   }
-  */
 
   @GetMapping(path = "/management/group-edit-members")
   public String displayGroupEditMembers(
@@ -183,42 +174,6 @@ public class GroupEditMembersController extends UiController implements Pageable
           DomainGroupMemberType.USER));
     }
     return memberTypes;
-  }
-
-  @PostMapping(path = "/management/group-edit-members")
-  public String updateGroupMembers(
-      @RequestParam(value = "name", required = false) String groupName,
-      @RequestParam(value = OU, required = false) Dn ou,
-      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
-      @ModelAttribute(name = "editRequest") GroupEditMembersModel editRequest,
-      ModelMap model,
-      RedirectAttributes redirectAttributes) {
-
-    getLogger().debug("updateGroupMembers({}, {})", groupName, editRequest);
-    return Optional.ofNullable(groupName)
-        .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
-        .map(existingGroup -> {
-          DomainGroup updatedGroup = domainGroupService.updateGroup(
-              existingGroup.getSamAccountName(),
-              DomainGroup.builder()
-                  .from(existingGroup)
-                  .members(editRequest.getMembers())
-                  .build(),
-              null);
-          model.clear();
-          String msg = String.format("Members of group '%s' were successfully updated.",
-              updatedGroup.getName());
-          RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-              "todo", updatedGroup.getName());
-          redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
-
-          String redirect = getRedirectUri("group-edit-members?name={{group.samAccountName}}",
-              PAGE_AND_OU_PARAMS, putToParameterMap(getParamterMap(), "group", updatedGroup));
-          logRedirectTo("Members of group successfully updated.", redirect);
-          return redirect;
-        })
-        .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
 }

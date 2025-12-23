@@ -6,7 +6,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
@@ -14,7 +13,6 @@ import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.SamAccount;
 import org.bremersee.samba.ad.dc.model.SamAccountIntermediate;
-import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
@@ -77,14 +75,15 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
     AdConstants.SAM_ACCOUNT_NAME
         .getValue(source)
         .ifPresent(builder::samAccountName);
-    Optional<Sid> sid = AdConstants.OBJECT_SID
-        .getValue(source);
-    sid.ifPresent(builder::sid);
+    AdConstants.OBJECT_SID
+        .getValue(source)
+        .ifPresent(builder::sid);
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT
         .getValue(source, false)
         .ifPresent(builder::criticalSystemObject);
     AdConstants.PRIMARY_GROUP_ID
-        .getValue(source, sid.map(Sid::getSuffix).orElse(null))
+        // no default, because groups have no primary .getValue(source, sid.map(Sid::getSuffix).orElse(null))
+        .getValue(source)
         .ifPresent(builder::primaryGroupId);
     builder.memberships(AdConstants.MEMBER_OF_GROUP
         .getValues(source)

@@ -48,9 +48,11 @@ import org.ldaptive.dn.Dn;
 import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.NotFilter;
 import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.SubstringFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain group member repository.
@@ -58,6 +60,7 @@ import org.springframework.stereotype.Component;
  * @author Christian Bremer
  */
 @Component("domainGroupMemberRepository")
+@Validated
 @Slf4j
 public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     implements DomainGroupMemberRepository {
@@ -112,8 +115,8 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     Stream<DomainGroup> groups = samAccount.getMemberships().stream()
         .flatMap(dn -> domainGroupRepository.findOne(dn, null, null).stream())
         .sorted();
-    Optional<DomainGroup> primaryGroup = domainGroupRepository
-        .findOneByPrimaryGroupId(samAccount.getPrimaryGroupId());
+    Optional<DomainGroup> primaryGroup = Optional.ofNullable(samAccount.getPrimaryGroupId())
+        .flatMap(domainGroupRepository::findOneByPrimaryGroupId);
     if (primaryGroup.isPresent() && equals(primaryGroup.get(), samAccount)) {
       return groups;
     }
@@ -207,54 +210,9 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     Set<DomainGroupMemberType> types = isEmpty(memberTypes)
         ? Set.of(DomainGroupMemberType.values())
         : Set.copyOf(memberTypes);
-    return Stream
-        .concat(
-            findDirectMembers(memberDns, query),
-            findOtherMembers(memberDns, group.getPrimaryGroupId(), withPrimaryMembers, query))
-        .filter(member -> types.contains(member.getMemberType()));
-  }
-
-  Stream<DomainGroupMember> findDirectMembers(Set<String> memberDnSet, String query) {
-
-    log.debug("findDirectMembers({}, {})", memberDnSet, query);
-    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
-    return memberDnSet.stream()
-        .flatMap(dn -> getLdapTemplate()
-            .findOne(SearchRequest.objectScopeSearchRequest(dn, returnAttributes))
-            .stream())
-        .map(ldapEntry -> DomainGroupMember.builder()
-            .from(domainGroupMemberLdapMapper.map(ldapEntry))
-            .member(true)
-            .primaryMember(false)
-            .build())
-        .filter(member -> query(member, query));
-  }
-
-  boolean query(DomainGroupMember member, String query) {
-    if (isEmpty(query) || query.length() <= 2) {
-      return true;
-    }
-    String lowerQuery = query.toLowerCase();
-    String samAccountName = Objects.requireNonNullElse(member.getSamAccountName(), "")
-        .toLowerCase();
-    String displayName = Objects.requireNonNullElse(member.getDisplayName(), "").toLowerCase();
-    return samAccountName.contains(lowerQuery)
-        || displayName.toLowerCase().contains(lowerQuery);
-  }
-
-  Stream<DomainGroupMember> findOtherMembers(
-      Set<String> excludedDns,
-      Integer groupId,
-      boolean withPrimaryMembers,
-      String query) {
-    log.debug("findOtherMembers({}, {}, {}, {})", excludedDns, groupId, withPrimaryMembers, query);
     String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
     Filter findAllMembersFilter;
-    Filter objectClassFilter = new OrFilter(
-        new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_GROUP),
-        new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_USER)
-        // computers are also users
-    );
+    Filter objectClassFilter = getObjectClassFilter(types);
     if (isEmpty(query) || query.length() <= 2) {
       findAllMembersFilter = objectClassFilter;
     } else {
@@ -272,14 +230,47 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     return getLdapTemplate().findAll(searchRequest)
         .stream()
         .filter(getIgnoredEntryFilter())
-        .filter(ldapEntry -> !excludedDns.contains(new Dn(ldapEntry.getDn()).format()))
         .map(domainGroupMemberLdapMapper::map)
-        .map(member -> member.withMember(isMember(member, groupId)))
-        .map(member -> member.withPrimaryMember(isMember(member, groupId)))
+        .filter(member -> !member.getSamAccountName().equals(group.getSamAccountName()))
+        .map(member -> member.withMember(isMember(member, memberDns, group.getPrimaryGroupId())))
+        .map(member -> member.withPrimaryMember(isPrimaryMember(member, group.getPrimaryGroupId())))
         .filter(member -> withPrimaryMembers || !member.isPrimaryMember());
   }
 
-  boolean isMember(DomainGroupMember member, Integer groupId) {
+  private Filter getObjectClassFilter(Set<DomainGroupMemberType> types) {
+    OrFilter orFilter = new OrFilter();
+    if (types.contains(DomainGroupMemberType.USER)
+        && types.contains(DomainGroupMemberType.COMPUTER)) {
+      orFilter.add(new EqualityFilter(
+          AdConstants.OBJECT_CLASS.getName(),
+          AdConstants.OBJECT_CLASS_USER));
+    } else if (types.contains(DomainGroupMemberType.COMPUTER)) {
+      orFilter.add(new EqualityFilter(
+          AdConstants.OBJECT_CLASS.getName(),
+          AdConstants.OBJECT_CLASS_COMPUTER));
+    } else if (types.contains(DomainGroupMemberType.USER)) {
+      Filter userFilter = new EqualityFilter(
+          AdConstants.OBJECT_CLASS.getName(),
+          AdConstants.OBJECT_CLASS_USER);
+      Filter computerFilter = new EqualityFilter(
+          AdConstants.OBJECT_CLASS.getName(),
+          AdConstants.OBJECT_CLASS_COMPUTER);
+      orFilter.add(new AndFilter(userFilter, new NotFilter(computerFilter)));
+    }
+    if (types.contains(DomainGroupMemberType.GROUP)) {
+      orFilter.add(new EqualityFilter(
+          AdConstants.OBJECT_CLASS.getName(),
+          AdConstants.OBJECT_CLASS_GROUP));
+    }
+    return orFilter;
+  }
+
+  boolean isMember(DomainGroupMember member, Set<String> memberDns, Integer groupId) {
+    return memberDns.contains(member.getDistinguishedNameNormalized())
+        || (!isEmpty(groupId) && groupId.equals(member.getPrimaryGroupId()));
+  }
+
+  boolean isPrimaryMember(DomainGroupMember member, Integer groupId) {
     return !isEmpty(groupId) && groupId.equals(member.getPrimaryGroupId());
   }
 

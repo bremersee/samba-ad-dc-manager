@@ -27,14 +27,12 @@ import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain group member repository interface.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DomainGroupMemberRepository {
 
   Stream<DomainGroup> resolveMemberships(

@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.service;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
@@ -100,8 +101,12 @@ public class DomainGroupServiceImpl implements DomainGroupService {
         .build();
   }
 
-
-
+  @Override
+  public DomainGroup modifyMembers(String groupName, Dn ou, TreeSearchScope searchScope,
+      Set<String> membersToAdd, Set<String> membersToRemove) {
+    return domainGroupMemberRepository
+        .modifyMembers(groupName, ou, searchScope, membersToAdd, membersToRemove);
+  }
 
 
   @Override

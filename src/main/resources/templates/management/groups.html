@@ -54,7 +54,7 @@
   <div class="row mb-4">
     <div class="col-1">
       <a class="btn btn-outline-secondary" href="index.html"
-         th:href="@{(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
+         th:href="@{index(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
         <span class="fa fa-backward"></span>
       </a>
     </div>
