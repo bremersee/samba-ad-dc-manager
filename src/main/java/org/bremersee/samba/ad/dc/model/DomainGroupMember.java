@@ -40,6 +40,10 @@ public interface DomainGroupMember extends SamAccount {
     return false;
   }
 
+  default boolean isPrimary() {
+    return false;
+  }
+
   @Override
   default int compareTo(@NonNull SamAccount o) {
     if (o instanceof DomainGroupMember other) {

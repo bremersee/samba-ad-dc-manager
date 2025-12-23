@@ -126,7 +126,7 @@
     </a>
   </div>
 
-  <nav aria-label="Page navigation example" th:if="${@paginationHelper.getTotalPages(computerPage) > 1}">
+  <nav aria-label="Page navigation" th:if="${@paginationHelper.getTotalPages(computerPage) > 1}">
     <ul class="pagination justify-content-center">
       <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(computerPage, computerPage.number - 3)}">
         <a class="page-link" href="#" aria-label="First"

@@ -19,8 +19,8 @@ package org.bremersee.samba.ad.dc.service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
@@ -54,36 +54,23 @@ public interface DomainGroupService {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
-  Stream<DomainGroup> resolveMemberships(
-      @NotEmpty String samAccountName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope);
-
   Stream<DomainGroup> getMemberships(
       @NotEmpty String samAccountName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
-  Page<DomainGroupMember> getPossibleMembers(
+  Stream<DomainGroup> resolveMemberships(
+      @NotEmpty String samAccountName,
+      @Nullable Dn ou,
+      @Nullable TreeSearchScope searchScope);
+
+  // getMemberChoice() ? get memberSelection() + bool includePrimaryGroupMembers
+
+  Page<DomainGroupMember> getMemberSelection(
       @NotNull Pageable pageable,
       @Nullable String query,
-      @Nullable Set<DomainGroupMemberType> memberTypes,
-      @NotEmpty String groupName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope);
-
-  DomainGroupMembers findPossibleMembers(
-      @NotEmpty String groupName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope);
-
-  DomainGroupMembers queryPossibleMembers(
-      @NotEmpty String groupName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope,
-      @Nullable String query);
-
-  DomainGroupMembers getMembers(
+      @Nullable Collection<DomainGroupMemberType> memberTypes,
+      boolean withPrimaryMembers,
       @NotEmpty String groupName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);

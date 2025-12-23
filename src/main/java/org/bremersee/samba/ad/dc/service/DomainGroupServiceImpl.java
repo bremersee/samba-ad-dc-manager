@@ -16,8 +16,8 @@
 
 package org.bremersee.samba.ad.dc.service;
 
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
@@ -25,7 +25,6 @@ import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
-import org.bremersee.samba.ad.dc.model.DomainGroupMembers;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.DomainGroupMemberRepository;
 import org.bremersee.samba.ad.dc.repository.DomainGroupRepository;
@@ -73,52 +72,36 @@ public class DomainGroupServiceImpl implements DomainGroupService {
   }
 
   @Override
-  public Stream<DomainGroup> resolveMemberships(String samAccountName, Dn ou,
-      TreeSearchScope searchScope) {
-    return domainGroupMemberRepository.resolveMemberships(samAccountName, ou, searchScope);
-  }
-
-  @Override
   public Stream<DomainGroup> getMemberships(String samAccountName, Dn ou,
       TreeSearchScope searchScope) {
     return domainGroupMemberRepository.getMemberships(samAccountName, ou, searchScope);
   }
 
   @Override
-  public Page<DomainGroupMember> getPossibleMembers(
+  public Stream<DomainGroup> resolveMemberships(String samAccountName, Dn ou,
+      TreeSearchScope searchScope) {
+    return domainGroupMemberRepository.resolveMemberships(samAccountName, ou, searchScope);
+  }
+
+  @Override
+  public Page<DomainGroupMember> getMemberSelection(
       Pageable pageable,
       String query,
-      Set<DomainGroupMemberType> memberTypes,
+      Collection<DomainGroupMemberType> memberTypes,
+      boolean withPrimaryMembers,
       String groupName,
       Dn ou,
       TreeSearchScope searchScope) {
 
     return new PageBuilder<DomainGroupMember, DomainGroupMember>()
         .sourceEntries(domainGroupMemberRepository
-            .getPossibleMembers(groupName, ou, searchScope, query, memberTypes))
+            .getMemberSelection(groupName, ou, searchScope, query, memberTypes, withPrimaryMembers))
         .pageable(sortMapper.applyDefaults(pageable, null, true, null))
         .build();
   }
 
-  @Override
-  public DomainGroupMembers findPossibleMembers(String groupName, Dn ou,
-      TreeSearchScope searchScope) {
-    return DomainGroupMembers.from(domainGroupMemberRepository
-        .findPossibleMembers(groupName, ou, searchScope));
-  }
 
-  @Override
-  public DomainGroupMembers queryPossibleMembers(String groupName, Dn ou,
-      TreeSearchScope searchScope, String query) {
-    return DomainGroupMembers.from(domainGroupMemberRepository
-        .queryPossibleMembers(groupName, ou, searchScope, query));
-  }
 
-  @Override
-  public DomainGroupMembers getMembers(String groupName, Dn ou, TreeSearchScope searchScope) {
-    return DomainGroupMembers.from(domainGroupMemberRepository
-        .getMembers(groupName, ou, searchScope));
-  }
 
 
   @Override

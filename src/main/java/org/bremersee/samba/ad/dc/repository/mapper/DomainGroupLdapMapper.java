@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
@@ -117,7 +118,7 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
         .ifPresent(builder::email);
     builder.members(AdConstants.GROUP_MEMBER
         .getValues(source)
-        .map(dn -> dn.format(rdn -> rdn))
+        .map(dn -> dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
         .toList());
     AdConstants.NIS_DOMAIN
         .getValue(source)

@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.repository;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
@@ -46,28 +47,13 @@ public interface DomainGroupMemberRepository {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
-  Stream<DomainGroupMember> getPossibleMembers(
+  Stream<DomainGroupMember> getMemberSelection(
       String groupName,
       Dn ou,
       TreeSearchScope searchScope,
       String query,
-      Set<DomainGroupMemberType> memberTypes);
-
-  Stream<DomainGroupMember> findPossibleMembers(
-      @NotEmpty String groupName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope);
-
-  Stream<DomainGroupMember> queryPossibleMembers(
-      @NotEmpty String groupName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope,
-      @Nullable String query);
-
-  Stream<DomainGroupMember> getMembers(
-      @NotEmpty String groupName,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope);
+      Collection<DomainGroupMemberType> memberTypes,
+      boolean withPrimaryMembers);
 
   @NotNull
   DomainGroup modifyMembers(

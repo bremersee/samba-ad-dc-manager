@@ -166,7 +166,7 @@
       </a>
     </div>
 
-    <nav aria-label="Page navigation example" th:if="${@paginationHelper.getTotalPages(dnsEntryPage) > 1}">
+    <nav aria-label="Page navigation" th:if="${@paginationHelper.getTotalPages(dnsEntryPage) > 1}">
       <ul class="pagination justify-content-center">
         <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(dnsEntryPage, dnsEntryPage.number - 3)}">
           <a class="page-link show-spinner" href="#" aria-label="First"

@@ -17,6 +17,7 @@
 package org.bremersee.samba.ad.dc.controller.ui.shared;
 
 import org.bremersee.pagebuilder.model.AbstractPageDto;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -37,7 +38,18 @@ public class PaginationHelper {
     return ceil(page.getTotalElements(), page.getSize());
   }
 
+  public int getTotalPages(Page<?> page) {
+    Assert.notNull(page, "Page must not be null.");
+    return ceil(page.getTotalElements(), page.getSize());
+  }
+
   public boolean isValidPageNumber(AbstractPageDto<?> page, int number) {
+    Assert.notNull(page, "Page must not be null.");
+    int totalPages = getTotalPages(page);
+    return 0 <= number && number < totalPages;
+  }
+
+  public boolean isValidPageNumber(Page<?> page, int number) {
     Assert.notNull(page, "Page must not be null.");
     int totalPages = getTotalPages(page);
     return 0 <= number && number < totalPages;

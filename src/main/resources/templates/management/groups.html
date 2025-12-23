@@ -132,7 +132,7 @@
     </a>
   </div>
 
-  <nav aria-label="Page navigation example" th:if="${@paginationHelper.getTotalPages(groups) > 1}">
+  <nav aria-label="Page navigation" th:if="${@paginationHelper.getTotalPages(groups) > 1}">
     <ul class="pagination justify-content-center">
       <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(groups, groups.number - 3)}">
         <a class="page-link" href="#" aria-label="First"
@@ -200,6 +200,12 @@
 <script type="text/javascript" th:inline="javascript">
   //<![CDATA[
   "use strict";
+  function moveCursorToEnd(input) {
+    const length = input.value.length;
+    input.focus();
+    input.setSelectionRange(length, length);
+  }
+
   $(document).ready(function () {
     const currentPage = /*[[${currentPage}]]*/ "groups";
     const size = /*[[${size}]]*/ "";
@@ -214,12 +220,6 @@
     $( globalThis ).on('pageshow', function () {
       loadingSpinnerModal.hide();
     });
-
-    function moveCursorToEnd(input) {
-      const length = input.value.length;
-      input.focus();
-      input.setSelectionRange(length, length);
-    }
 
     const searchInput = $('#q');
     searchInput.typeWatch({

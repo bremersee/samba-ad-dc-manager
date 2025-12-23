@@ -101,7 +101,7 @@ public class GroupEditController extends UiController implements PageableCompone
           model.addAttribute(GROUP, group);
           GroupEditModel editModel = GroupEditModelMapper.INSTANCE.map(group);
           model.addAttribute("editModel", editModel);
-          return "group/group-edit";
+          return "management/group-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
@@ -177,7 +177,7 @@ public class GroupEditController extends UiController implements PageableCompone
           AbstractController.OU,
           partialUpdatedGroup.getDn().getParent().format());
       model.addAttribute(GROUP, partialUpdatedGroup);
-      return "group/group-edit";
+      return "management/group-edit";
     }
   }
 

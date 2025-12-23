@@ -100,7 +100,7 @@ public class GroupAddController extends UiController implements PageableComponen
         .orElseGet(() -> getDnTool().addBaseDn(getProperties().getGroup().getDefaultOu()));
     GroupAddModel addModel = new GroupAddModel(ouDn.format());
     model.addAttribute("addModel", addModel);
-    return "group/group-add";
+    return "management/group-add";
   }
 
   @PostMapping(path = "/management/group-add")
@@ -116,7 +116,7 @@ public class GroupAddController extends UiController implements PageableComponen
 
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding group failed. Some fields were invalid.");
-      return "group/group-add";
+      return "management/group-add";
     }
 
     model.clear();
