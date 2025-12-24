@@ -21,7 +21,9 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.controller.ui.model.ChangePasswordRequest;
+import org.bremersee.samba.ad.dc.controller.ui.model.PasswordChangeModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.springframework.security.core.Authentication;
@@ -35,20 +37,23 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type ChangePasswordController.
+ * The password change controller.
  *
  * @author Christian Bremer
  */
 @Controller
-public class ChangePasswordController extends UiController {
+public class PasswordChangeController extends UiController {
+
+  private static final String HTML_TEMPLATE = "passwd/password-change";
 
   private final DomainService domainService;
 
   private final DomainUserService domainUserService;
 
-  public ChangePasswordController(
+  public PasswordChangeController(
       DomainControllerProperties domainControllerProperties,
       LocaleResolver localeResolver,
       DomainService domainService,
@@ -63,56 +68,69 @@ public class ChangePasswordController extends UiController {
     return domainService.getPasswordInformation().getPasswordRegex();
   }
 
-  @GetMapping(path = "/change-password")
+  @ModelAttribute("domain")
+  public String getDomain() {
+    return domainService.getDomainInfo().getDomain();
+  }
+
+  @GetMapping(path = {"", "/", "/index.html"})
+  public String displayChangePassword() {
+    return "redirect:passwd/password-change";
+  }
+
+  @GetMapping(path = "/passwd/password-change")
   public String displayChangePassword(
       @RequestParam(value = "username", required = false) String username,
       ModelMap model) {
 
-    ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+    PasswordChangeModel changePasswordModel = new PasswordChangeModel();
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (!isEmpty(authentication) && authentication.isAuthenticated()) {
-      changePasswordRequest.setUsername(authentication.getName());
+      changePasswordModel.setUsername(authentication.getName());
     } else if (!isEmpty(username)) {
-      changePasswordRequest.setUsername(username);
+      changePasswordModel.setUsername(username);
     }
-    model.addAttribute("changePasswordRequest", changePasswordRequest);
-    return "change-password";
+    model.addAttribute("changePasswordModel", changePasswordModel);
+    return HTML_TEMPLATE;
   }
 
-  @PostMapping(path = "change-password")
+  @PostMapping(path = "/passwd/password-change")
   public String changePassword(
-      @ModelAttribute(name = "changePasswordRequest") ChangePasswordRequest changePasswordRequest,
-      BindingResult bindingResult) {
+      @ModelAttribute(name = "changePasswordModel") PasswordChangeModel changePasswordModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
 
-    String username = changePasswordRequest.getUsername();
-    String oldPassword = changePasswordRequest.getOldPassword();
-    String newPassword = requireNonNullElse(changePasswordRequest.getNewPassword(), "");
-    String newPasswordRepetition = changePasswordRequest.getNewPasswordRepetition();
+    String username = changePasswordModel.getUsername();
+    String oldPassword = changePasswordModel.getOldPassword();
+    String newPassword = requireNonNullElse(changePasswordModel.getNewPassword(), "");
+    String newPasswordRepetition = changePasswordModel.getNewPasswordRepetition();
     if (!newPassword.equals(newPasswordRepetition)) {
       bindingResult.rejectValue("newPasswordRepetition", "todo", "Passwords must be equal.");
-      return "change-password";
+      return HTML_TEMPLATE;
     }
     try {
       domainUserService.updateUserPassword(username, oldPassword, newPassword);
 
     } catch (AuthenticationException ae) {
       bindingResult.rejectValue("oldPassword", "todo", "Authentication failed.");
-      return "change-password";
+      return HTML_TEMPLATE;
 
     } catch (ServiceException se) {
       if (EC_PASSWORD_RESTRICTIONS.equals(se.getErrorCode())) {
         bindingResult.rejectValue("newPassword", "todo",
             "Password doesn't match the required pattern.");
-        return "change-password";
+        return HTML_TEMPLATE;
       }
       throw se;
     }
 
-    return "redirect:password-changed";
+    model.clear();
+    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
+        "Your password was successfully changed.",
+        "todo");
+    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
+    return "redirect:password-change";
   }
 
-  @GetMapping(path = "/password-changed")
-  public String displayPasswordChanged() {
-    return "password-changed";
-  }
 }

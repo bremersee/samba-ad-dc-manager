@@ -21,6 +21,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
@@ -33,7 +35,6 @@ import org.ldaptive.dn.Dn;
 import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.Filter;
-import org.ldaptive.filter.PresenceFilter;
 
 /**
  * The sam account repository.
@@ -46,6 +47,7 @@ public abstract class SamAccountRepository extends AdRepository {
   private static final Pattern samAccountNamePattern = Pattern
       .compile("^[^/\\\\\\[\\]:;|=,+?<>@â€\u009D]+$");
 
+  @Getter(AccessLevel.PROTECTED)
   private final Pattern emailPattern;
 
   /**
@@ -124,7 +126,7 @@ public abstract class SamAccountRepository extends AdRepository {
             .orElse(SearchScope.SUBTREE))
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
-        .sizeLimit(1)
+        .sizeLimit(2)
         .build();
   }
 
@@ -190,23 +192,8 @@ public abstract class SamAccountRepository extends AdRepository {
       return Optional.empty();
     }
     String[] returnAttributes = new String[]{AdConstants.DN.getName()};
-    SearchRequest searchRequest;
-    if (getDnTool().isValidDnWithBaseDn(samAccountName)) {
-      searchRequest = SearchRequest.objectScopeSearchRequest(
-          samAccountName,
-          returnAttributes,
-          new PresenceFilter(AdConstants.SAM_ACCOUNT_NAME.getName()));
-    } else {
-      searchRequest = SearchRequest.builder()
-          .dn(getProperties().getBaseDn())
-          .filter(new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName))
-          .scope(SearchScope.SUBTREE)
-          .returnAttributes(returnAttributes)
-          .sizeLimit(1)
-          .build();
-    }
-    log.debug("findDnOfSamAccountName, searchRequest = {}", searchRequest);
-    return getLdapTemplate().findOne(searchRequest)
+    return getLdapTemplate()
+        .findOne(searchOneRequest(samAccountName, returnAttributes))
         .map(LdapEntry::getDn)
         .filter(getIgnoredDnFilter());
   }

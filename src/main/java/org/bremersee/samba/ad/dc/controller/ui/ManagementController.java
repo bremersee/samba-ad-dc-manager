@@ -41,7 +41,7 @@ public class ManagementController extends UiController
     return "management/index";
   }
 
-  @GetMapping({"/management", "/management/"})
+  @GetMapping({"/management", "/management/", "/management/index.html"})
   public String displayManagement() {
     return "redirect:/management/index";
   }

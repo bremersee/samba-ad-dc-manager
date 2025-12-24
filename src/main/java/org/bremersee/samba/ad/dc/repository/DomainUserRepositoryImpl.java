@@ -117,6 +117,19 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     return new AndFilter(objectClassFilter, noComputerFilter);
   }
 
+  @Override
+  protected Filter findOneFilter(String uniqueName) {
+    Filter samAccountNameFilter = super.findOneFilter(uniqueName);
+    if (getEmailPattern().matcher(uniqueName).matches()) {
+      Filter emailFilter = new EqualityFilter(AdConstants.MAIL.getName(), uniqueName);
+      Filter principalFilter = new EqualityFilter(
+          AdConstants.USER_PRINCIPAL_NAME.getName(),
+          uniqueName);
+      return new OrFilter(samAccountNameFilter, emailFilter, principalFilter);
+    }
+    return samAccountNameFilter;
+  }
+
   private Filter getFindAllFilter(String query) {
     Filter objectClassFilter = objectClassFilter();
     if (isNull(query) || query.length() < getProperties().getUser().getMinQueryLength()) {

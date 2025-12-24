@@ -39,6 +39,9 @@ public class CliProperties implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  // TODO for installation to generate secret?
+  private String randomStringCommand = "/usr/bin/tr -dc 'A-Za-z0-9!\"#$%&'\\''()*+,-./:;<=>?@[\\]^_`{|}~' </dev/urandom | head -c 13; echo";
+
   private String execDir = System.getProperty("java.io.tmpdir");
 
   private String hostnameBinary = "/usr/bin/hostname";
