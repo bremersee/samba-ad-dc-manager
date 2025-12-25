@@ -23,7 +23,7 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 /**
- * The type TemplateEngineException.
+ * The template engine exception.
  *
  * @author Christian Bremer
  */

@@ -20,17 +20,20 @@ import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetModel;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetRequestModel;
+import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.bremersee.samba.ad.dc.service.PasswordResetCryptoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -48,23 +51,40 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller
 public class PasswordResetController extends UiController {
 
+  private final PasswordResetCryptoService<AesEncValue> passwordResetCryptoService;
+
   private final DomainService domainService;
 
   private final DomainUserService domainUserService;
 
+  private final Pattern usernamePattern;
+
+  private final Pattern passwordPattern;
+
   public PasswordResetController(
       DomainControllerProperties domainControllerProperties,
       LocaleResolver localeResolver,
+      PasswordResetCryptoService<AesEncValue> passwordResetCryptoService,
       DomainService domainService,
       DomainUserService domainUserService) {
     super(domainControllerProperties, localeResolver);
+    this.passwordResetCryptoService = passwordResetCryptoService;
     this.domainService = domainService;
     this.domainUserService = domainUserService;
+    this.usernamePattern = Pattern
+        .compile(domainControllerProperties.getUser().getNewSamAccountNameRegex());
+    this.passwordPattern = Pattern
+        .compile(domainService.getPasswordInformation().getPasswordRegex());
+  }
+
+  @ModelAttribute("usernamePattern")
+  public String getUsernamePattern() {
+    return usernamePattern.pattern();
   }
 
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
-    return domainService.getPasswordInformation().getPasswordRegex();
+    return passwordPattern.pattern();
   }
 
   @ModelAttribute("domain")
@@ -75,6 +95,11 @@ public class PasswordResetController extends UiController {
   @ModelAttribute("netbiosDomain")
   public String getNetbiosDomain() {
     return domainService.getDomainInfo().getNetbiosDomain();
+  }
+
+  @ModelAttribute("defaultLoginPage")
+  public DefaultLoginPage getDefaultLoginPage() {
+    return getProperties().getUser().getDefaultLoginPage();
   }
 
   @GetMapping(path = "/passwd/password-reset-request")
@@ -95,7 +120,6 @@ public class PasswordResetController extends UiController {
       return "passwd/password-reset-request";
     }
     domainUserService.getUser(username, null, null)
-        .filter(user -> !isEmpty(user.getEmail()))
         .ifPresent(user -> {
           getLogger().info("Password reset request has been sent.");
           // TODO process request
@@ -105,21 +129,19 @@ public class PasswordResetController extends UiController {
 
   @GetMapping(path = "/passwd/password-reset")
   public String displayResetPassword(
-      @RequestParam(value = "usernameEnc") String usernameEnc,
-      @RequestParam(value = "requestDateTimeEnc") String requestDateTimeEnc,
-      @RequestParam(value = "pwdLastSetEnc") String pwdLastSetEnc,
-      @RequestParam(value = "", required = false) String isInvitationEnc,
+      @RequestParam(value = "req") String passwordResetEnc,
       @RequestParam(value = "s") String salt,
       ModelMap model) {
 
-    return getValidatedDomainUser(usernameEnc, requestDateTimeEnc, pwdLastSetEnc, salt)
+    PasswordReset passwordReset = passwordResetCryptoService
+        .decrypt(new AesEncValue(passwordResetEnc, salt));
+    return getValidatedDomainUser(passwordReset)
         .map(user -> {
-          model.addAttribute("usernameEncrypted", usernameEnc);
-          model.addAttribute("requestDateTimeEncrypted", requestDateTimeEnc);
-          model.addAttribute("pwdLastSetEncrypted", pwdLastSetEnc);
+          model.addAttribute("req", passwordResetEnc);
           model.addAttribute("salt", salt);
           model.addAttribute("user", user);
-          model.addAttribute("passwordResetModel", new PasswordResetModel());
+          model.addAttribute("isInvitation", passwordReset.isInvitation());
+          model.addAttribute("passwordResetModel", new PasswordResetModel(user));
           return "passwd/password-reset";
         })
         .orElse("passwd/password-reset-invalid");
@@ -127,62 +149,159 @@ public class PasswordResetController extends UiController {
 
   @PostMapping(path = "/passwd/password-reset")
   public String resetPassword(
-      @RequestParam(value = "usernameEnc") String usernameEnc,
-      @RequestParam(value = "requestDateTimeEnc") String requestDateTimeEnc,
-      @RequestParam(value = "pwdLastSetEnc") String pwdLastSetEnc,
+      @RequestParam(value = "req") String passwordResetEnc,
       @RequestParam(value = "s") String salt,
       @ModelAttribute(name = "passwordResetModel") PasswordResetModel passwordResetModel,
       ModelMap model,
       BindingResult bindingResult) {
 
-    return getValidatedDomainUser(usernameEnc, requestDateTimeEnc, pwdLastSetEnc, salt)
+    PasswordReset passwordReset = passwordResetCryptoService
+        .decrypt(new AesEncValue(passwordResetEnc, salt));
+    return getValidatedDomainUser(passwordReset)
         .map(user -> {
+          if (isEmpty(passwordResetModel.getUsername())) {
+            passwordResetModel.setUsername(user.getSamAccountName());
+          }
+          if (!usernamePattern.matcher(passwordResetModel.getUsername()).matches()) {
+            bindingResult.rejectValue("username", "todo",
+                "Username is not valid. Please try another username.");
+          }
           String newPassword = requireNonNullElse(passwordResetModel.getNewPassword(), "");
           String newPasswordRepetition = passwordResetModel.getNewPasswordRepetition();
           if (!newPassword.equals(newPasswordRepetition)) {
-            model.addAttribute("usernameEncrypted", usernameEnc);
-            model.addAttribute("requestDateTimeEncrypted", requestDateTimeEnc);
-            model.addAttribute("pwdLastSetEncrypted", pwdLastSetEnc);
-            model.addAttribute("salt", salt);
-            model.addAttribute("user", user);
             bindingResult.rejectValue("newPasswordRepetition", "todo", "Passwords must be equal.");
+          } else if (!passwordPattern.matcher(newPassword).matches()) {
+            bindingResult.rejectValue("newPassword", "todo", "Password is too weak. Please try a stronger password.");
+          }
+          DomainUser newUser = passwordReset.isInvitation()
+              ? updateUser(user, passwordResetModel.getUsername(), bindingResult)
+              : user;
+          updatePassword(newUser, passwordResetModel.getNewPassword(), bindingResult);
+          if (bindingResult.hasErrors()) {
+            AesEncValue encValue = updateAesEncValue(
+                user, newUser, new AesEncValue(passwordResetEnc, salt), passwordReset);
+            model.addAttribute("req", encValue.encryptedValue());
+            model.addAttribute("salt", encValue.salt());
+            model.addAttribute("user", newUser);
+            model.addAttribute("isInvitation", passwordReset.isInvitation());
             return "passwd/password-reset";
           }
-          domainUserService.updateUserPassword(user.getSamAccountName(), newPassword, false);
           model.clear();
-          model.addAttribute("user", user);
+          model.addAttribute("user", newUser);
           // TODO set login page, like data and whether to use netbios
           return "passwd/password-reset-success";
         })
         .orElse("passwd/password-reset-invalid");
   }
 
-  private Optional<DomainUser> getValidatedDomainUser(
-      String usernameEncrypted,
-      String requestDateTimeEncrypted,
-      String pwdLastSetEncrypted,
-      String salt) {
+  private Optional<DomainUser> getValidatedDomainUser(PasswordReset passwordReset) {
     try {
-      TextEncryptor textEncryptor = Encryptors.text("", salt);
-      OffsetDateTime requestDateTime = OffsetDateTime.parse(textEncryptor
-          .decrypt(requestDateTimeEncrypted), DateTimeFormatter.ISO_DATE_TIME);
-      if (requestDateTime.plusDays(7L).isBefore(OffsetDateTime.now())) {
+      // TODO lifetime property
+      if (passwordReset.getRequestDateTime().plusDays(7L).isBefore(OffsetDateTime.now())) {
         getLogger().debug("Password reset request has expired.");
         return Optional.empty();
       }
-
-      String username = textEncryptor.decrypt(usernameEncrypted);
-      OffsetDateTime pwdLastSet = OffsetDateTime.parse(textEncryptor
-          .decrypt(pwdLastSetEncrypted), DateTimeFormatter.ISO_DATE_TIME);
-      return domainUserService.getUser(username, null, null)
-          .filter(user -> pwdLastSet
-              .isEqual(Objects
-                  .requireNonNull(user.getPasswordLastSet(), "Password last set is null.")));
+      return domainUserService.getUser(passwordReset.getUsername(), null, null)
+          .filter(user -> Objects
+              .equals(user.getPasswordLastSet(), passwordReset.getPwdLastSetDateTime()));
 
     } catch (RuntimeException e) {
       getLogger().error("Getting user to reset password failed.", e);
       return Optional.empty();
     }
+  }
+
+  private DomainUser updateUser(
+      DomainUser user,
+      String newUsername,
+      BindingResult bindingResult) {
+
+    if (bindingResult.hasErrors()) {
+      return user;
+    }
+    String oldUsername = user.getSamAccountName();
+    if (oldUsername.equals(newUsername)) {
+      return user;
+    }
+    DomainUser newUser = DomainUser.builder()
+        .from(user)
+        .samAccountName(newUsername)
+        .uid(replace(user.getUid(), oldUsername, newUsername))
+        .userPrincipalName(replace(user.getUserPrincipalName(), oldUsername, newUsername))
+        .unixHomeDirectory(replace(user.getUnixHomeDirectory(), oldUsername, newUsername))
+        .build();
+    try {
+      return domainUserService.updateUser(user.getSamAccountName(), newUser, null);
+
+    } catch (ServiceException se) {
+      handleException(bindingResult, se);
+    }
+    return user;
+  }
+
+  private String replace(String oldValue, String oldUsername, String newUsername) {
+    if (isEmpty(oldValue)) {
+      return oldValue;
+    }
+    return oldUsername.replace(oldUsername, newUsername);
+  }
+
+  private void updatePassword(DomainUser user, String newPassword, BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
+      return;
+    }
+    try {
+      domainUserService.updateUserPassword(user.getSamAccountName(), newPassword, false);
+    } catch (ServiceException se) {
+      handleException(bindingResult, se);
+    }
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+    String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
+    switch (errorCode) {
+      case EC_SAM_ACCOUNT_NAME_REQUIRED: {
+        bindingResult.rejectValue("username", "code",
+            "Username is required.");
+        break;
+      }
+      case EC_SAM_ACCOUNT_ALREADY_EXISTS, EC_PRINCIPAL_ALREADY_EXISTS, EC_UID_ALREADY_EXISTS: {
+        bindingResult.rejectValue("username", "code",
+            "Username already exists.");
+        break;
+      }
+      case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
+        bindingResult.rejectValue("username", "code",
+            "Username contains illegal characters.");
+        break;
+      }
+      case EC_PASSWORD_RESTRICTIONS, EC_SAVING_PASSWORD_FAILED: {
+        bindingResult.rejectValue("newPassword", "code",
+            "Resetting password failed. Try another password.");
+        break;
+      }
+      default: {
+        getLogger()
+            .error("Resetting password failed with a not mapped exception.", serviceException);
+        throw serviceException;
+      }
+    }
+  }
+
+  private AesEncValue updateAesEncValue(
+      DomainUser oldUser,
+      DomainUser newUser,
+      AesEncValue oldAesEncValue,
+      PasswordReset passwordReset) {
+
+    if (oldUser.getSamAccountName().equals(newUser.getSamAccountName())) {
+      return oldAesEncValue;
+    }
+    return passwordResetCryptoService.encrypt(PasswordReset.builder()
+        .from(passwordReset)
+        .username(newUser.getSamAccountName())
+        .build());
   }
 
 }

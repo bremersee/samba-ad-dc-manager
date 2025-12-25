@@ -48,6 +48,9 @@ public abstract class SamAccountRepository extends AdRepository {
       .compile("^[^/\\\\\\[\\]:;|=,+?<>@â€\u009D]+$");
 
   @Getter(AccessLevel.PROTECTED)
+  private final Pattern newSamAccountNamePattern;
+
+  @Getter(AccessLevel.PROTECTED)
   private final Pattern emailPattern;
 
   /**
@@ -60,6 +63,8 @@ public abstract class SamAccountRepository extends AdRepository {
       DomainControllerProperties properties,
       LdaptiveTemplate ldapTemplate) {
     super(properties, ldapTemplate);
+    this.newSamAccountNamePattern = Pattern
+        .compile(getProperties().getUser().getNewSamAccountNameRegex());
     this.emailPattern = getProperties().getEmailRegexFlags()
         .compile(properties.getEmailRegex());
   }
@@ -167,6 +172,22 @@ public abstract class SamAccountRepository extends AdRepository {
     if (!samAccountNamePattern.matcher(samAccount.getSamAccountName()).matches()) {
       throw ServiceException.badRequest(
           "SamAccountName contains illegal characters.", EC_ILLEGAL_SAM_ACCOUNT_NAME);
+    }
+  }
+
+  protected void validateNewSamAccountName(SamAccount samAccount) {
+    validateSamAccountName(samAccount);
+    boolean isInvalidNewSamAccountName = !newSamAccountNamePattern
+        .matcher(samAccount.getSamAccountName()).matches();
+    if (isInvalidNewSamAccountName) {
+      throw ServiceException.badRequest(
+          "SamAccountName contains illegal characters.", EC_ILLEGAL_SAM_ACCOUNT_NAME);
+    }
+    boolean isForbidden = getProperties().getUser().getForbiddenNewSamAccountNames().stream()
+        .anyMatch(forbidden -> samAccount.getSamAccountName().equalsIgnoreCase(forbidden));
+    if (isForbidden) {
+      throw ServiceException.badRequest(
+          "SamAccountName is forbiiden.", EC_ILLEGAL_SAM_ACCOUNT_NAME);
     }
   }
 

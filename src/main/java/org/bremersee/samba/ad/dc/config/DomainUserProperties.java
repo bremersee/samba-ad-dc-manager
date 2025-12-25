@@ -16,34 +16,31 @@
 
 package org.bremersee.samba.ad.dc.config;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * The domain user properties.
  *
  * @author Christian Bremer
  */
-@Data
-public class DomainUserProperties implements Serializable {
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class DomainUserProperties extends SamAccountProperties implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   public static final String DEFAULT_USER_OU = "CN=Users";
-
-  @NotNull
-  private String defaultOu = DEFAULT_USER_OU;
-
-  @NotNull
-  private TreeSearchScope defaultSearchScope = TreeSearchScope.ONELEVEL;
-
-  @Min(1)
-  private int minQueryLength = 2;
 
   /**
    * Specifies whether the username should be used for attribute 'cn' or firstname and lastname.
@@ -80,6 +77,32 @@ public class DomainUserProperties implements Serializable {
 
   private String defaultUnixHomeDirectory = "/home/{{user.samAccountName}}";
 
+  private DefaultLoginPage defaultLoginPage = new DefaultLoginPage();
+
   private String gravatarUrl = "https://www.gravatar.com/avatar/{hash}?d={default}&s={size}";
+
+  public DomainUserProperties() {
+    setDefaultOu(DEFAULT_USER_OU);
+  }
+
+  @Data
+  public static class DefaultLoginPage implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private String url = "https://data.eixe.bremersee.org";
+
+    private String name = "DATA";
+
+    private boolean usingNetbiosDomainPrefix = true;
+
+    public String getName() {
+      if (isEmpty(name)) {
+        return url;
+      }
+      return name;
+    }
+  }
 
 }

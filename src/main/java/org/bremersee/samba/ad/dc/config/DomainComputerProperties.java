@@ -16,33 +16,30 @@
 
 package org.bremersee.samba.ad.dc.config;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * The type DomainGroupProperties.
  *
  * @author Christian Bremer
  */
-@Data
-public class DomainComputerProperties implements Serializable {
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class DomainComputerProperties extends SamAccountProperties implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   public static final String DEFAULT_COMPUTER_OU = "CN=Computers";
 
-  @NotNull
-  private String defaultOu = DEFAULT_COMPUTER_OU;
-
-  @NotNull
-  private TreeSearchScope defaultSearchScope = TreeSearchScope.ONELEVEL;
-
-  @Min(1)
-  private int minQueryLength = 2;
-
+  public DomainComputerProperties() {
+    setDefaultOu(DEFAULT_COMPUTER_OU);
+  }
 }

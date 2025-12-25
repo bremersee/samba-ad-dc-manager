@@ -269,7 +269,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
     log.debug("add({}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn);
 
-    validateSamAccountName(domainUser);
+    validateNewSamAccountName(domainUser);
     validateEmail(domainUser.getEmail());
 
     String defaultPrincipalName = Optional.ofNullable(domainUser.getUserPrincipalName())
@@ -320,7 +320,9 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
     log.debug("update({}, {}, {})", userName, domainUser.getSamAccountName(), newOu);
 
-    validateSamAccountName(domainUser);
+    if (!userName.equals(domainUser.getSamAccountName())) {
+      validateNewSamAccountName(domainUser);
+    }
     validateEmail(domainUser.getEmail());
 
     if (!userName.equalsIgnoreCase(domainUser.getSamAccountName())

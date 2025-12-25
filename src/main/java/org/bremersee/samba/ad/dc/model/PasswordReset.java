@@ -1,5 +1,6 @@
 package org.bremersee.samba.ad.dc.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.OffsetDateTime;
@@ -19,16 +20,23 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableDomainInfo.class)
 public interface PasswordReset {
 
+  @JsonProperty(value = "username", required = true)
   String getUsername();
 
+  @JsonProperty(value = "requested", required = true)
   @Value.Default
   default OffsetDateTime getRequestDateTime() {
     return OffsetDateTime.now();
   }
 
+  @JsonProperty(value = "pwdLastSet", required = true)
   OffsetDateTime getPwdLastSetDateTime();
 
-  boolean isInvitation();
+  @JsonProperty(value = "invitation", defaultValue = "false")
+  @Value.Default
+  default boolean isInvitation() {
+    return false;
+  }
 
   static PasswordReset of(DomainUser domainUser, boolean isInvitation) {
     return builder()
