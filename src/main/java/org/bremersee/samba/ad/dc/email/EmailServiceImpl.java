@@ -41,8 +41,8 @@ import org.thymeleaf.TemplateEngine;
  *
  * @author Christian Bremer
  */
-@Component("emailService")
-@ConditionalOnProperty(name = "spring.mail.host")
+//@Component("emailService")
+//@ConditionalOnProperty(name = "spring.mail.host")
 @Slf4j
 public class EmailServiceImpl extends AbstractEmailService {
 

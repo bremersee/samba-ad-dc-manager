@@ -35,9 +35,9 @@ import org.thymeleaf.TemplateEngine;
  *
  * @author Christian Bremer
  */
-@Component("emailServiceMock")
-@ConditionalOnProperty(name = "spring.mail.host", matchIfMissing = true, havingValue = "false")
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.TARGET_CLASS)
+//@Component("emailServiceMock")
+//@ConditionalOnProperty(name = "spring.mail.host", matchIfMissing = true, havingValue = "false")
+//@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON, proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Slf4j
 public class EmailServiceMock extends AbstractEmailService {
 

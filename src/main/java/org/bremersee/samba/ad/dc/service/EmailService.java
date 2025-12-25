@@ -14,28 +14,13 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.email;
-
-import jakarta.validation.constraints.NotEmpty;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
+package org.bremersee.samba.ad.dc.service;
 
 /**
  * The email service.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface EmailService {
-
-  /**
-   * Send email with credentials.
-   *
-   * @param userName the username
-   * @param clearPassword the clear password
-   */
-  void sendEmailWithCredentials(
-      @NotEmpty String userName,
-      @Nullable String clearPassword);
 
 }

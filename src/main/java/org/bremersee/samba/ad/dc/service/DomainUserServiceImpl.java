@@ -21,7 +21,6 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
-import org.bremersee.samba.ad.dc.email.EmailService;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.Password;
@@ -53,17 +52,13 @@ public class DomainUserServiceImpl implements DomainUserService {
 
   private AuthenticationManager authenticationManager;
 
-  private final EmailService emailService;
-
   public DomainUserServiceImpl(
       SortMapper sortMapper,
       DomainUserRepository domainUserRepository,
-      AvatarRepository avatarRepository,
-      EmailService emailService) {
+      AvatarRepository avatarRepository) {
     this.sortMapper = sortMapper;
     this.domainUserRepository = domainUserRepository;
     this.avatarRepository = avatarRepository;
-    this.emailService = emailService;
   }
 
   @Autowired(required = false)
@@ -90,9 +85,13 @@ public class DomainUserServiceImpl implements DomainUserService {
         domainUser.getSamAccountName(), ou, useUsernameAsCn, sendEmail);
     DomainUser addedDomainUser = domainUserRepository.add(domainUser, ou, useUsernameAsCn);
     if (Boolean.TRUE.equals(sendEmail)) {
+      // TODO
+      /*
       emailService.sendEmailWithCredentials(
           addedDomainUser.getSamAccountName(),
           domainUser.getPassword());
+
+       */
     }
     return addedDomainUser;
   }
@@ -124,11 +123,14 @@ public class DomainUserServiceImpl implements DomainUserService {
   @Override
   public void updateUserPassword(String userName, String newPassword, boolean sendEmail) {
     domainUserRepository.savePassword(userName, newPassword);
+    // TODO
+    /*
     if (sendEmail) {
       emailService.sendEmailWithCredentials(
           userName,
           newPassword);
     }
+    */
   }
 
   @Override
@@ -149,11 +151,14 @@ public class DomainUserServiceImpl implements DomainUserService {
       Password newPassword,
       Boolean sendEmail) {
     domainUserRepository.savePassword(userName, newPassword.getValue());
+    // TODO
+    /*
     if (Boolean.TRUE.equals(sendEmail)) {
       emailService.sendEmailWithCredentials(
           userName,
           newPassword.getValue());
     }
+    */
   }
 
   @Override

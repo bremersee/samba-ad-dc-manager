@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.repository.DomainUserRepository;
+import org.bremersee.samba.ad.dc.service.EmailService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.TemplateEngine;
@@ -38,7 +39,7 @@ import org.thymeleaf.context.Context;
  * @author Christian Bremer
  */
 @Slf4j
-public abstract class AbstractEmailService implements EmailService {
+public abstract class AbstractEmailService {
 
   @Getter(AccessLevel.PACKAGE)
   private final DomainControllerProperties properties;
@@ -66,7 +67,6 @@ public abstract class AbstractEmailService implements EmailService {
   }
 
   @Async
-  @Override
   public void sendEmailWithCredentials(
       final String userName,
       final String clearPassword) {

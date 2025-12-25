@@ -108,6 +108,7 @@ public class PasswordResetController extends UiController {
       @RequestParam(value = "usernameEnc") String usernameEnc,
       @RequestParam(value = "requestDateTimeEnc") String requestDateTimeEnc,
       @RequestParam(value = "pwdLastSetEnc") String pwdLastSetEnc,
+      @RequestParam(value = "", required = false) String isInvitationEnc,
       @RequestParam(value = "s") String salt,
       ModelMap model) {
 
@@ -150,7 +151,7 @@ public class PasswordResetController extends UiController {
           domainUserService.updateUserPassword(user.getSamAccountName(), newPassword, false);
           model.clear();
           model.addAttribute("user", user);
-          // TODO set login page, like datam and whether to use netbios
+          // TODO set login page, like data and whether to use netbios
           return "passwd/password-reset-success";
         })
         .orElse("passwd/password-reset-invalid");
