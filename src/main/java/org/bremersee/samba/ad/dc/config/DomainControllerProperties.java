@@ -66,14 +66,14 @@ public class DomainControllerProperties implements Serializable {
 
   public static final int MIN_QUERY_LENGTH = 3; // TODO add to repos and javascript
 
+  private String baseDn = "dc=eixe,dc=bremersee,dc=org";
+
+  private String cryptoSecret = "change-it";
+
   private String emailRegex = EMAIL_REGEX;
 
   @NestedConfigurationProperty
   private RegexFlags emailRegexFlags = new RegexFlags();
-
-  private String hostName;
-
-  private String baseDn = "dc=eixe,dc=bremersee,dc=org";
 
   @NestedConfigurationProperty
   private CliProperties cli = new CliProperties();
@@ -120,13 +120,7 @@ public class DomainControllerProperties implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // public static final String DEFAULT_DOMAIN_CONTROLLERS_OU = "OU=Domain Controllers";
-
-    // public static final String DEFAULT_SYSTEM_OU = "CN=System";
-
-    // private String defaultSystemOu = DEFAULT_SYSTEM_OU;
-
-    // private SearchScope defaultComputerSearchScope = SearchScope.ONELEVEL;
+    private String hostName;
 
     private int maximumPasswordLength = 75;
 

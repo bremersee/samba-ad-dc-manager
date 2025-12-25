@@ -20,6 +20,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Duration;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,6 +47,10 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
    * Specifies whether the username should be used for attribute 'cn' or firstname and lastname.
    */
   private boolean useUsernameAsCn = true;
+
+  private Duration invitationLifetime = Duration.ofDays(30L);
+
+  private Duration passwordResetRequestLifetime = Duration.ofDays(7L);
 
   private String defaultCompany;
 

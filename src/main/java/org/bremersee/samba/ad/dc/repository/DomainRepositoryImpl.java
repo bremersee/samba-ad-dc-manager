@@ -64,7 +64,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
       HostNameSupplier hostNameSupplier,
       SambaToolDomain domainTool) {
     super(properties, ldapTemplate);
-    this.hostName = properties.getHostName();
+    this.hostName = properties.getDomain().getHostName();
     this.hostNameSupplier = hostNameSupplier;
 
     this.random = new SecureRandom();
