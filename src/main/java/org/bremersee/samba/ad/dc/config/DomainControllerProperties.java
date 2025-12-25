@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "cryptoSecret")
 @EqualsAndHashCode
 @Slf4j
 public class DomainControllerProperties implements Serializable {
@@ -87,10 +87,8 @@ public class DomainControllerProperties implements Serializable {
   @NestedConfigurationProperty
   private DomainComputerProperties computer = new DomainComputerProperties();
 
-  private DomainProperties domain = new DomainProperties(); // move back?
-
   @NestedConfigurationProperty
-  private AesCryptoProperties aesCrypto = new AesCryptoProperties();
+  private DomainProperties domain = new DomainProperties(); // move back?
 
 
   private String personalName = "Anna Livia"; // mail with credentials
@@ -112,25 +110,6 @@ public class DomainControllerProperties implements Serializable {
       emailRegexFlags.setCaseInsensitive(true);
     }
     return emailRegexFlags;
-  }
-
-  @Data
-  public static class DomainProperties implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private String hostName;
-
-    private int maximumPasswordLength = 75;
-
-    private String simplePasswordRegexTemplate = "^(?=.{%d,%d}$).*";
-
-    private String complexPasswordRegexTemplate = "(?=^.{%d,%d}$)"
-        + "((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])"
-        + "|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*";
-
-    private String defaultNisDomain;
   }
 
   /**
