@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordChangeModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
@@ -54,11 +54,11 @@ public class PasswordChangeController extends UiController {
   private final DomainUserService domainUserService;
 
   public PasswordChangeController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainService = domainService;
     this.domainUserService = domainUserService;
   }

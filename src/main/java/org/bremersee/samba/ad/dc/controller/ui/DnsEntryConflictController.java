@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -55,7 +55,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
   private final DnsService dnsService;
 
   public DnsEntryConflictController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver, DnsService dnsService) {
     super(properties, localeResolver);
     this.dnsService = dnsService;

@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.List;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeNavigationComponent;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
@@ -40,7 +40,7 @@ public class DnsZonesController extends UiController
   private final DnsService dnsService;
 
   public DnsZonesController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DnsService dnsService) {
     super(properties, localeResolver);

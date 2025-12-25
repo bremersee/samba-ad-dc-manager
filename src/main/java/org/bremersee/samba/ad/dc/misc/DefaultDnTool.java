@@ -1,15 +1,15 @@
 package org.bremersee.samba.ad.dc.misc;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultDnTool implements DnTool {
 
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
-  public DefaultDnTool(DomainControllerProperties properties) {
+  public DefaultDnTool(ApplicationProperties properties) {
     this.properties = properties;
   }
 

@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.ComputerEditModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.ComputerEditModel;
@@ -68,13 +68,13 @@ public class ComputerEditController extends UiController implements PageableComp
   private final OrganizationalUnitService organizationalUnitService;
 
   public ComputerEditController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainComputerService domainComputerService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainService = domainService;
     this.domainComputerService = domainComputerService;
     this.domainGroupService = domainGroupService;

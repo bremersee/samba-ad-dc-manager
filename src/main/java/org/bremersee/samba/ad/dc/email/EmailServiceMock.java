@@ -18,16 +18,11 @@ package org.bremersee.samba.ad.dc.email;
 
 import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.repository.DomainUserRepository;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 
 /**
@@ -49,7 +44,7 @@ public class EmailServiceMock extends AbstractEmailService {
    * @param templateEngine the template engine
    */
   public EmailServiceMock(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       DomainUserRepository userRepository,
       TemplateEngine templateEngine) {
     super(properties, userRepository, templateEngine);

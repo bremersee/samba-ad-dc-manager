@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.repository.cli;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.List;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.samba.ad.dc.repository.SambaToolOu;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 class SambaToolOuCli extends SambaToolCli
     implements SambaToolOu {
 
-  SambaToolOuCli(DomainControllerProperties properties) {
+  SambaToolOuCli(ApplicationProperties properties) {
     super(properties);
   }
 

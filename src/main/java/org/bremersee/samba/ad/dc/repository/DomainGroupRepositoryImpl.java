@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
@@ -66,7 +66,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
    * @param ldapTemplate the ldap template
    */
   public DomainGroupRepositoryImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate,
       DomainRepository domainRepository,
       SambaToolGroup domainGroupTool) {

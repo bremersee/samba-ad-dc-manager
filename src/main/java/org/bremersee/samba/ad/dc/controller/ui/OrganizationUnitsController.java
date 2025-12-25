@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnitPage;
@@ -41,10 +41,10 @@ public class OrganizationUnitsController extends UiController
   private final OrganizationalUnitService organizationalUnitService;
 
   public OrganizationUnitsController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       OrganizationalUnitService organizationalUnitService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.organizationalUnitService = organizationalUnitService;
   }
 

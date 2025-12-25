@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.LocaleResolver;
@@ -30,9 +30,9 @@ import org.springframework.web.servlet.LocaleResolver;
 public class LoginController extends UiController {
 
   public LoginController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
   }
 
   @GetMapping(path = "/login")

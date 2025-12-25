@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.codec.Hex;
@@ -42,9 +42,9 @@ import org.springframework.util.DigestUtils;
 @Slf4j
 public class GravatarProvider implements AvatarProvider {
 
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
-  public GravatarProvider(DomainControllerProperties properties) {
+  public GravatarProvider(ApplicationProperties properties) {
     this.properties = properties;
   }
 

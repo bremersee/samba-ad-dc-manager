@@ -21,7 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.UserResetPasswordModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -48,20 +48,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserResetPasswordController extends UiController implements
-    PageableComponent,
-    OrganizationalUnitComponent {
+public class UserResetPasswordController extends UiController
+    implements PageableComponent, OrganizationalUnitComponent {
 
   private final DomainService domainService;
 
   private final DomainUserService domainUserService;
 
   public UserResetPasswordController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainUserService = domainUserService;
     this.domainService = domainService;
   }

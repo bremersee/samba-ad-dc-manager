@@ -27,7 +27,7 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.SearchRequest;
@@ -56,7 +56,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
   private final SambaToolOu sambaToolOu;
 
   OrganizationalUnitRepositoryImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate,
       LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper,
       SambaToolOu sambaToolOu) {

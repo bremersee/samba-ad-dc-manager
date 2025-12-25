@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
@@ -41,8 +41,10 @@ public class DnsZoneCreateController extends UiController {
 
   private final DnsService dnsService;
 
-  public DnsZoneCreateController(DomainControllerProperties properties,
-      LocaleResolver localeResolver, DnsService dnsService) {
+  public DnsZoneCreateController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DnsService dnsService) {
     super(properties, localeResolver);
     this.dnsService = dnsService;
   }

@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class PasswordResetAesCryptoService implements PasswordResetCryptoService<AesEncValue> {
 
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   private final ObjectMapper objectMapper;
 
   public PasswordResetAesCryptoService(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       Jackson2ObjectMapperBuilder objectMapperBuilder) {
     this.properties = properties;
     this.objectMapper = objectMapperBuilder.build();

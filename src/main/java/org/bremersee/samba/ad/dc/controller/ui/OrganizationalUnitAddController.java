@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -50,17 +50,17 @@ public class OrganizationalUnitAddController extends UiController
 
   private final OrganizationalUnitService organizationalUnitService;
 
-  @Override
-  public String getDefaultSort() {
-    return OU_SORT;
-  }
-
   public OrganizationalUnitAddController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       OrganizationalUnitService organizationalUnitService) {
     super(properties, localeResolver);
     this.organizationalUnitService = organizationalUnitService;
+  }
+
+  @Override
+  public String getDefaultSort() {
+    return OU_SORT;
   }
 
   @ModelAttribute("ous")

@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +32,9 @@ public class LoggedOutController extends UiController {
 
   @Autowired
   public LoggedOutController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
   }
 
   @GetMapping

@@ -21,7 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import lombok.Getter;
 import lombok.Setter;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.bremersee.samba.ad.dc.controller.DnToolProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.LoggerProvider;
@@ -58,7 +58,7 @@ public abstract class UiController extends AbstractController implements LoggerP
 
   private final Logger logger;
 
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   private final DnTool dnTool;
 
@@ -68,7 +68,7 @@ public abstract class UiController extends AbstractController implements LoggerP
   private MessageSource messageSource;
 
   protected UiController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver) {
     this.logger = LoggerFactory.getLogger(getClass());
     this.properties = properties;

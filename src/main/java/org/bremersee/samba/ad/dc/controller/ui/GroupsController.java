@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigationComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -33,8 +33,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
 
@@ -55,12 +53,12 @@ public class GroupsController extends UiController
   private final OrganizationalUnitService organizationalUnitService;
 
   public GroupsController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       SortMapper sortMapper,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.sortMapper = sortMapper;
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;

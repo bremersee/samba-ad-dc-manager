@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.Map;
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -49,17 +49,17 @@ public class OrganizationalUnitDeleteController extends UiController
 
   private final OrganizationalUnitService organizationalUnitService;
 
-  @Override
-  public String getDefaultSort() {
-    return OU_SORT;
-  }
-
   public OrganizationalUnitDeleteController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       OrganizationalUnitService organizationalUnitService) {
     super(properties, localeResolver);
     this.organizationalUnitService = organizationalUnitService;
+  }
+
+  @Override
+  public String getDefaultSort() {
+    return OU_SORT;
   }
 
   @GetMapping(path = "/management/organizational-unit-delete")
@@ -87,7 +87,8 @@ public class OrganizationalUnitDeleteController extends UiController
           return "management/organizational-unit-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS, "organizational-units"));
+            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS,
+            "organizational-units"));
   }
 
   @PostMapping(path = "/management/organizational-unit-delete")
@@ -137,7 +138,8 @@ public class OrganizationalUnitDeleteController extends UiController
           return redirect;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS, "organizational-units"));
+            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS,
+            "organizational-units"));
   }
 
 }

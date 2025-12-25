@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigationComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -53,7 +53,7 @@ public class UsersController extends UiController
   private final OrganizationalUnitService organizationalUnitService;
 
   public UsersController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       SortMapper sortMapper,
       DomainUserService domainUserService,

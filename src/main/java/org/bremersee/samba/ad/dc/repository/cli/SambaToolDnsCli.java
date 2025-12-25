@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.repository.cli;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 class SambaToolDnsCli extends SambaToolCli implements SambaToolDns {
 
-  SambaToolDnsCli(DomainControllerProperties properties) {
+  SambaToolDnsCli(ApplicationProperties properties) {
     super(properties);
   }
 

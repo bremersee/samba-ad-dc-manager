@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 
@@ -25,12 +25,12 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 public class CommandExecutor {
 
   @Getter(AccessLevel.PROTECTED)
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   @Getter(AccessLevel.PROTECTED)
   private final DnTool dnTool;
 
-  public CommandExecutor(DomainControllerProperties properties) {
+  public CommandExecutor(ApplicationProperties properties) {
     this.properties = properties;
     this.dnTool = new DefaultDnTool(this.properties);
   }

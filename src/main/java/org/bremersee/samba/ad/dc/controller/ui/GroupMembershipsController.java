@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
@@ -44,10 +44,10 @@ public class GroupMembershipsController extends UiController
   private final DomainGroupService domainGroupService;
 
   public GroupMembershipsController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainGroupService domainGroupService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainGroupService = domainGroupService;
   }
 

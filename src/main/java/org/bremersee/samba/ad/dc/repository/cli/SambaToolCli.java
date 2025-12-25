@@ -2,11 +2,11 @@ package org.bremersee.samba.ad.dc.repository.cli;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 
 public abstract class SambaToolCli extends CommandExecutor {
 
-  protected SambaToolCli(DomainControllerProperties properties) {
+  protected SambaToolCli(ApplicationProperties properties) {
     super(properties);
   }
 

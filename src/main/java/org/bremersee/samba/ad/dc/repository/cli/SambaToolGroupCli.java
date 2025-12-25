@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.model.NisDomainMember;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
 
-  SambaToolGroupCli(DomainControllerProperties properties) {
+  SambaToolGroupCli(ApplicationProperties properties) {
     super(properties);
   }
 

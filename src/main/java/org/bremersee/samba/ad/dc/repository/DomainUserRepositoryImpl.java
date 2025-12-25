@@ -29,7 +29,7 @@ import org.bremersee.ldaptive.AbstractLdaptiveErrorHandler;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainUser;
@@ -78,7 +78,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
    * @param domainRepository the domain repository
    */
   public DomainUserRepositoryImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate,
       DomainRepository domainRepository,
       SambaToolUser domainUserTool) {

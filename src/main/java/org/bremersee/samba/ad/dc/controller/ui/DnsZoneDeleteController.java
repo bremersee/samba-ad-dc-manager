@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.DnsZoneDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
@@ -50,7 +50,7 @@ public class DnsZoneDeleteController extends UiController
   private final DnsService dnsService;
 
   public DnsZoneDeleteController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DnsService dnsService) {
     super(properties, localeResolver);

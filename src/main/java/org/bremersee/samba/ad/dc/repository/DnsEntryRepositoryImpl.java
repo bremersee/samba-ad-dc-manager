@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;
 import org.ldaptive.DeleteRequest;
@@ -49,7 +49,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   private final SambaToolDns dnsTool;
 
   public DnsEntryRepositoryImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate,
       DomainRepository domainRepository,
       DnsZoneRepository dnsZoneRepository,

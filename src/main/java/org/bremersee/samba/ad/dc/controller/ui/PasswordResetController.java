@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetModel;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetRequestModel;
@@ -62,17 +62,17 @@ public class PasswordResetController extends UiController {
   private final Pattern passwordPattern;
 
   public PasswordResetController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       PasswordResetCryptoService<AesEncValue> passwordResetCryptoService,
       DomainService domainService,
       DomainUserService domainUserService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.passwordResetCryptoService = passwordResetCryptoService;
     this.domainService = domainService;
     this.domainUserService = domainUserService;
     this.usernamePattern = Pattern
-        .compile(domainControllerProperties.getUser().getNewSamAccountNameRegex());
+        .compile(properties.getUser().getNewSamAccountNameRegex());
     this.passwordPattern = Pattern
         .compile(domainService.getPasswordInformation().getPasswordRegex());
   }
@@ -171,7 +171,8 @@ public class PasswordResetController extends UiController {
           if (!newPassword.equals(newPasswordRepetition)) {
             bindingResult.rejectValue("newPasswordRepetition", "todo", "Passwords must be equal.");
           } else if (!passwordPattern.matcher(newPassword).matches()) {
-            bindingResult.rejectValue("newPassword", "todo", "Password is too weak. Please try a stronger password.");
+            bindingResult.rejectValue("newPassword", "todo",
+                "Password is too weak. Please try a stronger password.");
           }
           DomainUser newUser = passwordReset.isInvitation()
               ? updateUser(user, passwordResetModel.getUsername(), bindingResult)

@@ -18,7 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -46,7 +46,7 @@ public class DnsZoneEntriesController extends UiController
   private final DnsService dnsService;
 
   public DnsZoneEntriesController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       SortMapper sortMapper,
       DnsService dnsService) {

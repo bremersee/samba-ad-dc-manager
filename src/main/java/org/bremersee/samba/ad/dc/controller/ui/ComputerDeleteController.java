@@ -19,7 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.SamAccountDeleteModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -51,10 +51,10 @@ public class ComputerDeleteController extends UiController implements PageableCo
   private final DomainComputerService domainComputerService;
 
   public ComputerDeleteController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainComputerService domainComputerService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainComputerService = domainComputerService;
   }
 

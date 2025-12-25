@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +31,8 @@ import org.springframework.web.servlet.LocaleResolver;
 public class ManagementController extends UiController
     implements OrganizationalUnitComponent {
 
-  public ManagementController(DomainControllerProperties properties,
+  public ManagementController(
+      ApplicationProperties properties,
       LocaleResolver localeResolver) {
     super(properties, localeResolver);
   }

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
@@ -36,7 +36,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
   private final SambaToolComputer domainComputerTool;
 
   DomainComputerRepositoryImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       SambaToolComputer domainComputerTool,
       LdaptiveTemplate ldapTemplate) {
     super(properties, ldapTemplate);

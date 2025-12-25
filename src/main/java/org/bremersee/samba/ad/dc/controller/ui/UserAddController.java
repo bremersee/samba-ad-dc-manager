@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.UserAddModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.UserAddModel;
@@ -73,13 +73,13 @@ public class UserAddController extends UiController
   private final TemplateEngine templateEngine;
 
   public UserAddController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService,
       OrganizationalUnitService organizationalUnitService,
       TemplateEngine templateEngine) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainService = domainService;
     this.domainUserService = domainUserService;
     this.organizationalUnitService = organizationalUnitService;

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.UserEditModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.UserEditModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
@@ -74,13 +74,13 @@ public class UserEditController extends UiController implements PageableComponen
   private final OrganizationalUnitService organizationalUnitService;
 
   public UserEditController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainService = domainService;
     this.domainUserService = domainUserService;
     this.domainGroupService = domainGroupService;

@@ -26,7 +26,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.SamAccount;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
@@ -60,7 +60,7 @@ public abstract class SamAccountRepository extends AdRepository {
    * @param ldapTemplate the ldap template
    */
   protected SamAccountRepository(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate) {
     super(properties, ldapTemplate);
     this.newSamAccountNamePattern = Pattern

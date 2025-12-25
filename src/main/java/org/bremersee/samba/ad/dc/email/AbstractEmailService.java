@@ -24,10 +24,9 @@ import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.repository.DomainUserRepository;
-import org.bremersee.samba.ad.dc.service.EmailService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.TemplateEngine;
@@ -42,7 +41,7 @@ import org.thymeleaf.context.Context;
 public abstract class AbstractEmailService {
 
   @Getter(AccessLevel.PACKAGE)
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   @Getter(AccessLevel.PACKAGE)
   private final DomainUserRepository userRepository;
@@ -58,7 +57,7 @@ public abstract class AbstractEmailService {
    * @param templateEngine the template engine
    */
   public AbstractEmailService(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       DomainUserRepository userRepository,
       TemplateEngine templateEngine) {
     this.properties = properties;

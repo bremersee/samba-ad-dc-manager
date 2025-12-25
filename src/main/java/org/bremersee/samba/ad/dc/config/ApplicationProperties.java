@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 @ToString(exclude = "cryptoSecret")
 @EqualsAndHashCode
 @Slf4j
-public class DomainControllerProperties implements Serializable {
+public class ApplicationProperties implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 3L;

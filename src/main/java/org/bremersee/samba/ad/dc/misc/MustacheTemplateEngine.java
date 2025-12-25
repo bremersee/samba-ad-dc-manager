@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,12 +36,12 @@ import org.springframework.stereotype.Component;
 @Component("mustacheTemplateEngine")
 public class MustacheTemplateEngine implements TemplateEngine {
 
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   private final List<TemplateEngineContextSupplier> contextSuppliers;
 
   public MustacheTemplateEngine(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       List<TemplateEngineContextSupplier> contextSuppliers) {
     this.properties = properties;
     this.contextSuppliers = contextSuppliers;

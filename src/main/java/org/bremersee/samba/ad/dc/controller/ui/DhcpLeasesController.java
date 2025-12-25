@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -54,11 +54,11 @@ public class DhcpLeasesController extends UiController
   private final DnsService dnsService;
 
   public DhcpLeasesController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       SortMapper sortMapper,
       DnsService dnsService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.sortMapper = sortMapper;
     this.dnsService = dnsService;
   }

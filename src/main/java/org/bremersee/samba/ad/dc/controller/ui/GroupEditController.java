@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupEditModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditModel;
@@ -66,12 +66,12 @@ public class GroupEditController extends UiController implements PageableCompone
   private final OrganizationalUnitService organizationalUnitService;
 
   public GroupEditController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainService = domainService;
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;

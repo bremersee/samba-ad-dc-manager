@@ -21,18 +21,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties.MailInlineAttachment;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties.MailInlineAttachment;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.repository.DomainUserRepository;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.thymeleaf.TemplateEngine;
 
@@ -63,7 +61,7 @@ public class EmailServiceImpl extends AbstractEmailService {
    * @param javaMailSenderProvider the java mail sender provider
    */
   public EmailServiceImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       DomainUserRepository userRepository,
       TemplateEngine templateEngine,
       ResourceLoader resourceLoader,

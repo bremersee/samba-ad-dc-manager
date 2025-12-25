@@ -30,7 +30,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveTemplate;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DistinguishedNameProvider;
@@ -59,7 +59,7 @@ public abstract class AdRepository implements ErrorCode {
   };
 
   @Getter(AccessLevel.PROTECTED)
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   @Getter(AccessLevel.PROTECTED)
   private final DnTool dnTool;
@@ -83,7 +83,7 @@ public abstract class AdRepository implements ErrorCode {
    * @param ldapTemplate the ldap template
    */
   protected AdRepository(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate) {
 
     Assert.notNull(properties, "Domain controller properties must be present.");

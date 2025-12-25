@@ -16,7 +16,7 @@
 
 package org.bremersee.samba.ad.dc.controller;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 
 /**
  * The interface DomainControllerPropertiesProvider.
@@ -25,6 +25,6 @@ import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
  */
 public interface DomainControllerPropertiesProvider {
 
-  DomainControllerProperties getProperties();
+  ApplicationProperties getProperties();
 
 }

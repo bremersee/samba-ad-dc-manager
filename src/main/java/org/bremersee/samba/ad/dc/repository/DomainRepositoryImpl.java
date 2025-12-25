@@ -25,7 +25,7 @@ import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.ldaptive.LdapAttribute;
@@ -59,14 +59,13 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
    * @param properties the properties
    */
   public DomainRepositoryImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LdaptiveTemplate ldapTemplate,
       HostNameSupplier hostNameSupplier,
       SambaToolDomain domainTool) {
     super(properties, ldapTemplate);
     this.hostName = properties.getDomain().getHostName();
     this.hostNameSupplier = hostNameSupplier;
-
     this.random = new SecureRandom();
     this.domainTool = domainTool;
   }

@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.ErrorCode;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.repository.OrganizationalUnitRepository;
@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class OrganizationalUnitServiceImpl implements OrganizationalUnitService, ErrorCode {
 
-  private final DomainControllerProperties properties;
+  private final ApplicationProperties properties;
 
   private final SortMapper sortMapper;
 
@@ -55,7 +55,7 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
   private final OrganizationalUnit base;
 
   public OrganizationalUnitServiceImpl(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       SortMapper sortMapper,
       OrganizationalUnitRepository repository) {
     this.properties = properties;

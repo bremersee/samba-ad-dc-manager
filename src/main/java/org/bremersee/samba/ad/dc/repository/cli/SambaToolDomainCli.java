@@ -2,7 +2,7 @@ package org.bremersee.samba.ad.dc.repository.cli;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.repository.SambaToolDomain;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain {
 
-  public SambaToolDomainCli(DomainControllerProperties properties) {
+  public SambaToolDomainCli(ApplicationProperties properties) {
     super(properties);
   }
 

@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.repository.cli;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.SambaToolComputer;
 import org.bremersee.samba.ad.dc.repository.cli.validator.ComputerDeleteValidator;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 class SambaToolComputerCli extends SambaToolCli implements SambaToolComputer {
 
-  SambaToolComputerCli(DomainControllerProperties properties) {
+  SambaToolComputerCli(ApplicationProperties properties) {
     super(properties);
   }
 

@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.controller.ui;
 
 import org.bremersee.exception.ServiceException;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -41,7 +41,7 @@ public class DnsZoneInfoController extends UiController
   private final DnsService dnsService;
 
   public DnsZoneInfoController(
-      DomainControllerProperties properties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DnsService dnsService) {
     super(properties, localeResolver);

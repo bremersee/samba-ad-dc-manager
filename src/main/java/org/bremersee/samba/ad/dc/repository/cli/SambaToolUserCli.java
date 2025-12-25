@@ -6,7 +6,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.NisDomainMember;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SambaToolUserCli extends SambaToolCli implements SambaToolUser {
 
-  public SambaToolUserCli(DomainControllerProperties properties) {
+  public SambaToolUserCli(ApplicationProperties properties) {
     super(properties);
   }
 

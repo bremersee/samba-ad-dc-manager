@@ -23,7 +23,7 @@ import java.util.Set;
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
@@ -63,12 +63,12 @@ public class GroupEditMembersController extends UiController implements Pageable
   private final SortMapper sortMapper;
 
   public GroupEditMembersController(
-      DomainControllerProperties domainControllerProperties,
+      ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService,
       SortMapper sortMapper) {
-    super(domainControllerProperties, localeResolver);
+    super(properties, localeResolver);
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
     this.sortMapper = sortMapper;
