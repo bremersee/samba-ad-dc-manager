@@ -62,8 +62,18 @@ public interface DomainUserRepository {
    * @param domainUser the domain user
    * @return the domain user
    */
-  DomainUser add(@NotNull DomainUser domainUser, @Nullable Dn ou,
-      @Nullable Boolean useUsernameAsCn);
+  default DomainUser add(
+      @NotNull DomainUser domainUser,
+      @Nullable Dn ou,
+      @Nullable Boolean useUsernameAsCn) {
+    return add(domainUser, ou, useUsernameAsCn, null);
+  }
+
+  DomainUser add(
+      @NotNull DomainUser domainUser,
+      @Nullable Dn ou,
+      @Nullable Boolean useUsernameAsCn,
+      @Nullable String clearPassword);
 
   @NotNull
   DomainUser update(@NotEmpty String userName, @NotNull DomainUser domainUser, @Nullable Dn newOu);

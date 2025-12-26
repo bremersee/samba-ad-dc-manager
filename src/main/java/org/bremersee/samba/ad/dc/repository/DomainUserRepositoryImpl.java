@@ -265,9 +265,13 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   }
 
   @Override
-  public DomainUser add(DomainUser domainUser, Dn ou, Boolean useUsernameAsCn) {
+  public DomainUser add(
+      DomainUser domainUser,
+      Dn ou,
+      Boolean useUsernameAsCn,
+      String clearPassword) {
 
-    log.debug("add({}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn);
+    log.debug("add({}, {}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn, isEmpty(clearPassword) ? "null" : "****");
 
     validateNewSamAccountName(domainUser);
     validateEmail(domainUser.getEmail());

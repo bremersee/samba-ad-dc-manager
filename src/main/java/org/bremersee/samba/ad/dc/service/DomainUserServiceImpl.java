@@ -79,21 +79,10 @@ public class DomainUserServiceImpl implements DomainUserService {
       DomainUser domainUser,
       Dn ou,
       Boolean useUsernameAsCn,
-      Boolean sendEmail) {
+      String clearPassword) {
 
-    log.debug("addUser({}, {}, {}, {})",
-        domainUser.getSamAccountName(), ou, useUsernameAsCn, sendEmail);
-    DomainUser addedDomainUser = domainUserRepository.add(domainUser, ou, useUsernameAsCn);
-    if (Boolean.TRUE.equals(sendEmail)) {
-      // TODO
-      /*
-      emailService.sendEmailWithCredentials(
-          addedDomainUser.getSamAccountName(),
-          domainUser.getPassword());
-
-       */
-    }
-    return addedDomainUser;
+    log.debug("addUser({}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn);
+    return domainUserRepository.add(domainUser, ou, useUsernameAsCn);
   }
 
   @Override

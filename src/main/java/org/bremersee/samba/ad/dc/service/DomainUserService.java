@@ -52,18 +52,19 @@ public interface DomainUserService {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
-  /**
-   * Add domain user.
-   *
-   * @param domainUser the domain user
-   * @param sendEmail specifies whether to send an email or not (default is {@code false})
-   * @return the domain user
-   */
+  // TODO remove
+  default DomainUser addUser(
+      @NotNull @Valid DomainUser domainUser,
+      @Nullable Dn ou,
+      @Nullable Boolean useUsernameAsCn) {
+    return addUser(domainUser, ou, useUsernameAsCn, null);
+  }
+
   DomainUser addUser(
       @NotNull @Valid DomainUser domainUser,
       @Nullable Dn ou,
       @Nullable Boolean useUsernameAsCn,
-      @Nullable Boolean sendEmail);
+      @Nullable String clearPassword);
 
   /**
    * Get domain user.

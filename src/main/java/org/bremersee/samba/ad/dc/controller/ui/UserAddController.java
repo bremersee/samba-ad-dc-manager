@@ -173,9 +173,11 @@ public class UserAddController extends UiController
         .orElseGet(() -> getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()));
     boolean useUsernameAsCn = addModel.isUseUsernameAsCn();
     boolean sendEmail = addModel.isSendEmail();
+    // TODO
+    addModel.getPassword();
 
     try {
-      DomainUser addedUser = domainUserService.addUser(user, ou, useUsernameAsCn, false);
+      DomainUser addedUser = domainUserService.addUser(user, ou, useUsernameAsCn);
       if (sendEmail) {
         eventPublisher.publishEvent(new InvitationEvent(addedUser));
       }
