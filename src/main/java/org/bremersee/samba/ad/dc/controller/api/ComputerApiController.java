@@ -40,10 +40,8 @@ public class ComputerApiController extends ApiController {
     this.domainComputerService = domainComputerService;
   }
 
-  // TODO @PageableAsQueryParam from sprindoc
   @Operation(
-      summary = "Get page of computers.",
-      description = "",
+      description = "Get computer page.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
           @SecurityRequirement(name = "basicAuth")}
   )

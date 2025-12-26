@@ -118,6 +118,9 @@ public class WebSecurityConfiguration {
             .requestMatchers("/passwd").permitAll()
             .requestMatchers("/passwd/**").permitAll()
 
+            .requestMatchers(new AntPathRequestMatcher("/api/users/*/avatar", "GET"))
+            .permitAll()
+
             .anyRequest().authenticated())
 
         .csrf(customizer -> customizer

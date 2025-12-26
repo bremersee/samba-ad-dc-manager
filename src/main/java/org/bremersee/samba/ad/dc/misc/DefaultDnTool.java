@@ -3,8 +3,10 @@ package org.bremersee.samba.ad.dc.misc;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 @Component
+@Validated
 public class DefaultDnTool implements DnTool {
 
   private final ApplicationProperties properties;
