@@ -105,14 +105,18 @@ public class WebSecurityConfiguration {
             .requestMatchers("/fonts/**").permitAll()
             .requestMatchers("/lib/**").permitAll()
 
-            .requestMatchers("/login").permitAll()
-            .requestMatchers("/logged-out").permitAll()
-            .requestMatchers("/index.html").permitAll()
-
             .requestMatchers("/v3/**").permitAll()
             .requestMatchers("/webjars/**").permitAll()
             .requestMatchers("/swagger-ui/**").permitAll()
             .requestMatchers("/swagger-ui.html").permitAll()
+
+            .requestMatchers("/login").permitAll()
+            .requestMatchers("/logged-out").permitAll()
+
+            .requestMatchers("/").permitAll()
+            .requestMatchers("/index.html").permitAll()
+            .requestMatchers("/passwd").permitAll()
+            .requestMatchers("/passwd/**").permitAll()
 
             .anyRequest().authenticated())
 

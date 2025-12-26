@@ -26,6 +26,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -73,7 +74,7 @@ public class PasswordChangeController extends UiController {
     return domainService.getDomainInfo().getDomain();
   }
 
-  @GetMapping(path = {"", "/", "/index.html"})
+  @GetMapping(path = {"", "/", "/index.html", "/passwd", "/passwd/", "/passwd/index.html"})
   public String displayChangePassword() {
     return "redirect:passwd/password-change";
   }
@@ -85,7 +86,7 @@ public class PasswordChangeController extends UiController {
 
     PasswordChangeModel changePasswordModel = new PasswordChangeModel();
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (!isEmpty(authentication) && authentication.isAuthenticated()) {
+    if (isFullyAuthenticated()) {
       changePasswordModel.setUsername(authentication.getName());
     } else if (!isEmpty(username)) {
       changePasswordModel.setUsername(username);
@@ -131,6 +132,13 @@ public class PasswordChangeController extends UiController {
         "todo");
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     return "redirect:password-change";
+  }
+
+  private boolean isFullyAuthenticated() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return !isEmpty(authentication)
+        && authentication.isAuthenticated()
+        && !(authentication instanceof AnonymousAuthenticationToken);
   }
 
 }
