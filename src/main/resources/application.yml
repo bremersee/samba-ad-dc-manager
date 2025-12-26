@@ -38,7 +38,7 @@ spring:
   profiles:
     default: mock,in-memory
   application:
-    name: ${APPLICATION_NAME:dc-con-app}
+    name: ${APPLICATION_NAME:samba-ad-dc-manager}
   cache:
     jcache:
       config: classpath:ehcache.xml
@@ -54,6 +54,12 @@ spring:
         max-interval: ${CONFIG_RETRY_MAX_INTERVAL:4000}
         max-attempts: ${CONFIG_RETRY_MAX_ATTEMPTS:8}
         multiplier: ${CONFIG_RETRY_MULTIPLIER:1.1}
+  mail:
+    host: smtp.mail.me.com
+    username: ""
+    password: ""
+    port: 587
+    test-connection: true
   messages:
     use-code-as-default-message: true
     fallback-to-system-locale: false
