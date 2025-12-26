@@ -37,10 +37,12 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TemplateEngine;
 import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.Assert;
@@ -62,6 +64,8 @@ public class UserAddController extends UiController
     implements PageableComponent, RedirectComponent, FieldTemplateComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
+  private final ApplicationEventPublisher eventPublisher;
+
   private final DomainService domainService;
 
   private final DomainUserService domainUserService;
@@ -76,10 +80,12 @@ public class UserAddController extends UiController
       ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
+      ApplicationEventPublisher eventPublisher,
       DomainUserService domainUserService,
       OrganizationalUnitService organizationalUnitService,
       TemplateEngine templateEngine) {
     super(properties, localeResolver);
+    this.eventPublisher = eventPublisher;
     this.domainService = domainService;
     this.domainUserService = domainUserService;
     this.organizationalUnitService = organizationalUnitService;
@@ -169,7 +175,11 @@ public class UserAddController extends UiController
     boolean sendEmail = addModel.isSendEmail();
 
     try {
-      return domainUserService.addUser(user, ou, useUsernameAsCn, sendEmail);
+      DomainUser addedUser = domainUserService.addUser(user, ou, useUsernameAsCn, false);
+      if (sendEmail) {
+        eventPublisher.publishEvent(new InvitationEvent(addedUser));
+      }
+      return addedUser;
 
     } catch (ServiceException e) {
       handleException(bindingResult, e);

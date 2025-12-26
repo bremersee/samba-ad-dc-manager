@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:lang="${user.preferredLanguage}">
+  <head>
+    <title th:remove="all">Welcome</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  </head>
+  <body>
+    <p>
+      <span th:text="#{common.hello(${user.name})}">
+        Hello, James!
+      </span>
+    </p>
+    <p>
+      <span th:text="#{invitation-email.account-created}">
+        I created an account for you in my domain
+      </span>
+      <a href="#"
+         th:href="${properties.user.defaultLoginPage.url}"
+         th:text="${domain.domainInfo.domain}">
+        bremersee.org
+      </a>
+      <span>!</span>
+    </p>
+    <p>
+      <span th:text="#{invitation-email.reset-password}">
+        To set a username and a password please click
+      </span>
+      <a href="#"
+         th:href="${resetUri}"
+         th:text="#{invitation-email.reset-password.link}">
+        here
+      </a>
+    </p>
+    <p>
+      <span th:text="#{invitation-email.login}">
+        After you have set your username and password, you can log into
+      </span>
+      <a href="#"
+         th:href="${properties.user.defaultLoginPage.url}"
+         th:text="${properties.user.defaultLoginPage.name}">
+        DATA
+      </a>
+    </p>
+    <p>
+      <span th:text="#{common.regards}">
+        Regards,
+      </span>
+      <br/>
+      <span th:text="${properties.email.regards}">
+        Anna Livia
+      </span>
+    </p>
+  </body>
+</html>

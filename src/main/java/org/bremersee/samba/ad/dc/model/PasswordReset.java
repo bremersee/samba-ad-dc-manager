@@ -16,8 +16,8 @@ import org.immutables.value.Value;
     withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
-@JsonSerialize(as = ImmutableDomainInfo.class)
-@JsonDeserialize(as = ImmutableDomainInfo.class)
+@JsonSerialize(as = ImmutablePasswordReset.class)
+@JsonDeserialize(as = ImmutablePasswordReset.class)
 public interface PasswordReset {
 
   @JsonProperty(value = "username", required = true)

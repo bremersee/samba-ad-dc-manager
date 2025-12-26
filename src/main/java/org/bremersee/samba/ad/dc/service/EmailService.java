@@ -77,14 +77,22 @@ public class EmailService {
     log.info("Email service initialized.");
   }
 
-  @EventListener(PasswordResetEvent.class)
+  @EventListener
   @Async
+  public void onPasswordResetEvent(PasswordResetEvent passwordResetEvent) {
+    sendPasswordResetEmail(passwordResetEvent.getSource());
+  }
+
   public void sendPasswordResetEmail(DomainUser user) {
     sendEmail(user, false);
   }
 
-  @EventListener(InvitationEvent.class)
+  @EventListener
   @Async
+  public void onInvitationEvent(InvitationEvent event) {
+    sendInvitationEmail(event.getSource());
+  }
+
   public void sendInvitationEmail(DomainUser user) {
     sendEmail(user, true);
   }
@@ -125,11 +133,11 @@ public class EmailService {
     contextSuppliers.forEach(contextSupplier -> contextSupplier
         .getTemplateEngineContext().forEach(ctx::setVariable));
     ctx.setVariable("user", user);
-    ctx.setVariable("props", properties);
+    ctx.setVariable("properties", properties);
     ctx.setVariable("resetUri", getPasswordResetUri(user, isInvitation));
     String template = isInvitation
-        ? "mail/password-reset-email"
-        : "mail/invitation-email";
+        ? "email/invitation-email"
+        : "email/password-reset-email";
     return templateEngine.process(template, ctx);
   }
 

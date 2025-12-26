@@ -35,6 +35,8 @@ public class EmailProperties implements Serializable {
 
   private String sender = "christian@bremersee.org";
 
+  private String regards = "Christian";
+
   private String baseUri = "http://localhost:8080";
 
   public RegexFlags getEmailRegexFlags() {

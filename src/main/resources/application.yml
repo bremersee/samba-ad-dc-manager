@@ -56,10 +56,11 @@ spring:
         multiplier: ${CONFIG_RETRY_MULTIPLIER:1.1}
   mail:
     host: smtp.mail.me.com
-    username: ""
-    password: ""
     port: 587
     test-connection: true
+    properties:
+      mail.smtp.starttls.enable: true
+
   messages:
     use-code-as-default-message: true
     fallback-to-system-locale: false
