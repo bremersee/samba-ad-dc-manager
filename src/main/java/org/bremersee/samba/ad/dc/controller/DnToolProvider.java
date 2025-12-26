@@ -20,11 +20,11 @@ import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 
 /**
- * The interface DnToolProvider.
+ * The DnTool provider.
  *
  * @author Christian Bremer
  */
-public interface DnToolProvider extends DomainControllerPropertiesProvider {
+public interface DnToolProvider extends ApplicationPropertiesProvider {
 
   default DnTool getDnTool() {
     return new DefaultDnTool(getProperties());

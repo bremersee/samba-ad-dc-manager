@@ -19,11 +19,11 @@ package org.bremersee.samba.ad.dc.controller;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 
 /**
- * The interface DomainControllerPropertiesProvider.
+ * The application properties provider.
  *
  * @author Christian Bremer
  */
-public interface DomainControllerPropertiesProvider {
+public interface ApplicationPropertiesProvider {
 
   ApplicationProperties getProperties();
 
