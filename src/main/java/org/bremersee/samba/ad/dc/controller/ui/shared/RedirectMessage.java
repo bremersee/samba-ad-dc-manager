@@ -16,37 +16,60 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.shared;
 
-import jakarta.validation.constraints.NotEmpty;
+import static java.util.Objects.requireNonNullElse;
+
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
+ * The redirect message.
+ *
  * @author Christian Bremer
  */
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
 public class RedirectMessage implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The constant ATTRIBUTE_NAME.
+   */
   public static final String ATTRIBUTE_NAME = "rmsg";
 
-  private RedirectMessageType msgType = RedirectMessageType.INFO;
+  private final RedirectMessageType msgType;
 
-  private String msg;
+  private final String msg;
 
+  /**
+   * Instantiates a new redirect message.
+   */
   public RedirectMessage() {
+    this(null);
   }
 
-  public RedirectMessage(@NotEmpty String msg) {
-    this.msg = msg;
+  /**
+   * Instantiates a new redirect message.
+   *
+   * @param msg the msg
+   */
+  public RedirectMessage(String msg) {
+    this(msg, null);
   }
 
-  public RedirectMessage(@NotEmpty String msg, RedirectMessageType msgType) {
-    if (msgType != null) {
-      this.msgType = msgType;
-    }
-    this.msg = msg;
+  /**
+   * Instantiates a new redirect message.
+   *
+   * @param msg the msg
+   * @param msgType the msg type
+   */
+  public RedirectMessage(String msg, RedirectMessageType msgType) {
+    this.msgType = requireNonNullElse(msgType, RedirectMessageType.INFO);
+    this.msg = requireNonNullElse(msg, "");
   }
 }

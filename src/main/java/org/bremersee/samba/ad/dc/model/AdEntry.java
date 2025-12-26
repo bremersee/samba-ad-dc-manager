@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Optional;
@@ -19,7 +20,7 @@ import org.springframework.lang.Nullable;
  * @author Christian Bremer
  */
 @Schema(description = "Active directory base entry.")
-public interface AdEntry extends DistinguishedNameProvider {
+public interface AdEntry extends Serializable, DistinguishedNameProvider {
 
   /**
    * The distinguished name in the active directory.

@@ -29,28 +29,30 @@ import org.springframework.util.Assert;
 @Component("paginationHelper")
 public class PaginationHelper {
 
+  private static final String PAGE_MUST_NOT_BE_NULL = "Page must not be null.";
+
   private int ceil(Number a, Number b) {
     return (int) Math.ceil(a.doubleValue() / b.doubleValue());
   }
 
   public int getTotalPages(AbstractPageDto<?> page) {
-    Assert.notNull(page, "Page must not be null.");
+    Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     return ceil(page.getTotalElements(), page.getSize());
   }
 
   public int getTotalPages(Page<?> page) {
-    Assert.notNull(page, "Page must not be null.");
+    Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     return ceil(page.getTotalElements(), page.getSize());
   }
 
   public boolean isValidPageNumber(AbstractPageDto<?> page, int number) {
-    Assert.notNull(page, "Page must not be null.");
+    Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     int totalPages = getTotalPages(page);
     return 0 <= number && number < totalPages;
   }
 
   public boolean isValidPageNumber(Page<?> page, int number) {
-    Assert.notNull(page, "Page must not be null.");
+    Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     int totalPages = getTotalPages(page);
     return 0 <= number && number < totalPages;
   }
