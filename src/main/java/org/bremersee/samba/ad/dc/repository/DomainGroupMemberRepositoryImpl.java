@@ -117,10 +117,9 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         .sorted();
     Optional<DomainGroup> primaryGroup = Optional.ofNullable(samAccount.getPrimaryGroupId())
         .flatMap(domainGroupRepository::findOneByPrimaryGroupId);
-    if (primaryGroup.isPresent() && equals(primaryGroup.get(), samAccount)) {
-      return groups;
-    }
-    return Stream.concat(primaryGroup.stream(), groups);
+    return Stream.concat(
+        primaryGroup.stream(),
+        groups);
   }
 
   Optional<SamAccount> findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
@@ -145,20 +144,6 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     return getLdapTemplate().findOne(searchRequest)
         .filter(getIgnoredEntryFilter(ou, TreeSearchScopeConverter.toSearchScope(searchScope)))
         .map(domainGroupMemberLdapMapper::map);
-  }
-
-  private boolean equals(SamAccount samAccount1, SamAccount samAccount2) {
-    boolean result = Objects.equals(samAccount1, samAccount2);
-    if (result) {
-      return true;
-    }
-    result = Objects.equals(samAccount1.getSamAccountName(), samAccount2.getSamAccountName());
-    if (result) {
-      return true;
-    }
-    return Objects.equals(
-        samAccount1.getSamAccountName().toLowerCase(),
-        samAccount2.getSamAccountName().toLowerCase());
   }
 
   @Override
@@ -232,8 +217,8 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         .filter(getIgnoredEntryFilter())
         .map(domainGroupMemberLdapMapper::map)
         .filter(member -> !member.getSamAccountName().equals(group.getSamAccountName()))
-        .map(member -> member.withMember(isMember(member, memberDns, group.getPrimaryGroupId())))
-        .map(member -> member.withPrimaryMember(isPrimaryMember(member, group.getPrimaryGroupId())))
+        .map(member -> member.withMember(isMember(member, memberDns, group.getGroupId())))
+        .map(member -> member.withPrimaryMember(isPrimaryMember(member, group.getGroupId())))
         .filter(member -> withPrimaryMembers || !member.isPrimaryMember());
   }
 
@@ -319,7 +304,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         .flatMap(member -> findSamAccount(member, null, null).stream())
         .filter(member -> !isEmpty(member))
         .filter(member -> !Objects
-            .equals(member.getPrimaryGroupId(), group.getPrimaryGroupId()))
+            .equals(member.getPrimaryGroupId(), group.getGroupId()))
         .map(AdEntry::getDistinguishedName)
         .map(dn -> new DnPair(dn, new Dn(dn).format()))
         .collect(Collectors.toSet());

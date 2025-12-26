@@ -244,8 +244,8 @@
                   aria-describedby="primaryGroupIdValidation"
                   th:classappend="${#fields.hasErrors('primaryGroupId')} ? 'is-invalid' : ''"
                   th:field="*{primaryGroupId}">
-            <option th:each="o : ${groups}" th:value="${o.primaryGroupId}" th:text="${o.samAccountName}">
-              Domain Users
+            <option th:each="o : ${groups}" th:value="${o.groupId}" th:text="${o.samAccountName}">
+              Domain Group
             </option>
           </select>
           <div id="primaryGroupIdValidation" class="invalid-feedback"

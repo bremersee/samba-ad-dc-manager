@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.Optional;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
  * The windows/samba SID. Well known (system) SIDs are listed <a
@@ -71,6 +72,7 @@ public interface Sid {
   @Hidden
   @JsonIgnore
   @Value.Lazy
+  @Nullable
   default Integer getSuffix() {
     return Optional.ofNullable(getValue())
         .map(v -> {

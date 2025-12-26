@@ -218,27 +218,27 @@
       <ul class="pagination justify-content-center">
         <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 3)}">
           <a class="page-link" href="#" aria-label="First"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=0,member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=0,member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 5)}">
           <a class="page-link" href="#" aria-label="Previous"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 5},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 5},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&mldr;</span>
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 2)}">
           <a class="page-link" href="#" th:text="${memberPage.number - 1}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 2},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 2},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             1
           </a>
         </li>
         <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 1)}">
           <a class="page-link" href="#" th:text="${memberPage.number}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 1},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 1},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             2
           </a>
         </li>
@@ -250,28 +250,28 @@
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 1)}">
           <a class="page-link" href="#" th:text="${memberPage.number + 2}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 1},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 1},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             4
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 2)}">
           <a class="page-link" href="#" th:text="${memberPage.number + 3}"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 2},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 2},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             5
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 5)}">
           <a class="page-link" href="#" aria-label="Next"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 5},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 5},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&mldr;</span>
           </a>
         </li>
         <li class="page-item"
             th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 3)}">
           <a class="page-link" href="#" aria-label="Last"
-             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${@paginationHelper.getTotalPages(memberPage) - 1},member-size=${memberPageSize},member-primary=${withPrimaryMembers},member-sort=${memberSort},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${@paginationHelper.getTotalPages(memberPage) - 1},member-size=${memberPageSize},member-primary=${withPrimaryMembers},member-sort=${memberSort},member-q=${memberQuery},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
             <span aria-hidden="true">&raquo;</span>
           </a>
         </li>

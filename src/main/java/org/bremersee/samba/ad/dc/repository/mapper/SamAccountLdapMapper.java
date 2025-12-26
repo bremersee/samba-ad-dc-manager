@@ -82,7 +82,6 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
         .getValue(source, false)
         .ifPresent(builder::criticalSystemObject);
     AdConstants.PRIMARY_GROUP_ID
-        // no default, because groups have no primary .getValue(source, sid.map(Sid::getSuffix).orElse(null))
         .getValue(source)
         .ifPresent(builder::primaryGroupId);
     builder.memberships(AdConstants.MEMBER_OF_GROUP

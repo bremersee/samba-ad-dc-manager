@@ -1,5 +1,7 @@
 package org.bremersee.samba.ad.dc.model;
 
-public record AesEncValue(String encryptedValue, String salt) {
+import jakarta.validation.constraints.NotEmpty;
+
+public record AesEncValue(@NotEmpty String encryptedValue, @NotEmpty String salt) {
 
 }

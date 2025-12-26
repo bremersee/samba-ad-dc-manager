@@ -9,15 +9,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
-import org.ldaptive.dn.Dn;
-import org.ldaptive.dn.RDn;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -49,6 +46,19 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
   @Value.Lazy
   @Override
   default String getNameTree() {
+    String nameTree = Optional.ofNullable(getDn())
+        .map(dn -> new ArrayList<>(dn.getRDns()))
+        .map(list -> {
+          Collections.reverse(list);
+          return list;
+        })
+        .orElseGet(ArrayList::new)
+        .stream()
+        .filter(rdn -> !rdn.getNameValue().hasName("dc"))
+        .map(rdn -> rdn.getNameValue().getStringValue())
+        .collect(Collectors.joining(" → "));
+    // TODO
+    /*
     String nameTree = Stream.ofNullable(getDn())
         .map(Dn::getRDns)
         .flatMap(rdnList -> {
@@ -59,6 +69,7 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
         .filter(rdn -> !rdn.getNameValue().hasName("dc"))
         .map(rdn -> rdn.getNameValue().getStringValue())
         .collect(Collectors.joining(" → "));
+    */
     if (nameTree.isEmpty()) {
       return getName();
     }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import org.immutables.serial.Serial;
@@ -30,7 +31,8 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainUser.class)
 public interface DomainUser extends SamAccount, NisDomainMember {
 
-  default DomainUser withDistinguishedName(String distinguishedName) {
+  @NotNull
+  default DomainUser withDistinguishedName(@NotNull String distinguishedName) {
     return builder().distinguishedName(distinguishedName).build();
   }
 

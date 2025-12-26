@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import org.immutables.serial.Serial;
@@ -27,7 +28,8 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainGroup.class)
 public interface DomainGroup extends SamAccount, NisDomainMember {
 
-  DomainGroup withDistinguishedName(String distinguishedName);
+  @NotNull
+  DomainGroup withDistinguishedName(@NotNull String distinguishedName);
 
   /**
    * The description of the domain group.
@@ -76,16 +78,26 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
   @Nullable
   String getNisDomain();
 
-  @Schema(description = "The primary group id of this domain group.",
+  @Schema(description = "The group id of this domain group.",
+      accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = "groupId", access = Access.READ_ONLY)
+  @Value.Lazy
+  @Nullable
+  default Integer getGroupId() {
+    return Optional.ofNullable(getSid())
+        .map(Sid::getSuffix)
+        .orElse(null);
+  }
+
+  @Schema(description = "Groups have no primary group id. It is always null.",
       accessMode = AccessMode.READ_ONLY)
   @JsonProperty(value = "primaryGroupId", access = Access.READ_ONLY)
   @Value.Lazy
   @Nullable
   @Override
   default Integer getPrimaryGroupId() {
-    return Optional.ofNullable(getSid())
-        .map(Sid::getSuffix)
-        .orElse(null);
+    // Groups have no primary group ID.
+    return null;
   }
 
   /**

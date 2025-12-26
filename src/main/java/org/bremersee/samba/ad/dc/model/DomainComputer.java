@@ -1,6 +1,6 @@
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.isNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -67,8 +67,8 @@ public interface DomainComputer extends SamAccount {
   @Value.Lazy
   default String getSamAccountNameWithoutTrailingDollarSign() {
     String tmpName = getSamAccountName();
-    if (isNull(tmpName) || tmpName.isEmpty()) {
-      return null;
+    if (isEmpty(tmpName)) {
+      return tmpName;
     }
     return tmpName.substring(0, tmpName.length() - 1);
   }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotNull;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
@@ -49,6 +50,7 @@ public interface DomainGroupMember extends SamAccount {
     return false;
   }
 
+  @NotNull
   default DomainGroupMember withMember(boolean isMember) {
     return builder()
         .from(this)
@@ -56,6 +58,7 @@ public interface DomainGroupMember extends SamAccount {
         .build();
   }
 
+  @NotNull
   default DomainGroupMember withPrimaryMember(boolean isPrimaryMember) {
     return builder()
         .from(this)

@@ -1,7 +1,5 @@
 package org.bremersee.samba.ad.dc.model;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,9 +27,11 @@ public interface AdEntry extends DistinguishedNameProvider {
    * @return the distinguished name
    */
   @Schema(description = "The distinguished name.")
-  @Nullable
+  @Value.Default
   @Override
-  String getDistinguishedName();
+  default String getDistinguishedName() {
+    return "";
+  }
 
   /**
    * Gets distinguished name normalized.
@@ -42,7 +42,9 @@ public interface AdEntry extends DistinguishedNameProvider {
   @JsonIgnore
   @Value.Lazy
   default String getDistinguishedNameNormalized() {
-    return isEmpty(getDn()) ? null : getDn().format();
+    return Optional.ofNullable(getDn())
+        .map(Dn::format)
+        .orElse("");
   }
 
   /**
@@ -57,7 +59,7 @@ public interface AdEntry extends DistinguishedNameProvider {
     return Optional.ofNullable(getDn())
         .map(Dn::getParent)
         .map(dn -> dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
-        .orElse(null);
+        .orElse("");
   }
 
   /**
@@ -72,7 +74,7 @@ public interface AdEntry extends DistinguishedNameProvider {
     return Optional.ofNullable(getDn())
         .map(Dn::getParent)
         .map(Dn::format)
-        .orElse(null);
+        .orElse("");
   }
 
   /**
@@ -119,10 +121,9 @@ public interface AdEntry extends DistinguishedNameProvider {
   @JsonIgnore
   @Value.Lazy
   default Dn getDn() {
-    if (DnTool.isValidDn(getDistinguishedName())) {
-      return new Dn(getDistinguishedName());
-    }
-    return null;
+    return Optional.ofNullable(getDistinguishedName())
+        .map(Dn::new)
+        .orElseGet(() -> new Dn(""));
   }
 
 }
