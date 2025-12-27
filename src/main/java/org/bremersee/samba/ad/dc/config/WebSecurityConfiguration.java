@@ -142,6 +142,12 @@ public class WebSecurityConfiguration {
         .formLogin(form -> form
             .loginPage("/login"))
 
+        .logout(logout -> logout
+            //.logoutUrl("/logout")
+            .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+            .clearAuthentication(true)
+            .deleteCookies("JSESSIONID")
+            .logoutSuccessUrl("/logged-out"))
         /*
         .formLogin(form -> form
             .loginPage("/login")
@@ -153,7 +159,7 @@ public class WebSecurityConfiguration {
             .permitAll())
         */
 
-        .formLogin(Customizer.withDefaults())
+        //.formLogin(Customizer.withDefaults())
     ;
 
     if (!isEmpty(rememberMeServices)) {

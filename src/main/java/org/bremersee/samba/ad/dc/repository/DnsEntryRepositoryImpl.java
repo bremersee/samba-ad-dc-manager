@@ -16,6 +16,8 @@
 
 package org.bremersee.samba.ad.dc.repository;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
@@ -86,7 +88,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   @Override
   public void addDnsEntry(DnsEntry entry) {
     log.debug("addDnsEntry({})", entry);
-    if (!entry.getType().isAddable()) {
+    if (isEmpty(entry.getType()) || !entry.getType().isAddable()) {
       throw getDnsTypeNotSupportedException(entry);
     }
     dnsTool.addDnsEntry(getHostName(), entry);
@@ -96,7 +98,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   @Override
   public void updateDnsEntry(DnsEntry entry, String newValue) {
     log.debug("updateDnsEntry {}, {}", entry, newValue);
-    if (!entry.getType().isUpdatable()) {
+    if (isEmpty(entry.getType()) || !entry.getType().isUpdatable()) {
       throw getDnsTypeNotSupportedException(entry);
     }
     dnsTool.updateDnsEntry(getHostName(), entry, newValue);
@@ -110,7 +112,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
       return;
     }
     log.debug("deleteDnsEntry({})", entry);
-    if (!entry.getType().isAddable()) {
+    if (isEmpty(entry.getType()) || !entry.getType().isAddable()) {
       throw getDnsTypeNotSupportedException(entry);
     }
     dnsTool.deleteDnsEntry(getHostName(), entry);

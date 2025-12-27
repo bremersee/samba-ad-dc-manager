@@ -25,7 +25,6 @@ public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain 
 
   @Override
   public DomainInfo getDomainInfo(String ipOrHostname) {
-    log.debug("Get domain info for ip={}", ipOrHostname);
     List<String> commands = getCommands();
     commands.add("info");
     commands.add(quote(ipOrHostname));
@@ -36,7 +35,6 @@ public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain 
 
   @Override
   public PasswordInformation getPasswordInformation() {
-    log.debug("getPasswordInformation()");
     List<String> commands = getCommands();
     commands.add("passwordsettings");
     commands.add("show");

@@ -18,10 +18,7 @@ package org.bremersee.samba.ad.dc.repository;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.security.SecureRandom;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveTemplate;
@@ -32,8 +29,9 @@ import org.ldaptive.LdapAttribute;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
-import org.passay.CharacterRule;
-import org.passay.PasswordGenerator;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,9 +41,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("domainRepository")
 @Slf4j
-public class DomainRepositoryImpl extends AdRepository implements DomainRepository {
-
-  private final Random random;
+public class DomainRepositoryImpl extends AdRepository implements DomainRepository, KeyGenerator {
 
   private final HostNameSupplier hostNameSupplier;
 
@@ -66,7 +62,6 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     super(properties, ldapTemplate);
     this.hostName = properties.getDomain().getHostName();
     this.hostNameSupplier = hostNameSupplier;
-    this.random = new SecureRandom();
     this.domainTool = domainTool;
   }
 
@@ -80,6 +75,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
 
   @Override
   public String getDomainSid() {
+    log.debug("getDomainSid()");
     String baseDn = getProperties().getBaseDn();
     String attrName = AdConstants.OBJECT_SID.getName();
     String[] returnAttributes = new String[]{
@@ -98,37 +94,39 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     Dn dn = new Dn("CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System");
     dn.add(getDnTool().getBaseDn());
     boolean result = dnExistsWithAnyObjectClass(dn.format());
-    log.debug("Are nis extensions (rfc2307) installed? {}", result);
+    log.debug("isRfc2307Enabled() {}", result);
     return result;
   }
 
-  // TODO add cache
+  @Cacheable(value = "domainInfoCache", keyGenerator = "domainRepository")
+  @Override
+  public DomainInfo getDomainInfo() {
+    log.debug("getDomainInfo()");
+    return domainTool.getDomainInfo(getHostName());
+  }
+
+  @Cacheable(value = "domainInfoCache", key = "#p0")
   @Override
   public DomainInfo getDomainInfo(String ipOrHostname) {
+    log.debug("getDomainInfo({})", ipOrHostname);
     return domainTool.getDomainInfo(ipOrHostname);
   }
 
+  @Cacheable(value = "passwordInformationCache")
   @Override
   public PasswordInformation getPasswordInformation() {
     log.debug("getPasswordInformation()");
     return domainTool.getPasswordInformation();
   }
 
+  @NonNull
   @Override
-  public String createRandomPassword() {
-    PasswordInformation passwordInformation = getPasswordInformation();
-    int minLength = passwordInformation.getMinimumPasswordLength();
-    int maxLength = passwordInformation.getMaximumPasswordLength();
-    int maxPlus = Math.min(maxLength - minLength, 9);
-    int length = Optional.of(minLength + (maxPlus > 0 ? random.nextInt(maxPlus) : 0))
-        .filter(len -> len >= 4)
-        .orElse(4);
-    int lower = Math.max((int) Math.floor(length * 0.3), 1);
-    int upper = Math.max((int) Math.floor(length * 0.3), 1);
-    int digit = Math.max((int) Math.floor(length * 0.2), 1);
-    int special = Math.max((int) Math.floor(length * 0.1), 1);
-    List<CharacterRule> rules = getCharacterRules(lower, upper, digit, special);
-    return new PasswordGenerator(random).generatePassword(length, rules);
-  }
+  public Object generate(
+      @NonNull Object target,
+      @NonNull Method method,
+      @NonNull Object... params) {
 
+    // the cache key for getDomainInfo()
+    return getHostName();
+  }
 }

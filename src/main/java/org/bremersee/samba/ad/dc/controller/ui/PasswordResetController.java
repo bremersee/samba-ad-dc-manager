@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
-import org.thymeleaf.spring6.expression.Fields;
 
 /**
  * The password reset controller.
@@ -60,7 +59,7 @@ public class PasswordResetController extends UiController {
 
   private final Pattern usernamePattern;
 
-  private final Pattern passwordPattern;
+  private Pattern passwordPattern;
 
   public PasswordResetController(
       ApplicationProperties properties,
@@ -72,10 +71,7 @@ public class PasswordResetController extends UiController {
     this.passwordResetCryptoService = passwordResetCryptoService;
     this.domainService = domainService;
     this.domainUserService = domainUserService;
-    this.usernamePattern = Pattern
-        .compile(properties.getUser().getNewSamAccountNameRegex());
-    this.passwordPattern = Pattern
-        .compile(domainService.getPasswordInformation().getPasswordRegex());
+    this.usernamePattern = Pattern.compile(properties.getUser().getNewSamAccountNameRegex());
   }
 
   @ModelAttribute("usernamePattern")
@@ -85,12 +81,14 @@ public class PasswordResetController extends UiController {
 
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
+    if (isEmpty(passwordPattern)) {
+      passwordPattern = Pattern.compile(domainService.getPasswordInformation().getPasswordRegex());
+    }
     return passwordPattern.pattern();
   }
 
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
-    Fields f;
     return domainService.getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }

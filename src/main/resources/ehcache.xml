@@ -15,6 +15,28 @@
   <!-- <persistence directory="${java.io.tmpdir}"/> -->
   <persistence directory="/Users/cbr/cache/ad-dc-manager"/>
 
+  <cache-template name="smallAndLong">
+    <expiry>
+      <ttl unit="days">1</ttl>
+    </expiry>
+    <listeners>
+      <listener>
+        <class>org.bremersee.samba.ad.dc.config.CacheEventLogger</class>
+        <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
+        <event-ordering-mode>UNORDERED</event-ordering-mode>
+        <events-to-fire-on>EVICTED</events-to-fire-on>
+        <events-to-fire-on>EXPIRED</events-to-fire-on>
+        <events-to-fire-on>REMOVED</events-to-fire-on>
+        <events-to-fire-on>CREATED</events-to-fire-on>
+        <events-to-fire-on>UPDATED</events-to-fire-on>
+      </listener>
+    </listeners>
+    <resources>
+      <heap>1000</heap>
+      <offheap unit="MB">1</offheap>
+    </resources>
+  </cache-template>
+
   <cache-template name="default">
     <expiry>
       <ttl unit="hours">1</ttl>
@@ -49,6 +71,14 @@
   </cache>
 
   <cache alias="dhcpLeasesCache" uses-template="default">
+  </cache>
+
+  <cache alias="domainInfoCache" uses-template="smallAndLong">
+    <value-type>org.bremersee.samba.ad.dc.model.DomainInfo</value-type>
+  </cache>
+
+  <cache alias="passwordInformationCache" uses-template="smallAndLong">
+    <value-type>org.bremersee.samba.ad.dc.model.PasswordInformation</value-type>
   </cache>
 
   <!--

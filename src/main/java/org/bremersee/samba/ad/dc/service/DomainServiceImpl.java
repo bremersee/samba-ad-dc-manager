@@ -21,25 +21,31 @@ import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.repository.DomainRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * The domain service implementation.
  *
  * @author Christian Bremer
  */
-@Component("domainService")
+@Service("domainService")
 public class DomainServiceImpl implements DomainService, TemplateEngineContextSupplier {
 
   private final DomainRepository domainRepository;
+
+  private final PasswordGeneratorService passwordGeneratorService;
 
   /**
    * Instantiates a new domain service.
    *
    * @param domainRepository the domain repository
+   * @param passwordGeneratorService the password generator service
    */
-  public DomainServiceImpl(DomainRepository domainRepository) {
+  public DomainServiceImpl(
+      DomainRepository domainRepository,
+      PasswordGeneratorService passwordGeneratorService) {
     this.domainRepository = domainRepository;
+    this.passwordGeneratorService = passwordGeneratorService;
   }
 
   @Override
@@ -69,7 +75,7 @@ public class DomainServiceImpl implements DomainService, TemplateEngineContextSu
 
   @Override
   public String createRandomPassword() {
-    return domainRepository.createRandomPassword();
+    return passwordGeneratorService.generatePassword(getPasswordInformation());
   }
 
 }

@@ -18,11 +18,8 @@ package org.bremersee.samba.ad.dc.repository;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.passay.CharacterData;
-import org.passay.CharacterRule;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -55,9 +52,7 @@ public interface DomainRepository {
    */
   boolean isRfc2307Enabled();
 
-  default DomainInfo getDomainInfo() {
-    return getDomainInfo(getHostName());
-  }
+  DomainInfo getDomainInfo();
 
   /**
    * Gets domain info.
@@ -74,95 +69,5 @@ public interface DomainRepository {
    * @return the password information
    */
   PasswordInformation getPasswordInformation();
-
-  /**
-   * Create random password.
-   *
-   * @return the random password
-   */
-  String createRandomPassword();
-
-  /**
-   * Gets character rules.
-   *
-   * @param lowerNum the lower num
-   * @param upperNum the upper num
-   * @param digitNum the digit num
-   * @param specialNum the special num
-   * @return the character rules
-   */
-  default List<CharacterRule> getCharacterRules(
-      int lowerNum, int upperNum, int digitNum, int specialNum) {
-    return List.of(
-        new CharacterRule(new SpecialCharacterData(), specialNum > 0 ? specialNum : 1),
-        new CharacterRule(new DigitCharacterData(), digitNum > 0 ? digitNum : 1),
-        new CharacterRule(new UpperCharacterData(), upperNum > 0 ? upperNum : 1),
-        new CharacterRule(new LowerCharacterData(), lowerNum > 0 ? lowerNum : 1)
-    );
-  }
-
-  /**
-   * The type Special character data.
-   */
-  class SpecialCharacterData implements CharacterData {
-
-    @Override
-    public String getErrorCode() {
-      return "INSUFFICIENT_SPECIAL";
-    }
-
-    @Override
-    public String getCharacters() {
-      return "!#$%&*+-.:<=>?@_";
-    }
-  }
-
-  /**
-   * The type Digit character data.
-   */
-  class DigitCharacterData implements CharacterData {
-
-    @Override
-    public String getErrorCode() {
-      return "INSUFFICIENT_DIGIT";
-    }
-
-    @Override
-    public String getCharacters() {
-      return "123456789";
-    }
-  }
-
-  /**
-   * The type Upper character data.
-   */
-  class UpperCharacterData implements CharacterData {
-
-    @Override
-    public String getErrorCode() {
-      return "INSUFFICIENT_UPPER";
-    }
-
-    @Override
-    public String getCharacters() {
-      return "ABCDEFGHJKLMNPQRSTUVWXYZ";
-    }
-  }
-
-  /**
-   * The type Lower character data.
-   */
-  class LowerCharacterData implements CharacterData {
-
-    @Override
-    public String getErrorCode() {
-      return "INSUFFICIENT_LOWER";
-    }
-
-    @Override
-    public String getCharacters() {
-      return "abcdefghijkmnpqrstuvwxyz";
-    }
-  }
 
 }
