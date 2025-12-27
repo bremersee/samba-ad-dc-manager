@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -29,9 +30,11 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.ldaptive.dn.Dn;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -51,6 +54,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserResetPasswordController extends UiController
     implements PageableComponent, OrganizationalUnitComponent {
 
+  private final ApplicationEventPublisher eventPublisher;
+
   private final DomainService domainService;
 
   private final DomainUserService domainUserService;
@@ -58,9 +63,11 @@ public class UserResetPasswordController extends UiController
   public UserResetPasswordController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      ApplicationEventPublisher eventPublisher,
       DomainService domainService,
       DomainUserService domainUserService) {
     super(properties, localeResolver);
+    this.eventPublisher = eventPublisher;
     this.domainUserService = domainUserService;
     this.domainService = domainService;
   }
@@ -73,6 +80,12 @@ public class UserResetPasswordController extends UiController
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
     return domainService.getPasswordInformation().getPasswordRegex();
+  }
+
+  @ModelAttribute("passwordDescription")
+  public String getPasswordDescription() {
+    return domainService.getPasswordInformation()
+        .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
   @GetMapping(path = "/management/user-reset-password")
@@ -137,8 +150,10 @@ public class UserResetPasswordController extends UiController
       model.addAttribute("user", user);
       return "management/user-reset-password";
     }
-    domainUserService.updateUserPassword(user.getSamAccountName(), password,
-        passwordRequest.isGenerateRandomPassword());
+    domainUserService.updateUserPassword(user.getSamAccountName(), password);
+    if (passwordRequest.isGenerateRandomPassword()) {
+      eventPublisher.publishEvent(new InvitationEvent(user));
+    }
 
     String defaultMsg = "Password was successfully changed.";
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg, "todo");

@@ -38,6 +38,8 @@ public interface DomainUserRepository {
    * Find all users.
    *
    * @param query the query
+   * @param ou the ou
+   * @param searchScope the search scope
    * @return the users
    */
   Stream<DomainUser> findAll(
@@ -49,6 +51,8 @@ public interface DomainUserRepository {
    * Find user by name.
    *
    * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
    * @return the user
    */
   Optional<DomainUser> findOne(
@@ -60,21 +64,25 @@ public interface DomainUserRepository {
    * Add domain user.
    *
    * @param domainUser the domain user
+   * @param clearPassword the clear password
+   * @param ou the ou
+   * @param useUsernameAsCn the use username as cn
    * @return the domain user
    */
-  default DomainUser add(
-      @NotNull DomainUser domainUser,
-      @Nullable Dn ou,
-      @Nullable Boolean useUsernameAsCn) {
-    return add(domainUser, ou, useUsernameAsCn, null);
-  }
-
   DomainUser add(
       @NotNull DomainUser domainUser,
+      @Nullable String clearPassword,
       @Nullable Dn ou,
-      @Nullable Boolean useUsernameAsCn,
-      @Nullable String clearPassword);
+      @Nullable Boolean useUsernameAsCn);
 
+  /**
+   * Update domain user.
+   *
+   * @param userName the username
+   * @param domainUser the domain user
+   * @param newOu the new ou
+   * @return the domain user
+   */
   @NotNull
   DomainUser update(@NotEmpty String userName, @NotNull DomainUser domainUser, @Nullable Dn newOu);
 

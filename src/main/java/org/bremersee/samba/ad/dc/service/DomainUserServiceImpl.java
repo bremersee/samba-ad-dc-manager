@@ -23,7 +23,6 @@ import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.model.Password;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.AvatarRepository;
 import org.bremersee.samba.ad.dc.repository.DomainUserRepository;
@@ -77,12 +76,12 @@ public class DomainUserServiceImpl implements DomainUserService {
   @Override
   public DomainUser addUser(
       DomainUser domainUser,
+      String clearPassword,
       Dn ou,
-      Boolean useUsernameAsCn,
-      String clearPassword) {
+      Boolean useUsernameAsCn) {
 
     log.debug("addUser({}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn);
-    return domainUserRepository.add(domainUser, ou, useUsernameAsCn);
+    return domainUserRepository.add(domainUser, clearPassword, ou, useUsernameAsCn);
   }
 
   @Override
@@ -110,16 +109,8 @@ public class DomainUserServiceImpl implements DomainUserService {
   }
 
   @Override
-  public void updateUserPassword(String userName, String newPassword, boolean sendEmail) {
+  public void updateUserPassword(String userName, String newPassword) {
     domainUserRepository.savePassword(userName, newPassword);
-    // TODO
-    /*
-    if (sendEmail) {
-      emailService.sendEmailWithCredentials(
-          userName,
-          newPassword);
-    }
-    */
   }
 
   @Override
@@ -132,22 +123,6 @@ public class DomainUserServiceImpl implements DomainUserService {
         userName, oldPassword);
     authenticationManager.authenticate(authToken);
     domainUserRepository.savePassword(userName, newPassword);
-  }
-
-  @Override
-  public void updateUserPassword(
-      String userName,
-      Password newPassword,
-      Boolean sendEmail) {
-    domainUserRepository.savePassword(userName, newPassword.getValue());
-    // TODO
-    /*
-    if (Boolean.TRUE.equals(sendEmail)) {
-      emailService.sendEmailWithCredentials(
-          userName,
-          newPassword.getValue());
-    }
-    */
   }
 
   @Override

@@ -267,11 +267,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   @Override
   public DomainUser add(
       DomainUser domainUser,
+      String clearPassword,
       Dn ou,
-      Boolean useUsernameAsCn,
-      String clearPassword) {
+      Boolean useUsernameAsCn) {
 
-    log.debug("add({}, {}, {}, {})", domainUser.getSamAccountName(), ou, useUsernameAsCn, isEmpty(clearPassword) ? "null" : "****");
+    log.debug("add({}, {}, {}, {})", domainUser.getSamAccountName(),
+        isEmpty(clearPassword) ? "null" : "****", ou, useUsernameAsCn);
 
     validateNewSamAccountName(domainUser);
     validateEmail(domainUser.getEmail());
@@ -287,8 +288,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
           EC_SAM_ACCOUNT_ALREADY_EXISTS);
     }
     Pattern passwordPattern = domainRepository.getPasswordInformation().getPasswordPattern();
-    if (!isEmpty(domainUser.getPassword())
-        && !passwordPattern.matcher(domainUser.getPassword()).matches()) {
+    if (!isEmpty(clearPassword) && !passwordPattern.matcher(clearPassword).matches()) {
       throw ServiceException.badRequest(
           String.format(
               "The password of user '%s' does not meet the complexity criteria!",
@@ -313,6 +313,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     return findDnOfSamAccount(domainUser)
         .map(dn -> getLdapTemplate()
             .save(domainUser.withDistinguishedName(dn), domainUserLdapMapper))
+        .map(newUser -> {
+          if (!isEmpty(clearPassword)) {
+            doSavePassword(newUser.getDistinguishedName(), clearPassword);
+          }
+          return newUser;
+        })
         .orElseThrow(() -> ServiceException
             .internalServerError(
                 String.format("Adding user '%s' failed.", domainUser.getSamAccountName()),

@@ -1,9 +1,11 @@
 package org.bremersee.samba.ad.dc.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import jakarta.validation.constraints.NotNull;
@@ -89,9 +91,13 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
         .orElse(null);
   }
 
+  /*
   @Schema(description = "Groups have no primary group id. It is always null.",
       accessMode = AccessMode.READ_ONLY)
   @JsonProperty(value = "primaryGroupId", access = Access.READ_ONLY)
+  */
+  @Hidden
+  @JsonIgnore
   @Value.Lazy
   @Nullable
   @Override

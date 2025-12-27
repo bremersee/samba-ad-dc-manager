@@ -133,7 +133,7 @@ public class UserAddController extends UiController
       bindingResult.rejectValue("email", "code",
           "If you want to send an invitation email, you have to enter an email address.");
     }
-    if (addModel.isGenerateRandomPassword()) {
+    if (addModel.isSendEmail()) {
       addModel.setPassword(null);
     } else if (isEmpty(addModel.getPassword())) {
       bindingResult.rejectValue("password", "code",
@@ -169,16 +169,13 @@ public class UserAddController extends UiController
       UserAddModel addModel) {
 
     DomainUser user = UserAddModelMapper.INSTANCE.map(addModel);
+    String password = addModel.getPassword();
     Dn ou = addModel.getNewOuDn()
         .orElseGet(() -> getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()));
     boolean useUsernameAsCn = addModel.isUseUsernameAsCn();
-    boolean sendEmail = addModel.isSendEmail();
-    // TODO
-    addModel.getPassword();
-
     try {
-      DomainUser addedUser = domainUserService.addUser(user, ou, useUsernameAsCn);
-      if (sendEmail) {
+      DomainUser addedUser = domainUserService.addUser(user, password, ou, useUsernameAsCn);
+      if (addModel.isSendEmail()) {
         eventPublisher.publishEvent(new InvitationEvent(addedUser));
       }
       return addedUser;

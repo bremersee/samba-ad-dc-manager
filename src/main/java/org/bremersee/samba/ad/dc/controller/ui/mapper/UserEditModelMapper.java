@@ -52,7 +52,6 @@ public interface UserEditModelMapper {
   @Mapping(target = "memberships", ignore = true)
   @Mapping(target = "lastLogon", ignore = true)
   @Mapping(target = "logonCount", ignore = true)
-  @Mapping(target = "password", ignore = true)
   @Mapping(target = "passwordLastSet", ignore = true)
   DomainUser mergeInternal(
       UserEditModel source,

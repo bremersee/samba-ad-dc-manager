@@ -181,13 +181,6 @@ public interface DomainUser extends SamAccount, NisDomainMember {
   @Override
   String getNisDomain();
 
-  // TODO remove, parameter in api with-password
-  /**
-   * User's password.
-   */
-  @Nullable
-  String getPassword();
-
   /**
    * Timestamp of the last password change.
    */

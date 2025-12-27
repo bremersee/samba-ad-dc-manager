@@ -42,14 +42,12 @@ public class UserAddModel extends UserModel implements Serializable {
 
   private boolean useUsernameAsCn = true;
 
-  private boolean sendEmail;
-
   /**
    * User's password.
    */
   private String password;
 
-  private boolean generateRandomPassword;
+  private boolean sendEmail;
 
   /**
    * Instantiates a new user add model.
@@ -63,7 +61,7 @@ public class UserAddModel extends UserModel implements Serializable {
    *
    * @param properties the properties
    * @param passwordInformation the password information
-   * @param isRfc2307Enabled the is rfc 2307 enabled
+   * @param isRfc2307Enabled is rfc 2307 enabled
    */
   public UserAddModel(
       DomainUserProperties properties,

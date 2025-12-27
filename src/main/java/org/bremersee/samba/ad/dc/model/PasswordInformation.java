@@ -8,9 +8,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.springframework.context.MessageSource;
 
 @Schema(description = "The password information of an active directory.")
 @Value.Style(
@@ -154,6 +156,14 @@ public interface PasswordInformation {
   @Value.Lazy
   default Pattern getPasswordPattern() {
     return Pattern.compile(getPasswordRegex());
+  }
+
+  default String getPasswordDescription(MessageSource messageSource, Locale locale) {
+    return messageSource.getMessage(
+        getPasswordComplexity().getI18nCode(),
+        new Object[] { getMinimumPasswordLength(), getMaximumPasswordLength() },
+        getPasswordComplexity().getDefaultDescription(),
+        locale);
   }
 
   private static boolean containsPlaceholderForMinAndMaxLength(String passwordRegexTemplate) {

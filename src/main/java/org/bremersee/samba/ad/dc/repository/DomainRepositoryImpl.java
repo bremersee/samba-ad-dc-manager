@@ -102,6 +102,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     return result;
   }
 
+  // TODO add cache
   @Override
   public DomainInfo getDomainInfo(String ipOrHostname) {
     return domainTool.getDomainInfo(ipOrHostname);

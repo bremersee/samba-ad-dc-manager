@@ -69,6 +69,12 @@ public class PasswordChangeController extends UiController {
     return domainService.getPasswordInformation().getPasswordRegex();
   }
 
+  @ModelAttribute("passwordDescription")
+  public String getPasswordDescription() {
+    return domainService.getPasswordInformation()
+        .getPasswordDescription(getMessageSource(), getResolvedLocale());
+  }
+
   @ModelAttribute("domain")
   public String getDomain() {
     return domainService.getDomainInfo().getDomain();
@@ -102,12 +108,21 @@ public class PasswordChangeController extends UiController {
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
+    String netbiosPrefix = (domainService.getDomainInfo().getNetbiosDomain() + "\\").toLowerCase();
     String username = changePasswordModel.getUsername();
+    if (!isEmpty(username) && username.toLowerCase().startsWith(netbiosPrefix)) {
+      username = username.substring(netbiosPrefix.length());
+    }
+    if (isEmpty(username)) {
+      bindingResult.rejectValue("username", "todo", "Username is required.");
+    }
     String oldPassword = changePasswordModel.getOldPassword();
     String newPassword = requireNonNullElse(changePasswordModel.getNewPassword(), "");
     String newPasswordRepetition = changePasswordModel.getNewPasswordRepetition();
     if (!newPassword.equals(newPasswordRepetition)) {
       bindingResult.rejectValue("newPasswordRepetition", "todo", "Passwords must be equal.");
+    }
+    if (bindingResult.hasErrors()) {
       return HTML_TEMPLATE;
     }
     try {

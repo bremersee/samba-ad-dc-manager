@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
 /**
  * The password complexity.
@@ -29,22 +30,44 @@ public enum PasswordComplexity {
   /**
    * On password complexity.
    */
-  ON("on"),
+  ON(
+      "on",
+      "Please enter a new password. It must be between 8 and 75 characters in length "
+          + "and must include at least one upper case letter, one lower case letter, and one "
+          + "numeric digit.",
+      "password-complexity.on"),
 
   /**
    * Off password complexity.
    */
-  OFF("off"),
+  OFF(
+      "off",
+      "Please enter a new password. It must be between 8 and 75 characters in length.",
+      "password-complexity.off"),
 
   /**
    * Default password complexity.
    */
-  DEFAULT("default");
+  DEFAULT(
+      "default",
+      "Please enter a new password. It must be between 8 and 75 characters in length "
+          + "and must include at least one upper case letter, one lower case letter, and one "
+          + "numeric digit.",
+      "password-complexity.on");
+
 
   private final String value;
 
-  PasswordComplexity(String value) {
+  @Getter
+  private final String defaultDescription;
+
+  @Getter
+  private final String i18nCode;
+
+  PasswordComplexity(String value, String defaultDescription, String i18nCode) {
     this.value = value;
+    this.defaultDescription = defaultDescription;
+    this.i18nCode = i18nCode;
   }
 
   @JsonValue
