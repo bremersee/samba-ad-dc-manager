@@ -31,7 +31,7 @@
 <body>
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top"
-     th:fragment="header">
+     th:fragment="header-management">
   <div class="container-fluid">
     <!-- TODO -->
     <a class="navbar-brand" href="#">bremersee.org</a>
@@ -125,13 +125,12 @@
             </li>
           </ul>
         </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
+      <form class="d-flex" action="/logout" method="post">
+        <button class="btn btn-outline-secondary" type="submit"
+                th:onclick="'return confirm(\'' + #{header.logout.confirm} + '\');'">
+          <span class="far fa-right-from-bracket" aria-hidden="true"></span>
+        </button>
       </form>
     </div>
   </div>
