@@ -51,9 +51,9 @@ public class ApplicationProperties implements Serializable {
 
   private String baseDn = "dc=eixe,dc=bremersee,dc=org";
 
-  private String companyName = "bremersee.org";
+  private String companyName;
 
-  private String companyUrl = "https://bremersee.org";
+  private String companyUrl;
 
   private String cryptoSecret = "change-it";
 

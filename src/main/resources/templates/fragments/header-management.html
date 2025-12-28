@@ -34,8 +34,8 @@
      th:fragment="header-management">
   <div class="container-fluid">
     <a class="navbar-brand" href="#"
-       th:href="${#strings.isEmpty(${comanyUrl}) ? '#' : ${companyUrl}}"
-       th:text="${#strings.isEmpty(${comapyName}) ? '#' : ${comapyName}}">
+       th:href="${#strings.isEmpty(companyUrl) ? '#' : companyUrl}"
+       th:text="${#strings.isEmpty(companyName) ? 'Samba AD DC Manager' : companyName}">
       bremersee.org
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"

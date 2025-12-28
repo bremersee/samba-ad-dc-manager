@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -34,8 +33,8 @@
      th:fragment="header">
   <div class="container-fluid">
     <a class="navbar-brand" href="#"
-       th:href="${#strings.isEmpty(${comanyUrl}) ? '#' : ${companyUrl}}"
-       th:text="${#strings.isEmpty(${comapyName}) ? '#' : ${comapyName}}">
+       th:href="${#strings.isEmpty(companyUrl) ? '#' : companyUrl}"
+       th:text="${#strings.isEmpty(companyName) ? 'Samba AD DC Manager' : companyName}">
       bremersee.org
     </a>
     <form class="d-flex" action="/management/index.html" method="get" th:action="@{/management/index}">
