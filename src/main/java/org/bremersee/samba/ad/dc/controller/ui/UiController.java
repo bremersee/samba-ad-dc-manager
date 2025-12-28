@@ -34,6 +34,7 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -74,6 +75,16 @@ public abstract class UiController extends AbstractController implements LoggerP
     this.properties = properties;
     this.dnTool = new DefaultDnTool(properties);
     this.localeResolver = localeResolver;
+  }
+
+  @ModelAttribute("companyName")
+  public String getCompanyName() {
+    return getProperties().getCompanyName();
+  }
+
+  @ModelAttribute("companyUrl")
+  public String getCompanyUrl() {
+    return getProperties().getCompanyUrl();
   }
 
   protected String entityNotFoundRedirect(

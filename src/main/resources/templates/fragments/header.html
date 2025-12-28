@@ -33,107 +33,16 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top"
      th:fragment="header">
   <div class="container-fluid">
-    <!-- TODO -->
-    <a class="navbar-brand" href="#">bremersee.org</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item dropdown" th:if="${ouDropdown == null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Manage
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" th:href="@{/management/users}">Users</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/management/groups}">Groups</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/management/computers}">Computers</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/management/organizational-units}">Organizational Units</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/management/dns-zones}">DNS</a></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/management/dhcp-leases}">DHCP</a></li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown" th:if="${ouDropdown != null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Manage
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" th:href="@{/management/users(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Users</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/management/groups(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Groups</a></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/management/computers}">Computers</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#" th:href="@{/management/organizational-units}">Organizational Units</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/management/dns-zones}">DNS</a></li>
-            <li><a class="dropdown-item show-spinner" href="#" th:href="@{/management/dhcp-leases}">DHCP</a></li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown" th:if="${ouDropdown != null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="fa fa-folder-tree" aria-hidden="true"></span>
-            <span class="mx-1" th:text="${ouDropdown.selectedOu.name}">
-              OU: Users
-            </span>
-          </a>
-          <ul class="dropdown-menu" th:if="${not #lists.isEmpty(ouDropdown.selectableOus)}">
-            <li th:each="entry : ${ouDropdown.selectableOus}">
-              <a class="dropdown-item" href="#"
-                 th:href="@{${currentPage}(page=0,size=${size},sort=${sort},q=${q},ou=${entry.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
-                <span class="fa fa-folder-tree text-secondary" aria-hidden="true"></span>
-                <span class="mx-1" th:text="${entry.nameTree}">
-                  OU: Groups
-                </span>
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown" th:if="${ouDropdown != null}">
-          <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
-             th:classappend="${ouDropdown.scopeSelectable} ? 'dropdown-toggle' : 'disabled'"
-             aria-expanded="false">
-            <span class="fa fa-globe" aria-hidden="true"></span>
-            <span class="mx-1" th:text="${ouDropdown.selectedScopeDisplayValue}">
-              Scope: Subtree
-            </span>
-          </a>
-          <ul class="dropdown-menu" th:if="${ouDropdown.scopeSelectable}">
-            <li>
-              <a class="dropdown-item" href="#" th:text="${ouDropdown.selectableScopeDisplayValue}"
-                 th:href="@{${currentPage}(page=0,size=${size},sort=${sort},q=${q},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectableScope.parameterValue})}">
-                One level
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown" th:if="${zoneTypeDropdown != null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="mx-1" th:text="#{${zoneTypeDropdown.selectedZoneType.i18nCode}}">
-              Primary Zones
-            </span>
-          </a>
-          <ul class="dropdown-menu">
-            <li th:each="entry : ${zoneTypeDropdown.selectableZoneTypes}">
-              <a class="dropdown-item show-spinner" href="#"
-                 th:href="@{${currentPage}(zone-type=${entry.parameterValue})}">
-                <span class="mx-1" th:text="#{${entry.i18nCode}}">
-                  Secondary Zones
-                </span>
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
-    </div>
+    <a class="navbar-brand" href="#"
+       th:href="${#strings.isEmpty(${comanyUrl}) ? '#' : ${companyUrl}}"
+       th:text="${#strings.isEmpty(${comapyName}) ? '#' : ${comapyName}}">
+      bremersee.org
+    </a>
+    <form class="d-flex" action="/management/index.html" method="get" th:action="@{/management/index}">
+      <button class="btn btn-outline-secondary" type="submit" title="Manage Domain">
+        <span class="far fa-screwdriver-wrench" aria-hidden="true"></span>
+      </button>
+    </form>
   </div>
 </nav>
 

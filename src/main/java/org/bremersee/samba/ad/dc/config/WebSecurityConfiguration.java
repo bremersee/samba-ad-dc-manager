@@ -101,6 +101,14 @@ public class WebSecurityConfiguration {
             .requestMatchers(EndpointRequest.toAnyEndpoint())
             .hasAnyAuthority("ROLE_ACTUATOR_ADMIN", "ROLE_ADMIN")
 
+            .requestMatchers(new AntPathRequestMatcher("/api/users/*/avatar", "GET"))
+            .permitAll()
+
+            .requestMatchers("/api/**", "/management/**")
+            .authenticated()
+
+            /*
+
             .requestMatchers("/css/**").permitAll()
             .requestMatchers("/fonts/**").permitAll()
             .requestMatchers("/lib/**").permitAll()
@@ -118,10 +126,9 @@ public class WebSecurityConfiguration {
             .requestMatchers("/passwd").permitAll()
             .requestMatchers("/passwd/**").permitAll()
 
-            .requestMatchers(new AntPathRequestMatcher("/api/users/*/avatar", "GET"))
-            .permitAll()
+             */
 
-            .anyRequest().authenticated())
+            .anyRequest().permitAll())
 
         .csrf(customizer -> customizer
             .ignoringRequestMatchers(RequestMatchers.anyOf(
@@ -142,13 +149,16 @@ public class WebSecurityConfiguration {
         .formLogin(form -> form
             .loginPage("/login"))
 
-        .logout(logout -> logout
-            //.logoutUrl("/logout")
-            .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-            .clearAuthentication(true)
-            .deleteCookies("JSESSIONID")
-            .logoutSuccessUrl("/logged-out"))
+        .logout(logout -> logout.logoutSuccessUrl("/passwd/password-change"))
+
         /*
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .permitAll()
+            //.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+            //.clearAuthentication(true)
+            //.deleteCookies("JSESSIONID")
+            .logoutSuccessUrl("/logged-out"))
         .formLogin(form -> form
             .loginPage("/login")
             .loginProcessingUrl("/login")

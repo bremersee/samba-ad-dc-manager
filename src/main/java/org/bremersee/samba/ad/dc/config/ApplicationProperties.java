@@ -51,6 +51,10 @@ public class ApplicationProperties implements Serializable {
 
   private String baseDn = "dc=eixe,dc=bremersee,dc=org";
 
+  private String companyName = "bremersee.org";
+
+  private String companyUrl = "https://bremersee.org";
+
   private String cryptoSecret = "change-it";
 
   @NestedConfigurationProperty
@@ -71,12 +75,6 @@ public class ApplicationProperties implements Serializable {
   @NestedConfigurationProperty
   private DomainGroupProperties group = new DomainGroupProperties();
 
-
-  private String personalName = "Anna Livia"; // mail with credentials
-
-  private String companyName = "example.org"; // mail with credentials
-
-  private String companyUrl = "http://example.org"; // mail with credentials
 
 
   // private String ip4Regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
