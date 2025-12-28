@@ -85,7 +85,10 @@ public class CliProperties implements Serializable {
 
     private boolean usingSsh = false;
 
-    private String sshCommand = "/usr/bin/ssh root@dc1";
+    /**
+     * The ssh command like {@code /usr/bin/ssh root@hostname}.
+     */
+    private String sshCommand;
   }
 
 }

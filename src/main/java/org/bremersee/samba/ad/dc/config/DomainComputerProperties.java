@@ -24,7 +24,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * The type DomainGroupProperties.
+ * The domain computer properties.
  *
  * @author Christian Bremer
  */

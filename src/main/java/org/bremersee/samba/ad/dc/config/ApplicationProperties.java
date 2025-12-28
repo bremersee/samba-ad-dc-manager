@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,17 @@ package org.bremersee.samba.ad.dc.config;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.spring.core.regex.RegexFlags;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * The domain controller properties.
+ * The application properties.
  *
  * @author Christian Bremer
  */
@@ -49,11 +44,11 @@ public class ApplicationProperties implements Serializable {
   @Serial
   private static final long serialVersionUID = 3L;
 
-  private String baseDn = "dc=eixe,dc=bremersee,dc=org";
+  private String baseDn;
 
-  private String companyName;
+  private String companyName = "Samba AD DC Manager";
 
-  private String companyUrl;
+  private String companyUrl = "#";
 
   private String cryptoSecret = "change-it";
 
@@ -75,48 +70,4 @@ public class ApplicationProperties implements Serializable {
   @NestedConfigurationProperty
   private DomainGroupProperties group = new DomainGroupProperties();
 
-
-
-  // private String ip4Regex = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
-
-  // private String macRegex = "^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$";
-
-
-  private MailWithCredentialsProperties mailWithCredentials = new MailWithCredentialsProperties();
-
-  /**
-   * The mail with credentials properties.
-   *
-   * @author Christian Bremer
-   */
-  @Data
-  public static class MailWithCredentialsProperties implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private String sender = "no-reply@example.org";
-
-    private String templateBasename = "personal-mail-with-credentials";
-
-    private String loginUrl = "http://localhost:4200/change-password";
-
-    private List<MailInlineAttachment> inlineAttachments = new ArrayList<>();
-  }
-
-  /**
-   * The mail inline attachment.
-   */
-  @Data
-  public static class MailInlineAttachment implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private String contentId;
-
-    private String location;
-
-    private String mimeType;
-  }
 }
