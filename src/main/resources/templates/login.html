@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -50,11 +49,11 @@
 <main role="main" class="container">
 
   <div class="d-flex justify-content-center mb-4">
-    <div class="w-50">
+    <div class="col col-xxl-5 col-xl-6 col-lg-8 col-md-9">
       <div class="d-flex justify-content-center mb-4">
         <h5>Please sign in</h5>
       </div>
-      <form th:action="@{'login'}" method="post">
+      <form th:action="@{login}" method="post">
         <div class="input-group mb-4">
           <input type="text" class="form-control" id="username" name="username" required
                  aria-label="Username" placeholder="Username" />
@@ -66,13 +65,12 @@
         <div class="row justify-content-between mb-4">
           <div class="col col-auto">
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="remember-me"
-                     name="remember-me" />
+              <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me" />
               <label class="form-check-label" for="remember-me">Remember me on this computer.</label>
             </div>
           </div>
           <div class="col col-auto">
-            <a href="#!">Forgot password?</a>
+            <a href="#">Forgot password?</a>
           </div>
         </div>
         <div class="d-flex justify-content-center">

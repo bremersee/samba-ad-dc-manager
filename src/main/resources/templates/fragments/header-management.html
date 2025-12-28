@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -45,9 +44,9 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item dropdown" th:if="${ouDropdown == null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             Manage
-          </a>
+          </button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" th:href="@{/management/users}">Users</a></li>
             <li><a class="dropdown-item" href="#" th:href="@{/management/groups}">Groups</a></li>
@@ -60,9 +59,9 @@
           </ul>
         </li>
         <li class="nav-item dropdown" th:if="${ouDropdown != null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             Manage
-          </a>
+          </button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" th:href="@{/management/users(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Users</a></li>
             <li><a class="dropdown-item" href="#" th:href="@{/management/groups(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">Groups</a></li>
@@ -75,12 +74,12 @@
           </ul>
         </li>
         <li class="nav-item dropdown" th:if="${ouDropdown != null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="fa fa-folder-tree" aria-hidden="true"></span>
             <span class="mx-1" th:text="${ouDropdown.selectedOu.name}">
               OU: Users
             </span>
-          </a>
+          </button>
           <ul class="dropdown-menu" th:if="${not #lists.isEmpty(ouDropdown.selectableOus)}">
             <li th:each="entry : ${ouDropdown.selectableOus}">
               <a class="dropdown-item" href="#"
@@ -94,14 +93,13 @@
           </ul>
         </li>
         <li class="nav-item dropdown" th:if="${ouDropdown != null}">
-          <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown"
-             th:classappend="${ouDropdown.scopeSelectable} ? 'dropdown-toggle' : 'disabled'"
-             aria-expanded="false">
+          <button class="nav-link" data-bs-toggle="dropdown" aria-expanded="false"
+             th:classappend="${ouDropdown.scopeSelectable} ? 'dropdown-toggle' : 'disabled'">
             <span class="fa fa-globe" aria-hidden="true"></span>
             <span class="mx-1" th:text="${ouDropdown.selectedScopeDisplayValue}">
               Scope: Subtree
             </span>
-          </a>
+          </button>
           <ul class="dropdown-menu" th:if="${ouDropdown.scopeSelectable}">
             <li>
               <a class="dropdown-item" href="#" th:text="${ouDropdown.selectableScopeDisplayValue}"
@@ -112,11 +110,11 @@
           </ul>
         </li>
         <li class="nav-item dropdown" th:if="${zoneTypeDropdown != null}">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="mx-1" th:text="#{${zoneTypeDropdown.selectedZoneType.i18nCode}}">
               Primary Zones
             </span>
-          </a>
+          </button>
           <ul class="dropdown-menu">
             <li th:each="entry : ${zoneTypeDropdown.selectableZoneTypes}">
               <a class="dropdown-item show-spinner" href="#"
@@ -130,7 +128,7 @@
         </li>
       </ul>
       <form class="d-flex" action="/logout" th:action="@{/logout}" method="post">
-        <button class="btn btn-outline-secondary" type="submit"
+        <button class="btn btn-outline-secondary" type="submit" title="Logout"
                 th:onclick="'return confirm(\'' + #{header.logout.confirm} + '\');'">
           <span class="far fa-right-from-bracket" aria-hidden="true"></span>
         </button>
