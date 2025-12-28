@@ -82,7 +82,7 @@ public class PasswordChangeController extends UiController {
 
   @GetMapping(path = {"", "/", "/index.html", "/passwd", "/passwd/", "/passwd/index.html"})
   public String displayChangePassword() {
-    return "redirect:passwd/password-change";
+    return "redirect:/passwd/password-change";
   }
 
   @GetMapping(path = "/passwd/password-change")

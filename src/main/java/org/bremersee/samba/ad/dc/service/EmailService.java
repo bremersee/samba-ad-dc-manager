@@ -116,23 +116,24 @@ public class EmailService {
       helper.setTo(Objects.requireNonNull(user.getEmail()));
       helper.setSubject(getEmailSubject(user, isInvitation));
       helper.setText(getEmailText(user, isInvitation), true);
-      /*
-      for (MailInlineAttachment attachment : inlineAttachments) {
-        helper.addInline(attachment.getContentId(),
-            resourceLoader.getResource(attachment.getLocation()),
-            attachment.getMimeType());
-      }
-      */
     };
     javaMailSender.send(preparator);
   }
 
   private String getEmailSubject(DomainUser user, boolean isInvitation) {
-    return messageSource.getMessage(
-        "todo",
-        new Object[]{user.getFirstName()},
-        "Welcome",
-        user.getLocale());
+    if (isInvitation) {
+      return messageSource.getMessage(
+          "todo",
+          new Object[]{user.getFirstName()},
+          "Welcome",
+          user.getLocale());
+    } else {
+      return messageSource.getMessage(
+          "todo",
+          new Object[]{user.getFirstName()},
+          "Reset password",
+          user.getLocale());
+    }
   }
 
   private String getEmailText(DomainUser user, boolean isInvitation) {

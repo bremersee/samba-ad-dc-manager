@@ -31,9 +31,11 @@ import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetRequestModel;
 import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
+import org.bremersee.samba.ad.dc.model.event.PasswordResetEvent;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.bremersee.samba.ad.dc.service.PasswordResetCryptoService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -51,6 +53,8 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller
 public class PasswordResetController extends UiController {
 
+  private final ApplicationEventPublisher eventPublisher;
+
   private final PasswordResetCryptoService<AesEncValue> passwordResetCryptoService;
 
   private final DomainService domainService;
@@ -64,10 +68,12 @@ public class PasswordResetController extends UiController {
   public PasswordResetController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      ApplicationEventPublisher eventPublisher,
       PasswordResetCryptoService<AesEncValue> passwordResetCryptoService,
       DomainService domainService,
       DomainUserService domainUserService) {
     super(properties, localeResolver);
+    this.eventPublisher = eventPublisher;
     this.passwordResetCryptoService = passwordResetCryptoService;
     this.domainService = domainService;
     this.domainUserService = domainUserService;
@@ -126,10 +132,13 @@ public class PasswordResetController extends UiController {
       return "passwd/password-reset-request";
     }
     domainUserService.getUser(username, null, null)
-        .ifPresent(user -> {
-          getLogger().info("Password reset request has been sent.");
-          // TODO process request
-        });
+        .ifPresent(user -> eventPublisher.publishEvent(new PasswordResetEvent(user)));
+    model.clear();
+    return "redirect:password-reset-requested";
+  }
+
+  @GetMapping(path = "/passwd/password-reset-requested")
+  public String displayResetPasswordRequested() {
     return "passwd/password-reset-request-response";
   }
 

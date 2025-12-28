@@ -21,21 +21,54 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Stream;
+import lombok.Getter;
 
 /**
  * The enum DomainGroupMemberType.
  *
  * @author Christian Bremer
  */
+@Getter
 public enum DomainGroupMemberType {
 
-  UNKNOWN,
+  UNKNOWN(
+      "text-danger",
+      "fas fa-question-circle",
+      "Unknown",
+      "domain-group-member-type.unknown"),
 
-  USER,
+  USER(
+      "text-primary",
+      "fas fa-user",
+      "User",
+      "domain-group-member-type.user"),
 
-  GROUP,
+  GROUP(
+      "text-success",
+      "fas fa-user-group",
+      "Group",
+      "domain-group-member-type.group"),
 
-  COMPUTER;
+  COMPUTER(
+      "text-warning",
+      "fas fa-computer",
+      "Computer",
+      "domain-group-member-type.computer");
+
+  private final String cssClass;
+
+  private final String cssClassIcon;
+
+  private final String displayName;
+
+  private final String i18nCode;
+
+  DomainGroupMemberType(String cssClass, String cssClassIcon, String displayName, String i18nCode) {
+    this.cssClass = cssClass;
+    this.cssClassIcon = cssClassIcon;
+    this.displayName = displayName;
+    this.i18nCode = i18nCode;
+  }
 
   @JsonValue
   @Override

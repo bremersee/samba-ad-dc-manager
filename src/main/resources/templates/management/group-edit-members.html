@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -31,7 +30,7 @@
           th:src="@{/lib/bootstrap/5.3.3/js/bootstrap.min.js}"></script>
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="Navigation"
      th:replace="~{fragments/header-management :: header-management}">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">bremersee.org</a>
@@ -84,18 +83,18 @@
       <li class="nav-item">
         <a class="nav-link" href="group-edit.html"
            th:href="@{group-edit(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${group.parentDistinguishedName},scope=${scope})}">
-          <span class="fa fa-edit" aria-hidden="true"></span>
+          <span class="fa fa-edit" aria-hidden="true" th:text="''"> EDIT</span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="#">
-          <span class="fa fa-people-group" aria-hidden="true"></span>
+          <span class="fa fa-people-group" aria-hidden="true" th:text="''"> MEMBERS</span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="group-memberships-direct.html"
            th:href="@{group-memberships-direct(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-folder-tree" aria-hidden="true"></span>
+          <span class="fa fa-folder-tree" aria-hidden="true" th:text="''"> MEMBERSHIPS</span>
         </a>
       </li>
       <li class="nav-item">
@@ -103,7 +102,7 @@
            th:classappend="${group.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${group.sid.systemEntity}"
            th:href="@{group-delete(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-trash-alt" aria-hidden="true"></span>
+          <span class="fa fa-trash-alt" aria-hidden="true" th:text="''"> DELETE</span>
         </a>
       </li>
     </ul>
@@ -131,10 +130,10 @@
             </div>
           </div>
         </div>
-        <div class="col col-auto mt-sm-2 mt-md-0">
-          <div class="form-switch">
-            <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="primarySwitch" value="primary" role="switch"
+        <div class="col col-auto mt-3 mt-sm-1 mt-lg-1">
+          <div class="form-switch" style="padding-left: 0;">
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.primary}">
+              <input class="form-check-input" type="checkbox" id="primarySwitch" name="primarySwitch" value="primary"
                      th:checked="${withPrimaryMembers}">
               <label class="form-check-label" for="primarySwitch">
                 <span class="text-light">
@@ -142,8 +141,8 @@
                 </span>
               </label>
             </div>
-            <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="userSwitch" value="user" role="switch"
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.user}">
+              <input class="form-check-input" type="checkbox" id="userSwitch" name="userSwitch" value="user"
                      th:checked="${memberTypeUser}">
               <label class="form-check-label" for="userSwitch">
                 <span class="text-primary">
@@ -151,8 +150,8 @@
                 </span>
               </label>
             </div>
-            <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="groupSwitch" value="group" role="switch"
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.group}">
+              <input class="form-check-input" type="checkbox" id="groupSwitch" name="groupSwitch" value="group"
                      th:checked="${memberTypeGroup}">
               <label class="form-check-label" for="groupSwitch">
                 <span class="text-success">
@@ -160,8 +159,8 @@
                 </span>
               </label>
             </div>
-            <div class="form-check form-check-inline ms-4">
-              <input class="form-check-input" type="checkbox" id="computerSwitch" value="computer" role="switch"
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.computer}">
+              <input class="form-check-input" type="checkbox" id="computerSwitch" name="computerSwitch" value="computer"
                      th:checked="${memberTypeComputer}">
               <label class="form-check-label" for="computerSwitch">
                 <span class="text-warning">
@@ -185,17 +184,9 @@
            th:classappend="'member-type-' + ${member.memberType}">
         <div class="d-flex w-100 justify-content-between">
           <div class="h6">
-            <span class="text-primary" th:if="${#strings.equals(member.memberType, 'user')}">
-              <span class="fas fa-user" aria-hidden="true"></span>
-            </span>
-            <span class="text-success" th:if="${#strings.equals(member.memberType, 'group')}">
-              <span class="fas fa-user-group" aria-hidden="true"></span>
-            </span>
-            <span class="text-warning" th:if="${#strings.equals(member.memberType, 'computer')}">
-              <span class="fas fa-computer" aria-hidden="true"></span>
-            </span>
-            <span class="text-danger" th:if="${#strings.equals(member.memberType, 'unknown')}">
-              <span class="fas fa-question-circle" aria-hidden="true"></span>
+            <span class="text-primary" th:class="${member.memberType.cssClass}"
+                  th:title="#{${member.memberType.i18nCode}}" >
+              <span class="fas fa-user" th:class="${member.memberType.cssClassIcon}" aria-hidden="true"></span>
             </span>
             <span class="ms-1" th:text="${member.displayName}">Anna</span>
             <span class="text-light" th:if="${member.primaryMember}">
@@ -207,7 +198,8 @@
                    th:name="'member-' + ${iter.index}" name="member-0"
                    th:value="${member.distinguishedName}"
                    th:checked="${member.member}" th:disabled="${member.primaryMember}"
-                   type="checkbox" class="form-check-input" role="switch"/>
+                   title="Add or remove member"
+                   type="checkbox" class="form-check-input" />
           </div>
         </div>
         <small class="text-secondary" th:text="${member.nameTree}">CN</small>
