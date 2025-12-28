@@ -6,9 +6,13 @@
   </head>
   <body>
     <p>
-      <span th:text="#{common.hello(${user.name})}">
-        Hello, James!
+      <span th:text="#{common.hello}">
+        Hello,
       </span>
+      <span th:text="${not #strings.isEmpty(user.firstName)} ? ${user.firstName} : ${user.name}">
+        James
+      </span>
+      <span>!</span>
     </p>
     <p>
       <span th:text="#{invitation-email.account-created}">

@@ -193,7 +193,6 @@ public class PasswordResetController extends UiController {
             model.addAttribute("isInvitation", passwordReset.isInvitation());
             return "passwd/password-reset";
           }
-          model.clear();
           model.addAttribute("user", newUser);
           // TODO set login page, like data and whether to use netbios
           return "passwd/password-reset-success";
