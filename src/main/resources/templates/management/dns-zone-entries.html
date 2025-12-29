@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -82,19 +81,25 @@
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="#">
-        <span class="fa fa-list" aria-hidden="true"></span>
+        <span class="fa fa-list" aria-hidden="true">
+          <span style="display: none;">Entries</span>
+        </span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link show-spinner" href="dns-zone-info.html"
          th:href="@{dns-zone-info(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-info" aria-hidden="true"></span>
+        <span class="fa fa-info" aria-hidden="true">
+          <span style="display: none;">Info</span>
+        </span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="dns-zone-delete.html"
          th:href="@{dns-zone-delete(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-trash-alt" aria-hidden="true"></span>
+        <span class="fa fa-trash-alt" aria-hidden="true">
+          <span style="display: none;">Delete</span>
+        </span>
       </a>
     </li>
   </ul>

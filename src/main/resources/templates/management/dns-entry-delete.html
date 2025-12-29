@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -83,12 +82,16 @@
     <li class="nav-item">
       <a class="nav-link show-spinner" href="dns-entry-edit.html"
          th:href="@{dns-entry-edit(zone-type=${zoneType},zone-name=${dnsEntry.zoneName},name=${dnsEntry.name},type=${dnsEntry.type},value=${dnsEntry.value},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-edit" aria-hidden="true"></span>
+        <span class="fa fa-edit" aria-hidden="true">
+            <span style="display: none;">Edit</span>
+        </span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="#">
-        <span class="fa fa-trash-alt" aria-hidden="true"></span>
+        <span class="fa fa-trash-alt" aria-hidden="true">
+            <span style="display: none;">Delete</span>
+        </span>
       </a>
     </li>
   </ul>
@@ -97,13 +100,15 @@
 
     <div class="mb-4 p-3 border border-1 border-danger">
       <div class="h5 mb-3">
-        <span>Delete dns entry</span>
+        <span class="me-2">Delete dns entry</span>
         <span> </span>
         <b>
-          <span class="me-1" th:text="${dnsEntry.name}">zander</span>
+          <span class="me-2" th:text="${dnsEntry.name}">zander</span>
         </b>
         <a id="copyNameToClipboard" href="#">
-          <span class="fas fa-clipboard" aria-hidden="true"></span>
+          <span class="fas fa-clipboard" aria-hidden="true">
+            <span style="display: none;">Copy to clipboard</span>
+          </span>
         </a>
       </div>
       <form id="deleteDnsEntryForm" th:action="@{dns-entry-delete}"
@@ -133,13 +138,12 @@
         </div>
 
         <div class="form-check form-switch mb-3" th:if="${mayHaveReverseEntry}">
-          <input class="form-check-input" type="checkbox" role="switch" id="deleteReverseEntry"
+          <input class="form-check-input" type="checkbox" id="deleteReverseEntry"
                  name="deleteReverseEntry" th:field="*{deleteReverseEntry}" />
           <label class="form-check-label" for="deleteReverseEntry">
             Also delete reverse entry
           </label>
         </div>
-
 
         <button type="submit" class="btn btn-danger mt-3 mb-3 show-spinner">
           Delete

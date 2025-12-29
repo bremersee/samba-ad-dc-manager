@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -169,7 +168,7 @@
         Add
       </button>
       <a href="groups.html" th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-         class="btn btn-secondary ml-3 mt-3" role="button">
+         class="btn btn-secondary ml-3 mt-3">
         Cancel
       </a>
     </form>

@@ -72,7 +72,9 @@
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="#">
-        <span class="fa fa-edit" aria-hidden="true"></span>
+        <span class="fa fa-edit" aria-hidden="true">
+            <span style="display: none;">Edit</span>
+        </span>
       </a>
     </li>
     <li class="nav-item">
@@ -80,7 +82,9 @@
          th:classappend="${organizationalUnit.systemOu} ? 'disabled' : ''"
          th:attr="aria-disabled=${organizationalUnit.systemOu}"
          th:href="@{organizational-unit-delete(name=${organizationalUnit.distinguishedName},page=${page},size=${size},q=${q})}">
-        <span class="fa fa-trash-alt" aria-hidden="true"></span>
+        <span class="fa fa-trash-alt" aria-hidden="true">
+            <span style="display: none;">Delete</span>
+        </span>
       </a>
     </li>
   </ul>
@@ -137,7 +141,7 @@
       </button>
       <a href="organizational-units.html"
          th:href="@{organizational-units(page=${page},size=${size},q=${q})}"
-         class="btn btn-secondary ml-3 mt-3" role="button">
+         class="btn btn-secondary ml-3 mt-3">
         Cancel
       </a>
     </form>

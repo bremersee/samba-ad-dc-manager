@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -82,18 +81,24 @@
       <li class="nav-item">
         <a class="nav-link" href="group-edit.html"
            th:href="@{group-edit(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-edit" aria-hidden="true"></span>
+          <span class="fa fa-edit" aria-hidden="true">
+            <span style="display: none;">Edit</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="group-edit-members.html"
            th:href="@{group-edit-members(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-people-group" aria-hidden="true"></span>
+          <span class="fa fa-people-group" aria-hidden="true">
+            <span style="display: none;">Members</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="#">
-          <span class="fa fa-folder-tree" aria-hidden="true"></span>
+          <span class="fa fa-folder-tree" aria-hidden="true">
+            <span style="display: none;">Memberships</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
@@ -101,7 +106,9 @@
            th:classappend="${group.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${group.sid.systemEntity}"
            th:href="@{group-delete(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-trash-alt" aria-hidden="true"></span>
+          <span class="fa fa-trash-alt" aria-hidden="true">
+            <span style="display: none;">Delete</span>
+          </span>
         </a>
       </li>
     </ul>

@@ -83,18 +83,24 @@
       <li class="nav-item">
         <a class="nav-link" href="group-edit.html"
            th:href="@{group-edit(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${group.parentDistinguishedName},scope=${scope})}">
-          <span class="fa fa-edit" aria-hidden="true" th:text="''"> EDIT</span>
+          <span class="fa fa-edit" aria-hidden="true">
+            <span style="display: none;">Edit</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="#">
-          <span class="fa fa-people-group" aria-hidden="true" th:text="''"> MEMBERS</span>
+          <span class="fa fa-people-group" aria-hidden="true">
+            <span style="display: none;">Members</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="group-memberships-direct.html"
            th:href="@{group-memberships-direct(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-folder-tree" aria-hidden="true" th:text="''"> MEMBERSHIPS</span>
+          <span class="fa fa-folder-tree" aria-hidden="true">
+            <span style="display: none;">Memberships</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
@@ -102,7 +108,9 @@
            th:classappend="${group.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${group.sid.systemEntity}"
            th:href="@{group-delete(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-trash-alt" aria-hidden="true" th:text="''"> DELETE</span>
+          <span class="fa fa-trash-alt" aria-hidden="true">
+            <span style="display: none;">Delete</span>
+          </span>
         </a>
       </li>
     </ul>
@@ -188,9 +196,11 @@
                   th:title="#{${member.memberType.i18nCode}}" >
               <span class="fas fa-user" th:class="${member.memberType.cssClassIcon}" aria-hidden="true"></span>
             </span>
-            <span class="ms-1" th:text="${member.displayName}">Anna</span>
+            <span class="ms-1" th:text="${member.displayName}">
+              Anna
+            </span>
             <span class="text-light" th:if="${member.primaryMember}">
-              <span class="fas fa-star" aria-hidden="true"></span>
+              <span class="fas fa-star" aria-hidden="true" th:title="#{domain-group-member-type.primary}"></span>
             </span>
           </div>
           <div class="form-switch h6">
@@ -202,7 +212,7 @@
                    type="checkbox" class="form-check-input" />
           </div>
         </div>
-        <small class="text-secondary" th:text="${member.nameTree}">CN</small>
+        <small class="text-secondary" th:text="${member.nameTree}">CN=Anna,CN=Users</small>
       </div>
     </div>
 

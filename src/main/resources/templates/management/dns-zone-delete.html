@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -83,18 +82,24 @@
     <li class="nav-item">
       <a class="nav-link show-spinner" href="dns-zone-entries.html"
          th:href="@{dns-zone-entries(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-list" aria-hidden="true"></span>
+        <span class="fa fa-list" aria-hidden="true">
+          <span style="display: none;">Entries</span>
+        </span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link show-spinner" href="dns-zone-info.html"
          th:href="@{dns-zone-info(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-info" aria-hidden="true"></span>
+        <span class="fa fa-info" aria-hidden="true">
+          <span style="display: none;">Info</span>
+        </span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="#">
-        <span class="fa fa-trash-alt" aria-hidden="true"></span>
+        <span class="fa fa-trash-alt" aria-hidden="true">
+          <span style="display: none;">Delete</span>
+        </span>
       </a>
     </li>
   </ul>
@@ -103,13 +108,14 @@
 
     <div class="mb-4 p-3 border border-1 border-danger">
       <div class="h5 mb-3">
-        <span>Delete dns zone</span>
-        <span> </span>
+        <span class="me-2">Delete dns zone</span>
         <b>
-          <span class="me-1" th:text="${zoneName}">intranet</span>
+          <span class="me-2" th:text="${zoneName}">intranet</span>
         </b>
         <a id="copyNameToClipboard" href="#">
-          <span class="fas fa-clipboard" aria-hidden="true"></span>
+          <span class="fas fa-clipboard" aria-hidden="true" title="Copy to clipboard">
+            <span style="display: none;">Copy to clipboard</span>
+          </span>
         </a>
       </div>
       <form id="deleteDnsEntryForm" th:action="@{dns-zone-delete}"

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -89,9 +88,11 @@
           <span>Name</span>:
         </div>
         <div class="col col-auto">
-          <span class="me-1" th:text="${dnsEntry.displayName}">zander</span>
+          <span class="me-2" th:text="${dnsEntry.displayName}">zander</span>
           <a id="copyNameToClipboard" href="#">
-            <span class="fas fa-clipboard" aria-hidden="true"></span>
+            <span class="fas fa-clipboard" aria-hidden="true" title="Copy to clipboard">
+              <span style="display: none;">Copy to clipboard</span>
+            </span>
           </a>
         </div>
       </div>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -99,7 +98,7 @@
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch" id="useUsernameAsCn"
+        <input class="form-check-input" type="checkbox" id="useUsernameAsCn"
                name="useUsernameAsCn" th:field="*{useUsernameAsCn}" />
         <label class="form-check-label" for="useUsernameAsCn">
           Use username as CN
@@ -107,7 +106,7 @@
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch" id="enabled" name="enabled"
+        <input class="form-check-input" type="checkbox" id="enabled" name="enabled"
                th:field="*{enabled}" />
         <label class="form-check-label" for="enabled" th:text="#{i18n.enabled}">
           Enabled
@@ -115,7 +114,7 @@
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch"
+        <input class="form-check-input" type="checkbox"
                id="passwordExpirationEnabled" name="passwordExpirationEnabled"
                th:field="*{passwordExpirationEnabled}" />
         <label class="form-check-label" for="passwordExpirationEnabled">
@@ -124,7 +123,7 @@
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch"
+        <input class="form-check-input" type="checkbox"
                id="noExpiry"
                name="noExpiry"
                th:field="*{noExpiry}"/>
@@ -357,8 +356,7 @@
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch" id="sendEmail"
-               id="sendEmail"
+        <input class="form-check-input" type="checkbox" id="sendEmail"
                name="sendEmail" th:field="*{sendEmail}" />
         <label class="form-check-label" for="sendEmail">
           Send an invitation email with a random password
@@ -370,7 +368,7 @@
       </button>
       <a href="users.html"
          th:href="@{users(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-         class="btn btn-secondary ml-3 mt-3" role="button">
+         class="btn btn-secondary ml-3 mt-3">
         Cancel
       </a>
     </form>

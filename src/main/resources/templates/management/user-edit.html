@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -87,13 +86,17 @@
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
         <a class="nav-link active" aria-current="page" href="#">
-          <span class="fa fa-user-edit" aria-hidden="true"></span>
+          <span class="fa fa-user-edit" aria-hidden="true">
+            <span style="display: none;">Edit</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="user-memberships-direct.html"
            th:href="@{user-memberships-direct(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-folder-tree" aria-hidden="true"></span>
+          <span class="fa fa-folder-tree" aria-hidden="true">
+            <span style="display: none;">Memberships</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
@@ -101,13 +104,17 @@
            th:classappend="${user.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${user.sid.systemEntity}"
            th:href="@{user-delete(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-trash-alt" aria-hidden="true"></span>
+          <span class="fa fa-trash-alt" aria-hidden="true">
+            <span style="display: none;">Delete</span>
+          </span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="user-reset-password.html"
            th:href="@{user-reset-password(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-shapes" aria-hidden="true"></span>
+          <span class="fa fa-shapes" aria-hidden="true">
+            <span style="display: none;">Password</span>
+          </span>
         </a>
       </li>
     </ul>
@@ -143,7 +150,7 @@
         </div>
 
         <div class="form-check form-switch mb-3" th:if="${avatarExists}">
-          <input class="form-check-input" type="checkbox" role="switch" id="removeAvatar"
+          <input class="form-check-input" type="checkbox" id="removeAvatar"
                  name="removeAvatar" th:field="*{removeAvatar}" />
           <label class="form-check-label" for="removeAvatar">
             Remove avatar
@@ -176,7 +183,7 @@
         </div>
 
         <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" role="switch"
+          <input class="form-check-input" type="checkbox"
                  id="renameLastNameAutomatically"
                  name="renameLastNameAutomatically"
                  th:field="*{renameNamesAutomatically}"/>
@@ -189,7 +196,7 @@
         </div>
 
         <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" role="switch" id="enabled" name="enabled"
+          <input class="form-check-input" type="checkbox" id="enabled" name="enabled"
                  th:field="*{enabled}" />
           <label class="form-check-label" for="enabled" th:text="#{i18n.enabled}">
             Enabled
@@ -197,7 +204,7 @@
         </div>
 
         <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" role="switch"
+          <input class="form-check-input" type="checkbox"
                  id="passwordExpirationEnabled" name="passwordExpirationEnabled"
                  th:field="*{passwordExpirationEnabled}" />
           <label class="form-check-label" for="passwordExpirationEnabled">
@@ -206,7 +213,7 @@
         </div>
 
         <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" role="switch"
+          <input class="form-check-input" type="checkbox"
                  id="noExpiry"
                  name="noExpiry"
                  th:field="*{noExpiry}"/>
@@ -398,7 +405,7 @@
             </div>
           </div>
 
-          <div class="mb-3"> <!-- TODO select ? -->
+          <div class="mb-3">
             <label for="gidNumber" class="form-label">
               User's Unix/RFC2307 primary group ID
             </label>
@@ -441,7 +448,7 @@
           Update
         </button>
         <a href="users.html" th:href="@{users(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-           class="btn btn-secondary ml-3 mt-3" role="button">
+           class="btn btn-secondary ml-3 mt-3">
           Cancel
         </a>
       </form>
