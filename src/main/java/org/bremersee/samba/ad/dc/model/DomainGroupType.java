@@ -181,7 +181,7 @@ public interface DomainGroupType {
   enum Purpose {
     UNKNOWN("Unknown", "domain-group-type.purpose.unknown"),
     SECURITY("Security", "domain-group-type.purpose.security"),
-    DISTRIBUTION("Distribution", "domain-group-type.purpose.distribution"),;
+    DISTRIBUTION("Distribution", "domain-group-type.purpose.distribution");
 
     @Getter
     private final String value;
