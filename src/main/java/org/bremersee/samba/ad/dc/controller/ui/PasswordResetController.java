@@ -32,9 +32,9 @@ import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.model.event.PasswordResetEvent;
+import org.bremersee.samba.ad.dc.service.CryptoService;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
-import org.bremersee.samba.ad.dc.service.PasswordResetCryptoService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -53,13 +53,11 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller
 public class PasswordResetController extends UiController {
 
-  private final ApplicationEventPublisher eventPublisher;
-
-  private final PasswordResetCryptoService<AesEncValue> passwordResetCryptoService;
-
-  private final DomainService domainService;
-
   private final DomainUserService domainUserService;
+
+  private final CryptoService<PasswordReset, AesEncValue> cryptoService;
+
+  private final ApplicationEventPublisher eventPublisher;
 
   private final Pattern usernamePattern;
 
@@ -68,15 +66,14 @@ public class PasswordResetController extends UiController {
   public PasswordResetController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
-      ApplicationEventPublisher eventPublisher,
-      PasswordResetCryptoService<AesEncValue> passwordResetCryptoService,
       DomainService domainService,
-      DomainUserService domainUserService) {
-    super(properties, localeResolver);
-    this.eventPublisher = eventPublisher;
-    this.passwordResetCryptoService = passwordResetCryptoService;
-    this.domainService = domainService;
+      DomainUserService domainUserService,
+      CryptoService<PasswordReset, AesEncValue> cryptoService,
+      ApplicationEventPublisher eventPublisher) {
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
+    this.cryptoService = cryptoService;
+    this.eventPublisher = eventPublisher;
     this.usernamePattern = Pattern.compile(properties.getUser().getNewSamAccountNameRegex());
   }
 
@@ -88,25 +85,21 @@ public class PasswordResetController extends UiController {
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
     if (isEmpty(passwordPattern)) {
-      passwordPattern = Pattern.compile(domainService.getPasswordInformation().getPasswordRegex());
+      passwordPattern = Pattern
+          .compile(getDomainService().getPasswordInformation().getPasswordRegex());
     }
     return passwordPattern.pattern();
   }
 
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
-    return domainService.getPasswordInformation()
+    return getDomainService().getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
-  }
-
-  @ModelAttribute("domain")
-  public String getDomain() {
-    return domainService.getDomainInfo().getDomain();
   }
 
   @ModelAttribute("netbiosDomain")
   public String getNetbiosDomain() {
-    return domainService.getDomainInfo().getNetbiosDomain();
+    return getDomainInfo().getNetbiosDomain();
   }
 
   @ModelAttribute("defaultLoginPage")
@@ -149,8 +142,12 @@ public class PasswordResetController extends UiController {
       @RequestParam(value = "s") String salt,
       ModelMap model) {
 
-    PasswordReset passwordReset = passwordResetCryptoService
-        .decrypt(new AesEncValue(passwordResetEnc, salt));
+    PasswordReset passwordReset;
+    try {
+      passwordReset = cryptoService.decrypt(new AesEncValue(passwordResetEnc, salt));
+    } catch (RuntimeException e) {
+      return "passwd/password-reset-invalid";
+    }
     return getValidatedDomainUser(passwordReset)
         .map(user -> {
           model.addAttribute("req", passwordResetEnc);
@@ -171,7 +168,7 @@ public class PasswordResetController extends UiController {
       ModelMap model,
       BindingResult bindingResult) {
 
-    PasswordReset passwordReset = passwordResetCryptoService
+    PasswordReset passwordReset = cryptoService
         .decrypt(new AesEncValue(passwordResetEnc, salt));
     return getValidatedDomainUser(passwordReset)
         .map(user -> {
@@ -211,20 +208,16 @@ public class PasswordResetController extends UiController {
   }
 
   private Optional<DomainUser> getValidatedDomainUser(PasswordReset passwordReset) {
-    try {
-      // TODO lifetime property
-      if (passwordReset.getRequestDateTime().plusDays(7L).isBefore(OffsetDateTime.now())) {
-        getLogger().debug("Password reset request has expired.");
-        return Optional.empty();
-      }
-      return domainUserService.getUser(passwordReset.getUsername(), null, null)
-          .filter(user -> Objects
-              .equals(user.getPasswordLastSet(), passwordReset.getPwdLastSetDateTime()));
-
-    } catch (RuntimeException e) {
-      getLogger().error("Getting user to reset password failed.", e);
+    OffsetDateTime until = passwordReset.getRequestDateTime()
+        .plus(getProperties().getUser().getPasswordResetRequestLifetime());
+    OffsetDateTime now = OffsetDateTime.now();
+    if (until.isBefore(now)) {
+      getLogger().debug("Password reset request has expired.");
       return Optional.empty();
     }
+    return domainUserService.getUser(passwordReset.getUsername(), null, null)
+        .filter(user -> Objects
+            .equals(user.getPasswordLastSet(), passwordReset.getPwdLastSetDateTime()));
   }
 
   private DomainUser updateUser(
@@ -314,7 +307,7 @@ public class PasswordResetController extends UiController {
     if (oldUser.getSamAccountName().equals(newUser.getSamAccountName())) {
       return oldAesEncValue;
     }
-    return passwordResetCryptoService.encrypt(PasswordReset.builder()
+    return cryptoService.encrypt(PasswordReset.builder()
         .from(passwordReset)
         .username(newUser.getSamAccountName())
         .build());

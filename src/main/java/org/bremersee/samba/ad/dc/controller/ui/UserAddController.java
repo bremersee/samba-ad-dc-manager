@@ -64,10 +64,6 @@ public class UserAddController extends UiController
     implements PageableComponent, RedirectComponent, FieldTemplateComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
-  private final ApplicationEventPublisher eventPublisher;
-
-  private final DomainService domainService;
-
   private final DomainUserService domainUserService;
 
   @Getter
@@ -76,30 +72,31 @@ public class UserAddController extends UiController
   @Getter
   private final TemplateEngine templateEngine;
 
+  private final ApplicationEventPublisher eventPublisher;
+
   public UserAddController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
-      ApplicationEventPublisher eventPublisher,
       DomainUserService domainUserService,
       OrganizationalUnitService organizationalUnitService,
-      TemplateEngine templateEngine) {
-    super(properties, localeResolver);
-    this.eventPublisher = eventPublisher;
-    this.domainService = domainService;
+      TemplateEngine templateEngine,
+      ApplicationEventPublisher eventPublisher) {
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
     this.organizationalUnitService = organizationalUnitService;
     this.templateEngine = templateEngine;
+    this.eventPublisher = eventPublisher;
   }
 
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
-    return domainService.getPasswordInformation().getPasswordRegex();
+    return getDomainService().getPasswordInformation().getPasswordRegex();
   }
 
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
-    return domainService.isRfc2307Enabled();
+    return getDomainService().isRfc2307Enabled();
   }
 
   @Override
@@ -261,7 +258,7 @@ public class UserAddController extends UiController
   private UserAddModel newUserAddModel(Dn ou) {
     UserAddModel addRequest = new UserAddModel(
         getProperties().getUser(),
-        domainService.getPasswordInformation(),
+        getDomainService().getPasswordInformation(),
         isRfc2307Enabled());
     addRequest.setNewOu(Optional.ofNullable(ou)
         .filter(DnTool::isValidDn)

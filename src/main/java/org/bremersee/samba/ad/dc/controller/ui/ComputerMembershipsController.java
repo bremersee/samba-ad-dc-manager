@@ -25,6 +25,7 @@ import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -49,9 +50,10 @@ public class ComputerMembershipsController extends UiController
   public ComputerMembershipsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DomainComputerService domainComputerService,
       DomainGroupService domainGroupService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.domainComputerService = domainComputerService;
     this.domainGroupService = domainGroupService;
   }

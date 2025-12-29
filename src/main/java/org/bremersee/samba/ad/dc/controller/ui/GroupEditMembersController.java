@@ -32,6 +32,7 @@ import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
@@ -65,10 +66,11 @@ public class GroupEditMembersController extends UiController implements Pageable
   public GroupEditMembersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService,
       SortMapper sortMapper) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
     this.sortMapper = sortMapper;

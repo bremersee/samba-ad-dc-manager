@@ -18,7 +18,6 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -54,22 +53,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserResetPasswordController extends UiController
     implements PageableComponent, OrganizationalUnitComponent {
 
-  private final ApplicationEventPublisher eventPublisher;
-
-  private final DomainService domainService;
-
   private final DomainUserService domainUserService;
+
+  private final ApplicationEventPublisher eventPublisher;
 
   public UserResetPasswordController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
-      ApplicationEventPublisher eventPublisher,
       DomainService domainService,
-      DomainUserService domainUserService) {
-    super(properties, localeResolver);
-    this.eventPublisher = eventPublisher;
+      DomainUserService domainUserService,
+      ApplicationEventPublisher eventPublisher) {
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
-    this.domainService = domainService;
+    this.eventPublisher = eventPublisher;
   }
 
   @Override
@@ -79,12 +75,12 @@ public class UserResetPasswordController extends UiController
 
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
-    return domainService.getPasswordInformation().getPasswordRegex();
+    return getDomainService().getPasswordInformation().getPasswordRegex();
   }
 
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
-    return domainService.getPasswordInformation()
+    return getDomainService().getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
@@ -135,7 +131,7 @@ public class UserResetPasswordController extends UiController
 
     String password;
     if (passwordRequest.isGenerateRandomPassword()) {
-      password = domainService.createRandomPassword();
+      password = getDomainService().createRandomPassword();
     } else if (!isEmpty(passwordRequest.getPassword())) {
       password = passwordRequest.getPassword();
       if (!Pattern.compile(getPasswordPattern()).matcher(password).matches()) {

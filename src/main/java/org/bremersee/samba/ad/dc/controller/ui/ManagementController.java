@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.LocaleResolver;
@@ -33,8 +34,9 @@ public class ManagementController extends UiController
 
   public ManagementController(
       ApplicationProperties properties,
-      LocaleResolver localeResolver) {
-    super(properties, localeResolver);
+      LocaleResolver localeResolver,
+      DomainService domainService) {
+    super(properties, localeResolver, domainService);
   }
 
   @GetMapping("/management/index")
@@ -42,7 +44,7 @@ public class ManagementController extends UiController
     return "management/index";
   }
 
-  @GetMapping({"/management", "/management/", "/management/index.html"})
+  @GetMapping({"/management", "/management/"})
   public String displayManagement() {
     return "redirect:/management/index";
   }

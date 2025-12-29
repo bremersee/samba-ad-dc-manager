@@ -19,11 +19,8 @@ package org.bremersee.samba.ad.dc.service;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
@@ -32,7 +29,6 @@ import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
 import org.bremersee.samba.ad.dc.model.event.PasswordResetEvent;
-import org.bremersee.spring.security.core.NormalizedPrincipal;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
@@ -40,8 +36,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.thymeleaf.TemplateEngine;
@@ -55,19 +49,9 @@ import org.thymeleaf.context.Context;
 @Service("passwordEmailService")
 @ConditionalOnProperty(name = "spring.mail.host")
 @Slf4j
-public class PasswordEmailService {
+public class PasswordEmailService extends AbstractEmailService {
 
-  private final ApplicationProperties properties;
-
-  private final MessageSource messageSource;
-
-  private final TemplateEngine templateEngine;
-
-  private final List<TemplateEngineContextSupplier> contextSuppliers;
-
-  private final JavaMailSender javaMailSender;
-
-  private final PasswordResetCryptoService<AesEncValue> passwordResetCryptoService;
+  private final CryptoService<PasswordReset, AesEncValue> passwordResetCryptoService;
 
   public PasswordEmailService(
       ApplicationProperties properties,
@@ -75,14 +59,9 @@ public class PasswordEmailService {
       TemplateEngine templateEngine,
       List<TemplateEngineContextSupplier> contextSuppliers,
       JavaMailSender javaMailSender,
-      PasswordResetCryptoService<AesEncValue> passwordResetCryptoService) {
-    this.properties = properties;
-    this.messageSource = messageSource;
-    this.templateEngine = templateEngine;
-    this.contextSuppliers = contextSuppliers;
-    this.javaMailSender = javaMailSender;
+      CryptoService<PasswordReset, AesEncValue> passwordResetCryptoService) {
+    super(properties, messageSource, templateEngine, contextSuppliers, javaMailSender);
     this.passwordResetCryptoService = passwordResetCryptoService;
-    log.info("Password email service initialized.");
   }
 
   @EventListener
@@ -98,78 +77,43 @@ public class PasswordEmailService {
   }
 
   private void sendEmail(DomainUser user, String baseUri, boolean isInvitation) {
-    if (isEmpty(user) || isEmpty(user.getEmail())) {
+    if (isEmpty(user) || isEmpty(user.getEmail()) || isEmpty(baseUri)) {
       return;
     }
     MimeMessagePreparator preparator = mimeMessage -> {
       MimeMessageHelper helper = new MimeMessageHelper(
           mimeMessage, true, StandardCharsets.UTF_8.name());
-      helper.setFrom(properties.getEmail().getSender());
+      helper.setFrom(getProperties().getEmail().getSender());
       helper.setTo(Objects.requireNonNull(user.getEmail()));
       helper.setSubject(getEmailSubject(user, isInvitation));
       helper.setText(getEmailText(user, baseUri, isInvitation), true);
     };
-    javaMailSender.send(preparator);
+    getJavaMailSender().send(preparator);
   }
 
   private String getEmailSubject(DomainUser user, boolean isInvitation) {
     if (isInvitation) {
-      return messageSource.getMessage(
+      return getMessageSource().getMessage(
           "todo",
           new Object[]{user.getFirstName()},
-          "Welcome",
+          "Welcome in the domain",
           user.getLocale());
     } else {
-      return messageSource.getMessage(
+      return getMessageSource().getMessage(
           "todo",
           new Object[]{user.getFirstName()},
-          "Reset password",
+          "Your password reset request",
           user.getLocale());
     }
   }
 
   private String getEmailText(DomainUser user, String baseUri, boolean isInvitation) {
-    Locale locale = user.getLocale();
-    Context ctx = new Context(locale);
-    contextSuppliers.forEach(contextSupplier -> contextSupplier
-        .getTemplateEngineContext().forEach(ctx::setVariable));
-    ctx.setVariable("user", user);
-    ctx.setVariable("properties", properties);
+    Context ctx = createContext(user);
     ctx.setVariable("resetUri", getPasswordResetUri(user, baseUri, isInvitation));
-    ctx.setVariable("regards", getEmailRegards());
     String template = isInvitation
         ? "email/invitation-email"
         : "email/password-reset-email";
-    return templateEngine.process(template, ctx);
-  }
-
-  private String getEmailRegards() {
-    return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-        .filter(Authentication::isAuthenticated)
-        .map(Authentication::getPrincipal)
-        .filter(Principal.class::isInstance)
-        .map(Principal.class::cast)
-        .map(this::getEmailRegards)
-        .orElse("Your domain administrator");
-  }
-
-  private String getEmailRegards(Principal principal) {
-    StringBuilder sb = new StringBuilder();
-    if (principal instanceof NormalizedPrincipal normalizedPrincipal) {
-      if (!isEmpty(normalizedPrincipal.getFirstName())) {
-        sb.append(normalizedPrincipal.getFirstName());
-        if (!isEmpty(normalizedPrincipal.getLastName())) {
-          sb.append(" ");
-        }
-      }
-      if (!isEmpty(normalizedPrincipal.getLastName())) {
-        sb.append(normalizedPrincipal.getLastName());
-      }
-    }
-    if (!sb.isEmpty()) {
-      return sb.toString();
-    }
-    return principal.getName();
+    return getTemplateEngine().process(template, ctx);
   }
 
   private String getPasswordResetUri(DomainUser user, String baseUri, boolean isInvitation) {

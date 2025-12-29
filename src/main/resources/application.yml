@@ -184,6 +184,11 @@ bremersee:
           replacement: "_ADMIN"
       default-roles:
         - "ROLE_LOCAL_USER"
+      role-mapping:
+        - source: "Domain Admins"
+          target: "ROLE_ADMIN"
+        - source: "samba-admins"
+          target: "ROLE_ADMIN"
 
 ---
 

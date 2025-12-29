@@ -59,8 +59,6 @@ public class GroupAddController extends UiController implements PageableComponen
     RedirectComponent, DomainGroupTypesComponent, OrganizationalUnitComponent,
     OrganisationalUnitsComponent {
 
-  private final DomainService domainService;
-
   private final DomainGroupService domainGroupService;
 
   @Getter
@@ -72,8 +70,7 @@ public class GroupAddController extends UiController implements PageableComponen
       DomainService domainService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
-    this.domainService = domainService;
+    super(properties, localeResolver, domainService);
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
   }
@@ -85,7 +82,7 @@ public class GroupAddController extends UiController implements PageableComponen
 
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
-    return domainService.isRfc2307Enabled();
+    return getDomainService().isRfc2307Enabled();
   }
 
   @GetMapping(path = "/management/group-add")

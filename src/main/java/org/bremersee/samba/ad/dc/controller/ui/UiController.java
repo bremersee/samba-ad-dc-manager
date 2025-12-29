@@ -18,6 +18,8 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bremersee.samba.ad.dc.ErrorCode;
@@ -31,11 +33,16 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.method.P;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -65,16 +72,26 @@ public abstract class UiController extends AbstractController implements LoggerP
 
   private final LocaleResolver localeResolver;
 
+  @Getter(AccessLevel.PROTECTED)
+  private final DomainService domainService;
+
   @Setter
   private MessageSource messageSource;
 
   protected UiController(
       ApplicationProperties properties,
-      LocaleResolver localeResolver) {
+      LocaleResolver localeResolver,
+      DomainService domainService) {
     this.logger = LoggerFactory.getLogger(getClass());
     this.properties = properties;
     this.dnTool = new DefaultDnTool(properties);
     this.localeResolver = localeResolver;
+    this.domainService = domainService;
+  }
+
+  @ModelAttribute("domainInfo")
+  public DomainInfo getDomainInfo() {
+    return getDomainService().getDomainInfo();
   }
 
   @ModelAttribute("companyName")
@@ -114,6 +131,17 @@ public abstract class UiController extends AbstractController implements LoggerP
     } else {
       getLogger().debug("{} Redirecting to {}", msg, redirect);
     }
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ModelAndView handleError(HttpServletRequest req, Exception ex) {
+    getLogger().error("Request {} raised exception", req.getRequestURL(), ex);
+
+    ModelAndView mav = new ModelAndView();
+    mav.addObject("exception", ex);
+    mav.addObject("url", req.getRequestURL());
+    mav.setViewName("error");
+    return mav;
   }
 
 }

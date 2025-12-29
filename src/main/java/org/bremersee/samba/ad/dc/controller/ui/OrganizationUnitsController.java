@@ -20,6 +20,7 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnitPage;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +44,9 @@ public class OrganizationUnitsController extends UiController
   public OrganizationUnitsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.organizationalUnitService = organizationalUnitService;
   }
 

@@ -50,8 +50,6 @@ public class PasswordChangeController extends UiController {
 
   private static final String HTML_TEMPLATE = "passwd/password-change";
 
-  private final DomainService domainService;
-
   private final DomainUserService domainUserService;
 
   public PasswordChangeController(
@@ -59,28 +57,22 @@ public class PasswordChangeController extends UiController {
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService) {
-    super(properties, localeResolver);
-    this.domainService = domainService;
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
   }
 
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
-    return domainService.getPasswordInformation().getPasswordRegex();
+    return getDomainService().getPasswordInformation().getPasswordRegex();
   }
 
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
-    return domainService.getPasswordInformation()
+    return getDomainService().getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
-  @ModelAttribute("domain")
-  public String getDomain() {
-    return domainService.getDomainInfo().getDomain();
-  }
-
-  @GetMapping(path = {"", "/", "/index.html", "/passwd", "/passwd/", "/passwd/index.html"})
+  @GetMapping(path = {"/passwd", "/passwd/"})
   public String displayChangePassword() {
     return "redirect:/passwd/password-change";
   }
@@ -108,7 +100,7 @@ public class PasswordChangeController extends UiController {
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    String netbiosPrefix = (domainService.getDomainInfo().getNetbiosDomain() + "\\").toLowerCase();
+    String netbiosPrefix = (getDomainInfo().getNetbiosDomain() + "\\").toLowerCase();
     String username = changePasswordModel.getUsername();
     if (!isEmpty(username) && username.toLowerCase().startsWith(netbiosPrefix)) {
       username = username.substring(netbiosPrefix.length());

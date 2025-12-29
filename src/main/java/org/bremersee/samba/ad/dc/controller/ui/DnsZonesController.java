@@ -22,6 +22,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeNavigationComponent;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,8 +43,9 @@ public class DnsZonesController extends UiController
   public DnsZonesController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DnsService dnsService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
   }
 

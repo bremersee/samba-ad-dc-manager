@@ -24,6 +24,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
@@ -49,9 +50,10 @@ public class UserMembershipsController extends UiController
   public UserMembershipsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DomainUserService domainUserService,
       DomainGroupService domainGroupService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
     this.domainGroupService = domainGroupService;
   }

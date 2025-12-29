@@ -104,7 +104,10 @@ public class WebSecurityConfiguration {
             .permitAll()
 
             .requestMatchers("/api/**", "/management/**")
-            .authenticated()
+            .hasAuthority("ROLE_ADMIN")
+
+            .requestMatchers("/user/**")
+            .hasAuthority("ROLE_LOCAL_USER")
 
             /*
 
@@ -146,9 +149,10 @@ public class WebSecurityConfiguration {
         .httpBasic(customizer -> customizer.realmName(appName))
 
         .formLogin(form -> form
-            .loginPage("/login"))
+            .loginPage("/login")
+            .defaultSuccessUrl("/user/profile"))
 
-        .logout(logout -> logout.logoutSuccessUrl("/passwd/password-change"))
+        .logout(logout -> logout.logoutSuccessUrl("/index"))
 
         /*
         .logout(logout -> logout

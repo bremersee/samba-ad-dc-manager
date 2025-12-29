@@ -64,8 +64,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserEditController extends UiController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
-  private final DomainService domainService;
-
   private final DomainUserService domainUserService;
 
   private final DomainGroupService domainGroupService;
@@ -80,8 +78,7 @@ public class UserEditController extends UiController implements PageableComponen
       DomainUserService domainUserService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
-    this.domainService = domainService;
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
@@ -94,7 +91,7 @@ public class UserEditController extends UiController implements PageableComponen
 
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
-    return domainService.isRfc2307Enabled();
+    return getDomainService().isRfc2307Enabled();
   }
 
   @ModelAttribute("avatarExists")

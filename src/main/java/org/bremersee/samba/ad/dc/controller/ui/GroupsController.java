@@ -26,6 +26,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainGroupPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.PageRequest;
@@ -45,23 +46,24 @@ import org.springframework.web.servlet.LocaleResolver;
 public class GroupsController extends UiController
     implements PageableComponent, OrganizationalUnitNavigationComponent {
 
-  private final SortMapper sortMapper;
-
   private final DomainGroupService domainGroupService;
 
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  private final SortMapper sortMapper;
+
   public GroupsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
-      SortMapper sortMapper,
+      DomainService domainService,
       DomainGroupService domainGroupService,
-      OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
-    this.sortMapper = sortMapper;
+      OrganizationalUnitService organizationalUnitService,
+      SortMapper sortMapper) {
+    super(properties, localeResolver, domainService);
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
+    this.sortMapper = sortMapper;
   }
 
   @Override

@@ -28,6 +28,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -53,8 +54,9 @@ public class ComputerDeleteController extends UiController implements PageableCo
   public ComputerDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DomainComputerService domainComputerService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.domainComputerService = domainComputerService;
   }
 

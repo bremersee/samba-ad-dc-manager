@@ -24,6 +24,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.NameValue;
@@ -52,8 +53,9 @@ public class OrganizationalUnitDeleteController extends UiController
   public OrganizationalUnitDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.organizationalUnitService = organizationalUnitService;
   }
 

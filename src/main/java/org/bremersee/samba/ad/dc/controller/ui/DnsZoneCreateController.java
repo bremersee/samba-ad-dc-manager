@@ -23,6 +23,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,8 +45,9 @@ public class DnsZoneCreateController extends UiController {
   public DnsZoneCreateController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DnsService dnsService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
   }
 

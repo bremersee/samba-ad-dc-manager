@@ -25,6 +25,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigati
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainUserPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
@@ -45,23 +46,24 @@ import org.springframework.web.servlet.LocaleResolver;
 public class UsersController extends UiController
     implements PageableComponent, OrganizationalUnitNavigationComponent {
 
-  private final SortMapper sortMapper;
-
   private final DomainUserService domainUserService;
 
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  private final SortMapper sortMapper;
+
   public UsersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
-      SortMapper sortMapper,
+      DomainService domainService,
       DomainUserService domainUserService,
-      OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
-    this.sortMapper = sortMapper;
+      OrganizationalUnitService organizationalUnitService,
+      SortMapper sortMapper) {
+    super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
     this.organizationalUnitService = organizationalUnitService;
+    this.sortMapper = sortMapper;
   }
 
   @Override

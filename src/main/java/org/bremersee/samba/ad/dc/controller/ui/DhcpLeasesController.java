@@ -32,6 +32,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DhcpLeasePage;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -49,18 +50,19 @@ import org.springframework.web.servlet.LocaleResolver;
 public class DhcpLeasesController extends UiController
     implements PageableComponent, CurrentPageNameProvider, RedirectComponent {
 
-  private final SortMapper sortMapper;
-
   private final DnsService dnsService;
+
+  private final SortMapper sortMapper;
 
   public DhcpLeasesController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
-      SortMapper sortMapper,
-      DnsService dnsService) {
-    super(properties, localeResolver);
-    this.sortMapper = sortMapper;
+      DomainService domainService,
+      DnsService dnsService,
+      SortMapper sortMapper) {
+    super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
+    this.sortMapper = sortMapper;
   }
 
   @Override

@@ -58,8 +58,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ComputerEditController extends UiController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
-  private final DomainService domainService;
-
   private final DomainComputerService domainComputerService;
 
   private final DomainGroupService domainGroupService;
@@ -74,8 +72,7 @@ public class ComputerEditController extends UiController implements PageableComp
       DomainComputerService domainComputerService,
       DomainGroupService domainGroupService,
       OrganizationalUnitService organizationalUnitService) {
-    super(properties, localeResolver);
-    this.domainService = domainService;
+    super(properties, localeResolver, domainService);
     this.domainComputerService = domainComputerService;
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
@@ -84,11 +81,6 @@ public class ComputerEditController extends UiController implements PageableComp
   @Override
   public String getDefaultSort() {
     return COMPUTER_SORT;
-  }
-
-  @ModelAttribute("rfc2307Enabled")
-  public boolean isRfc2307Enabled() {
-    return domainService.isRfc2307Enabled();
   }
 
   @GetMapping(path = "/management/computer-edit")

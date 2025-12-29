@@ -28,6 +28,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -53,8 +54,9 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
   public DnsEntryDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DnsService dnsService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
   }
 

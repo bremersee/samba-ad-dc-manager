@@ -30,6 +30,7 @@ import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,8 +54,10 @@ public class DnsEntryAddController extends UiController implements PageableCompo
 
   public DnsEntryAddController(
       ApplicationProperties properties,
-      LocaleResolver localeResolver, DnsService dnsService) {
-    super(properties, localeResolver);
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+    super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
   }
 

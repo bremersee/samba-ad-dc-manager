@@ -16,13 +16,17 @@
 
 package org.bremersee.samba.ad.dc.controller.ui;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type LoginController.
+ * The login controller.
  *
  * @author Christian Bremer
  */
@@ -31,8 +35,21 @@ public class LoginController extends UiController {
 
   public LoginController(
       ApplicationProperties properties,
-      LocaleResolver localeResolver) {
-    super(properties, localeResolver);
+      LocaleResolver localeResolver,
+      DomainService domainService) {
+    super(properties, localeResolver, domainService);
+  }
+
+  @ModelAttribute("error")
+  public boolean hasError(HttpServletRequest request) {
+    Enumeration<String> params = request.getParameterNames();
+    while (params.hasMoreElements()) {
+      String name = params.nextElement();
+      if ("error".equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @GetMapping(path = "/login")

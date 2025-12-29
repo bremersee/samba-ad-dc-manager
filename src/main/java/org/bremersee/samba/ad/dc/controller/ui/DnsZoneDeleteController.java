@@ -27,6 +27,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -52,8 +53,9 @@ public class DnsZoneDeleteController extends UiController
   public DnsZoneDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
+      DomainService domainService,
       DnsService dnsService) {
-    super(properties, localeResolver);
+    super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
   }
 
