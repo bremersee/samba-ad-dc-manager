@@ -139,10 +139,12 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
       Pageable pageable,
       String query) {
 
+    /*
     if (isEmpty(query) && pageable.getPageNumber() == 0) {
       Optional.ofNullable(cacheManager.getCache("dnsEntryListCache"))
           .ifPresent(Cache::invalidate);
     }
+    */
     return new PageBuilder<DnsEntry, DnsEntry>()
         .sourceEntries(dnsEntryRepository.getDnsEntries(zoneName))
         .sourceFilter(dnsEntry -> isQueryResult(dnsEntry, query))
@@ -353,10 +355,12 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
 
   public Page<DhcpLease> getDhcpLeases(Pageable pageable, String query) {
 
+    /*
     if (isEmpty(query) && pageable.getPageNumber() == 0) {
       Optional.ofNullable(cacheManager.getCache("dhcpLeasesCache"))
           .ifPresent(Cache::invalidate);
     }
+    */
     return new PageBuilder<DhcpLease, DhcpLease>()
         .sourceEntries(dhcpRepository.findActive())
         .sourceFilter(dhcpLease -> isQueryResult(dhcpLease, query))

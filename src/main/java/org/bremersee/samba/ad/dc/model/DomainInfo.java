@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.Nullable;
@@ -19,7 +20,7 @@ import org.springframework.lang.Nullable;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainInfo.class)
 @JsonDeserialize(as = ImmutableDomainInfo.class)
-public interface DomainInfo {
+public interface DomainInfo extends Serializable {
 
   @Nullable
   String getForest();

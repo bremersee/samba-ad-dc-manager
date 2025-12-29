@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -18,7 +19,7 @@ import org.immutables.value.Value;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutablePasswordReset.class)
 @JsonDeserialize(as = ImmutablePasswordReset.class)
-public interface PasswordReset {
+public interface PasswordReset extends Serializable {
 
   @JsonProperty(value = "username", required = true)
   String getUsername();

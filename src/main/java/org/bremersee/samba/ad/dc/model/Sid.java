@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.io.Serializable;
 import java.util.Optional;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -32,7 +33,7 @@ import org.springframework.lang.Nullable;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableSid.class)
 @JsonDeserialize(as = ImmutableSid.class)
-public interface Sid {
+public interface Sid extends Serializable {
 
   String DEFAULT_SID_PREFIX = "S-1-5-21-";
 

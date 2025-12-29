@@ -11,14 +11,9 @@
   </service>
   -->
 
-  <!-- TODO -->
   <!-- <persistence directory="${java.io.tmpdir}"/> -->
-  <persistence directory="/Users/cbr/cache/ad-dc-manager"/>
 
-  <cache-template name="smallAndLong">
-    <expiry>
-      <ttl unit="days">1</ttl>
-    </expiry>
+  <cache-template name="listeners">
     <listeners>
       <listener>
         <class>org.bremersee.samba.ad.dc.config.CacheEventLogger</class>
@@ -31,79 +26,68 @@
         <events-to-fire-on>UPDATED</events-to-fire-on>
       </listener>
     </listeners>
-    <resources>
-      <heap>1000</heap>
-      <offheap unit="MB">1</offheap>
-    </resources>
   </cache-template>
 
-  <cache-template name="default">
-    <expiry>
-      <ttl unit="hours">1</ttl>
-    </expiry>
-    <listeners>
-      <listener>
-        <class>org.bremersee.samba.ad.dc.config.CacheEventLogger</class>
-        <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
-        <event-ordering-mode>UNORDERED</event-ordering-mode>
-        <events-to-fire-on>EVICTED</events-to-fire-on>
-        <events-to-fire-on>EXPIRED</events-to-fire-on>
-        <events-to-fire-on>REMOVED</events-to-fire-on>
-        <events-to-fire-on>CREATED</events-to-fire-on>
-        <events-to-fire-on>UPDATED</events-to-fire-on>
-      </listener>
-    </listeners>
-    <resources>
-      <heap>1000</heap>
-      <offheap unit="MB">4</offheap>
-      <disk persistent="true" unit="MB">8</disk>
-    </resources>
-  </cache-template>
-
-  <cache alias="dnsZoneCache" uses-template="default">
-    <value-type>org.bremersee.samba.ad.dc.model.DnsZone</value-type>
-  </cache>
-
-  <cache alias="dnsZoneListCache" uses-template="default">
-  </cache>
-
-  <cache alias="dnsEntryListCache" uses-template="default">
-  </cache>
-
-  <cache alias="dhcpLeasesCache" uses-template="default">
-  </cache>
-
-  <cache alias="domainInfoCache" uses-template="smallAndLong">
-    <value-type>org.bremersee.samba.ad.dc.model.DomainInfo</value-type>
-  </cache>
-
-  <cache alias="passwordInformationCache" uses-template="smallAndLong">
+  <cache alias="passwordInformationCache" uses-template="listeners">
     <value-type>org.bremersee.samba.ad.dc.model.PasswordInformation</value-type>
-  </cache>
-
-  <!--
-  <cache alias="dhcp-leases-by-name" uses-template="dhcp-leases-template">
-  </cache>
-
-  <cache alias="password-information">
     <expiry>
-      <ttl unit="minutes">1</ttl>
+      <tti unit="hours">1</tti>
     </expiry>
     <resources>
-      <heap unit="entries">1</heap>
-      <offheap unit="MB">1</offheap>
+      <heap>1</heap>
+      <!-- There is only one instance, serialized size ~810 bytes -->
     </resources>
   </cache>
 
-  <cache alias="jwt">
+  <cache alias="domainInfoCache" uses-template="listeners">
+    <value-type>org.bremersee.samba.ad.dc.model.DomainInfo</value-type>
     <expiry>
-      <ttl unit="minutes">15</ttl>
+      <tti unit="hours">1</tti>
     </expiry>
     <resources>
-      <heap unit="entries">10</heap>
-      <offheap unit="MB">1</offheap>
+      <heap>10</heap>
+      <!-- There is one instance for each domain controller, serialized size ~370 bytes -->
     </resources>
   </cache>
-  -->
+
+  <cache alias="dnsZoneListCache" uses-template="listeners">
+    <expiry>
+      <tti unit="hours">1</tti>
+    </expiry>
+    <resources>
+      <heap>8</heap>
+      <!-- There 8 zone types, each ~160 bytes -->
+    </resources>
+  </cache>
+
+  <cache alias="dnsZoneCache" uses-template="listeners">
+    <value-type>org.bremersee.samba.ad.dc.model.DnsZone</value-type>
+    <expiry>
+      <tti unit="hours">1</tti>
+    </expiry>
+    <resources>
+      <heap>32</heap>
+      <!-- ~840 bytes for each zone -->
+    </resources>
+  </cache>
+
+  <cache alias="dnsEntryListCache" uses-template="listeners">
+    <expiry>
+      <ttl unit="minutes">3</ttl>
+    </expiry>
+    <resources>
+      <heap>32</heap>
+      <!-- ~11100 bytes for each zone -->
+    </resources>
+  </cache>
+
+  <cache alias="dhcpLeasesCache" uses-template="listeners">
+    <expiry>
+      <ttl unit="minutes">3</ttl>
+    </expiry>
+    <resources>
+      <heap>2</heap>
+    </resources>
+  </cache>
 
 </config>

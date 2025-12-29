@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import org.immutables.serial.Serial;
@@ -26,7 +27,7 @@ import org.springframework.context.MessageSource;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutablePasswordInformation.class)
 @JsonDeserialize(as = ImmutablePasswordInformation.class)
-public interface PasswordInformation {
+public interface PasswordInformation extends Serializable {
 
   String SIMPLE_PASSWORD_REGEX = "^(?=.{%d,%d}$).*";
 

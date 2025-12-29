@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -27,7 +28,7 @@ import org.springframework.lang.Nullable;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDhcpLease.class)
 @JsonDeserialize(as = ImmutableDhcpLease.class)
-public interface DhcpLease {
+public interface DhcpLease extends Serializable {
 
   /**
    * Gets mac.

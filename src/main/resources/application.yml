@@ -20,15 +20,7 @@ bremersee:
     company-name: ${COMPANY_NAME:bremersee.org}
     company-url: ${COMPANY_URL:https://bremersee.org}
     base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
-    group-base-dn: ${LDAP_GROUP_DN:cn=users,dc=eixe,dc=bremersee,dc=org}
     user-base-dn: ${LDAP_USER_DN:cn=users,dc=eixe,dc=bremersee,dc=org}
-    name-server-host: ${NAME_SERVER_HOST:dc1.eixe.bremersee.org}
-    dns-zone-base-dn: ${LDAP_ZONE_DN:CN=MicrosoftDNS,DC=DomainDnsZones,DC=eixe,DC=bremersee,DC=org}
-    dns-node-base-dn: DC={zoneName},${bremersee.domain-controller.dns-zone-base-dn}
-    default-zone: ${DEFAULT_ZONE:eixe.bremersee.org}
-    mail-with-credentials:
-      sender: ${spring.mail.username:no-reply@bremersee.org}
-      login-url: http://localhost:4200/change-password
 
 eureka:
   client:
