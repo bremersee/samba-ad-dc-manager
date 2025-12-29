@@ -92,6 +92,8 @@
         <label for="email" class="form-label">Email</label>
         <input type="email" class="form-control" id="email" name="email" required
                aria-describedby="emailHelp" th:field="*{newEmail}"
+               th:disabled="${not userAbleToChangeEmail}"
+               th:required="${userAbleToChangeEmail}"
                th:classappend="${#fields.hasErrors('newEmail')} ? 'is-invalid' : ''"/>
         <div id="emailHelp" class="form-text">
           You may specify another email address, if you want to.
@@ -102,7 +104,7 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-3 mb-5">
+      <button type="submit" class="btn btn-primary mt-3 mb-5" th:if="${userAbleToChangeEmail}">
         Change email
       </button>
     </form>

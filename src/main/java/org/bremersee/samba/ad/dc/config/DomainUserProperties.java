@@ -54,6 +54,8 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
 
   private Duration changeEmailRequestLifetime = Duration.ofDays(7L);
 
+  private boolean userAbleToChangeEmail = true;
+
   private String defaultCompany;
 
   private String defaultDisplayName = "{{user.firstName}} {{user.lastName}}";

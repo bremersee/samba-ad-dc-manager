@@ -73,6 +73,11 @@ public class ProfileController extends UiController {
     this.eventPublisher = eventPublisher;
   }
 
+  @ModelAttribute("userAbleToChangeEmail")
+  public boolean isUserAbleToChangeEmail() {
+    return getProperties().getUser().isUserAbleToChangeEmail();
+  }
+
   @GetMapping(path = "/user/profile")
   public String displayProfile(ModelMap model) {
     DomainUser user = getCurrentUser();
@@ -121,7 +126,8 @@ public class ProfileController extends UiController {
 
     DomainUser user = getCurrentUser();
     if (isEmpty(editModel.getNewEmail())
-        || editModel.getNewEmail().equalsIgnoreCase(user.getEmail())) {
+        || editModel.getNewEmail().equalsIgnoreCase(user.getEmail())
+        || !isUserAbleToChangeEmail()) {
       model.clear();
       return "redirect:profile";
     }
