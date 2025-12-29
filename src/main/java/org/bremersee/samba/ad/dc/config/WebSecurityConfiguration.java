@@ -81,8 +81,12 @@ public class WebSecurityConfiguration {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    String appName = env.getProperty("spring.application.name", "dc-con-app");
+    String appName = env.getProperty("spring.application.name", "samba-ad-dc-manager");
     http
+        .exceptionHandling(customizer -> customizer
+            // .accessDeniedHandler(new AccessDeniedHandlerImpl())
+            .accessDeniedPage("/forbidden"))
+
         .authorizeHttpRequests(customizer -> customizer
             .requestMatchers(HttpMethod.OPTIONS, "/**")
             .permitAll()
@@ -110,7 +114,6 @@ public class WebSecurityConfiguration {
             .hasAuthority("ROLE_LOCAL_USER")
 
             /*
-
             .requestMatchers("/css/**").permitAll()
             .requestMatchers("/fonts/**").permitAll()
             .requestMatchers("/lib/**").permitAll()
@@ -127,7 +130,6 @@ public class WebSecurityConfiguration {
             .requestMatchers("/index.html").permitAll()
             .requestMatchers("/passwd").permitAll()
             .requestMatchers("/passwd/**").permitAll()
-
              */
 
             .anyRequest().permitAll())
@@ -172,7 +174,7 @@ public class WebSecurityConfiguration {
             .permitAll())
         */
 
-        //.formLogin(Customizer.withDefaults())
+    //.formLogin(Customizer.withDefaults())
     ;
 
     if (!isEmpty(rememberMeServices)) {

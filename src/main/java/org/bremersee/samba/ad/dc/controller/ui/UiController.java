@@ -133,6 +133,7 @@ public abstract class UiController extends AbstractController implements LoggerP
     }
   }
 
+  /*
   @ExceptionHandler(Exception.class)
   public ModelAndView handleError(HttpServletRequest req, Exception ex) {
     getLogger().error("Request {} raised exception", req.getRequestURL(), ex);
@@ -143,5 +144,6 @@ public abstract class UiController extends AbstractController implements LoggerP
     mav.setViewName("error");
     return mav;
   }
+  */
 
 }
