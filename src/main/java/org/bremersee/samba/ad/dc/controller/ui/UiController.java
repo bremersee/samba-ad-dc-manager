@@ -87,6 +87,10 @@ public abstract class UiController extends AbstractController implements LoggerP
     return getProperties().getCompanyUrl();
   }
 
+  protected String getBaseUri() {
+    return getBaseUri(getProperties().getEmail().getBaseUri());
+  }
+
   protected String entityNotFoundRedirect(
       RedirectAttributes redirectAttributes,
       String entityType,

@@ -176,7 +176,7 @@ public class UserAddController extends UiController
     try {
       DomainUser addedUser = domainUserService.addUser(user, password, ou, useUsernameAsCn);
       if (addModel.isSendEmail()) {
-        eventPublisher.publishEvent(new InvitationEvent(addedUser));
+        eventPublisher.publishEvent(new InvitationEvent(addedUser, getBaseUri()));
       }
       return addedUser;
 

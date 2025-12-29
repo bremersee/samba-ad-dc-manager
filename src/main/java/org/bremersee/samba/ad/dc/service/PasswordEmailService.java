@@ -48,14 +48,14 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 /**
- * The email service.
+ * The password email service.
  *
  * @author Christian Bremer
  */
-@Service("emailService")
+@Service("passwordEmailService")
 @ConditionalOnProperty(name = "spring.mail.host")
 @Slf4j
-public class EmailService {
+public class PasswordEmailService {
 
   private final ApplicationProperties properties;
 
@@ -69,7 +69,7 @@ public class EmailService {
 
   private final PasswordResetCryptoService<AesEncValue> passwordResetCryptoService;
 
-  public EmailService(
+  public PasswordEmailService(
       ApplicationProperties properties,
       MessageSource messageSource,
       TemplateEngine templateEngine,
@@ -82,30 +82,22 @@ public class EmailService {
     this.contextSuppliers = contextSuppliers;
     this.javaMailSender = javaMailSender;
     this.passwordResetCryptoService = passwordResetCryptoService;
-    log.info("Email service initialized.");
+    log.info("Password email service initialized.");
   }
 
   @EventListener
   @Async
   public void onPasswordResetEvent(PasswordResetEvent passwordResetEvent) {
-    sendPasswordResetEmail(passwordResetEvent.getSource());
-  }
-
-  public void sendPasswordResetEmail(DomainUser user) {
-    sendEmail(user, false);
+    sendEmail(passwordResetEvent.getSource(), passwordResetEvent.getBaseUri(), false);
   }
 
   @EventListener
   @Async
   public void onInvitationEvent(InvitationEvent event) {
-    sendInvitationEmail(event.getSource());
+    sendEmail(event.getSource(), event.getBaseUri(), true);
   }
 
-  public void sendInvitationEmail(DomainUser user) {
-    sendEmail(user, true);
-  }
-
-  private void sendEmail(DomainUser user, boolean isInvitation) {
+  private void sendEmail(DomainUser user, String baseUri, boolean isInvitation) {
     if (isEmpty(user) || isEmpty(user.getEmail())) {
       return;
     }
@@ -115,7 +107,7 @@ public class EmailService {
       helper.setFrom(properties.getEmail().getSender());
       helper.setTo(Objects.requireNonNull(user.getEmail()));
       helper.setSubject(getEmailSubject(user, isInvitation));
-      helper.setText(getEmailText(user, isInvitation), true);
+      helper.setText(getEmailText(user, baseUri, isInvitation), true);
     };
     javaMailSender.send(preparator);
   }
@@ -136,14 +128,14 @@ public class EmailService {
     }
   }
 
-  private String getEmailText(DomainUser user, boolean isInvitation) {
+  private String getEmailText(DomainUser user, String baseUri, boolean isInvitation) {
     Locale locale = user.getLocale();
     Context ctx = new Context(locale);
     contextSuppliers.forEach(contextSupplier -> contextSupplier
         .getTemplateEngineContext().forEach(ctx::setVariable));
     ctx.setVariable("user", user);
     ctx.setVariable("properties", properties);
-    ctx.setVariable("resetUri", getPasswordResetUri(user, isInvitation));
+    ctx.setVariable("resetUri", getPasswordResetUri(user, baseUri, isInvitation));
     ctx.setVariable("regards", getEmailRegards());
     String template = isInvitation
         ? "email/invitation-email"
@@ -158,7 +150,7 @@ public class EmailService {
         .filter(Principal.class::isInstance)
         .map(Principal.class::cast)
         .map(this::getEmailRegards)
-        .orElse("Domain administrator");
+        .orElse("Your domain administrator");
   }
 
   private String getEmailRegards(Principal principal) {
@@ -180,13 +172,13 @@ public class EmailService {
     return principal.getName();
   }
 
-  private String getPasswordResetUri(DomainUser user, boolean isInvitation) {
+  private String getPasswordResetUri(DomainUser user, String baseUri, boolean isInvitation) {
     AesEncValue encValue = passwordResetCryptoService.encrypt(PasswordReset.builder()
         .username(user.getSamAccountName())
         .pwdLastSetDateTime(user.getPasswordLastSet())
         .invitation(isInvitation)
         .build());
-    return new DefaultUriBuilderFactory(properties.getEmail().getBaseUri())
+    return new DefaultUriBuilderFactory(baseUri)
         .builder()
         .path("/passwd/password-reset")
         .queryParam("req", encValue.encryptedValue())

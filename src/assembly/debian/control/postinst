@@ -5,7 +5,7 @@ APP_NAME=$DEBIAN_NAME
 USER_NAME="smb-mngr"
 GROUP_NAME=$USER_NAME
 SUDO_FILE=/etc/sudoers
-SUDO_ENTRY="$USER_NAME ALL = NOPASSWD: /usr/bin/samba-tool, /usr/bin/kinit, /usr/sbin/dhcp-lease-list"
+SUDO_ENTRY="$USER_NAME ALL = NOPASSWD: /usr/bin/samba-tool, /usr/sbin/dhcp-lease-list"
 
 /usr/bin/getent passwd $USER_NAME
 if [ ! $? -eq 0 ]; then

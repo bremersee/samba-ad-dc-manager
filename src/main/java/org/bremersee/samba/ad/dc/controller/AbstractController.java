@@ -1,5 +1,12 @@
 package org.bremersee.samba.ad.dc.controller;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 public abstract class AbstractController {
 
   public static final String PAGE = "page";
@@ -49,6 +56,31 @@ public abstract class AbstractController {
   public static final String DNS_ENTRY_VALUE = "value";
 
   protected AbstractController() {
+    super();
+  }
+
+  protected String getBaseUri(String configuredBaseUri) {
+    if (!isEmpty(configuredBaseUri)
+        && (configuredBaseUri.toLowerCase().startsWith("http://")
+        || configuredBaseUri.toLowerCase().startsWith("https://"))) {
+      return configuredBaseUri;
+    }
+    return getBaseUriFromRequestContext()
+        .orElseThrow(() -> new IllegalStateException(
+            "Getting base uri from request context failed."));
+  }
+
+  private static Optional<String> getBaseUriFromRequestContext() {
+    return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+        .filter(ServletRequestAttributes.class::isInstance)
+        .map(ServletRequestAttributes.class::cast)
+        .map(ServletRequestAttributes::getRequest)
+        .map(AbstractController::getBaseUri);
+  }
+
+  private static String getBaseUri(HttpServletRequest request) {
+    // TODO be proxy aware
+    return null;
   }
 
 }

@@ -132,7 +132,8 @@ public class PasswordResetController extends UiController {
       return "passwd/password-reset-request";
     }
     domainUserService.getUser(username, null, null)
-        .ifPresent(user -> eventPublisher.publishEvent(new PasswordResetEvent(user)));
+        .ifPresent(user -> eventPublisher
+            .publishEvent(new PasswordResetEvent(user, getBaseUri())));
     model.clear();
     return "redirect:password-reset-requested";
   }
