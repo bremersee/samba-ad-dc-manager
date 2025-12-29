@@ -142,16 +142,20 @@ public interface DomainGroupType {
   }
 
   enum Scope {
-    UNKNOWN("Unknown"),
-    UNIVERSAL("Universal"),
-    GLOBAL("Global"),
-    DOMAIN_LOCAL("Domain");
+    UNKNOWN("Unknown", "domain-group-type.scope.unknown"),
+    UNIVERSAL("Universal", "domain-group-type.scope.universal"),
+    GLOBAL("Global", "domain-group-type.scope.global"),
+    DOMAIN_LOCAL("Domain", "domain-group-type.scope.domain-local");
 
     @Getter
     private final String value;
 
-    Scope(String value) {
+    @Getter
+    private final String i18nCode;
+
+    Scope(String value, String i18nCode) {
       this.value = value;
+      this.i18nCode = i18nCode;
     }
 
     @JsonValue
@@ -175,15 +179,19 @@ public interface DomainGroupType {
   }
 
   enum Purpose {
-    UNKNOWN("Unknown"),
-    SECURITY("Security"),
-    DISTRIBUTION("Distribution");
+    UNKNOWN("Unknown", "domain-group-type.purpose.unknown"),
+    SECURITY("Security", "domain-group-type.purpose.security"),
+    DISTRIBUTION("Distribution", "domain-group-type.purpose.distribution"),;
 
     @Getter
     private final String value;
 
-    Purpose(String purpose) {
+    @Getter
+    private final String i18nCode;
+
+    Purpose(String purpose, String i18nCode) {
       this.value = purpose;
+      this.i18nCode = i18nCode;
     }
 
     @JsonValue

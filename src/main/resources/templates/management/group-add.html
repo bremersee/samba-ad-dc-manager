@@ -102,7 +102,7 @@
                 aria-describedby="groupScopeValidation"
                 th:classappend="${#fields.hasErrors('groupScope')} ? 'is-invalid' : ''"
                 th:field="*{groupScope}">
-          <option th:each="t : ${groupScopes}" th:value="${t.value}" th:text="${t.displayValue}">
+          <option th:each="t : ${groupScopes}" th:value="${t.value}" th:text="#{${t.i18nCode}}">
             Global
           </option>
         </select>
@@ -117,7 +117,7 @@
                 aria-describedby="groupTypeValidation"
                 th:classappend="${#fields.hasErrors('groupPurpose')} ? 'is-invalid' : ''"
                 th:field="*{groupPurpose}">
-          <option th:each="t : ${groupPurposes}" th:value="${t.value}" th:text="${t.displayValue}">
+          <option th:each="t : ${groupPurposes}" th:value="${t.value}" th:text="#{${t.i18nCode}}">
             Security
           </option>
         </select>

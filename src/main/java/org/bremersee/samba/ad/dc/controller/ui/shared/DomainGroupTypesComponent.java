@@ -17,7 +17,6 @@
 package org.bremersee.samba.ad.dc.controller.ui.shared;
 
 import java.util.List;
-import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.model.DomainGroupType.Purpose;
 import org.bremersee.samba.ad.dc.model.DomainGroupType.Scope;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,63 +26,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
  *
  * @author Christian Bremer
  */
-public interface DomainGroupTypesComponent extends MessageProvider {
+public interface DomainGroupTypesComponent {
 
   @ModelAttribute("groupScopes")
-  default List<SelectOption<String>> addDomainGroupScopes() {
-    return Stream.of(
-            new SelectOption<>(
-                Scope.DOMAIN_LOCAL.name(),
-                getDisplayValue(Scope.DOMAIN_LOCAL),
-                getDisplayValue(Scope.DOMAIN_LOCAL),
-                false,
-                false,
-                false),
-            new SelectOption<>(
-                Scope.GLOBAL.name(),
-                getDisplayValue(Scope.GLOBAL),
-                getDisplayValue(Scope.GLOBAL),
-                false,
-                false,
-                false),
-            new SelectOption<>(
-                Scope.UNIVERSAL.name(),
-                getDisplayValue(Scope.UNIVERSAL),
-                getDisplayValue(Scope.UNIVERSAL),
-                false,
-                false,
-                false))
-        .sorted()
-        .toList();
-  }
-
-  default String getDisplayValue(Scope scope) {
-    return scope.toString();
+  default List<Scope> addDomainGroupScopes() {
+    return List.of(Scope.DOMAIN_LOCAL, Scope.GLOBAL, Scope.UNIVERSAL);
   }
 
   @ModelAttribute("groupPurposes")
-  default List<SelectOption<String>> addDomainGroupPurposes() {
-    return Stream.of(
-            new SelectOption<>(
-                Purpose.DISTRIBUTION.name(),
-                getDisplayValue(Purpose.DISTRIBUTION),
-                getDisplayValue(Purpose.DISTRIBUTION),
-                false,
-                false,
-                false),
-            new SelectOption<>(
-                Purpose.SECURITY.name(),
-                getDisplayValue(Purpose.SECURITY),
-                getDisplayValue(Purpose.SECURITY),
-                false,
-                false,
-                false))
-        .sorted()
-        .toList();
-  }
-
-  default String getDisplayValue(Purpose purpose) {
-    return purpose.toString();
+  default List<Purpose> addDomainGroupPurposes() {
+    return List.of(Purpose.SECURITY, Purpose.DISTRIBUTION);
   }
 
 }

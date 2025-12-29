@@ -25,14 +25,12 @@ import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.ldaptive.dn.Dn;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The interface OrganizationalUnitSelector.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface OrganizationalUnitNavigationComponent extends DnToolProvider,
     CurrentPageNameProvider, PageableComponent, MessageProvider {
 

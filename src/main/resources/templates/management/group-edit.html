@@ -156,12 +156,12 @@
         <div class="col">
           <label for="groupScope" class="form-label">Group scope</label>
           <input type="text" class="form-control" id="groupScope" disabled
-                 th:value="${group.groupType.scope}" />
+                 th:value="#{${group.groupType.scope.i18nCode}}" />
         </div>
         <div class="col">
           <label for="groupPurpose" class="form-label">Group purpose</label>
           <input type="text" class="form-control" id="groupPurpose" disabled
-                 th:value="${group.groupType.purpose}" />
+                 th:value="#{${group.groupType.purpose.i18nCode}}" />
         </div>
       </div>
 
