@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.model;
 
+import java.io.Serial;
 import org.bremersee.pagebuilder.model.JsonPageDto;
 import org.springframework.data.domain.Page;
 
@@ -25,6 +26,9 @@ import org.springframework.data.domain.Page;
  * @author Christian Bremer
  */
 public class OrganizationalUnitPage extends JsonPageDto<OrganizationalUnit> {
+
+  @Serial
+  private static final long serialVersionUID = 1;
 
   public OrganizationalUnitPage() {
   }

@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serial;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -39,6 +40,9 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "A page of dns zones.")
 public class DnsZonePage extends JsonPageDto<DnsZone> {
+
+  @Serial
+  private static final long serialVersionUID = 1;
 
   /**
    * Instantiates a new dns zone page.

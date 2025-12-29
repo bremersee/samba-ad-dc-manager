@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import java.util.Optional;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.immutables.serial.Serial;
@@ -24,7 +25,7 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainUserAccountControl.class)
 @JsonDeserialize(as = ImmutableDomainUserAccountControl.class)
-public interface DomainUserAccountControl {
+public interface DomainUserAccountControl extends Serializable {
 
   @Schema(
       description = "Specifies whether the account of the domain user is a normal one or not.",

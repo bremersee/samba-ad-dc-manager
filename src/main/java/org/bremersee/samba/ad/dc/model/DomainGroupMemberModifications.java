@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import java.util.Set;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -19,7 +20,7 @@ import org.immutables.value.Value;
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainGroupMemberModifications.class)
 @JsonDeserialize(as = ImmutableDomainGroupMemberModifications.class)
-public interface DomainGroupMemberModifications {
+public interface DomainGroupMemberModifications extends Serializable {
 
   @Value.Default
   default Set<String> getMembersToAdd() {

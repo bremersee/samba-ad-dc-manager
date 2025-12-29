@@ -1,5 +1,11 @@
 package org.bremersee.samba.ad.dc.model;
 
-public record AesEncValue(String encryptedValue, String salt) {
+import java.io.Serial;
+import java.io.Serializable;
+
+public record AesEncValue(String encryptedValue, String salt) implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
 }

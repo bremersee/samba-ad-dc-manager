@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.model;
 
+import java.io.Serial;
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.pagebuilder.model.JsonPageDto;
@@ -28,6 +29,9 @@ import org.springframework.data.domain.Sort;
  * @author Christian Bremer
  */
 public class DnsEntryPage extends JsonPageDto<DnsEntry> {
+
+  @Serial
+  private static final long serialVersionUID = 1;
 
   public DnsEntryPage() {
   }
