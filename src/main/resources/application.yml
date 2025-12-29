@@ -18,7 +18,7 @@ bremersee:
 
   domain-controller:
     company-name: ${COMPANY_NAME:bremersee.org}
-    company-url: ${COMPANY_URL:https://bremersee.org}
+    # company-url: ${COMPANY_URL:https://bremersee.org}
     base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
     user-base-dn: ${LDAP_USER_DN:cn=users,dc=eixe,dc=bremersee,dc=org}
 

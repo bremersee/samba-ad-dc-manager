@@ -18,7 +18,6 @@ package org.bremersee.samba.ad.dc.controller.ui;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,11 +37,8 @@ import org.bremersee.samba.ad.dc.service.DomainService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.method.P;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -101,7 +97,11 @@ public abstract class UiController extends AbstractController implements LoggerP
 
   @ModelAttribute("companyUrl")
   public String getCompanyUrl() {
-    return getProperties().getCompanyUrl();
+    String companyUrl = getProperties().getCompanyUrl();
+    if (isEmpty(companyUrl) || "#".equals(companyUrl)) {
+      return getBaseUri();
+    }
+    return companyUrl;
   }
 
   protected String getBaseUri() {
