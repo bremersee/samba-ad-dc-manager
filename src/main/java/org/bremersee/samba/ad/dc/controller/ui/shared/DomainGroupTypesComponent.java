@@ -29,12 +29,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public interface DomainGroupTypesComponent {
 
   @ModelAttribute("groupScopes")
-  default List<Scope> addDomainGroupScopes() {
+  default List<Scope> getDomainGroupScopes() {
     return List.of(Scope.DOMAIN_LOCAL, Scope.GLOBAL, Scope.UNIVERSAL);
   }
 
   @ModelAttribute("groupPurposes")
-  default List<Purpose> addDomainGroupPurposes() {
+  default List<Purpose> getDomainGroupPurposes() {
     return List.of(Purpose.SECURITY, Purpose.DISTRIBUTION);
   }
 

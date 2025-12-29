@@ -7,7 +7,7 @@ import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 
 /**
- * The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.
+ * The base of a 'SamAccount' like 'User', 'Group' and 'Computer' with immutable builder.
  *
  * @author Christian Bremer
  */

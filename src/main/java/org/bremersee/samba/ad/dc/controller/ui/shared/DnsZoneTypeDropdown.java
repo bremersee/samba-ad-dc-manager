@@ -46,7 +46,7 @@ public class DnsZoneTypeDropdown implements Serializable {
     this.selectedZoneType = Objects.requireNonNullElse(selectedZoneType, DnsZoneType.PRIMARY);
   }
 
-  public List<DnsZoneType> getSelectableZoneTypes() {
+  public List<DnsZoneType> getSelectableZoneTypes() { // used in header-management.html
     return Arrays.stream(DnsZoneType.values())
         .filter(zoneType -> zoneType != selectedZoneType)
         .toList();

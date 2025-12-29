@@ -7,7 +7,7 @@ import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 
 /**
- * The active directory base entry model.
+ * The active directory base entry model with immutable builder.
  *
  * @author Christian Bremer
  */
