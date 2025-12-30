@@ -102,7 +102,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="user-delete.html"
+        <a class="nav-link" href="user-delete.html" th:title="#{templates.management.delete.label}"
            th:classappend="${user.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${user.sid.systemEntity}"
            th:href="@{user-delete(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
@@ -127,12 +127,14 @@
         <ul class="nav nav-pills">
           <li class="nav-item">
             <a class="nav-link" href="user-memberships-direct.html"
+               th:text="#{templates.management.memberships.direct.label}"
                th:href="@{user-memberships-direct(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
               Direct
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">
+            <a class="nav-link active" aria-current="page" href="#"
+               th:text="#{templates.management.memberships.resolved.label}">
               Resolved
             </a>
           </li>

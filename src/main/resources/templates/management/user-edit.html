@@ -102,7 +102,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="user-delete.html"
+        <a class="nav-link" href="user-delete.html" th:title="#{templates.management.delete.label}"
            th:classappend="${user.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${user.sid.systemEntity}"
            th:href="@{user-delete(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">

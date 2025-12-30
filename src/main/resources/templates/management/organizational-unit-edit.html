@@ -80,7 +80,7 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="organizational-unit-delete.html"
+      <a class="nav-link" href="organizational-unit-delete.html" th:title="#{templates.management.delete.label}"
          th:classappend="${organizationalUnit.systemOu} ? 'disabled' : ''"
          th:attr="aria-disabled=${organizationalUnit.systemOu}"
          th:href="@{organizational-unit-delete(name=${organizationalUnit.distinguishedName},page=${page},size=${size},q=${q})}">

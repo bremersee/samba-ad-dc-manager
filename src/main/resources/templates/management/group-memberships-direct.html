@@ -104,7 +104,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="group-delete.html"
+        <a class="nav-link" href="group-delete.html" th:title="#{templates.management.delete.label}"
            th:classappend="${group.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${group.sid.systemEntity}"
            th:href="@{group-delete(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
@@ -120,12 +120,14 @@
       <div class="d-flex justify-content-center mb-3">
         <ul class="nav nav-pills">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">
+            <a class="nav-link active" aria-current="page" href="#"
+               th:text="#{templates.management.memberships.direct.label}">
               Direct
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="group-memberships-resolved.html"
+               th:text="#{templates.management.memberships.resolved.label}"
                th:href="@{group-memberships-resolved(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
               Resolved
             </a>

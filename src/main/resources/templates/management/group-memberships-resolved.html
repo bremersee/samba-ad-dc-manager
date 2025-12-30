@@ -89,7 +89,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="group-edit-members.html"
+        <a class="nav-link" href="group-edit-members.html" th:title="#{templates.management.delete.label}"
            th:href="@{group-edit-members(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-people-group" aria-hidden="true">
             <span style="display: none;">Members</span>
@@ -121,12 +121,14 @@
         <ul class="nav nav-pills">
           <li class="nav-item">
             <a class="nav-link" href="group-memberships-direct.html"
+               th:text="#{templates.management.memberships.direct.label}"
                th:href="@{group-memberships-direct(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
               Direct
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">
+            <a class="nav-link active" aria-current="page" href="#"
+               th:text="#{templates.management.memberships.resolved.label}">
               Resolved
             </a>
           </li>
