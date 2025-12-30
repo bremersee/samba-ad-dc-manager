@@ -137,7 +137,8 @@
                    aria-describedby="verificationNameValidation" required
                    th:classappend="${#fields.hasErrors('verificationName')} ? 'is-invalid' : ''"
                    th:field="*{verificationName}" />
-            <label for="verificationName" id="verificationNameHelp" class="form-text">
+            <label for="verificationName" id="verificationNameHelp" class="form-text"
+                   th:text="#{templates.management.computer-delete.help}">
               Please enter the computer name for deletion.
             </label>
             <div id="verificationNameValidation" class="invalid-feedback"
@@ -145,7 +146,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-danger mt-3 mb-3">
+          <button type="submit" class="btn btn-danger mt-3 mb-5" th:text="#{templates.management.delete.label}">
             Delete
           </button>
         </form>
