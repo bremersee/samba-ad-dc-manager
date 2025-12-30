@@ -51,9 +51,6 @@
   <div class="d-flex justify-content-center mb-2">
     <h3 th:text="#{samba-ad-dc-manager.label}">Samba AD DC Manager</h3>
   </div>
-  <div class="d-flex justify-content-center mb-2">
-    <h6>of domain</h6>
-  </div>
   <div class="d-flex justify-content-center mb-5">
     <h5 th:text="${domainInfo.domain}">bremersee.org</h5>
   </div>
@@ -62,7 +59,9 @@
     <span class="far fa-ban"></span>
   </div>
   <div class="d-flex justify-content-center mb-5 text-danger fs-1">
-    FORBIDDEN
+    <span th:text="#{templates.forbidden}">
+      FORBIDDEN
+    </span>
   </div>
 
 </main>
