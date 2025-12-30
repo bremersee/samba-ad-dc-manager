@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -97,14 +98,17 @@ public class PasswordResetController extends UiController {
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
-  @ModelAttribute("netbiosDomain")
-  public String getNetbiosDomain() {
-    return getDomainInfo().getNetbiosDomain();
-  }
-
   @ModelAttribute("defaultLoginPage")
   public DefaultLoginPage getDefaultLoginPage() {
-    return getProperties().getUser().getDefaultLoginPage();
+    DefaultLoginPage defaultLoginPage = getProperties().getUser().getDefaultLoginPage();
+    if (!isEmpty(defaultLoginPage.getUrl())) {
+      return defaultLoginPage;
+    }
+    DefaultLoginPage fallback = new DefaultLoginPage();
+    fallback.setUrl(getBaseUri() + "/login");
+    fallback.setName("LOGIN");
+    fallback.setUsingNetbiosDomainPrefix(false);
+    return fallback;
   }
 
   @GetMapping(path = "/passwd/password-reset-request")
@@ -168,8 +172,12 @@ public class PasswordResetController extends UiController {
       ModelMap model,
       BindingResult bindingResult) {
 
-    PasswordReset passwordReset = cryptoService
-        .decrypt(new AesEncValue(passwordResetEnc, salt));
+    PasswordReset passwordReset;
+    try {
+      passwordReset = cryptoService.decrypt(new AesEncValue(passwordResetEnc, salt));
+    } catch (RuntimeException e) {
+      return "passwd/password-reset-invalid";
+    }
     return getValidatedDomainUser(passwordReset)
         .map(user -> {
           if (isEmpty(passwordResetModel.getUsername())) {
@@ -201,15 +209,22 @@ public class PasswordResetController extends UiController {
             return "passwd/password-reset";
           }
           model.addAttribute("user", newUser);
-          // TODO set login page, like data and whether to use netbios
+          model.addAttribute(
+              "netbiosUsername",
+              getDomainInfo().getNetbiosDomain() + '\\' + newUser.getSamAccountName());
           return "passwd/password-reset-success";
         })
         .orElse("passwd/password-reset-invalid");
   }
 
   private Optional<DomainUser> getValidatedDomainUser(PasswordReset passwordReset) {
-    OffsetDateTime until = passwordReset.getRequestDateTime()
-        .plus(getProperties().getUser().getPasswordResetRequestLifetime());
+    Duration requestLifetime;
+    if (passwordReset.isInvitation()) {
+      requestLifetime = getProperties().getUser().getInvitationLifetime();
+    } else {
+      requestLifetime = getProperties().getUser().getPasswordResetRequestLifetime();
+    }
+    OffsetDateTime until = passwordReset.getRequestDateTime().plus(requestLifetime);
     OffsetDateTime now = OffsetDateTime.now();
     if (until.isBefore(now)) {
       getLogger().debug("Password reset request has expired.");
