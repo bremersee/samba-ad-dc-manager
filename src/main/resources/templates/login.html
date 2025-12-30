@@ -69,10 +69,12 @@
         </div>
         <div class="input-group mb-4">
           <input type="password" class="form-control" id="password" name="password" required
-                 aria-label="Password" placeholder="Password"
+                 aria-label="Password" placeholder="Password" th:placeholder="#{template.login.password}"
                  th:classappend="${error} ? 'is-invalid' : ''" />
           <div id="error" class="invalid-feedback" th:if="${error}">
-            Signing in failed.
+            <span th:text="#{template.login.failed}">
+              Login failed. Either your username or password is incorrect.
+            </span>
           </div>
         </div>
         <div class="row justify-content-between mb-4">
