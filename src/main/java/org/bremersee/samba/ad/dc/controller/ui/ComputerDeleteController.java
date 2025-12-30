@@ -51,6 +51,14 @@ public class ComputerDeleteController extends UiController implements PageableCo
 
   private final DomainComputerService domainComputerService;
 
+  /**
+   * Instantiates a new computer delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   */
   public ComputerDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -65,6 +73,16 @@ public class ComputerDeleteController extends UiController implements PageableCo
     return COMPUTER_SORT;
   }
 
+  /**
+   * Display computer delete.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
   @GetMapping(path = "/management/computer-delete")
   public String displayComputerDelete(
       @RequestParam(value = "name", required = false) String computerName,
@@ -83,12 +101,23 @@ public class ComputerDeleteController extends UiController implements PageableCo
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             COMPUTER,
-            "todo",
+            "controller.ui.computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
   }
 
+  /**
+   * Delete computer.
+   *
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
   @PostMapping(path = "/management/computer-delete")
   public String deleteComputer(
       @RequestParam(value = OU, required = false) Dn ou,
@@ -107,7 +136,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
           }
           bindingResult.rejectValue(
               "verificationName",
-              "todo",
+              "controller.ui.computer-delete-c.name-does-not-match",
               "The name doesn't match.");
           model.addAttribute(COMPUTER, computer);
           return "management/computer-delete";
@@ -115,7 +144,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             COMPUTER,
-            "todo",
+            "controller.ui.computer.not-found",
             deleteModel.getSamAccountName(),
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
@@ -133,13 +162,13 @@ public class ComputerDeleteController extends UiController implements PageableCo
       redirectMessage = getRedirectMessage(
           RedirectMessageType.SUCCESS,
           String.format("Computer '%s' was successfully deleted.", computer.getName()),
-          "todo",
+          "controller.ui.computer-delete-c.deleted-message",
           computer.getName());
     } else {
       redirectMessage = getRedirectMessage(
           RedirectMessageType.WARNING,
           String.format("Somehow the computer '%s' was not deleted.", computer.getName()),
-          "todo",
+          "controller.ui.computer-delete-c.not-deleted-message",
           computer.getName());
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
