@@ -111,12 +111,14 @@
 
       <div class="mb-4 p-3 border border-1 border-danger" th:if="${not computer.criticalSystemObject}">
         <div class="h5 mb-3">
-          <span class="me-2">Delete Computer</span>
+          <span class="me-2" th:text="#{templates.management.computer-delete.text}">
+            Delete Computer
+          </span>
           <b>
             <span class="me-2" th:text="${computer.name}">zander</span>
           </b>
           <a id="copyNameToClipboard" href="#">
-            <span class="fas fa-clipboard" aria-hidden="true" title="Copy to clipboard">
+            <span class="fas fa-clipboard" aria-hidden="true" th:title="#{templates.management.copy-to-clipboard.label}">
               <span style="display: none;">Copy to clipboard</span>
             </span>
           </a>
