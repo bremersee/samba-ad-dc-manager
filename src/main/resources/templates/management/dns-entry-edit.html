@@ -62,7 +62,7 @@
     <div class="col-1">
       <a class="btn btn-outline-secondary show-spinner" href="dns-zone-entries.html"
          th:href="@{dns-zone-entries(zone-type=${zoneType},zone-name=${dnsEntry.zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-backward"></span>
+        <span class="fa fa-backward" title="Back" th:title="#{templates.management.back.label}"></span>
       </a>
     </div>
     <div class="col">

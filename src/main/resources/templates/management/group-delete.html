@@ -61,7 +61,7 @@
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="groups.html"
            th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-backward"></span>
+          <span class="fa fa-backward" title="Back" th:title="#{templates.management.back.label}"></span>
         </a>
       </div>
       <div class="col">
