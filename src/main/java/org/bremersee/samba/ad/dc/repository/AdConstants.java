@@ -3,12 +3,14 @@ package org.bremersee.samba.ad.dc.repository;
 import static org.bremersee.ldaptive.LdaptiveAttribute.define;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.ldaptive.transcoder.ValueTranscoderFactory;
 import org.bremersee.samba.ad.dc.model.Sid;
-import org.bremersee.samba.ad.dc.repository.mapper.SidValueTranscoder;
+import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
+import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
 
 public abstract class AdConstants {
 
@@ -190,5 +192,31 @@ public abstract class AdConstants {
       "jpegPhoto",
       true,
       ValueTranscoderFactory.getByteArrayValueTranscoder());
+
+  private static class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
+
+    @Override
+    public Sid decodeBinaryValue(byte[] value) {
+      return Optional.ofNullable(value)
+          .map(SecurityIdentifier::toString)
+          .map(objectSid -> Sid.builder()
+              .value(objectSid)
+              .build())
+          .orElse(null);
+    }
+
+    @Override
+    public byte[] encodeBinaryValue(Sid value) {
+      return Optional.ofNullable(value)
+          .map(Sid::getValue)
+          .map(SecurityIdentifier::toBytes)
+          .orElse(null);
+    }
+
+    @Override
+    public Class<Sid> getType() {
+      return Sid.class;
+    }
+  }
 
 }

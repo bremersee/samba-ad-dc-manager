@@ -18,7 +18,6 @@ package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.setAttribute;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
@@ -256,120 +255,95 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
           .ifPresent(modifications::add);
     }
 
-    String company = source.getCompany();
-    setAttribute(destination, AdConstants.USER_COMPANY, company, modifications);
+    AdConstants.USER_COMPANY.setValue(destination, source.getCompany())
+        .ifPresent(modifications::add);
 
-    String department = source.getDepartment();
-    setAttribute(destination, AdConstants.USER_DEPARTMENT, department, modifications);
+    AdConstants.USER_DEPARTMENT.setValue(destination, source.getDepartment())
+        .ifPresent(modifications::add);
 
-    String description = source.getDescription();
-    setAttribute(destination, AdConstants.DESCRIPTION, description, modifications);
+    AdConstants.DESCRIPTION.setValue(destination, source.getDescription())
+        .ifPresent(modifications::add);
 
     String displayName = source.getDisplayName();
     if (isEmpty(displayName) && !isEmpty(source.getFirstName()) && !isEmpty(source.getLastName())) {
       displayName = source.getFirstName() + " " + source.getLastName();
     }
-    setAttribute(destination, AdConstants.USER_DISPLAY_NAME, displayName,
-        modifications);
+    AdConstants.USER_DISPLAY_NAME.setValue(destination, displayName)
+        .ifPresent(modifications::add);
 
-    String firstName = source.getFirstName();
-    setAttribute(destination, AdConstants.USER_GIVEN_NAME, firstName, modifications);
+    AdConstants.USER_GIVEN_NAME.setValue(destination, source.getFirstName())
+        .ifPresent(modifications::add);
 
-    String homeDirectory = source.getHomeDirectory();
-    setAttribute(
-        destination,
-        AdConstants.USER_HOME_DIRECTORY,
-        homeDirectory,
-        modifications);
+    AdConstants.USER_HOME_DIRECTORY.setValue(destination, source.getHomeDirectory())
+        .ifPresent(modifications::add);
 
-    String homeDrive = source.getHomeDrive();
-    setAttribute(destination, AdConstants.USER_HOME_DRIVE, homeDrive, modifications);
+    AdConstants.USER_HOME_DRIVE.setValue(destination, source.getHomeDrive())
+        .ifPresent(modifications::add);
 
-    String initials = source.getInitials();
-    setAttribute(destination, AdConstants.USER_INITIALS, initials, modifications);
+    AdConstants.USER_INITIALS.setValue(destination, source.getInitials())
+        .ifPresent(modifications::add);
 
-    String email = source.getEmail();
-    setAttribute(destination, AdConstants.MAIL, email, modifications);
+    AdConstants.MAIL.setValue(destination, source.getEmail())
+        .ifPresent(modifications::add);
 
-    String mobile = source.getMobile();
-    setAttribute(destination, AdConstants.USER_MOBILE, mobile, modifications);
+    AdConstants.USER_MOBILE.setValue(destination, source.getMobile())
+        .ifPresent(modifications::add);
 
-    String officeName = source.getPhysicalDeliveryOfficeName();
-    setAttribute(destination, AdConstants.USER_OFFICE_NAME, officeName, modifications);
+    AdConstants.USER_OFFICE_NAME.setValue(destination, source.getPhysicalDeliveryOfficeName())
+        .ifPresent(modifications::add);
 
-    String preferredLanguage = source.getPreferredLanguage();
-    setAttribute(
-        destination,
-        AdConstants.USER_PREFERRED_LANGUAGE,
-        preferredLanguage,
-        modifications);
+    AdConstants.USER_PREFERRED_LANGUAGE.setValue(destination, source.getPreferredLanguage())
+        .ifPresent(modifications::add);
 
-    String profilePath = source.getProfilePath();
-    setAttribute(
-        destination,
-        AdConstants.USER_PROFILE_PATH,
-        profilePath,
-        modifications);
+    AdConstants.USER_PROFILE_PATH.setValue(destination, source.getProfilePath())
+        .ifPresent(modifications::add);
 
-    String scriptPath = source.getScriptPath();
-    setAttribute(destination, AdConstants.USER_SCRIPT_PATH, scriptPath, modifications);
+    AdConstants.USER_SCRIPT_PATH.setValue(destination, source.getScriptPath())
+        .ifPresent(modifications::add);
 
-    String lastName = source.getLastName();
-    setAttribute(destination, AdConstants.USER_SN, lastName, modifications);
+    AdConstants.USER_SN.setValue(destination, source.getLastName())
+        .ifPresent(modifications::add);
 
-    String telephoneNumber = source.getTelephoneNumber();
-    setAttribute(
-        destination,
-        AdConstants.USER_TELEPHONE_NUMBER,
-        telephoneNumber,
-        modifications);
+    AdConstants.USER_TELEPHONE_NUMBER.setValue(destination, source.getTelephoneNumber())
+        .ifPresent(modifications::add);
 
-    String title = source.getTitle();
-    setAttribute(destination, AdConstants.USER_TITLE, title, modifications);
+    AdConstants.USER_TITLE.setValue(destination, source.getTitle())
+        .ifPresent(modifications::add);
 
-    String userPrincipalName = source.getUserPrincipalName();
-    setAttribute(destination, AdConstants.USER_PRINCIPAL_NAME, userPrincipalName,
-        modifications);
+    AdConstants.USER_PRINCIPAL_NAME.setValue(destination, source.getUserPrincipalName())
+        .ifPresent(modifications::add);
 
     UserAccountControl userAccountControl = Optional.ofNullable(source.getAccountControl())
         .map(DomainUserAccountControl::getUserAccountControl)
         .orElseGet(UserAccountControl::new);
-    setAttribute(
-        destination,
-        AdConstants.USER_USER_ACCOUNT_CONTROL,
-        userAccountControl,
-        modifications);
+    AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(destination, userAccountControl)
+        .ifPresent(modifications::add);
 
     if (Boolean.TRUE.equals(rfc2307EnabledSupplier.get())) {
       String gecos = Optional.ofNullable(source.getGecos()).orElse(displayName);
-      setAttribute(destination, AdConstants.USER_GECOS, gecos, modifications);
+      AdConstants.USER_GECOS.setValue(destination, gecos)
+          .ifPresent(modifications::add);
 
-      Integer gidNumber = source.getGidNumber();
-      setAttribute(destination, AdConstants.GID_NUMBER, gidNumber, modifications);
+      AdConstants.GID_NUMBER.setValue(destination, source.getGidNumber())
+          .ifPresent(modifications::add);
 
-      String loginShell = source.getLoginShell();
-      setAttribute(
-          destination,
-          AdConstants.USER_LOGIN_SHELL,
-          loginShell,
-          modifications);
+      AdConstants.USER_LOGIN_SHELL.setValue(destination, source.getLoginShell())
+          .ifPresent(modifications::add);
 
-      String nisDomain = source.getNisDomain();
-      setAttribute(destination, AdConstants.NIS_DOMAIN, nisDomain, modifications);
+      AdConstants.NIS_DOMAIN.setValue(destination, source.getNisDomain())
+          .ifPresent(modifications::add);
 
       String uid = source.getUid();
-      setAttribute(destination, AdConstants.USER_UID, uid, modifications);
-      setAttribute(destination, AdConstants.NIS_NAME, uid, modifications);
+      AdConstants.USER_UID.setValue(destination, uid)
+          .ifPresent(modifications::add);
+      AdConstants.NIS_NAME.setValue(destination, uid)
+          .ifPresent(modifications::add);
 
-      Integer uidNumber = source.getUidNumber();
-      setAttribute(destination, AdConstants.USER_UID_NUMBER, uidNumber, modifications);
+      AdConstants.USER_UID_NUMBER.setValue(destination, source.getUidNumber())
+          .ifPresent(modifications::add);
 
-      String unixHomeDirectory = source.getUnixHomeDirectory();
-      setAttribute(
-          destination,
-          AdConstants.USER_UNIX_HOME_DIRECTORY,
-          unixHomeDirectory,
-          modifications);
+      AdConstants.USER_UNIX_HOME_DIRECTORY.setValue(destination, source.getUnixHomeDirectory())
+          .ifPresent(modifications::add);
     }
 
     return modifications.toArray(new AttributeModification[0]);
