@@ -142,7 +142,7 @@ public abstract class UiController extends AbstractController implements LoggerP
   @ExceptionHandler(Exception.class)
   public ModelAndView handleError(HttpServletRequest req, Exception ex) {
     getLogger().error("Request {} raised exception", req.getRequestURL(), ex);
-    // send email?
+    // send email? with hostname!
     ModelAndView mav = new ModelAndView();
     mav.addObject("exception", ex);
     mav.addObject("url", req.getRequestURL());

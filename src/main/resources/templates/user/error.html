@@ -48,36 +48,11 @@
 </nav>
 <main role="main" class="container">
 
+  <div class="d-flex justify-content-center mb-2">
+    <h3 th:text="#{samba-ad-dc-manager.label}">Samba AD DC Manager</h3>
+  </div>
   <div class="d-flex justify-content-center mb-4">
-    <div class="col col-xxl-5 col-xl-6 col-lg-8 col-md-9">
-      <div class="d-flex justify-content-center mb-4">
-        <h5>Please sign in</h5>
-      </div>
-      <form th:action="@{login}" method="post">
-        <div class="input-group mb-4">
-          <input type="text" class="form-control" id="username" name="username" required
-                 aria-label="Username" placeholder="Username" />
-        </div>
-        <div class="input-group mb-4">
-          <input type="password" class="form-control" id="password" name="password" required
-                 aria-label="Password" placeholder="Password" />
-        </div>
-        <div class="row justify-content-between mb-4">
-          <div class="col col-auto">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me" />
-              <label class="form-check-label" for="remember-me">Remember me on this computer.</label>
-            </div>
-          </div>
-          <div class="col col-auto">
-            <a href="#">Forgot password?</a>
-          </div>
-        </div>
-        <div class="d-flex justify-content-center">
-          <button type="submit" class="btn btn-primary mm-4">Sign In</button>
-        </div>
-      </form>
-    </div>
+    <h5 th:text="${domainInfo.domain}">bremersee.org</h5>
   </div>
 
 </main>
