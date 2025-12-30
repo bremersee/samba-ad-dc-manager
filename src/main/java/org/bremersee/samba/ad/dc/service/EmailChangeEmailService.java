@@ -20,6 +20,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
@@ -40,7 +41,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 /**
- * The email change email service.
+ * The email-change email service.
  *
  * @author Christian Bremer
  */
@@ -51,6 +52,16 @@ public class EmailChangeEmailService extends AbstractEmailService {
 
   private final CryptoService<EmailChange, AesEncValue> cryptoService;
 
+  /**
+   * Instantiates a new email-change email service.
+   *
+   * @param properties the properties
+   * @param messageSource the message source
+   * @param templateEngine the template engine
+   * @param contextSuppliers the context suppliers
+   * @param javaMailSender the java mail sender
+   * @param cryptoService the crypto service
+   */
   public EmailChangeEmailService(
       ApplicationProperties properties,
       MessageSource messageSource,
@@ -62,6 +73,11 @@ public class EmailChangeEmailService extends AbstractEmailService {
     this.cryptoService = cryptoService;
   }
 
+  /**
+   * On email change event.
+   *
+   * @param event the event
+   */
   @EventListener
   @Async
   public void onEmailChangeEvent(EmailChangeEvent event) {
@@ -72,20 +88,28 @@ public class EmailChangeEmailService extends AbstractEmailService {
     if (isEmpty(user) || isEmpty(newEmail) || isEmpty(baseUri)) {
       return;
     }
+    String subject = getMessageSource().getMessage(
+        "email.confirm-email.subject",
+        null,
+        "Please confirm your email address",
+        user.getLocale());
     MimeMessagePreparator preparator = mimeMessage -> {
       MimeMessageHelper helper = new MimeMessageHelper(
           mimeMessage, true, StandardCharsets.UTF_8.name());
       helper.setFrom(getProperties().getEmail().getSender());
       helper.setTo(newEmail);
-      helper.setSubject("Please confirm your email address");
+      helper.setSubject(Objects.requireNonNull(subject));
       helper.setText(getEmailText(user, newEmail, baseUri), true);
     };
     getJavaMailSender().send(preparator);
   }
 
   private String getEmailText(DomainUser user, String newEmail, String baseUri) {
-    Context ctx = createContext(user);
+    Context ctx = createContext(user, baseUri);
     ctx.setVariable("confirmationUri", getConfirmationUri(user, newEmail, baseUri));
+    ctx.setVariable(
+        "lifetimeDays",
+        getProperties().getUser().getChangeEmailRequestLifetime().toDays());
     String template = "email/confirm-email";
     return getTemplateEngine().process(template, ctx);
   }

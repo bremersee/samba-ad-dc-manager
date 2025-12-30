@@ -4,11 +4,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.spring.security.core.NormalizedPrincipal;
@@ -19,6 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+/**
+ * The abstract email service.
+ */
 @Getter(AccessLevel.PROTECTED)
 public abstract class AbstractEmailService {
 
@@ -32,6 +35,15 @@ public abstract class AbstractEmailService {
 
   private final JavaMailSender javaMailSender;
 
+  /**
+   * Instantiates a new abstract email service.
+   *
+   * @param properties the properties
+   * @param messageSource the message source
+   * @param templateEngine the template engine
+   * @param contextSuppliers the context suppliers
+   * @param javaMailSender the java mail sender
+   */
   protected AbstractEmailService(ApplicationProperties properties, MessageSource messageSource,
       TemplateEngine templateEngine, List<TemplateEngineContextSupplier> contextSuppliers,
       JavaMailSender javaMailSender) {
@@ -42,16 +54,48 @@ public abstract class AbstractEmailService {
     this.javaMailSender = javaMailSender;
   }
 
-  protected Context createContext(DomainUser user) {
+  /**
+   * Create context.
+   *
+   * @param user the user
+   * @param baseUri the base uri
+   * @return the context
+   */
+  protected Context createContext(DomainUser user, String baseUri) {
     Context ctx = new Context(user.getLocale());
     contextSuppliers.forEach(contextSupplier -> contextSupplier
         .getTemplateEngineContext().forEach(ctx::setVariable));
     ctx.setVariable("user", user);
     ctx.setVariable("properties", properties);
+    ctx.setVariable("baseUri", isEmpty(baseUri) ? "" : baseUri);
+    // only for invitation
     ctx.setVariable("regards", getEmailRegards());
+    ctx.setVariable("defaultLoginPage", getDefaultLoginPage(baseUri));
     return ctx;
   }
 
+  /**
+   * Gets default login page.
+   *
+   * @param baseUri the base uri
+   * @return the default login page
+   */
+  protected DefaultLoginPage getDefaultLoginPage(String baseUri) {
+    DefaultLoginPage loginPage = getProperties().getUser().getDefaultLoginPage();
+    if (!isEmpty(loginPage.getUrl()) && !"#".equals(loginPage.getUrl())) {
+      return loginPage;
+    }
+    DefaultLoginPage fallback = new DefaultLoginPage();
+    fallback.setUrl(isEmpty(baseUri) ? "#" : baseUri + "/login");
+    fallback.setUsingNetbiosDomainPrefix(false);
+    return fallback;
+  }
+
+  /**
+   * Gets email regards.
+   *
+   * @return the email regards
+   */
   protected String getEmailRegards() {
     return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
         .filter(Authentication::isAuthenticated)

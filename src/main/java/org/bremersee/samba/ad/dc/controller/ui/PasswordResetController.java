@@ -33,6 +33,7 @@ import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.model.event.PasswordResetEvent;
+import org.bremersee.samba.ad.dc.model.event.PasswordResetSuccessEvent;
 import org.bremersee.samba.ad.dc.service.CryptoService;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
@@ -68,6 +69,16 @@ public class PasswordResetController extends UiController {
 
   private Pattern passwordPattern;
 
+  /**
+   * Instantiates a new password reset controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param cryptoService the crypto service
+   * @param eventPublisher the event publisher
+   */
   public PasswordResetController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -82,11 +93,21 @@ public class PasswordResetController extends UiController {
     this.usernamePattern = Pattern.compile(properties.getUser().getNewSamAccountNameRegex());
   }
 
+  /**
+   * Gets username pattern.
+   *
+   * @return the username pattern
+   */
   @ModelAttribute("usernamePattern")
   public String getUsernamePattern() {
     return usernamePattern.pattern();
   }
 
+  /**
+   * Gets password pattern.
+   *
+   * @return the password pattern
+   */
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
     if (isEmpty(passwordPattern)) {
@@ -96,12 +117,22 @@ public class PasswordResetController extends UiController {
     return passwordPattern.pattern();
   }
 
+  /**
+   * Gets password description.
+   *
+   * @return the password description
+   */
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
     return getDomainService().getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
+  /**
+   * Gets default login page.
+   *
+   * @return the default login page
+   */
   @ModelAttribute("defaultLoginPage")
   public DefaultLoginPage getDefaultLoginPage() {
     DefaultLoginPage defaultLoginPage = getProperties().getUser().getDefaultLoginPage();
@@ -115,12 +146,26 @@ public class PasswordResetController extends UiController {
     return fallback;
   }
 
+  /**
+   * Display reset password request.
+   *
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/passwd/password-reset-request")
   public String displayResetPasswordRequest(ModelMap model) {
     model.addAttribute("resetPasswordRequestModel", new PasswordResetRequestModel());
     return "passwd/password-reset-request";
   }
 
+  /**
+   * Process reset password request.
+   *
+   * @param resetPasswordRequestModel the reset password request model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @return the string
+   */
   @PostMapping(path = "/passwd/password-reset-request")
   public String processResetPasswordRequest(
       @ModelAttribute(name = "resetPasswordRequestModel")
@@ -139,11 +184,24 @@ public class PasswordResetController extends UiController {
     return "redirect:password-reset-requested";
   }
 
+  /**
+   * Display reset password requested.
+   *
+   * @return the string
+   */
   @GetMapping(path = "/passwd/password-reset-requested")
   public String displayResetPasswordRequested() {
     return "passwd/password-reset-request-response";
   }
 
+  /**
+   * Display reset password.
+   *
+   * @param passwordResetEnc the password reset enc
+   * @param salt the salt
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/passwd/password-reset")
   public String displayResetPassword(
       @RequestParam(value = "req") String passwordResetEnc,
@@ -168,6 +226,16 @@ public class PasswordResetController extends UiController {
         .orElse(HTML_TEMPLATE_INVALID);
   }
 
+  /**
+   * Reset password.
+   *
+   * @param passwordResetEnc the password reset enc
+   * @param salt the salt
+   * @param passwordResetModel the password reset model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @return the string
+   */
   @PostMapping(path = "/passwd/password-reset")
   public String resetPassword(
       @RequestParam(value = "req") String passwordResetEnc,
@@ -219,6 +287,7 @@ public class PasswordResetController extends UiController {
             model.addAttribute("isInvitation", passwordReset.isInvitation());
             return "passwd/password-reset";
           }
+          eventPublisher.publishEvent(new PasswordResetSuccessEvent(newUser, getBaseUri()));
           model.addAttribute("user", newUser);
           model.addAttribute(
               "netbiosUsername",

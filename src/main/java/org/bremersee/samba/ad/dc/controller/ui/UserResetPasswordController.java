@@ -148,7 +148,9 @@ public class UserResetPasswordController extends UiController
     }
     domainUserService.updateUserPassword(user.getSamAccountName(), password);
     if (passwordRequest.isGenerateRandomPassword()) {
-      eventPublisher.publishEvent(new InvitationEvent(user, getBaseUri()));
+      domainUserService.getUser(user.getDistinguishedName(), null, null)
+          .ifPresent(freshUser -> eventPublisher
+              .publishEvent(new InvitationEvent(freshUser, getBaseUri())));
     }
 
     String defaultMsg = "Password was successfully changed.";

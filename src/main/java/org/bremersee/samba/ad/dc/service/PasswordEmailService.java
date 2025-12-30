@@ -29,6 +29,8 @@ import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
 import org.bremersee.samba.ad.dc.model.event.PasswordResetEvent;
+import org.bremersee.samba.ad.dc.model.event.PasswordResetSuccessEvent;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
@@ -53,6 +55,16 @@ public class PasswordEmailService extends AbstractEmailService {
 
   private final CryptoService<PasswordReset, AesEncValue> passwordResetCryptoService;
 
+  /**
+   * Instantiates a new password email service.
+   *
+   * @param properties the properties
+   * @param messageSource the message source
+   * @param templateEngine the template engine
+   * @param contextSuppliers the context suppliers
+   * @param javaMailSender the java mail sender
+   * @param passwordResetCryptoService the password reset crypto service
+   */
   public PasswordEmailService(
       ApplicationProperties properties,
       MessageSource messageSource,
@@ -64,19 +76,40 @@ public class PasswordEmailService extends AbstractEmailService {
     this.passwordResetCryptoService = passwordResetCryptoService;
   }
 
+  /**
+   * On password reset event.
+   *
+   * @param passwordResetEvent the password reset event
+   */
   @EventListener
   @Async
   public void onPasswordResetEvent(PasswordResetEvent passwordResetEvent) {
-    sendEmail(passwordResetEvent.getSource(), passwordResetEvent.getBaseUri(), false);
+    sendResetEmail(passwordResetEvent.getSource(), passwordResetEvent.getBaseUri(), false);
   }
 
+  /**
+   * On invitation event.
+   *
+   * @param event the event
+   */
   @EventListener
   @Async
   public void onInvitationEvent(InvitationEvent event) {
-    sendEmail(event.getSource(), event.getBaseUri(), true);
+    sendResetEmail(event.getSource(), event.getBaseUri(), true);
   }
 
-  private void sendEmail(DomainUser user, String baseUri, boolean isInvitation) {
+  /**
+   * On password reset success event.
+   *
+   * @param event the event
+   */
+  @EventListener
+  @Async
+  public void onPasswordResetSuccessEvent(PasswordResetSuccessEvent event) {
+    sendSuccessEmail(event.getSource(), event.getBaseUri());
+  }
+
+  private void sendResetEmail(DomainUser user, String baseUri, boolean isInvitation) {
     if (isEmpty(user) || isEmpty(user.getEmail()) || isEmpty(baseUri)) {
       return;
     }
@@ -85,38 +118,45 @@ public class PasswordEmailService extends AbstractEmailService {
           mimeMessage, true, StandardCharsets.UTF_8.name());
       helper.setFrom(getProperties().getEmail().getSender());
       helper.setTo(Objects.requireNonNull(user.getEmail()));
-      helper.setSubject(getEmailSubject(user, isInvitation));
-      helper.setText(getEmailText(user, baseUri, isInvitation), true);
+      helper.setSubject(getResetSubject(user, isInvitation));
+      helper.setText(getResetText(user, baseUri, isInvitation), true);
     };
     getJavaMailSender().send(preparator);
   }
 
-  private String getEmailSubject(DomainUser user, boolean isInvitation) {
+  private String getResetSubject(DomainUser user, boolean isInvitation) {
     if (isInvitation) {
       return getMessageSource().getMessage(
-          "todo",
-          new Object[]{user.getFirstName()},
-          "Welcome in the domain",
+          "email.invitation-email.subject",
+          new Object[]{getEmailRegards()},
+          "Invitation",
           user.getLocale());
     } else {
       return getMessageSource().getMessage(
-          "todo",
-          new Object[]{user.getFirstName()},
+          "email.password-reset-email.subject",
+          null,
           "Your password reset request",
           user.getLocale());
     }
   }
 
-  private String getEmailText(DomainUser user, String baseUri, boolean isInvitation) {
-    Context ctx = createContext(user);
-    ctx.setVariable("resetUri", getPasswordResetUri(user, baseUri, isInvitation));
+  private String getResetText(DomainUser user, String baseUri, boolean isInvitation) {
+    Context ctx = createContext(user, baseUri);
+    ctx.setVariable("resetUri", getResetUri(user, baseUri, isInvitation));
+    long lifetimeDays;
+    if (isInvitation) {
+      lifetimeDays = getProperties().getUser().getInvitationLifetime().toDays();
+    } else {
+      lifetimeDays = getProperties().getUser().getPasswordResetRequestLifetime().toDays();
+    }
+    ctx.setVariable("lifetimeDays", lifetimeDays);
     String template = isInvitation
         ? "email/invitation-email"
         : "email/password-reset-email";
     return getTemplateEngine().process(template, ctx);
   }
 
-  private String getPasswordResetUri(DomainUser user, String baseUri, boolean isInvitation) {
+  private String getResetUri(DomainUser user, String baseUri, boolean isInvitation) {
     AesEncValue encValue = passwordResetCryptoService.encrypt(PasswordReset.builder()
         .username(user.getSamAccountName())
         .pwdLastSetDateTime(user.getPasswordLastSet())
@@ -129,6 +169,45 @@ public class PasswordEmailService extends AbstractEmailService {
         .queryParam("s", encValue.salt())
         .build()
         .toString();
+  }
+
+  private void sendSuccessEmail(DomainUser user, String baseUri) {
+    if (isEmpty(user) || isEmpty(user.getEmail()) || isEmpty(baseUri)) {
+      return;
+    }
+    MimeMessagePreparator preparator = mimeMessage -> {
+      MimeMessageHelper helper = new MimeMessageHelper(
+          mimeMessage, true, StandardCharsets.UTF_8.name());
+      helper.setFrom(getProperties().getEmail().getSender());
+      helper.setTo(Objects.requireNonNull(user.getEmail()));
+      helper.setSubject(getSuccessSubject(user));
+      helper.setText(getSuccessText(user, baseUri), true);
+    };
+    getJavaMailSender().send(preparator);
+  }
+
+  private String getSuccessSubject(DomainUser user) {
+    return getMessageSource().getMessage(
+        "email.password-reset-success-email.subject",
+        null,
+        "You reset your password successfully",
+        user.getLocale());
+  }
+
+  private String getSuccessText(DomainUser user, String baseUri) {
+    Context ctx = createContext(user, baseUri);
+    ctx.setVariable("netbiosUsername", getNetbiosUsername(user, ctx));
+    String template = "email/password-reset-success-email";
+    return getTemplateEngine().process(template, ctx);
+  }
+
+  private String getNetbiosUsername(DomainUser user, Context context) {
+    return getDomainRepository(context).getDomainInfo().getNetbiosDomain() + '\\'
+        + user.getSamAccountName();
+  }
+
+  private DomainRepository getDomainRepository(Context context) {
+    return (DomainRepository) context.getVariable("domain");
   }
 
 }
