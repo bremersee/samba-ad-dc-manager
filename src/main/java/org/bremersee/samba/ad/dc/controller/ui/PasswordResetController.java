@@ -54,6 +54,10 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller
 public class PasswordResetController extends UiController {
 
+  private static final String USERNAME = "username";
+
+  private static final String HTML_TEMPLATE_INVALID = "passwd/password-reset-invalid";
+
   private final DomainUserService domainUserService;
 
   private final CryptoService<PasswordReset, AesEncValue> cryptoService;
@@ -125,7 +129,7 @@ public class PasswordResetController extends UiController {
       BindingResult bindingResult) {
     String username = resetPasswordRequestModel.getUsername();
     if (isEmpty(username)) {
-      bindingResult.rejectValue("username", "todo", "Username must not be blank.");
+      bindingResult.rejectValue(USERNAME, "todo", "Username must not be blank.");
       return "passwd/password-reset-request";
     }
     domainUserService.getUser(username, null, null)
@@ -150,7 +154,7 @@ public class PasswordResetController extends UiController {
     try {
       passwordReset = cryptoService.decrypt(new AesEncValue(passwordResetEnc, salt));
     } catch (RuntimeException e) {
-      return "passwd/password-reset-invalid";
+      return HTML_TEMPLATE_INVALID;
     }
     return getValidatedDomainUser(passwordReset)
         .map(user -> {
@@ -161,7 +165,7 @@ public class PasswordResetController extends UiController {
           model.addAttribute("passwordResetModel", new PasswordResetModel(user));
           return "passwd/password-reset";
         })
-        .orElse("passwd/password-reset-invalid");
+        .orElse(HTML_TEMPLATE_INVALID);
   }
 
   @PostMapping(path = "/passwd/password-reset")
@@ -176,7 +180,7 @@ public class PasswordResetController extends UiController {
     try {
       passwordReset = cryptoService.decrypt(new AesEncValue(passwordResetEnc, salt));
     } catch (RuntimeException e) {
-      return "passwd/password-reset-invalid";
+      return HTML_TEMPLATE_INVALID;
     }
     return getValidatedDomainUser(passwordReset)
         .map(user -> {
@@ -184,16 +188,23 @@ public class PasswordResetController extends UiController {
             passwordResetModel.setUsername(user.getSamAccountName());
           }
           if (!usernamePattern.matcher(passwordResetModel.getUsername()).matches()) {
-            bindingResult.rejectValue("username", "todo",
-                "Username is not valid. Please try another username.");
+            bindingResult.rejectValue(
+                USERNAME,
+                "controller.ui.password-reset-c.username.pattern",
+                "The username is not valid. Please try another one.");
           }
           String newPassword = requireNonNullElse(passwordResetModel.getNewPassword(), "");
           String newPasswordRepetition = passwordResetModel.getNewPasswordRepetition();
           if (!newPassword.equals(newPasswordRepetition)) {
-            bindingResult.rejectValue("newPasswordRepetition", "todo", "Passwords must be equal.");
+            bindingResult.rejectValue(
+                "newPasswordRepetition",
+                "controller.ui.password-reset-c.passwords-not-equal",
+                "Passwords must be equal.");
           } else if (!passwordPattern.matcher(newPassword).matches()) {
-            bindingResult.rejectValue("newPassword", "todo",
-                "Password is too weak. Please try a stronger password.");
+            bindingResult.rejectValue(
+                "newPassword",
+                "ec.password-restrictions",
+                "The password is too weak. Please try a stronger one.");
           }
           DomainUser newUser = passwordReset.isInvitation()
               ? updateUser(user, passwordResetModel.getUsername(), bindingResult)
@@ -214,7 +225,7 @@ public class PasswordResetController extends UiController {
               getDomainInfo().getNetbiosDomain() + '\\' + newUser.getSamAccountName());
           return "passwd/password-reset-success";
         })
-        .orElse("passwd/password-reset-invalid");
+        .orElse(HTML_TEMPLATE_INVALID);
   }
 
   private Optional<DomainUser> getValidatedDomainUser(PasswordReset passwordReset) {
@@ -286,22 +297,30 @@ public class PasswordResetController extends UiController {
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue("username", "code",
-            "Username is required.");
+        bindingResult.rejectValue(
+            USERNAME,
+            "ec.sam-account-name.required",
+            "A username is required.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS, EC_PRINCIPAL_ALREADY_EXISTS, EC_UID_ALREADY_EXISTS: {
-        bindingResult.rejectValue("username", "code",
-            "Username already exists.");
+        bindingResult.rejectValue(
+            USERNAME,
+            "ec.sam-account-name.already-exists",
+            "The username already exists. Please try another one.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue("username", "code",
-            "Username contains illegal characters.");
+        bindingResult.rejectValue(
+            USERNAME,
+            "ec.sam-account-name.illegal",
+            "The username contains illegal characters.");
         break;
       }
       case EC_PASSWORD_RESTRICTIONS, EC_SAVING_PASSWORD_FAILED: {
-        bindingResult.rejectValue("newPassword", "code",
+        bindingResult.rejectValue(
+            "newPassword",
+            "ec.password-restrictions",
             "Resetting password failed. Try another password.");
         break;
       }
