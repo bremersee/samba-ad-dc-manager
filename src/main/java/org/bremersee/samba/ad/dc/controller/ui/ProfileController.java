@@ -128,25 +128,25 @@ public class ProfileController extends UiController {
       @RequestParam(value = "s") String salt,
       ModelMap model) {
 
-    DomainUser user = getCurrentUser();
-    RedirectMessage rmsg = decryptAndValidate(user, emailChangeEnc, salt)
+    DomainUser domainUser = getCurrentUser();
+    RedirectMessage rmsg = decryptAndValidate(domainUser, emailChangeEnc, salt)
         .map(emailChange -> {
-          DomainUser newUser = domainUserService.updateUser(
-              user.getSamAccountName(),
+          DomainUser newDomainUser = domainUserService.updateUser(
+              domainUser.getSamAccountName(),
               DomainUser.builder()
-                  .from(user)
+                  .from(domainUser)
                   .email(emailChange.getNewEmail())
                   .build(),
               null);
-          model.addAttribute(USER, newUser);
-          model.addAttribute(EDIT_MODEL, new ProfileEditModel(newUser));
+          model.addAttribute(USER, newDomainUser);
+          model.addAttribute(EDIT_MODEL, new ProfileEditModel(newDomainUser));
           String defaultMsg = "Your new email address was successfully changed.";
           return getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
               "controller.ui.profile-c.email-changed-successfully");
         })
         .orElseGet(() -> {
-          model.addAttribute(USER, user);
-          model.addAttribute(EDIT_MODEL, new ProfileEditModel(user));
+          model.addAttribute(USER, domainUser);
+          model.addAttribute(EDIT_MODEL, new ProfileEditModel(domainUser));
           String defaultMsg = "Your request to change your email address is invalid.";
           return getRedirectMessage(RedirectMessageType.WARNING, defaultMsg,
               "controller.ui.profile-c.email-change-request-invalid");
@@ -171,9 +171,9 @@ public class ProfileController extends UiController {
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
 
-    DomainUser user = getCurrentUser();
+    DomainUser domainUser = getCurrentUser();
     if (isEmpty(editModel.getNewEmail())
-        || editModel.getNewEmail().equalsIgnoreCase(user.getEmail())
+        || editModel.getNewEmail().equalsIgnoreCase(domainUser.getEmail())
         || !isUserAbleToChangeEmail()) {
       model.clear();
       return "redirect:profile";
@@ -187,11 +187,12 @@ public class ProfileController extends UiController {
           "controller.ui.profile-c.email.invalid",
           null,
           "The email address is not accepted.");
-      model.addAttribute(USER, user);
+      model.addAttribute(USER, domainUser);
       return USER_SLASH_PROFILE;
     }
 
-    eventPublisher.publishEvent(new EmailChangeEvent(user, editModel.getNewEmail(), getBaseUri()));
+    eventPublisher
+        .publishEvent(new EmailChangeEvent(domainUser, editModel.getNewEmail(), getBaseUri()));
     model.clear();
     String defaultMsg = String
         .format("The confirmation mail was sent to %s.", editModel.getNewEmail());
