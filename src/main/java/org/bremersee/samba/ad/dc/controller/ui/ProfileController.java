@@ -131,12 +131,10 @@ public class ProfileController extends UiController {
     DomainUser domainUser = getCurrentUser();
     RedirectMessage rmsg = decryptAndValidate(domainUser, emailChangeEnc, salt)
         .map(emailChange -> {
-          DomainUser newDomainUser = domainUserService.updateUser(
-              domainUser.getSamAccountName(),
-              DomainUser.builder()
-                  .from(domainUser)
-                  .email(emailChange.getNewEmail())
-                  .build(),
+          DomainUser newDomainUser = domainUserService
+              .updateUser(
+                  domainUser.getSamAccountName(),
+                  domainUser.withEmail(emailChange.getNewEmail()),
               null);
           model.addAttribute(USER, newDomainUser);
           model.addAttribute(EDIT_MODEL, new ProfileEditModel(newDomainUser));
