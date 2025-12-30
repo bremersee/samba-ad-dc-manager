@@ -59,7 +59,7 @@
   <div th:if="${computer != null}">
     <div class="row mb-4">
       <div class="col-1">
-        <a class="btn btn-outline-secondary" href="computers.html"
+        <a class="btn btn-outline-secondary" href="computers.html" th:title="#{templates.management.edit.label}"
            th:href="@{computers(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
             <span style="display: none;">Back</span>

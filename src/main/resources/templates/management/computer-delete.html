@@ -83,7 +83,7 @@
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a class="nav-link" href="computer-edit.html"
+        <a class="nav-link" href="computer-edit.html" th:title="#{templates.management.edit.label}"
            th:href="@{computer-edit(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-computer" aria-hidden="true">
             <span style="display: none;">Edit</span>
