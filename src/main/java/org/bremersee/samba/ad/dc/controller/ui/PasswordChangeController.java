@@ -106,13 +106,19 @@ public class PasswordChangeController extends UiController {
       username = username.substring(netbiosPrefix.length());
     }
     if (isEmpty(username)) {
-      bindingResult.rejectValue("username", "todo", "Username is required.");
+      bindingResult.rejectValue(
+          "username",
+          "controller.ui.password-change-c.username.required",
+          "Username is required.");
     }
     String oldPassword = changePasswordModel.getOldPassword();
     String newPassword = requireNonNullElse(changePasswordModel.getNewPassword(), "");
     String newPasswordRepetition = changePasswordModel.getNewPasswordRepetition();
     if (!newPassword.equals(newPasswordRepetition)) {
-      bindingResult.rejectValue("newPasswordRepetition", "todo", "Passwords must be equal.");
+      bindingResult.rejectValue(
+          "newPasswordRepetition",
+          "controller.ui.password-change-c.passwords-not-equal",
+          "Passwords must be equal.");
     }
     if (bindingResult.hasErrors()) {
       return HTML_TEMPLATE;
@@ -121,12 +127,17 @@ public class PasswordChangeController extends UiController {
       domainUserService.updateUserPassword(username, oldPassword, newPassword);
 
     } catch (AuthenticationException ae) {
-      bindingResult.rejectValue("oldPassword", "todo", "Authentication failed.");
+      bindingResult.rejectValue(
+          "oldPassword",
+          "controller.ui.password-change-c.authentication-failed",
+          "Authentication failed.");
       return HTML_TEMPLATE;
 
     } catch (ServiceException se) {
       if (EC_PASSWORD_RESTRICTIONS.equals(se.getErrorCode())) {
-        bindingResult.rejectValue("newPassword", "todo",
+        bindingResult.rejectValue(
+            "newPassword",
+            "ec.password-restrictions",
             "Password doesn't match the required pattern.");
         return HTML_TEMPLATE;
       }
@@ -136,7 +147,7 @@ public class PasswordChangeController extends UiController {
     model.clear();
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
         "Your password was successfully changed.",
-        "todo");
+        "controller.ui.password-change-c.password-changed");
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     return "redirect:password-change";
   }
