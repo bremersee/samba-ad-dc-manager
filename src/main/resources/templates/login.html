@@ -49,7 +49,7 @@
 <main role="main" class="container">
 
   <div class="d-flex justify-content-center mb-2">
-    <h3 th:text="#{template.login.sign-in}">Sign in</h3>
+    <h3 th:text="#{templates.login.sign-in}">Sign in</h3>
   </div>
   <div class="d-flex justify-content-center mb-4">
     <h5 th:text="${domainInfo.domain}">bremersee.org</h5>
@@ -60,19 +60,19 @@
       <form th:action="@{login}" method="post">
         <div class="input-group mb-1">
           <input type="text" class="form-control" id="username" name="username" required
-                 aria-label="Username" placeholder="Username" th:placeholder="#{template.login.username}"
+                 aria-label="Username" placeholder="Username" th:placeholder="#{templates.login.username}"
                  th:classappend="${error} ? 'is-invalid' : ''" />
         </div>
         <div id="usernameHelp" class="form-text mb-4"
-             th:text="#{template.login.username.help(${netbiosDomainNamePrefix})}">
+             th:text="#{templates.login.username.help(${netbiosDomainNamePrefix})}">
           Please enter your plain username without NetBIOS domain name EIXE.
         </div>
         <div class="input-group mb-4">
           <input type="password" class="form-control" id="password" name="password" required
-                 aria-label="Password" placeholder="Password" th:placeholder="#{template.login.password}"
+                 aria-label="Password" placeholder="Password" th:placeholder="#{templates.login.password}"
                  th:classappend="${error} ? 'is-invalid' : ''" />
           <div id="error" class="invalid-feedback" th:if="${error}">
-            <span th:text="#{template.login.failed}">
+            <span th:text="#{templates.login.failed}">
               Login failed. Either your username or password is incorrect.
             </span>
           </div>
@@ -81,20 +81,20 @@
           <div class="col col-auto">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me" />
-              <label class="form-check-label" for="remember-me" th:text="#{template.login.remember-me}">
+              <label class="form-check-label" for="remember-me" th:text="#{templates.login.remember-me}">
                 Remember me on this computer.
               </label>
             </div>
           </div>
           <div class="col col-auto">
             <a href="passwd/password-reset-request.html" th:href="@{passwd/password-reset-request}">
-              <span th:text="#{template.login.forgot-password}">Forgot password?</span>
+              <span th:text="#{templates.login.forgot-password}">Forgot password?</span>
             </a>
           </div>
         </div>
         <div class="d-flex justify-content-center mb-5">
           <button type="submit" class="btn btn-primary mm-4">
-            <span th:text="#{template.login.sign-in.button}">Sign In</span>
+            <span th:text="#{templates.login.sign-in.button}">Sign In</span>
           </button>
         </div>
       </form>
