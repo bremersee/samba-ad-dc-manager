@@ -55,12 +55,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class ProfileController extends UiController {
 
+  private static final String USER = "user";
+
+  private static final String EDIT_MODEL = "editModel";
+
+  private static final String USER_SLASH_PROFILE = "user/profile";
+
   private final DomainUserService domainUserService;
 
   private final CryptoService<EmailChange, AesEncValue> cryptoService;
 
   private final ApplicationEventPublisher eventPublisher;
 
+  /**
+   * Instantiates a new profile controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param cryptoService the crypto service
+   * @param eventPublisher the event publisher
+   */
   public ProfileController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -74,19 +90,38 @@ public class ProfileController extends UiController {
     this.eventPublisher = eventPublisher;
   }
 
+  /**
+   * Is user able to change email.
+   *
+   * @return the boolean
+   */
   @ModelAttribute("userAbleToChangeEmail")
   public boolean isUserAbleToChangeEmail() {
     return getProperties().getUser().isUserAbleToChangeEmail();
   }
 
+  /**
+   * Display profile.
+   *
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/user/profile")
   public String displayProfile(ModelMap model) {
     DomainUser user = getCurrentUser();
-    model.addAttribute("user", user);
-    model.addAttribute("editModel", new ProfileEditModel(user));
-    return "user/profile";
+    model.addAttribute(USER, user);
+    model.addAttribute(EDIT_MODEL, new ProfileEditModel(user));
+    return USER_SLASH_PROFILE;
   }
 
+  /**
+   * Display profile.
+   *
+   * @param emailChangeEnc the email change enc
+   * @param salt the salt
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/user/profile", params = {"req", "s"})
   public String displayProfile(
       @RequestParam(value = "req") String emailChangeEnc,
@@ -103,26 +138,35 @@ public class ProfileController extends UiController {
                   .email(emailChange.getNewEmail())
                   .build(),
               null);
-          model.addAttribute("user", newUser);
-          model.addAttribute("editModel", new ProfileEditModel(newUser));
+          model.addAttribute(USER, newUser);
+          model.addAttribute(EDIT_MODEL, new ProfileEditModel(newUser));
           String defaultMsg = "Your new email address was successfully changed.";
           return getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
               "controller.ui.profile-c.email-changed-successfully");
         })
         .orElseGet(() -> {
-          model.addAttribute("user", user);
-          model.addAttribute("editModel", new ProfileEditModel(user));
+          model.addAttribute(USER, user);
+          model.addAttribute(EDIT_MODEL, new ProfileEditModel(user));
           String defaultMsg = "Your request to change your email address is invalid.";
           return getRedirectMessage(RedirectMessageType.WARNING, defaultMsg,
               "controller.ui.profile-c.email-change-request-invalid");
         });
     model.addAttribute("rmsg", rmsg);
-    return "user/profile";
+    return USER_SLASH_PROFILE;
   }
 
+  /**
+   * Process email change request.
+   *
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
   @PostMapping(path = "/user/profile")
   public String processEmailChangeRequest(
-      @ModelAttribute(name = "editModel") ProfileEditModel editModel,
+      @ModelAttribute(name = EDIT_MODEL) ProfileEditModel editModel,
       ModelMap model,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes) {
@@ -143,8 +187,8 @@ public class ProfileController extends UiController {
           "controller.ui.profile-c.email.invalid",
           null,
           "The email address is not accepted.");
-      model.addAttribute("user", user);
-      return "user/profile";
+      model.addAttribute(USER, user);
+      return USER_SLASH_PROFILE;
     }
 
     eventPublisher.publishEvent(new EmailChangeEvent(user, editModel.getNewEmail(), getBaseUri()));
