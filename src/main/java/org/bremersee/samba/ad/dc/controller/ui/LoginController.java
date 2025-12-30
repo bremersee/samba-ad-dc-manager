@@ -33,6 +33,13 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller("loginController")
 public class LoginController extends UiController {
 
+  /**
+   * Instantiates a new login controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   */
   public LoginController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -40,6 +47,12 @@ public class LoginController extends UiController {
     super(properties, localeResolver, domainService);
   }
 
+  /**
+   * Determines whether login failed or not.
+   *
+   * @param request the http request
+   * @return {@code true} if login failed, otherwise {@code false}
+   */
   @ModelAttribute("error")
   public boolean hasError(HttpServletRequest request) {
     Enumeration<String> params = request.getParameterNames();
@@ -52,6 +65,11 @@ public class LoginController extends UiController {
     return false;
   }
 
+  /**
+   * Display login view.
+   *
+   * @return the view template
+   */
   @GetMapping(path = "/login")
   public String displayLoginView() {
     return "login";

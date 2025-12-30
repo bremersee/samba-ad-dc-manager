@@ -30,6 +30,13 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller
 public class RootController extends UiController {
 
+  /**
+   * Instantiates a new root controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   */
   public RootController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -37,11 +44,21 @@ public class RootController extends UiController {
     super(properties, localeResolver, domainService);
   }
 
+  /**
+   * Display root view.
+   *
+   * @return the view template
+   */
   @GetMapping("/index")
   public String displayRootIndex() {
     return "index";
   }
 
+  /**
+   * Redirects to root view.
+   *
+   * @return the redirect
+   */
   @GetMapping({"", "/"})
   public String displayRoot() {
     return "redirect:/index";

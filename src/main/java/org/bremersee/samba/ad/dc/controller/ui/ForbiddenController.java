@@ -30,6 +30,13 @@ import org.springframework.web.servlet.LocaleResolver;
 @Controller
 public class ForbiddenController extends UiController {
 
+  /**
+   * Instantiates a new forbidden controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   */
   public ForbiddenController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -37,6 +44,11 @@ public class ForbiddenController extends UiController {
     super(properties, localeResolver, domainService);
   }
 
+  /**
+   * Display forbidden view.
+   *
+   * @return the view template
+   */
   @GetMapping("/forbidden")
   public String displayForbidden() {
     return "forbidden";
