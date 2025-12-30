@@ -20,6 +20,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.ProfileEditModel;
@@ -104,14 +105,16 @@ public class ProfileController extends UiController {
               null);
           model.addAttribute("user", newUser);
           model.addAttribute("editModel", new ProfileEditModel(newUser));
-          String defaultMsg = "Your new email address was successfully saved.";
-          return getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg, "todo");
+          String defaultMsg = "Your new email address was successfully changed.";
+          return getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
+              "controller.ui.profile-c.email-changed-successfully");
         })
         .orElseGet(() -> {
           model.addAttribute("user", user);
           model.addAttribute("editModel", new ProfileEditModel(user));
-          String defaultMsg = "Your email change request is invalid or has timed out.";
-          return getRedirectMessage(RedirectMessageType.WARNING, defaultMsg, "todo");
+          String defaultMsg = "Your request to change your email address is invalid.";
+          return getRedirectMessage(RedirectMessageType.WARNING, defaultMsg,
+              "controller.ui.profile-c.email-change-request-invalid");
         });
     model.addAttribute("rmsg", rmsg);
     return "user/profile";
@@ -132,12 +135,24 @@ public class ProfileController extends UiController {
       return "redirect:profile";
     }
 
+    Pattern emailPattern = getProperties().getEmail().getEmailRegexFlags()
+        .compile(getProperties().getEmail().getEmailRegex());
+    if (emailPattern.matcher(editModel.getNewEmail()).matches()) {
+      bindingResult.rejectValue(
+          "newEmail",
+          "controller.ui.profile-c.email.invalid",
+          null,
+          "The email address is not accepted.");
+      model.addAttribute("user", user);
+      return "user/profile";
+    }
+
     eventPublisher.publishEvent(new EmailChangeEvent(user, editModel.getNewEmail(), getBaseUri()));
     model.clear();
     String defaultMsg = String
-        .format("The verification mail was sent to %s.", editModel.getNewEmail());
+        .format("The confirmation mail was sent to %s.", editModel.getNewEmail());
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
-        "todo", editModel.getNewEmail());
+        "controller.ui.profile-c.email-change-request-sent", editModel.getNewEmail());
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     return "redirect:profile";
   }
