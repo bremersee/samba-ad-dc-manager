@@ -60,7 +60,9 @@
     <div class="col-1">
       <a class="btn btn-outline-secondary" href="organizational-units.html"
          th:href="@{organizational-units(page=${page},size=${size},q=${q})}">
-        <span class="fa fa-backward" title="Back" th:title="#{templates.management.back.label}"></span>
+        <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+          <span style="display: none;">Back</span>
+        </span>
       </a>
     </div>
     <div class="col d-flex justify-content-center">
