@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en"
       data-bs-theme="dark">
 <head>
@@ -47,14 +46,8 @@
 </nav>
 <main role="main" class="container">
 
-  <div class="d-flex justify-content-center mb-2">
-    <h3>Your User Profile</h3>
-  </div>
-  <div class="d-flex justify-content-center mb-1">
-    <h6>in the domain</h6>
-  </div>
-  <div class="d-flex justify-content-center mb-2">
-    <h6 th:text="${domainInfo.domain}">bremersee.org</h6>
+  <div class="d-flex justify-content-center mb-4">
+    <h3 th:text="#{templates.user.profile.h}">Your user profile</h3>
   </div>
 
   <div class="mx-0 mx-sm-1 mx-md-3">
@@ -68,36 +61,44 @@
     </div>
 
     <div class="mb-3">
-      <label for="samAccountName" class="form-label">Username</label>
+      <label for="samAccountName" class="form-label" th:text="#{templates.user.profile.username}">
+        Username
+      </label>
       <input type="text" class="form-control" id="samAccountName" name="samAccountName" disabled
-             th:value="${user.samAccountName}" />
+             th:value="${user.samAccountName}"/>
     </div>
 
     <div class="mb-3">
-      <label for="firstName" class="form-label">First Name</label>
+      <label for="firstName" class="form-label" th:text="#{templates.user.profile.firstname}">
+        First Name
+      </label>
       <input type="text" class="form-control" id="firstName" name="firstName" disabled
-             th:value="${user.firstName}" />
+             th:value="${user.firstName}"/>
     </div>
 
     <div class="mb-3">
-      <label for="lastName" class="form-label">Last Name</label>
+      <label for="lastName" class="form-label" th:text="#{templates.user.profile.lastname}">
+        Last Name
+      </label>
       <input type="text" class="form-control" id="lastName" name="lastName" disabled
-             th:value="${user.lastName}" />
+             th:value="${user.lastName}"/>
     </div>
 
     <form th:action="@{profile}" th:object="${editModel}" action="#" method="post"
-          th:if="${not #strings.isEmpty(user.email)}" >
+          th:if="${not #strings.isEmpty(user.email)}">
 
       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
+        <label for="email" class="form-label" th:text="#{templates.user.profile.email}">
+          Email
+        </label>
         <input type="email" class="form-control" id="email" name="email" required
                aria-describedby="emailHelp" th:field="*{newEmail}"
                th:disabled="${not userAbleToChangeEmail}"
                th:required="${userAbleToChangeEmail}"
                th:classappend="${#fields.hasErrors('newEmail')} ? 'is-invalid' : ''"/>
-        <div id="emailHelp" class="form-text">
-          You may specify another email address, if you want to.
-          The system will send a conformation email to the new address.
+        <div id="emailHelp" class="form-text" th:text="#{templates.user.profile.email.help}">
+          If you wish, you can change your email address.
+          The system will send an email to the new address, which you must confirm.
         </div>
         <div id="emailValidation" class="invalid-feedback"
              th:text="${#fields.hasErrors('newEmail')} ? ${#fields.errors('newEmail')[0]} : ''">
@@ -105,7 +106,9 @@
       </div>
 
       <button type="submit" class="btn btn-primary mt-3 mb-5" th:if="${userAbleToChangeEmail}">
-        Change email
+        <span th:text="#{templates.user.profile.change.button}">
+          Change email
+        </span>
       </button>
     </form>
 
