@@ -52,6 +52,14 @@ public class PasswordChangeController extends UiController {
 
   private final DomainUserService domainUserService;
 
+  /**
+   * Instantiates a new password change controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   */
   public PasswordChangeController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -61,22 +69,44 @@ public class PasswordChangeController extends UiController {
     this.domainUserService = domainUserService;
   }
 
+  /**
+   * Gets password pattern.
+   *
+   * @return the password pattern
+   */
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
     return getDomainService().getPasswordInformation().getPasswordRegex();
   }
 
+  /**
+   * Gets password description.
+   *
+   * @return the password description
+   */
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
     return getDomainService().getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
+  /**
+   * Display change password.
+   *
+   * @return the string
+   */
   @GetMapping(path = {"/passwd", "/passwd/"})
   public String displayChangePassword() {
     return "redirect:/passwd/password-change";
   }
 
+  /**
+   * Display change password.
+   *
+   * @param username the username
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/passwd/password-change")
   public String displayChangePassword(
       @RequestParam(value = "username", required = false) String username,
@@ -93,6 +123,15 @@ public class PasswordChangeController extends UiController {
     return HTML_TEMPLATE;
   }
 
+  /**
+   * Change password.
+   *
+   * @param changePasswordModel the change password model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
   @PostMapping(path = "/passwd/password-change")
   public String changePassword(
       @ModelAttribute(name = "changePasswordModel") PasswordChangeModel changePasswordModel,
