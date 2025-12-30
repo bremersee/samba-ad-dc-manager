@@ -59,7 +59,7 @@
   <div th:if="${computer != null}">
     <div class="row mb-4">
       <div class="col-1">
-        <a class="btn btn-outline-secondary" href="computers.html" th:title="#{templates.management.edit.label}"
+        <a class="btn btn-outline-secondary" href="computers.html"
            th:href="@{computers(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
             <span style="display: none;">Back</span>
@@ -81,7 +81,7 @@
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a class="nav-link" href="computer-edit.html"
+        <a class="nav-link" href="computer-edit.html" th:title="#{templates.management.edit.label}"
            th:href="@{computer-edit(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-computer" aria-hidden="true">
             <span style="display: none;">Edit</span>
@@ -89,7 +89,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#">
+        <a class="nav-link active" aria-current="page" href="#" th:title="#{templates.management.memberships.label}">
           <span class="fa fa-folder-tree" aria-hidden="true">
             <span style="display: none;">Memberships</span>
           </span>
