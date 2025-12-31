@@ -29,7 +29,7 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * The type MustacheTemplateEngine.
+ * The mustache template engine.
  *
  * @author Christian Bremer
  */
@@ -52,12 +52,15 @@ public class MustacheTemplateEngine implements TemplateEngine {
     if (isEmpty(template) || (!template.contains("{{") && !template.contains("}}"))) {
       return template;
     }
-    Map<String, Object> map = isEmpty(model) ? new HashMap<>() : new HashMap<>(model);
+    Map<String, Object> map = new HashMap<>();
     if (!isEmpty(contextSuppliers)) {
       contextSuppliers.forEach(contextSupplier -> map
           .putAll(contextSupplier.getTemplateEngineContext()));
     }
     map.put("properties", properties);
+    if (!isEmpty(model)) {
+      map.putAll(model);
+    }
 
     try {
       return Mustache
