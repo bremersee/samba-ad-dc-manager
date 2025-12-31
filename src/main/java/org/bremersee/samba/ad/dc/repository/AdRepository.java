@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
@@ -65,7 +65,7 @@ public abstract class AdRepository implements ErrorCode {
   private final DnTool dnTool;
 
   @Getter(AccessLevel.PROTECTED)
-  private final LdaptiveTemplate ldapTemplate;
+  private final LdaptiveOperations ldapOperations;
 
   @Getter(AccessLevel.PROTECTED)
   private final Predicate<String> ignoredDnFilter;
@@ -80,16 +80,16 @@ public abstract class AdRepository implements ErrorCode {
    * Instantiates a new common repository.
    *
    * @param properties the properties
-   * @param ldapTemplate the ldap template
+   * @param ldapOperations the ldap operations
    */
   protected AdRepository(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate) {
+      LdaptiveOperations ldapOperations) {
 
     Assert.notNull(properties, "Domain controller properties must be present.");
     this.properties = properties;
     this.dnTool = new DefaultDnTool(properties);
-    this.ldapTemplate = ldapTemplate;
+    this.ldapOperations = ldapOperations;
     this.ignoredDnFilter = dn -> !DnTool.isValidDn(dn) || Arrays
         .stream(IGNORED_DN)
         .map(this.dnTool::addBaseDn)
@@ -138,7 +138,7 @@ public abstract class AdRepository implements ErrorCode {
         new String[]{AdConstants.OBJECT_CLASS.getName()},
         new PresenceFilter(AdConstants.OBJECT_CLASS.getName()));
     log.debug("dnExistsWithAnyObjectClass, searchRequest = {}", searchRequest);
-    return getLdapTemplate().findOne(searchRequest)
+    return getLdapOperations().findOne(searchRequest)
         .filter(getIgnoredEntryFilter())
         .map(ldapEntry -> {
           Set<String> wantedObjectClasses = Stream.ofNullable(objectClasses)

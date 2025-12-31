@@ -28,7 +28,7 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.AbstractLdaptiveErrorHandler;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
@@ -74,15 +74,15 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
    * Instantiates a new domain user repository.
    *
    * @param properties the properties
-   * @param ldapTemplate the ldap template
+   * @param ldapOperations the ldap operations
    * @param domainRepository the domain repository
    */
   public DomainUserRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       DomainRepository domainRepository,
       SambaToolUser domainUserTool) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.domainRepository = domainRepository;
     this.domainUserTool = domainUserTool;
     this.domainUserLdapMapper = new DomainUserLdapMapper(this.domainRepository::isRfc2307Enabled);
@@ -163,7 +163,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         getFindAllFilter(query),
         scope,
         getReturnAttributes());
-    return getLdapTemplate()
+    return getLdapOperations()
         .findAll(searchRequest, domainUserLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
   }
@@ -173,7 +173,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     log.debug("findOne({})", userName);
     SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);
     SearchRequest searchRequest = searchOneRequest(userName, ou, scope);
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest, domainUserLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
   }
@@ -216,7 +216,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(getReturnAttributes())
         .build();
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest, domainUserLdapMapper)
         .filter(getIgnoredObjectFilter());
   }
@@ -258,7 +258,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .scope(SearchScope.SUBTREE)
         .returnAttributes(AdConstants.OBJECT_CLASS.getName())
         .build();
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest)
         .filter(getIgnoredEntryFilter())
         .isPresent();
@@ -311,7 +311,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     domainUserTool
         .addUser(domainUser, userOu, useUsernameAsCn, domainRepository.isRfc2307Enabled());
     return findDnOfSamAccount(domainUser)
-        .map(dn -> getLdapTemplate()
+        .map(dn -> getLdapOperations()
             .save(domainUser.withDistinguishedName(dn), domainUserLdapMapper))
         .map(newUser -> {
           if (!isEmpty(clearPassword)) {
@@ -384,7 +384,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     domainUserTool.renameAndMoveUser(existingDomainUser, domainUser, newDn);
     return findDnOfSamAccount(domainUser)
         .map(domainUser::withDistinguishedName)
-        .map(user -> getLdapTemplate().save(user, domainUserLdapMapper))
+        .map(user -> getLdapOperations().save(user, domainUserLdapMapper))
         .orElseThrow(() -> ServiceException.internalServerError(
             String.format("Updating user '%s' failed.", userName),
             EC_UPDATING_USER_FAILED));
@@ -436,7 +436,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .dn(dn)
         .modifications(attributeModification)
         .build();
-    getLdapTemplate()
+    getLdapOperations()
         .copy(new AbstractLdaptiveErrorHandler() {
           @Override
           public LdaptiveException map(LdapException ldapException) {

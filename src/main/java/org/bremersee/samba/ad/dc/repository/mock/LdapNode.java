@@ -1,7 +1,7 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.util.List;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.ldaptive.serializable.SerLdapEntry;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
@@ -17,7 +17,7 @@ import org.springframework.util.ObjectUtils;
 
 public class LdapNode extends LdapEntry {
 
-  LdaptiveTemplate ldapTemplate;
+  LdaptiveOperations ldapOperations;
 
   private LdapEntry parent;
 

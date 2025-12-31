@@ -21,7 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
@@ -52,11 +52,11 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
 
   public DnsEntryRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       DomainRepository domainRepository,
       DnsZoneRepository dnsZoneRepository,
       SambaToolDns dnsTool) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.domainRepository = domainRepository;
     this.dnsZoneRepository = dnsZoneRepository;
     this.dnsTool = dnsTool;
@@ -77,7 +77,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
     String[] returnAttributes = adEntryMapper.getMappedAttributeNames();
     SearchRequest searchRequest = SearchRequest
         .objectScopeSearchRequest(dn.format(), returnAttributes);
-    return getLdapTemplate().findOne(searchRequest)
+    return getLdapOperations().findOne(searchRequest)
         .map(ldapEntry -> DnsEntry.builder()
             .from(entry).from(adEntryMapper.map(ldapEntry))
             .build())
@@ -122,7 +122,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
     log.debug("deleteDnsEntryConflict({})", entry);
     Dn dn = new Dn("DC=" + entry.getName());
     dn.add(dnsZoneRepository.getDnsZone(entry.getZoneName()).getDn());
-    getLdapTemplate().delete(DeleteRequest.builder()
+    getLdapOperations().delete(DeleteRequest.builder()
         .dn(dn.format())
         .build());
   }

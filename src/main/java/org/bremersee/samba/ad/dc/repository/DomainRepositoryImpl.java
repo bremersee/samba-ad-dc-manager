@@ -21,7 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
@@ -56,10 +56,10 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
    */
   public DomainRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       HostNameSupplier hostNameSupplier,
       SambaToolDomain domainTool) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.hostName = properties.getDomain().getHostName();
     this.hostNameSupplier = hostNameSupplier;
     this.domainTool = domainTool;
@@ -81,7 +81,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     String[] returnAttributes = new String[]{
         attrName
     };
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(SearchRequest.objectScopeSearchRequest(baseDn, returnAttributes))
         .map(ldapEntry -> ldapEntry.getAttribute(attrName))
         .map(LdapAttribute::getBinaryValue)

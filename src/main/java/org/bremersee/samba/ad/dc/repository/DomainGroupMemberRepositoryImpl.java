@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
@@ -73,13 +73,13 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
    * Instantiates a new domain group repository.
    *
    * @param properties the properties
-   * @param ldapTemplate the ldap template
+   * @param ldapOperations the ldap operations
    */
   public DomainGroupMemberRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       DomainGroupRepository domainGroupRepository) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.domainGroupRepository = domainGroupRepository;
     this.domainGroupMemberLdapMapper = new DomainGroupMemberLdapMapper();
   }
@@ -141,7 +141,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
       Filter filter = new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName);
       searchRequest = searchOneRequest(samAccountName, ouDn, filter, scope, returnAttributes);
     }
-    return getLdapTemplate().findOne(searchRequest)
+    return getLdapOperations().findOne(searchRequest)
         .filter(getIgnoredEntryFilter(ou, TreeSearchScopeConverter.toSearchScope(searchScope)))
         .map(domainGroupMemberLdapMapper::map);
   }
@@ -212,7 +212,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     }
     SearchRequest searchRequest = searchAllRequest(getDnTool().getBaseDn(),
         findAllMembersFilter, SearchScope.SUBTREE, returnAttributes);
-    return getLdapTemplate().findAll(searchRequest)
+    return getLdapOperations().findAll(searchRequest)
         .stream()
         .filter(getIgnoredEntryFilter())
         .map(domainGroupMemberLdapMapper::map)

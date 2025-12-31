@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
@@ -57,10 +57,10 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
   OrganizationalUnitRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper,
       SambaToolOu sambaToolOu) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.ouLdapMapper = ouLdapMapper;
     this.sambaToolOu = sambaToolOu;
   }
@@ -99,7 +99,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(getReturnAttributes())
         .build();
-    return getLdapTemplate().findAll(searchRequest, ouLdapMapper)
+    return getLdapOperations().findAll(searchRequest, ouLdapMapper)
         .filter(getIgnoredObjectFilter());
   }
 
@@ -109,7 +109,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
         .objectScopeSearchRequest(
             getDnTool().addBaseDn(AdConstants.BASE_DN_COMPUTERS).format(),
             getReturnAttributes());
-    Stream<OrganizationalUnit> stream = getLdapTemplate()
+    Stream<OrganizationalUnit> stream = getLdapOperations()
         .findOne(computersSearchRequest, ouLdapMapper)
         .stream();
 
@@ -119,7 +119,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
             getReturnAttributes());
     stream = Stream.concat(
         stream,
-        getLdapTemplate().findOne(usersSearchRequest, ouLdapMapper).stream());
+        getLdapOperations().findOne(usersSearchRequest, ouLdapMapper).stream());
 
     return Stream.concat(stream, findCustomOus());
   }
@@ -134,7 +134,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     log.debug("findOne, dn = {}", dn);
     SearchRequest searchRequest = SearchRequest.objectScopeSearchRequest(dn, getReturnAttributes(),
         objectClassFilter());
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest, ouLdapMapper);
   }
 
@@ -158,7 +158,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
         .scope(SearchScope.SUBTREE)
         .returnAttributes(AdConstants.DN.getName())
         .build();
-    return !getLdapTemplate().findAll(searchRequest).isEmpty();
+    return !getLdapOperations().findAll(searchRequest).isEmpty();
   }
 
   Dn validateParentOu(Dn ou) {
@@ -167,7 +167,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
       throw badRequest("Organizational unit cannot be empty.", EC_EMPTY_OU_RDN);
     }
     Dn dn = getDnTool().addBaseDn(ouDn);
-    if (!getLdapTemplate().exists(dn.format())) {
+    if (!getLdapOperations().exists(dn.format())) {
       throw badRequest(
           String.format("Organizational unit '%s' does not exist.", ouDn.format()),
           EC_OU_NOT_FOUND);
@@ -228,7 +228,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
             EC_OU_NOT_FOUND));
 
     if (existing.isSystemOu()) {
-      return getLdapTemplate().save(
+      return getLdapOperations().save(
           OrganizationalUnit.builder()
               .from(existing)
               .description(organizationalUnit.getDescription())
@@ -273,7 +273,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
             .from(ou)
             .description(organizationalUnit.getDescription())
             .build())
-        .map(ou -> getLdapTemplate().save(ou, ouLdapMapper))
+        .map(ou -> getLdapOperations().save(ou, ouLdapMapper))
         .orElseThrow(() -> ServiceException.internalServerError(
             String.format(
                 "Updating organization unit '%s' failed.",

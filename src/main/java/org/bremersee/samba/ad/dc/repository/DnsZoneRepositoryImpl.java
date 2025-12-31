@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DnsZoneRepositoryImpl implements DnsZoneRepository {
 
-  private final LdaptiveTemplate ldapTemplate;
+  private final LdaptiveOperations ldapOperations;
 
   private final DomainRepository domainRepository;
 
@@ -50,10 +50,10 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
   private final SambaToolDns dnsTool;
 
   public DnsZoneRepositoryImpl(
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       DomainRepository domainRepository,
       SambaToolDns dnsTool) {
-    this.ldapTemplate = ldapTemplate;
+    this.ldapOperations = ldapOperations;
     this.domainRepository = domainRepository;
     this.dnsTool = dnsTool;
     this.adEntryMapper = new AdEntryLdapMapper();
@@ -78,7 +78,7 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
   private Optional<DnsZone> doFindDnsZone(String zoneName) {
     return dnsTool.findDnsZone(getHostName(), zoneName)
         .map(zone -> findLdapEntryOfDnsZone(zone.getDistinguishedName())
-            .map(ldapEntry ->  DnsZone.builder()
+            .map(ldapEntry -> DnsZone.builder()
                 .from(zone)
                 .from(adEntryMapper.map(ldapEntry))
                 .build())
@@ -88,7 +88,7 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
   private Optional<LdapEntry> findLdapEntryOfDnsZone(String dn) {
     SearchRequest searchRequest = SearchRequest.objectScopeSearchRequest(dn,
         adEntryMapper.getMappedAttributeNames());
-    return ldapTemplate.findOne(searchRequest);
+    return ldapOperations.findOne(searchRequest);
   }
 
   @CachePut(value = "dnsZoneCache", key = "{ #result.name }")

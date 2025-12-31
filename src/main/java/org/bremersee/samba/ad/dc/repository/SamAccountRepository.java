@@ -25,7 +25,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.SamAccount;
 import org.ldaptive.LdapEntry;
@@ -57,12 +57,12 @@ public abstract class SamAccountRepository extends AdRepository {
    * Instantiates a new sam account repository.
    *
    * @param properties the properties
-   * @param ldapTemplate the ldap template
+   * @param ldapOperations the ldap operations
    */
   protected SamAccountRepository(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate) {
-    super(properties, ldapTemplate);
+      LdaptiveOperations ldapOperations) {
+    super(properties, ldapOperations);
     this.newSamAccountNamePattern = Pattern
         .compile(getProperties().getUser().getNewSamAccountNameRegex());
     this.emailPattern = getProperties().getEmail().getEmailRegexFlags()
@@ -213,7 +213,7 @@ public abstract class SamAccountRepository extends AdRepository {
       return Optional.empty();
     }
     String[] returnAttributes = new String[]{AdConstants.DN.getName()};
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchOneRequest(samAccountName, returnAttributes))
         .map(LdapEntry::getDn)
         .filter(getIgnoredDnFilter());

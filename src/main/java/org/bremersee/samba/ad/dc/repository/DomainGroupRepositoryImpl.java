@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
@@ -63,14 +63,14 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
    * Instantiates a new domain group repository.
    *
    * @param properties the properties
-   * @param ldapTemplate the ldap template
+   * @param ldapOperations the ldap operations
    */
   public DomainGroupRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       DomainRepository domainRepository,
       SambaToolGroup domainGroupTool) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.domainRepository = domainRepository;
     this.domainGroupTool = domainGroupTool;
     this.domainGroupLdapMapper = new DomainGroupLdapMapper(this.domainRepository::isRfc2307Enabled);
@@ -121,7 +121,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         getFindAllFilter(query),
         scope,
         getReturnAttributes());
-    return getLdapTemplate()
+    return getLdapOperations()
         .findAll(searchRequest, domainGroupLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
   }
@@ -130,7 +130,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   public Optional<DomainGroup> findOne(String groupName, Dn ou, TreeSearchScope searchScope) {
     SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);
     SearchRequest searchRequest = searchOneRequest(groupName, ou, scope);
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest, domainGroupLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
   }
@@ -151,7 +151,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               .binaryAttributes(getBinaryAttributes())
               .returnAttributes(getReturnAttributes())
               .build();
-          return getLdapTemplate()
+          return getLdapOperations()
               .findOne(searchRequest, domainGroupLdapMapper)
               .filter(getIgnoredObjectFilter());
         });
@@ -171,7 +171,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               .binaryAttributes(getBinaryAttributes())
               .returnAttributes(getReturnAttributes())
               .build();
-          return getLdapTemplate()
+          return getLdapOperations()
               .findOne(searchRequest, domainGroupLdapMapper)
               .filter(getIgnoredObjectFilter());
         });
@@ -190,7 +190,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
               .scope(SearchScope.SUBTREE)
               .returnAttributes(AdConstants.GID_NUMBER.getName())
               .build();
-          return getLdapTemplate()
+          return getLdapOperations()
               .findOne(searchRequest)
               .filter(getIgnoredEntryFilter())
               .isPresent();
@@ -216,7 +216,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
     Dn newOu = DnTool.isValidDn(ou) ? ou : getDefaultOu();
     domainGroupTool.addGroup(domainGroup, newOu, domainRepository.isRfc2307Enabled());
     return findDnOfSamAccount(domainGroup)
-        .map(dn -> getLdapTemplate()
+        .map(dn -> getLdapOperations()
             .save(
                 domainGroup.withDistinguishedName(dn),
                 domainGroupLdapMapper))
@@ -265,7 +265,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
             .distinguishedName(dn)
             .members(existingDomainGroup.getMembers())
             .build())
-        .map(group -> getLdapTemplate().save(group, domainGroupLdapMapper))
+        .map(group -> getLdapOperations().save(group, domainGroupLdapMapper))
         .orElseThrow(() -> ServiceException.internalServerError(
             String.format("Updating group '%s' failed.", groupName),
             EC_UPDATING_GROUP_FAILED));
@@ -306,7 +306,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
 
   @Override
   public DomainGroup save(DomainGroup domainGroup) {
-    return getLdapTemplate().save(domainGroup, domainGroupLdapMapper);
+    return getLdapOperations().save(domainGroup, domainGroupLdapMapper);
   }
 
 }

@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
@@ -44,10 +44,10 @@ public class AvatarRepositoryImpl extends SamAccountRepository
 
   AvatarRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveTemplate ldapTemplate,
+      LdaptiveOperations ldapOperations,
       List<AvatarProvider> avatarProviders,
       ImageTool imageTool) {
-    super(properties, ldapTemplate);
+    super(properties, ldapOperations);
     this.avatarProviders = avatarProviders;
     this.imageTool = imageTool;
   }
@@ -183,7 +183,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
         filter,
         scope);
     log.debug("findAvatar, searchRequest = {}", searchRequest);
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest)
         .filter(getIgnoredEntryFilter(ou, scope));
   }
@@ -213,7 +213,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
               .dn(dn)
               .modifications(mod)
               .build();
-          getLdapTemplate().modify(modifyRequest);
+          getLdapOperations().modify(modifyRequest);
         },
         () -> {
           throw ServiceException.notFoundWithErrorCode(

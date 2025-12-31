@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
-import org.bremersee.ldaptive.LdaptiveTemplate;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
@@ -38,8 +38,8 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
   DomainComputerRepositoryImpl(
       ApplicationProperties properties,
       SambaToolComputer domainComputerTool,
-      LdaptiveTemplate ldapTemplate) {
-    super(properties, ldapTemplate);
+      LdaptiveOperations ldapOperations) {
+    super(properties, ldapOperations);
     this.domainComputerLdapMapper = new DomainComputerLdapMapper();
     this.domainComputerTool = domainComputerTool;
   }
@@ -96,7 +96,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
         getFindAllFilter(query),
         scope,
         getReturnAttributes());
-    return getLdapTemplate()
+    return getLdapOperations()
         .findAll(searchRequest, domainComputerLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
   }
@@ -113,7 +113,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
     SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);
     SearchRequest searchRequest = searchOneRequest(samAccountName, ou, scope);
     log.debug("findOne, searchRequest = {}", searchRequest);
-    return getLdapTemplate()
+    return getLdapOperations()
         .findOne(searchRequest, domainComputerLdapMapper)
         .filter(getIgnoredObjectFilter(ou, scope));
   }
@@ -143,7 +143,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
         .distinguishedName(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
         .description(domainComputer.getDescription())
         .build();
-    return getLdapTemplate().save(newComputer, domainComputerLdapMapper);
+    return getLdapOperations().save(newComputer, domainComputerLdapMapper);
   }
 
   @Override

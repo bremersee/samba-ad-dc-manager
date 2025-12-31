@@ -156,7 +156,7 @@ bremersee:
           base-dn: ${LDAP_BASE_DN:${bremersee.domain-controller.user-base-dn}}
   authentication:
     remember-me:
-      key: "M#iyRKR@ZoLAN!rSxhT%dM636!y"
+      key: "M#iyRKR@ZoLAN!rSxhT%dM636!y2"
     ldaptive:
       template: active_directory
       user-base-dn: ${LDAP_USER_BASE_DN:${bremersee.domain-controller.user-base-dn}}
