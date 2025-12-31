@@ -19,12 +19,19 @@ package org.bremersee.samba.ad.dc.misc;
 import java.util.Map;
 
 /**
- * The interface TemplateEngine.
+ * The template engine for templated properties and url parameters.
  *
  * @author Christian Bremer
  */
 public interface TemplateEngine {
 
+  /**
+   * Compiles and executes the given template with the given model.
+   *
+   * @param template the template
+   * @param model the model
+   * @return the result
+   */
   String compileAndExecute(String template, Map<String, Object> model);
 
 }
