@@ -131,7 +131,7 @@ public abstract class SamAccountRepository extends AdRepository {
             .orElse(SearchScope.SUBTREE))
         .binaryAttributes(getBinaryAttributes())
         .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)
-        .sizeLimit(2)
+        .sizeLimit(1)
         .build();
   }
 
