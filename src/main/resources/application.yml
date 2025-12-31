@@ -49,7 +49,7 @@ spring:
   mail:
     host: smtp.mail.me.com
     port: 587
-    test-connection: true
+    test-connection: false
     properties:
       mail.smtp.starttls.enable: true
 
@@ -115,31 +115,16 @@ bremersee:
 spring:
   config:
     activate:
-      on-profile: mock
-
-bremersee:
-  domain-controller:
-    host-name: localhost
-
----
-
-spring:
-  config:
-    activate:
       on-profile: in-memory
 
   security:
     user:
       name: testuser
-      password: changeit
+      password: change-it
       roles:
         - "LOCAL_USER"
         - "ADMIN"
-        - "ACTUATOR_ADMINS"
-
-bremersee:
-  domain-controller:
-    host-name: localhost
+        - "ACTUATOR_ADMIN"
 
 ---
 
