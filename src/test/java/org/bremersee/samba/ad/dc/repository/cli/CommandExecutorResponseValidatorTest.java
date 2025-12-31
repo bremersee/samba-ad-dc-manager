@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.tools.cli;
+package org.bremersee.samba.ad.dc.repository.cli;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

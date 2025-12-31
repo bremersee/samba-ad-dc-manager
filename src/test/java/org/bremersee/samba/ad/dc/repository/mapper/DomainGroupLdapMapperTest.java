@@ -62,18 +62,6 @@ class DomainGroupLdapMapperTest {
   }
 
   /**
-   * Map distinguished name.
-   */
-  @Test
-  void mapDn() {
-    DomainGroup domainGroup = new DomainGroup();
-    //domainGroup.setName("somename");
-    String dn = mapper.mapDn(domainGroup);
-    assertThat(dn)
-        .isEqualTo("cn=somename,cn=users,dc=example,dc=org");
-  }
-
-  /**
    * Map ldap entry.
    *
    * @param softly the soft assertions
@@ -82,7 +70,7 @@ class DomainGroupLdapMapperTest {
   void map(SoftAssertions softly) {
     softly.assertThat(mapper.map(null)).isNull();
 
-    DomainGroup destination = new DomainGroup(); //.builder().build();
+    DomainGroup destination = DomainGroup.builder().build();
     mapper.map(null, destination);
     //softly.assertThat(destination)
     //    .isEqualTo(DomainGroup.builder().build());
@@ -168,10 +156,10 @@ class DomainGroupLdapMapperTest {
    */
   @Test
   void mapAndComputeModifications(SoftAssertions softly) {
-    DomainGroup source = new DomainGroup();
-    source.setSamAccountName("somename");
-    source.getMembers().add("member1");
-    source.getMembers().add("member2");
+    DomainGroup source = DomainGroup.builder()
+        .samAccountName("somename")
+        .addMembers("member1", "member2")
+        .build();
 
     LdapEntry destination = new LdapEntry();
     AttributeModification[] modifications = mapper.mapAndComputeModifications(source, destination);

@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.repository.tools;
+package org.bremersee.samba.ad.dc.repository;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.tools.cli.parser;
+package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.junit.jupiter.api.Test;
 
 /**

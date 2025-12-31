@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
-import org.bremersee.samba.ad.dc.repository.tools.ImageToolAwt;
 import org.junit.jupiter.api.Test;
 
 /**

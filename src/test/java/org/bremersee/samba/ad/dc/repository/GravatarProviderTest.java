@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Optional;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ class GravatarProviderTest {
   /**
    * The Target.
    */
-  static final GravatarProvider target = new GravatarProvider(new DomainControllerProperties());
+  static final GravatarProvider target = new GravatarProvider(new ApplicationProperties());
 
   /**
    * Find avatar.

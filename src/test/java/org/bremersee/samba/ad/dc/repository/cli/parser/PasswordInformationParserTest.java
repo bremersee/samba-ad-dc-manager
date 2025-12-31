@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.tools.cli.parser;
+package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.ACCOUNT_LOCKOUT_DURATION;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.ACCOUNT_LOCKOUT_THRESHOLD;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.MAXIMUM_PASSWORD_AGE;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.MINIMUM_PASSWORD_AGE;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.MINIMUM_PASSWORD_LENGTH;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.PASSWORD_COMPLEXITY;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.PASSWORD_HISTORY_LENGTH;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.RESET_ACCOUNT_LOCKOUT_AFTER;
-import static org.bremersee.samba.ad.dc.repository.tools.cli.parser.PasswordInformationParser.Default.STORE_PLAINTEXT_PASSWORD;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.ACCOUNT_LOCKOUT_DURATION;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.ACCOUNT_LOCKOUT_THRESHOLD;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.MAXIMUM_PASSWORD_AGE;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.MINIMUM_PASSWORD_AGE;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.MINIMUM_PASSWORD_LENGTH;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.PASSWORD_COMPLEXITY;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.PASSWORD_HISTORY_LENGTH;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.RESET_ACCOUNT_LOCKOUT_AFTER;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.STORE_PLAINTEXT_PASSWORD;
 
 import org.bremersee.samba.ad.dc.model.PasswordComplexity;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.bremersee.samba.ad.dc.repository.tools.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,7 +47,7 @@ class PasswordInformationParserTest {
   @Test
   void parseEmptyPasswordInformation() {
     CommandExecutorResponse response = new CommandExecutorResponse(null, null);
-    PasswordInformation expected = new PasswordInformation();
+    PasswordInformation expected = PasswordInformation.builder().build();
     PasswordInformation actual = parser.parse(response);
     assertThat(actual)
         .isEqualTo(expected);

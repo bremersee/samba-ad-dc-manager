@@ -193,7 +193,7 @@ public abstract class AdConstants {
       true,
       ValueTranscoderFactory.getByteArrayValueTranscoder());
 
-  private static class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
+  static class SidValueTranscoder extends AbstractBinaryValueTranscoder<Sid> {
 
     @Override
     public Sid decodeBinaryValue(byte[] value) {

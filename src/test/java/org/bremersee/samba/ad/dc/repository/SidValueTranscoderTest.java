@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.transcoder;
+package org.bremersee.samba.ad.dc.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.bremersee.samba.ad.dc.model.Sid;
+import org.bremersee.samba.ad.dc.repository.AdConstants.SidValueTranscoder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -51,7 +52,7 @@ class SidValueTranscoderTest {
         .extracting(Sid::getValue)
         .isEqualTo(expected);
     softly.assertThat(actual)
-        .extracting(Sid::getSystemEntity)
+        .extracting(Sid::isSystemEntity)
         .isEqualTo(Boolean.TRUE);
 
     expected = "S-1-5-21-2180863875-316980752-2664318683-1101";
@@ -64,7 +65,7 @@ class SidValueTranscoderTest {
         .extracting(Sid::getValue)
         .isEqualTo(expected);
     softly.assertThat(actual)
-        .extracting(Sid::getSystemEntity)
+        .extracting(Sid::isSystemEntity)
         .isEqualTo(Boolean.FALSE);
 
     expected = "S-1-5-22-2180863875-316980752-2664318683-1101";
@@ -77,7 +78,7 @@ class SidValueTranscoderTest {
         .extracting(Sid::getValue)
         .isEqualTo(expected);
     softly.assertThat(actual)
-        .extracting(Sid::getSystemEntity)
+        .extracting(Sid::isSystemEntity)
         .isEqualTo(Boolean.TRUE);
   }
 

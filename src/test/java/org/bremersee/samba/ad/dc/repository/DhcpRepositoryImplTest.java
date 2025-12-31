@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
 import java.util.List;
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.bremersee.samba.ad.dc.repository.tools.cli.parser.DhcpLeaseParser;
+import org.bremersee.samba.ad.dc.repository.cli.parser.DhcpLeaseParser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class DhcpRepositoryImplTest {
         + "\n";
     String lines = line0 + line1;
     DhcpLeaseParser parser = DhcpLeaseParser.defaultParser();
-    DomainControllerProperties properties = new DomainControllerProperties();
+    ApplicationProperties properties = new ApplicationProperties();
     DhcpRepositoryImpl repo = new DhcpRepositoryImpl(null);
     /*
     repo.setParser(parser);

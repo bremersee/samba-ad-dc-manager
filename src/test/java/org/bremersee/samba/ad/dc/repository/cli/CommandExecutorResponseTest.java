@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.repository.tools.cli;
+package org.bremersee.samba.ad.dc.repository.cli;
 
 import java.util.UUID;
 import org.assertj.core.api.SoftAssertions;
@@ -41,8 +41,8 @@ class CommandExecutorResponseTest {
     CommandExecutorResponse model = new CommandExecutorResponse(stdout, null);
     softly.assertThat(model.getStdout())
         .isEqualTo(stdout);
-    softly.assertThat(model.stdoutHasText())
-        .isTrue();
+    softly.assertThat(model.stdoutHasNoText())
+        .isFalse();
     softly.assertThat(model.stderrHasText())
         .isFalse();
     softly.assertThat(model.toOneLine())
@@ -70,8 +70,8 @@ class CommandExecutorResponseTest {
         .isEqualTo(stderr);
     softly.assertThat(model.stderrHasText())
         .isTrue();
-    softly.assertThat(model.stdoutHasText())
-        .isFalse();
+    softly.assertThat(model.stdoutHasNoText())
+        .isTrue();
     softly.assertThat(model.toOneLine())
         .isEqualTo("stderr=[" + stderr + "]");
 
@@ -93,7 +93,7 @@ class CommandExecutorResponseTest {
     String stderr = UUID.randomUUID().toString();
     CommandExecutorResponse model = new CommandExecutorResponse(stdout, stderr);
     softly.assertThat(model.toOneLine())
-        .isEqualTo("stdout=[" + stdout + "] stderr=[" + stderr + "]");
+        .isEqualTo("stdout=[" + stdout + "], stderr=[" + stderr + "]");
 
     String line1 = UUID.randomUUID().toString();
     String line2 = UUID.randomUUID().toString();
@@ -101,7 +101,7 @@ class CommandExecutorResponseTest {
     String line4 = UUID.randomUUID().toString();
     model = new CommandExecutorResponse(line1 + "\n" + line2, line3 + "\n" + line4);
     softly.assertThat(model.toOneLine())
-        .isEqualTo("stdout=[" + line1 + " | " + line2 + "] stderr=[" + line3 + " | " + line4 + "]");
+        .isEqualTo("stdout=[" + line1 + " | " + line2 + "], stderr=[" + line3 + " | " + line4 + "]");
   }
 
   /**
@@ -115,7 +115,7 @@ class CommandExecutorResponseTest {
     String stderr = UUID.randomUUID().toString();
     CommandExecutorResponse model = new CommandExecutorResponse(stdout, stderr);
     softly.assertThat(CommandExecutorResponse.toExceptionMessage(model))
-        .isEqualTo("stdout=[" + stdout + "] stderr=[" + stderr + "]");
+        .isEqualTo("stdout=[" + stdout + "], stderr=[" + stderr + "]");
     softly.assertThat(CommandExecutorResponse.toExceptionMessage(null))
         .isEqualTo("");
   }

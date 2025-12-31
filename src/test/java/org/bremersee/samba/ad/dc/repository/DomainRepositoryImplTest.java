@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-import org.bremersee.samba.ad.dc.config.DomainControllerProperties;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -43,7 +43,7 @@ class DomainRepositoryImplTest {
    */
   @BeforeAll
   static void init() {
-    DomainControllerProperties properties = new DomainControllerProperties();
+    ApplicationProperties properties = new ApplicationProperties();
 
     repository = null;
   }
