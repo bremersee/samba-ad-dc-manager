@@ -437,7 +437,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .modifications(attributeModification)
         .build();
     getLdapTemplate()
-        .clone(new AbstractLdaptiveErrorHandler() {
+        .copy(new AbstractLdaptiveErrorHandler() {
           @Override
           public LdaptiveException map(LdapException ldapException) {
             HttpStatus httpStatus;
