@@ -25,8 +25,6 @@
 
     <start-class>org.bremersee.samba.ad.dc.Application</start-class>
 
-    <dc-con-api-spring.version>3.0.0-SNAPSHOT</dc-con-api-spring.version>
-
     <!--suppress UnresolvedMavenProperty -->
     <debBaseName>
       dc-con_${project.version}-${maven.build.timestamp}+${buildNumber}_all
@@ -189,29 +187,6 @@
     </dependency>
    -->
 
-    <!--
-    <dependency>
-      <groupId>org.bremersee</groupId>
-      <artifactId>common-base-web-starter</artifactId>
-      <version>${common-base.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bremersee</groupId>
-      <artifactId>common-base-webmvc-starter</artifactId>
-      <version>${common-base.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bremersee</groupId>
-      <artifactId>common-base-security-starter</artifactId>
-      <version>${common-base.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bremersee</groupId>
-      <artifactId>common-base-thymeleaf-starter</artifactId>
-      <version>${common-base.version}</version>
-    </dependency>
-    -->
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-mail</artifactId>
@@ -230,17 +205,6 @@
       <artifactId>ehcache</artifactId>
       <classifier>jakarta</classifier>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>javax.cache</groupId>
-      <artifactId>cache-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <classifier>jakarta</classifier>
-    </dependency>
-    -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>

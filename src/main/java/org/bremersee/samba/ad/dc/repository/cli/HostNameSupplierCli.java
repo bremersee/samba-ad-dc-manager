@@ -20,7 +20,10 @@ public class HostNameSupplierCli extends CommandExecutor implements HostNameSupp
 
   @Override
   public String getHostName() {
-    log.debug("getHostName()");
+    if (isEmpty(getProperties().getCli().getHostnameBinary())) {
+      log.warn("HostnameBinary is not set. Returning 'localhost'.");
+      return "localhost";
+    }
     List<String> commands = new ArrayList<>(2);
     commands.add(getProperties().getCli().getHostnameBinary());
     if (!isEmpty(getProperties().getCli().getHostnameOptions())) {
@@ -28,6 +31,5 @@ public class HostNameSupplierCli extends CommandExecutor implements HostNameSupp
     }
     return executeAndGet(commands, HostNameParser.defaultParser());
   }
-
 
 }
