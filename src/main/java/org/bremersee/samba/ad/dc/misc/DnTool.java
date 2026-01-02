@@ -17,6 +17,12 @@ public interface DnTool {
   RDnNormalizer CASE_SENSITIVE_RDN_NORMALIZER = new DefaultRDnNormalizer(
       new DefaultAttributeValueEscaper(), name -> name, value -> value);
 
+  static String toString(Dn dn) {
+    return Optional.ofNullable(dn)
+        .map(d -> d.format(CASE_SENSITIVE_RDN_NORMALIZER))
+        .orElse("null");
+  }
+
   static boolean isValidDn(String dn) {
     try {
       return Optional.ofNullable(dn)
@@ -126,7 +132,7 @@ public interface DnTool {
 
   static Dn replaceAncestor(Dn dn, Dn ancestor, Dn newAncestor) {
     Dn newDn = removeAncestor(dn, ancestor);
-    if (isValidDn(newAncestor)) {
+    if (isValidDn(newAncestor) && !dn.isSame(newDn)) {
       newDn.add(newAncestor);
     }
     return newDn;

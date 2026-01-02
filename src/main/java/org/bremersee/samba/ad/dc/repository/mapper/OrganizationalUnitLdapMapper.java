@@ -116,7 +116,7 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
     var modifications = new ArrayList<>(Arrays.asList(adEntryLdapMapper
         .mapAndComputeModifications(source, destination)));
     AdConstants.DESCRIPTION
-        .setValue(destination, source.getName())
+        .setValue(destination, source.getDescription())
         .ifPresent(modifications::add);
     boolean isSystemOu = AdConstants.IS_CRITICAL_SYSTEM_OBJECT
         .getValue(destination, source.isSystemOu())

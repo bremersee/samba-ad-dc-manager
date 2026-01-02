@@ -3,13 +3,16 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveException;
@@ -17,6 +20,8 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
@@ -35,6 +40,7 @@ import org.springframework.util.Assert;
 
 @Component
 @Profile("mock")
+@Slf4j
 class SambaStore {
 
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
@@ -50,9 +56,12 @@ class SambaStore {
 
   private final LdapNode root;
 
+  private final Map<DnsZone, List<DnsEntry>> dns;
+
   SambaStore(ApplicationProperties properties) {
     this.dnTool = new DefaultDnTool(properties);
     this.root = new LdapNode(properties.getBaseDn());
+    this.dns = new HashMap<>();
     AdConstants.OBJECT_CLASS.setValues(root, List.of(
         "domain", "domainDNS", "top"
     ));
@@ -60,6 +69,7 @@ class SambaStore {
     AdConstants.OBJECT_SID.setValue(this.root, Sid.builder()
         .value(DOMAIN_SID)
         .build());
+    log.info("Base entry {}.", root.getDn());
     new SambaStoreInit(this).init();
   }
 
@@ -96,11 +106,15 @@ class SambaStore {
   }
 
   synchronized Optional<LdapNode> findByDn(String dn) {
+    log.info("find by dn: {}", dn);
     if (!dnTool.isValidDnWithBaseDn(dn)) {
       return Optional.empty();
     }
     if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
-      return Optional.of(new LdapNode(dn));
+      log.info("ypservers requested");
+      LdapNode ypServers = new LdapNode(dn);
+      AdConstants.OBJECT_CLASS.setValues(ypServers, List.of("container", "top"));
+      return Optional.of(ypServers);
     }
     return findByDn(root, dn);
   }
@@ -119,6 +133,7 @@ class SambaStore {
   }
 
   synchronized List<LdapEntry> find(SearchRequest request) {
+    log.info("find request: {}", request);
     List<LdapEntry> response = new ArrayList<>();
     if (isEmpty(request) || isEmpty(request.getBaseDn())) {
       return response;
@@ -128,6 +143,7 @@ class SambaStore {
       return response;
     }
     LdapNode node = foundNode.get();
+    log.info("request filter: {}", request.getFilter());
     if (node.matches(request.getFilter())) {
       response.add(node);
     }
@@ -156,14 +172,15 @@ class SambaStore {
 
   synchronized void add(LdapEntry entry) {
     Assert.notNull(entry, "Ldap entry must not be null.");
+    log.info("Adding entry: {}", entry.getDn());
     Assert.isTrue(dnTool.isValidDnWithBaseDn(entry.getDn()), "Dn is invalid.");
     findByDn(new Dn(entry.getDn()).getParent().format()).ifPresentOrElse(
         parentNode -> new LdapNode(entry, parentNode),
         () -> {
-          throw LdaptiveException.builder()
-              .reason("Parent not found.")
-              .errorCode(ErrorCode.EC_OU_NOT_FOUND)
-              .build();
+          throw ServiceException.notFoundWithErrorCode(
+              OrganizationalUnit.class.getSimpleName(),
+              new Dn(entry.getDn()).getParent().format(),
+              ErrorCode.EC_OU_NOT_FOUND);
         });
   }
 
@@ -180,10 +197,10 @@ class SambaStore {
       return Optional.of(validatedDn);
     }
     LdapNode newParent = findByDn(newValidatedParentDn.format())
-        .orElseThrow(() -> LdaptiveException.builder()
-            .reason("New parent not found.")
-            .errorCode(ErrorCode.EC_OU_NOT_FOUND)
-            .build());
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            OrganizationalUnit.class.getSimpleName(),
+            newValidatedParentDn.format(),
+            ErrorCode.EC_OU_NOT_FOUND));
     return findByDn(validatedDn.format())
         .map(node -> {
           node.getParent().removeChild(node);
@@ -217,9 +234,11 @@ class SambaStore {
   private Optional<Dn> rename(Dn dn, String newName) {
     return findByDn(dn.format())
         .map(entry -> {
+          log.debug("Renaming dn [{}] to [{}]", dn.format(), newName);
           String rdnType = dn.getRDn().getNameValue().getName();
           RDn rdn = new RDn(new NameValue(rdnType, newName));
           Dn newDn = Dn.builder().add(rdn).add(dn.getParent()).build();
+          log.debug("Renaming dn [{}] to [{}]", dn.format(), newDn.format());
           entry.setDn(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
           AdConstants.DN.setValue(entry, newDn);
           return newDn;
@@ -240,6 +259,11 @@ class SambaStore {
   synchronized Dn renameOrganizationalUnit(Dn ouDn, String newName) {
     String dn = ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
     return rename(ouDn, newName)
+        .flatMap(newDn -> findByDn(newDn.format()))
+        .map(node -> {
+          AdConstants.NAME.setValue(node, newName);
+          return new Dn(node.getDn());
+        })
         .map(newDn -> {
           onOrganizationalUnitDnChange(ouDn, newDn);
           return newDn;
@@ -273,6 +297,7 @@ class SambaStore {
   }
 
   private void onOrganizationalUnitDnChange(Dn oldDn, Dn newDn) {
+    log.debug("on ou dn change [{}] to [{}]", DnTool.toString(oldDn), DnTool.toString(newDn));
     modifyAll(
         entry -> onOrganizationalUnitDnChange(entry, oldDn, newDn),
         entry -> true);
@@ -287,8 +312,11 @@ class SambaStore {
   }
 
   private void onOrganizationalUnitDnChange(LdapEntry entry, Dn oldDn, Dn newDn) {
+    log.debug("on ou dn change [{}] to [{}]: checking entry [{}]",
+        DnTool.toString(oldDn), DnTool.toString(newDn), entry.getDn());
     Dn entryDn = new Dn(entry.getDn());
     Dn newEntryDn = DnTool.replaceAncestor(entryDn, oldDn, newDn);
+    log.debug("on ou dn change old [{}] -> new [{}]", entry.getDn(), DnTool.toString(newEntryDn));
     entry.setDn(newEntryDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
     AdConstants.DN.setValue(entry, newEntryDn);
   }

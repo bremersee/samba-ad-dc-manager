@@ -115,16 +115,21 @@ bremersee:
 spring:
   config:
     activate:
-      on-profile: in-memory
+      on-profile: mock
 
   security:
     user:
-      name: testuser
+      name: Administrator
       password: change-it
       roles:
         - "LOCAL_USER"
         - "ADMIN"
         - "ACTUATOR_ADMIN"
+bremersee:
+  domain-controller:
+    base-dn: dc=samdom,dc=example,dc=org
+    domain:
+      host-name: dc1
 
 ---
 

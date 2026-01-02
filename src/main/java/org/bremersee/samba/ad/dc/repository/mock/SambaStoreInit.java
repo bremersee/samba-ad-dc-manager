@@ -1,12 +1,14 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 
+@Slf4j
 class SambaStoreInit {
 
   private final SambaStore store;
@@ -285,10 +287,10 @@ class SambaStoreInit {
     AdConstants.USER_DISPLAY_NAME.setValue(node, "Domain Administrator");
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);
     AdConstants.MEMBER_OF_GROUP.setValues(node, List.of(
-        Dn.builder().add("Domain Admins").add(getUsersDn()).build(),
-        Dn.builder().add("Enterprise Admins").add(getUsersDn()).build(),
-        Dn.builder().add("Group Policy Creator Owners").add(getUsersDn()).build(),
-        Dn.builder().add("Schema Admins").add(getUsersDn()).build()
+        Dn.builder().add("CN=Domain Admins").add(getUsersDn()).build(),
+        Dn.builder().add("CN=Enterprise Admins").add(getUsersDn()).build(),
+        Dn.builder().add("CN=Group Policy Creator Owners").add(getUsersDn()).build(),
+        Dn.builder().add("CN=Schema Admins").add(getUsersDn()).build()
     ));
     return node;
   }
@@ -311,7 +313,7 @@ class SambaStoreInit {
   private LdapEntry createDomainController() {
     LdapEntry node = entryFactory.newComputerEntry(
         "DC1",
-        null,
+        getDomainControllersDn(),
         516,
         store.getNextSid());
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);

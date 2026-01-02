@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNullElseGet;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
@@ -24,7 +25,7 @@ class LdapEntryFactory {
     Dn dn = new Dn(rdn);
     dn.add(store.getDnTool().addBaseDn(parentDn));
     LdapEntry entry = new LdapEntry();
-    entry.setDn(rdn);
+    entry.setDn(dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
     AdConstants.DN.setValue(entry, dn);
     OffsetDateTime now = OffsetDateTime.now();
     AdConstants.WHEN_CREATED.setValue(entry, now);

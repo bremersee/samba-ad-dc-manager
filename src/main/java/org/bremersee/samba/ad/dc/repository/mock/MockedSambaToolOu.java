@@ -1,6 +1,7 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.samba.ad.dc.repository.SambaToolOu;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
@@ -29,6 +30,7 @@ class MockedSambaToolOu implements SambaToolOu {
       LdapEntry entry = ldapEntryFactory.newOrganizationalUnitEntry(
           ou.getName(),
           parentDn);
+      AdConstants.DESCRIPTION.setValue(entry,  ou.getDescription());
       store.add(entry);
     });
   }

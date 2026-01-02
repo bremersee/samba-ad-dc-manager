@@ -141,6 +141,7 @@ public abstract class AdRepository implements ErrorCode {
     return getLdapOperations().findOne(searchRequest)
         .filter(getIgnoredEntryFilter())
         .map(ldapEntry -> {
+          log.info("dnExistsWithAnyObjectClass found entry = {}", ldapEntry.getDn());
           Set<String> wantedObjectClasses = Stream.ofNullable(objectClasses)
               .flatMap(Arrays::stream)
               .filter(cls -> !isEmpty(cls))
