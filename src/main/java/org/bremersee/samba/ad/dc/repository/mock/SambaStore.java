@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.samba.ad.dc.ErrorCode;
@@ -17,6 +18,7 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
@@ -24,6 +26,8 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -43,7 +47,6 @@ class SambaStore {
 
   private PasswordInformation passwordInformation;
 
-  @Getter
   private final LdapNode root;
 
   SambaStore(ApplicationProperties properties) {
@@ -81,10 +84,6 @@ class SambaStore {
     return passwordInformation;
   }
 
-  boolean isRfc2307Enabled() {
-    return true;
-  }
-
   Sid getNextSid() {
     return getSid(sidPostfix.getAndIncrement());
   }
@@ -98,6 +97,9 @@ class SambaStore {
   synchronized Optional<LdapNode> findByDn(String dn) {
     if (!dnTool.isValidDnWithBaseDn(dn)) {
       return Optional.empty();
+    }
+    if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
+      return Optional.of(new LdapNode(dn));
     }
     return findByDn(root, dn);
   }
@@ -164,72 +166,157 @@ class SambaStore {
         });
   }
 
-  synchronized void move(String dn, String newParentDn) {
+  private Optional<Dn> move(String dn, String newParentDn) {
     if (!DnTool.isValidDn(dn) || !DnTool.isValidDn(newParentDn)) {
-      return;
+      return Optional.empty();
     }
     Dn validatedDn = dnTool.addBaseDn(dn);
     Dn newValidatedParentDn = dnTool.addBaseDn(newParentDn);
     if (DnTool.isSameDn(newValidatedParentDn, validatedDn.getParent())) {
-      return;
+      return Optional.empty();
     }
     LdapNode newParent = findByDn(newValidatedParentDn.format())
         .orElseThrow(() -> LdaptiveException.builder()
             .reason("New parent not found.")
             .errorCode(ErrorCode.EC_OU_NOT_FOUND)
             .build());
-    findByDn(validatedDn.format()).ifPresentOrElse(
-        node -> {
+    return findByDn(validatedDn.format())
+        .map(node -> {
           node.getParent().removeChild(node);
           newParent.addChild(node);
           Dn newDn = new Dn(validatedDn.getRDn());
           newDn.add(newValidatedParentDn);
           node.setDn(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
           AdConstants.DN.setValue(node, newDn);
-          List<LdaptiveAttribute<Dn>> attrList = List.of(
-              AdConstants.GROUP_MEMBER,
-              AdConstants.MEMBER_OF_GROUP);
-          for (LdaptiveAttribute<Dn> attr : attrList) {
-            modifyAll(
-                entry -> {
-                  List<Dn> list = attr.getValues(entry)
-                      .map(e -> {
-                        if (DnTool.isSameDn(validatedDn, e)) {
-                          return newDn;
-                        }
-                        return e;
-                      })
-                      .toList();
-                  attr.setValues(entry, list);
-                },
-                attr::exists);
-          }
-        },
-        () -> {
-          throw LdaptiveException.builder()
-              .reason("Entry not found.")
-              .errorCode(ErrorCode.EC_ILLEGAL_DN)
-              .build();
+          return newDn;
         });
+  }
+
+  synchronized void moveEntry(String dn, String newParentDn) {
+    Dn validatedDn = dnTool.addBaseDn(dn);
+    move(dn, newParentDn)
+        .ifPresent(newDn -> onEntryDnChange(validatedDn, newDn));
+  }
+
+  synchronized Dn moveOrganizationalUnit(Dn ouDn, Dn newParentOu) {
+    Dn parentOu = dnTool.addBaseDn(newParentOu);
+    String dn = ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+    String parentDn = parentOu.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+    return move(dn, parentDn)
+        .map(newDn -> {
+          onOrganizationalUnitDnChange(ouDn, newDn);
+          return newDn;
+        })
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            OrganizationalUnit.class.getSimpleName(), dn, ErrorCode.EC_OU_NOT_FOUND));
+  }
+
+  private Optional<Dn> rename(Dn dn, String newName) {
+    return findByDn(dn.format())
+        .map(entry -> {
+          String rdnType = dn.getRDn().getNameValue().getName();
+          RDn rdn = new RDn(new NameValue(rdnType, newName));
+          Dn newDn = Dn.builder().add(rdn).add(dn.getParent()).build();
+          entry.setDn(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
+          AdConstants.DN.setValue(entry, newDn);
+          return newDn;
+        });
+  }
+
+  synchronized Dn renameEntry(Dn dn, String newName) {
+    String dnStr = dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+    return rename(dn, newName)
+        .map(newDn -> {
+          onEntryDnChange(dn, newDn);
+          return newDn;
+        })
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            OrganizationalUnit.class.getSimpleName(), dnStr, ErrorCode.EC_OU_NOT_FOUND));
+  }
+
+  synchronized Dn renameOrganizationalUnit(Dn ouDn, String newName) {
+    String dn = ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+    return rename(ouDn, newName)
+        .map(newDn -> {
+          onOrganizationalUnitDnChange(ouDn, newDn);
+          return newDn;
+        })
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            OrganizationalUnit.class.getSimpleName(), dn, ErrorCode.EC_OU_NOT_FOUND));
   }
 
   synchronized void remove(String dn) {
     findByDn(dn).ifPresent(node -> {
       node.getParent().getChildren().remove(node);
-      List<LdaptiveAttribute<Dn>> attrList = List.of(
-          AdConstants.GROUP_MEMBER,
-          AdConstants.MEMBER_OF_GROUP);
-      for (LdaptiveAttribute<Dn> attr : attrList) {
-        modifyAll(
-            entry -> {
-              List<Dn> list = attr.getValues(entry)
-                  .filter(e -> !DnTool.isSameDn(e, dn))
-                  .toList();
-              attr.setValues(entry, list);
-            },
-            attr::exists);
-      }
+      onEntryDnChange(new Dn(dn), null);
     });
+  }
+
+  private void onEntryDnChange(Dn oldDn, Dn newDn) {
+    List<LdaptiveAttribute<Dn>> attrList = List.of(
+        AdConstants.GROUP_MEMBER,
+        AdConstants.MEMBER_OF_GROUP);
+    for (LdaptiveAttribute<Dn> attr : attrList) {
+      modifyAll(
+          entry -> {
+            List<Dn> list = attr.getValues(entry)
+                .map(e -> {
+                  if (DnTool.isSameDn(oldDn, e)) {
+                    return newDn;
+                  }
+                  return e;
+                })
+                .filter(dn -> !isEmpty(dn))
+                .toList();
+            attr.setValues(entry, list);
+          },
+          attr::exists);
+    }
+
+  }
+
+  private void onOrganizationalUnitDnChange(Dn oldDn, Dn newDn) {
+    modifyAll(
+        entry -> onOrganizationalUnitDnChange(entry, oldDn, newDn),
+        entry -> true);
+    List<LdaptiveAttribute<Dn>> attrList = List.of(
+        AdConstants.GROUP_MEMBER,
+        AdConstants.MEMBER_OF_GROUP);
+    for (LdaptiveAttribute<Dn> attr : attrList) {
+      modifyAll(
+          entry -> onOrganizationalUnitDnChange(entry, attr, oldDn, newDn),
+          attr::exists);
+    }
+  }
+
+  private void onOrganizationalUnitDnChange(LdapEntry entry, Dn oldDn, Dn newDn) {
+    String entryDnNormalized = new Dn(entry.getDn()).format();
+    String oldDnNormalized = oldDn.format();
+    if (entryDnNormalized.endsWith(oldDnNormalized)) {
+      String newEntryDn = new Dn(entry.getDn()).format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+      newEntryDn = newEntryDn.substring(0, newEntryDn.length() - oldDnNormalized.length());
+      newEntryDn = newEntryDn + newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+      entry.setDn(newEntryDn);
+      AdConstants.DN.setValue(entry, new Dn(newEntryDn));
+    }
+  }
+
+  private void onOrganizationalUnitDnChange(
+      LdapEntry entry, LdaptiveAttribute<Dn> attr, Dn oldDn, Dn newDn) {
+    List<Dn> newValues = attr.getValues(entry)
+        .map(dn -> {
+          String dnNormalized = dn.format();
+          String oldDnNormalized = oldDn.format();
+          if (dnNormalized.endsWith(oldDnNormalized)) {
+            String newEntryDn = dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+            newEntryDn = newEntryDn.substring(0, newEntryDn.length() - oldDnNormalized.length());
+            newEntryDn = newEntryDn + newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+            return new Dn(newEntryDn);
+          }
+          return dn;
+        })
+        .toList();
+    attr.setValues(entry, newValues);
   }
 
   private void modifyAll(Consumer<LdapEntry> modification, Predicate<LdapEntry> condition) {

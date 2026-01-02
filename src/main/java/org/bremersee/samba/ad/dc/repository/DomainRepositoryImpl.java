@@ -91,7 +91,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
 
   @Override
   public boolean isRfc2307Enabled() {
-    Dn dn = new Dn("CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System");
+    Dn dn = new Dn(AdConstants.YELLOW_PAGES);
     dn.add(getDnTool().getBaseDn());
     boolean result = dnExistsWithAnyObjectClass(dn.format());
     log.debug("isRfc2307Enabled() {}", result);

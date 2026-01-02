@@ -12,11 +12,11 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class LdapEntryFactory {
+class LdapEntryFactory {
 
   private final SambaStore store;
 
-  public LdapEntryFactory(SambaStore store) {
+  LdapEntryFactory(SambaStore store) {
     this.store = store;
   }
 

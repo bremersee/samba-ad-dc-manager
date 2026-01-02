@@ -33,6 +33,8 @@ public abstract class AdConstants {
 
   public static final Dn BASE_DN_USERS = new Dn("CN=Users");
 
+  public static final String YELLOW_PAGES = "CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System";
+
   public static final LdaptiveAttribute<Dn> DN = define(
       "distinguishedName",
       false,

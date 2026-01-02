@@ -17,8 +17,7 @@ import org.ldaptive.dn.RDn;
 import org.springframework.stereotype.Component;
 
 @Component
-class SambaToolOuCli extends SambaToolCli
-    implements SambaToolOu {
+class SambaToolOuCli extends SambaToolCli implements SambaToolOu {
 
   SambaToolOuCli(ApplicationProperties properties) {
     super(properties);
