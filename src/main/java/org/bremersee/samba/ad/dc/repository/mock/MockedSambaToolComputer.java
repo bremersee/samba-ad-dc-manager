@@ -24,9 +24,7 @@ class MockedSambaToolComputer implements SambaToolComputer {
   @Override
   public void moveComputer(DomainComputer domainComputer, Dn newOu) {
     if (!isEmpty(domainComputer) && DnTool.isValidDn(newOu)) {
-      store.moveEntry(
-          domainComputer.getDistinguishedName(),
-          newOu.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
+      store.moveEntry(domainComputer.getDn(), newOu);
     }
   }
 

@@ -45,16 +45,21 @@ class MockedSambaToolGroup implements SambaToolGroup {
     Dn groupDn;
     if (!oldDomainGroup.getSamAccountName().equals(newDomainGroup.getSamAccountName())) {
       groupDn = store.renameEntry(
-          new Dn(oldDomainGroup.getDistinguishedName()),
+          oldDomainGroup.getDn(),
           newDomainGroup.getSamAccountName());
     } else {
-      groupDn = new Dn(oldDomainGroup.getDistinguishedName());
+      groupDn = oldDomainGroup.getDn();
     }
     store.findByDn(groupDn.format()).ifPresent(node -> {
       AdConstants.SAM_ACCOUNT_NAME.setValue(node, newDomainGroup.getSamAccountName());
       AdConstants.NAME.setValue(node, newDomainGroup.getSamAccountName());
       AdConstants.NIS_NAME.setValue(node, newDomainGroup.getSamAccountName());
-      store.moveEntry(node.getDn(), newDn.getParent().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
+      if (DnTool.isValidDn(newDn)) {
+        Dn newParentDn = store.getDnTool().addBaseDn(newDn.getParent());
+        if (!groupDn.getParent().equals(newParentDn)) {
+          store.moveEntry(groupDn, newParentDn);
+        }
+      }
     });
   }
 

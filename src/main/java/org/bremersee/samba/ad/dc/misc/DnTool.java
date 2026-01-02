@@ -111,6 +111,27 @@ public interface DnTool {
     return dn;
   }
 
+  static Dn removeAncestor(Dn dn, Dn ancestor) {
+    if (!isValidDn(dn) || !isValidDn(ancestor)) {
+      return dn;
+    }
+    if (ancestor.isSame(dn)) {
+      return new Dn("");
+    }
+    if (ancestor.isAncestor(dn)) {
+      return dn.subDn(0, dn.size() - ancestor.size());
+    }
+    return dn;
+  }
+
+  static Dn replaceAncestor(Dn dn, Dn ancestor, Dn newAncestor) {
+    Dn newDn = removeAncestor(dn, ancestor);
+    if (isValidDn(newAncestor)) {
+      newDn.add(newAncestor);
+    }
+    return newDn;
+  }
+
   static DnPair getDnPair(String dn) {
     if (isValidDn(dn)) {
       return getDnPair(new Dn(dn));

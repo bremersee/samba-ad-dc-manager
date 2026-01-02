@@ -29,6 +29,7 @@ import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.NameValue;
 import org.ldaptive.dn.RDn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -166,14 +167,17 @@ class SambaStore {
         });
   }
 
-  private Optional<Dn> move(String dn, String newParentDn) {
-    if (!DnTool.isValidDn(dn) || !DnTool.isValidDn(newParentDn)) {
+  private Optional<Dn> move(Dn dn, Dn newParentDn) {
+    if (!DnTool.isValidDn(dn)) {
       return Optional.empty();
+    }
+    if (!DnTool.isValidDn(newParentDn)) {
+      return Optional.of(dn);
     }
     Dn validatedDn = dnTool.addBaseDn(dn);
     Dn newValidatedParentDn = dnTool.addBaseDn(newParentDn);
     if (DnTool.isSameDn(newValidatedParentDn, validatedDn.getParent())) {
-      return Optional.empty();
+      return Optional.of(validatedDn);
     }
     LdapNode newParent = findByDn(newValidatedParentDn.format())
         .orElseThrow(() -> LdaptiveException.builder()
@@ -192,23 +196,22 @@ class SambaStore {
         });
   }
 
-  synchronized void moveEntry(String dn, String newParentDn) {
+  synchronized void moveEntry(Dn dn, Dn newParentDn) {
     Dn validatedDn = dnTool.addBaseDn(dn);
     move(dn, newParentDn)
         .ifPresent(newDn -> onEntryDnChange(validatedDn, newDn));
   }
 
   synchronized Dn moveOrganizationalUnit(Dn ouDn, Dn newParentOu) {
-    Dn parentOu = dnTool.addBaseDn(newParentOu);
-    String dn = ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-    String parentDn = parentOu.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-    return move(dn, parentDn)
+    return move(ouDn, newParentOu)
         .map(newDn -> {
           onOrganizationalUnitDnChange(ouDn, newDn);
           return newDn;
         })
         .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
-            OrganizationalUnit.class.getSimpleName(), dn, ErrorCode.EC_OU_NOT_FOUND));
+            OrganizationalUnit.class.getSimpleName(),
+            Optional.ofNullable(ouDn).map(Dn::format).orElse("null"),
+            ErrorCode.EC_OU_NOT_FOUND));
   }
 
   private Optional<Dn> rename(Dn dn, String newName) {
@@ -252,7 +255,7 @@ class SambaStore {
     });
   }
 
-  private void onEntryDnChange(Dn oldDn, Dn newDn) {
+  private void onEntryDnChange(Dn oldDn, @Nullable Dn newDn) {
     List<LdaptiveAttribute<Dn>> attrList = List.of(
         AdConstants.GROUP_MEMBER,
         AdConstants.MEMBER_OF_GROUP);
@@ -260,19 +263,13 @@ class SambaStore {
       modifyAll(
           entry -> {
             List<Dn> list = attr.getValues(entry)
-                .map(e -> {
-                  if (DnTool.isSameDn(oldDn, e)) {
-                    return newDn;
-                  }
-                  return e;
-                })
-                .filter(dn -> !isEmpty(dn))
+                .map(dn -> DnTool.replaceAncestor(dn, oldDn, newDn))
+                .filter(dn -> !isEmpty(dn) && !dn.isEmpty())
                 .toList();
             attr.setValues(entry, list);
           },
           attr::exists);
     }
-
   }
 
   private void onOrganizationalUnitDnChange(Dn oldDn, Dn newDn) {
@@ -290,31 +287,16 @@ class SambaStore {
   }
 
   private void onOrganizationalUnitDnChange(LdapEntry entry, Dn oldDn, Dn newDn) {
-    String entryDnNormalized = new Dn(entry.getDn()).format();
-    String oldDnNormalized = oldDn.format();
-    if (entryDnNormalized.endsWith(oldDnNormalized)) {
-      String newEntryDn = new Dn(entry.getDn()).format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-      newEntryDn = newEntryDn.substring(0, newEntryDn.length() - oldDnNormalized.length());
-      newEntryDn = newEntryDn + newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-      entry.setDn(newEntryDn);
-      AdConstants.DN.setValue(entry, new Dn(newEntryDn));
-    }
+    Dn entryDn = new Dn(entry.getDn());
+    Dn newEntryDn = DnTool.replaceAncestor(entryDn, oldDn, newDn);
+    entry.setDn(newEntryDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
+    AdConstants.DN.setValue(entry, newEntryDn);
   }
 
   private void onOrganizationalUnitDnChange(
       LdapEntry entry, LdaptiveAttribute<Dn> attr, Dn oldDn, Dn newDn) {
     List<Dn> newValues = attr.getValues(entry)
-        .map(dn -> {
-          String dnNormalized = dn.format();
-          String oldDnNormalized = oldDn.format();
-          if (dnNormalized.endsWith(oldDnNormalized)) {
-            String newEntryDn = dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-            newEntryDn = newEntryDn.substring(0, newEntryDn.length() - oldDnNormalized.length());
-            newEntryDn = newEntryDn + newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-            return new Dn(newEntryDn);
-          }
-          return dn;
-        })
+        .map(dn -> DnTool.replaceAncestor(dn, oldDn, newDn))
         .toList();
     attr.setValues(entry, newValues);
   }
