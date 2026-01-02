@@ -1,5 +1,7 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 import java.time.OffsetDateTime;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveErrorHandler;
@@ -7,10 +9,14 @@ import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AddRequest;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.AttributeModification.Type;
 import org.ldaptive.BindRequest;
 import org.ldaptive.CompareRequest;
 import org.ldaptive.ConnectionFactory;
 import org.ldaptive.DeleteRequest;
+import org.ldaptive.LdapAttribute;
+import org.ldaptive.LdapEntry;
 import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.SearchRequest;
@@ -75,7 +81,37 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modify(ModifyRequest request) {
-    // nothing to do, only for passwords
+    store.findByDn(request.getDn())
+        .ifPresent(node -> modify(node, request.getModifications()));
+  }
+
+  private void modify(LdapEntry entry, AttributeModification[] modifications) {
+    if (!isEmpty(modifications)) {
+      for (AttributeModification modification : modifications) {
+        modify(entry, modification);
+      }
+    }
+  }
+
+  private void modify(LdapEntry entry, AttributeModification modification) {
+    LdapAttribute attr = modification.getAttribute();
+    Type type = modification.getOperation();
+    if (Type.ADD.equals(type) || Type.REPLACE.equals(type)) {
+      addAttribute(entry, attr);
+    } else if (Type.DELETE.equals(type)) {
+      removeAttribute(entry, attr);
+    }
+  }
+
+  private void removeAttribute(LdapEntry entry, LdapAttribute attr) {
+    if (entry.hasAttribute(attr.getName())) {
+      entry.removeAttribute(attr.getName());
+    }
+  }
+
+  private void addAttribute(LdapEntry entry, LdapAttribute attr) {
+    removeAttribute(entry, attr);
+    entry.addAttributes(attr);
   }
 
   @Override
