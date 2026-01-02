@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Christian Bremer
  */
-@ConfigurationProperties(prefix = "bremersee.domain-controller")
+@ConfigurationProperties(prefix = "bremersee.dc")
 @Component
 @Getter
 @Setter

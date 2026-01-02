@@ -8,7 +8,7 @@ bremersee:
     pooled: ${LDAP_POOLED:false}
     connection-validator:
       search-request:
-        base-dn: ${bremersee.domain-controller.base-dn}
+        base-dn: ${bremersee.dc.base-dn}
     connection-pool:
       min-pool-size: 3
       max-pool-size: 10
@@ -17,13 +17,13 @@ bremersee:
       validate-periodically: true
       validator:
         search-request:
-          base-dn: ${bremersee.domain-controller.base-dn}
+          base-dn: ${bremersee.dc.base-dn}
   authentication:
     remember-me:
       key: ${LDAP_REMEMBER_ME:${spring.application.name}}
     ldaptive:
       template: active_directory
-      user-base-dn: ${bremersee.domain-controller.base-dn}
+      user-base-dn: ${bremersee.dc.base-dn}
       user-find-one-search-scope: subtree
       role-prefix: "ROLE_"
       role-case-transformation: to_upper_case
@@ -39,7 +39,7 @@ bremersee:
           target: "ROLE_ADMIN"
         - source: "samba-admins"
           target: "ROLE_ADMIN"
-  domain-controller:
+  dc:
     base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
     company-name: ${COMPANY_NAME:}
     company-url: ${COMPANY_URL:}
@@ -134,7 +134,7 @@ spring:
         - "ADMIN"
         - "ACTUATOR_ADMIN"
 bremersee:
-  domain-controller:
+  dc:
     base-dn: dc=samdom,dc=example,dc=org
 
 ---
@@ -147,7 +147,7 @@ spring:
 bremersee:
   ldaptive:
     ldap-url: ${LDAP_URL:ldaps://localhost:636}
-  domain-controller:
+  dc:
     cli:
       ssh:
         using-ssh: false
@@ -162,7 +162,7 @@ spring:
 bremersee:
   ldaptive:
     ldap-url: ${LDAP_URL:ldaps://dc1.eixe.bremersee.org:636}
-  domain-controller:
+  dc:
     cli:
       ssh:
         using-ssh: true
@@ -181,7 +181,7 @@ spring:
     properties:
       mail.smtp.starttls.enable: true
 bremersee:
-  domain-controller:
+  dc:
     email:
       sender: christian@bremersee.org
 
