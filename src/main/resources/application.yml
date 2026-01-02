@@ -1,4 +1,51 @@
 bremersee:
+  ldaptive:
+    ldaptive-template-class: org.bremersee.ldaptive.LdaptiveSambaTemplate
+    immutable: true
+    use-start-tls: ${LDAP_START_TLS:false}
+    bind-dn: ${LDAP_BIND_DN:Administrator}
+    bind-credentials: ${LDAP_BIND_PASSWORD:changeit}
+    pooled: ${LDAP_POOLED:false}
+    connection-validator:
+      search-request:
+        base-dn: ${bremersee.domain-controller.base-dn}
+    connection-pool:
+      min-pool-size: 3
+      max-pool-size: 10
+      validate-on-check-in: false
+      validate-on-check-out: false
+      validate-periodically: true
+      validator:
+        search-request:
+          base-dn: ${bremersee.domain-controller.base-dn}
+  authentication:
+    remember-me:
+      key: ${LDAP_REMEMBER_ME:${spring.application.name}}
+    ldaptive:
+      template: active_directory
+      user-base-dn: ${bremersee.domain-controller.base-dn}
+      user-find-one-search-scope: subtree
+      role-prefix: "ROLE_"
+      role-case-transformation: to_upper_case
+      role-string-replacements:
+        - regex: "[- ]"
+          replacement: "_"
+        - regex: "_ADMINS"
+          replacement: "_ADMIN"
+      default-roles:
+        - "ROLE_LOCAL_USER"
+      role-mapping:
+        - source: "Domain Admins"
+          target: "ROLE_ADMIN"
+        - source: "samba-admins"
+          target: "ROLE_ADMIN"
+  domain-controller:
+    base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
+    company-name: ${COMPANY_NAME:}
+    company-url: ${COMPANY_URL:}
+    cli:
+      samba-tool-credentials-options: "-UAdministrator --password='${bremersee.ldaptive.bind-credentials}'"
+
   exception-mapping:
     api-paths:
       - /api/**
@@ -16,19 +63,13 @@ bremersee:
       argument-separator: ","
       chain-separator: ";"
 
-  domain-controller:
-    company-name: ${COMPANY_NAME:bremersee.org}
-    # company-url: ${COMPANY_URL:https://bremersee.org}
-    base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
-    user-base-dn: ${LDAP_USER_DN:cn=users,dc=eixe,dc=bremersee,dc=org}
-
 eureka:
   client:
     enabled: false
 
 spring:
   profiles:
-    default: mock,in-memory
+    default: mock
   application:
     name: ${APPLICATION_NAME:samba-ad-dc-manager}
   cache:
@@ -46,12 +87,6 @@ spring:
         max-interval: ${CONFIG_RETRY_MAX_INTERVAL:4000}
         max-attempts: ${CONFIG_RETRY_MAX_ATTEMPTS:8}
         multiplier: ${CONFIG_RETRY_MULTIPLIER:1.1}
-  mail:
-    host: smtp.mail.me.com
-    port: 587
-    test-connection: false
-    properties:
-      mail.smtp.starttls.enable: true
 
   messages:
     use-code-as-default-message: true
@@ -88,6 +123,73 @@ logging:
 spring:
   config:
     activate:
+      on-profile: mock
+
+  security:
+    user:
+      name: Administrator
+      password: mock
+      roles:
+        - "LOCAL_USER"
+        - "ADMIN"
+        - "ACTUATOR_ADMIN"
+bremersee:
+  domain-controller:
+    base-dn: dc=samdom,dc=example,dc=org
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+bremersee:
+  ldaptive:
+    ldap-url: ${LDAP_URL:ldaps://localhost:636}
+  domain-controller:
+    cli:
+      ssh:
+        using-ssh: false
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: remote
+
+bremersee:
+  ldaptive:
+    ldap-url: ${LDAP_URL:ldaps://dc1.eixe.bremersee.org:636}
+  domain-controller:
+    cli:
+      ssh:
+        using-ssh: true
+        ssh-command: ${SSH_COMMAND:ssh root@dc1}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mail
+  mail:
+    host: smtp.mail.me.com
+    port: 587
+    test-connection: false
+    properties:
+      mail.smtp.starttls.enable: true
+bremersee:
+  domain-controller:
+    email:
+      sender: christian@bremersee.org
+
+---
+
+spring:
+  config:
+    activate:
       on-profile: jwt
   security:
     oauth2:
@@ -115,92 +217,6 @@ bremersee:
 spring:
   config:
     activate:
-      on-profile: mock
-
-  security:
-    user:
-      name: Administrator
-      password: change-it
-      roles:
-        - "LOCAL_USER"
-        - "ADMIN"
-        - "ACTUATOR_ADMIN"
-bremersee:
-  domain-controller:
-    base-dn: dc=samdom,dc=example,dc=org
-    domain:
-      host-name: dc1
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: ldap
-
-bremersee:
-  ldaptive:
-    ldaptive-template-class: org.bremersee.ldaptive.LdaptiveSambaTemplate
-    immutable: true
-    ldap-url: ${LDAP_URL:ldaps://dc1.eixe.bremersee.org:636}
-    use-start-tls: ${LDAP_START_TLS:false}
-    bind-dn: ${LDAP_BIND_DN:admin@example.org}
-    bind-credentials: ${LDAP_BIND_PASSWORD:changeit}
-    pooled: ${LDAP_POOLED:false}
-    connection-validator:
-      search-request:
-        base-dn: ${LDAP_BASE_DN:${bremersee.domain-controller.user-base-dn}}
-    connection-pool:
-      min-pool-size: 3
-      max-pool-size: 10
-      validate-on-check-in: false
-      validate-on-check-out: false
-      validate-periodically: true
-      validator:
-        search-request:
-          base-dn: ${LDAP_BASE_DN:${bremersee.domain-controller.user-base-dn}}
-  authentication:
-    remember-me:
-      key: "M#iyRKR@ZoLAN!rSxhT%dM636!y2"
-    ldaptive:
-      template: active_directory
-      user-base-dn: ${LDAP_USER_BASE_DN:${bremersee.domain-controller.user-base-dn}}
-      role-prefix: "ROLE_"
-      role-case-transformation: to_upper_case
-      role-string-replacements:
-        - regex: "[- ]"
-          replacement: "_"
-        - regex: "_ADMINS"
-          replacement: "_ADMIN"
-      default-roles:
-        - "ROLE_LOCAL_USER"
-      role-mapping:
-        - source: "Domain Admins"
-          target: "ROLE_ADMIN"
-        - source: "samba-admins"
-          target: "ROLE_ADMIN"
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: cli
-
-bremersee:
-  domain-controller:
-    cli:
-      samba-tool-credentials-options: "-UAdministrator --password='${bremersee.ldaptive.bind-credentials}'"
-      #samba-tool-credentials-options: "--simple-bind-dn='${bremersee.ldaptive.bind-dn}' --password='${bremersee.ldaptive.bind-credentials}'"
-      ssh:
-        using-ssh: true
-        ssh-command: ${SSH_COMMAND:ssh root@dc1}
-
----
-
-spring:
-  config:
-    activate:
       on-profile: debian
 
 logging:
@@ -216,4 +232,3 @@ server:
       enabled: true
       directory: /var/log/dc-con
       prefix: access_log
-
