@@ -61,7 +61,8 @@ public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<Do
 
   @Override
   public String mapDn(DomainGroupMember domainObject) {
-    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    Assert.hasText(domainObject.getDistinguishedName(),
+        "Distinguished name of domain group member is required.");
     return domainObject.getDistinguishedName();
   }
 

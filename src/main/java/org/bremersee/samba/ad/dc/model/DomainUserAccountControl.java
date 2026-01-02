@@ -47,11 +47,11 @@ public interface DomainUserAccountControl extends Serializable {
 
   @Schema(
       description = "Specifies whether the password expiration is enabled or not.",
-      defaultValue = "true")
-  @JsonProperty(value = "passwordExpirationEnabled", defaultValue = "true")
+      defaultValue = "false")
+  @JsonProperty(value = "passwordExpirationEnabled", defaultValue = "false")
   @Value.Default
   default boolean isPasswordExpirationEnabled() {
-    return true;
+    return false;
   }
 
   @Hidden

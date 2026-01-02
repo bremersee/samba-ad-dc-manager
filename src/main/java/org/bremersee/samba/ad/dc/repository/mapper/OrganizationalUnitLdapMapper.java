@@ -81,7 +81,8 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
 
   @Override
   public String mapDn(OrganizationalUnit domainObject) {
-    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    Assert.hasText(domainObject.getDistinguishedName(),
+        "Distinguished name of organizational unit is required.");
     return domainObject.getDistinguishedName();
   }
 

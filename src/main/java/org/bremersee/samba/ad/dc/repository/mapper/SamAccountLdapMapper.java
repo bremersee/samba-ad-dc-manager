@@ -62,7 +62,8 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
 
   @Override
   public String mapDn(SamAccount domainObject) {
-    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    Assert.hasText(domainObject.getDistinguishedName(),
+        "Distinguished name of sam account is required.");
     return domainObject.getDistinguishedName();
   }
 

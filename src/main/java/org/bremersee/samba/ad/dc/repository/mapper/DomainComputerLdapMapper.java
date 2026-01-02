@@ -62,7 +62,8 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
 
   @Override
   public String mapDn(DomainComputer domainObject) {
-    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    Assert.hasText(domainObject.getDistinguishedName(),
+        "Distinguished name of domain computer required.");
     return domainObject.getDistinguishedName();
   }
 

@@ -69,7 +69,8 @@ public class AdEntryLdapMapper extends LdaptiveEntryImmutableMapper<AdEntry> {
 
   @Override
   public String mapDn(AdEntry domainObject) {
-    Assert.hasText(domainObject.getDistinguishedName(), "DN of ldap entry is required.");
+    Assert.hasText(domainObject.getDistinguishedName(),
+        "Distinguished name of ad entry is required.");
     return domainObject.getDistinguishedName();
   }
 
