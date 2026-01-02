@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Primary
 @Component
-@Profile({"test", "mock"})
+@Profile("mock")
 class MockedSambaToolOu implements SambaToolOu {
 
   private final SambaStore store;

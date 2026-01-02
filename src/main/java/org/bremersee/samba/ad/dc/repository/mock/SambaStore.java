@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-@Profile({"test", "mock"})
+@Profile("mock")
 class SambaStore {
 
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Primary
 @Component
-@Profile({"test", "mock"})
+@Profile("mock")
 class MockedLdapOperations implements LdaptiveOperations {
 
   private final SambaStore store;

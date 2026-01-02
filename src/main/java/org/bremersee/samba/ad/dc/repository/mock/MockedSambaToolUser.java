@@ -1,9 +1,9 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import org.bremersee.samba.ad.dc.misc.DnTool;
-import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
-import org.bremersee.samba.ad.dc.repository.SambaToolGroup;
+import org.bremersee.samba.ad.dc.repository.SambaToolUser;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.dn.Dn;
@@ -16,59 +16,59 @@ import org.springframework.stereotype.Component;
 @Primary
 @Component
 @Profile("mock")
-class MockedSambaToolGroup implements SambaToolGroup {
+class MockedSambaToolUser implements SambaToolUser {
 
   private final SambaStore store;
 
   private final LdapEntryFactory ldapEntryFactory;
 
-  MockedSambaToolGroup(SambaStore store) {
+  MockedSambaToolUser(SambaStore store) {
     this.store = store;
     this.ldapEntryFactory = new LdapEntryFactory(store);
   }
 
   @Override
-  public void addGroup(DomainGroup domainGroup, Dn ou, Boolean isRfc2307Enabled) {
+  public void addUser(DomainUser domainUser, Dn ou, Boolean useUsernameAsCn,
+      Boolean isRfc2307Enabled) {
     Dn parentDn = store.getDnTool().addBaseDn(ou);
     store.findByDn(parentDn.format()).ifPresent(parentNode -> {
-      LdapEntry entry = ldapEntryFactory.newGroupEntry(
-          domainGroup.getSamAccountName(),
+      LdapEntry entry = ldapEntryFactory.newUserEntry(
+          domainUser.getSamAccountName(),
           parentDn,
-          domainGroup.getGroupType().getValue(),
+          domainUser.getPrimaryGroupId(),
           store.getNextSid());
       store.add(entry);
     });
   }
 
   @Override
-  public void renameAndMoveGroup(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newDn) {
-    Dn groupDn;
-    if (!oldDomainGroup.getSamAccountName().equals(newDomainGroup.getSamAccountName())) {
-      groupDn = store.renameEntry(
-          oldDomainGroup.getDn(),
-          newDomainGroup.getSamAccountName());
+  public void renameAndMoveUser(DomainUser oldDomainUser, DomainUser newDomainUser, Dn newDn) {
+    Dn userDn;
+    if (!oldDomainUser.getSamAccountName().equals(newDomainUser.getSamAccountName())) {
+      userDn = store.renameEntry(
+          oldDomainUser.getDn(),
+          oldDomainUser.getSamAccountName());
     } else {
-      groupDn = oldDomainGroup.getDn();
+      userDn = oldDomainUser.getDn();
     }
-    store.findByDn(groupDn.format()).ifPresent(node -> {
-      AdConstants.SAM_ACCOUNT_NAME.setValue(node, newDomainGroup.getSamAccountName());
-      AdConstants.NAME.setValue(node, newDomainGroup.getSamAccountName());
-      AdConstants.NIS_NAME.setValue(node, newDomainGroup.getSamAccountName());
+    store.findByDn(userDn.format()).ifPresent(node -> {
+      AdConstants.SAM_ACCOUNT_NAME.setValue(node, newDomainUser.getSamAccountName());
+      AdConstants.NAME.setValue(node, newDomainUser.getSamAccountName());
       if (DnTool.isValidDn(newDn)) {
         Dn newParentDn = store.getDnTool().addBaseDn(newDn.getParent());
-        if (!groupDn.getParent().equals(newParentDn)) {
-          store.moveEntry(groupDn, newParentDn);
+        if (!userDn.getParent().equals(newParentDn)) {
+          store.moveEntry(userDn, newParentDn);
         }
       }
     });
   }
 
   @Override
-  public void deleteGroup(String samAccountName) {
+  public void deleteUser(String samAccountName) {
     SearchRequest request = SearchRequest.builder()
         .dn(store.getDnTool().getBaseDn().format())
         .filter(new AndFilter(
-            new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_GROUP),
+            new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_USER),
             new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName)))
         .sizeLimit(1)
         .build();
