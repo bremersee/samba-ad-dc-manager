@@ -30,7 +30,7 @@ class MockedSambaToolGroup implements SambaToolGroup {
   @Override
   public void addGroup(DomainGroup domainGroup, Dn ou, Boolean isRfc2307Enabled) {
     Dn parentDn = store.getDnTool().addBaseDn(ou);
-    store.findByDn(parentDn.format()).ifPresent(parentNode -> {
+    store.findByDn(parentDn).ifPresent(parentNode -> {
       LdapEntry entry = ldapEntryFactory.newGroupEntry(
           domainGroup.getSamAccountName(),
           parentDn,
@@ -50,7 +50,7 @@ class MockedSambaToolGroup implements SambaToolGroup {
     } else {
       groupDn = oldDomainGroup.getDn();
     }
-    store.findByDn(groupDn.format()).ifPresent(node -> {
+    store.findByDn(groupDn).ifPresent(node -> {
       AdConstants.SAM_ACCOUNT_NAME.setValue(node, newDomainGroup.getSamAccountName());
       AdConstants.NAME.setValue(node, newDomainGroup.getSamAccountName());
       AdConstants.NIS_NAME.setValue(node, newDomainGroup.getSamAccountName());

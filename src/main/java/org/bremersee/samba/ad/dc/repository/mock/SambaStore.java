@@ -105,18 +105,24 @@ class SambaStore {
         .build();
   }
 
+  Optional<LdapNode> findByDn(Dn dn) {
+    return findByDn(DnTool.toString(dn));
+  }
+
   synchronized Optional<LdapNode> findByDn(String dn) {
-    log.info("find by dn: {}", dn);
     if (!dnTool.isValidDnWithBaseDn(dn)) {
       return Optional.empty();
     }
     if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
-      log.info("ypservers requested");
       LdapNode ypServers = new LdapNode(dn);
       AdConstants.OBJECT_CLASS.setValues(ypServers, List.of("container", "top"));
       return Optional.of(ypServers);
     }
     return findByDn(root, dn);
+  }
+
+  Optional<LdapNode> findByDn(LdapNode node, Dn dn) {
+    return findByDn(node, DnTool.toString(dn));
   }
 
   private Optional<LdapNode> findByDn(LdapNode node, String dn) {
@@ -133,7 +139,6 @@ class SambaStore {
   }
 
   synchronized List<LdapEntry> find(SearchRequest request) {
-    log.info("find request: {}", request);
     List<LdapEntry> response = new ArrayList<>();
     if (isEmpty(request) || isEmpty(request.getBaseDn())) {
       return response;
@@ -143,7 +148,6 @@ class SambaStore {
       return response;
     }
     LdapNode node = foundNode.get();
-    log.info("request filter: {}", request.getFilter());
     if (node.matches(request.getFilter())) {
       response.add(node);
     }
@@ -174,7 +178,7 @@ class SambaStore {
     Assert.notNull(entry, "Ldap entry must not be null.");
     log.info("Adding entry: {}", entry.getDn());
     Assert.isTrue(dnTool.isValidDnWithBaseDn(entry.getDn()), "Dn is invalid.");
-    findByDn(new Dn(entry.getDn()).getParent().format()).ifPresentOrElse(
+    findByDn(new Dn(entry.getDn()).getParent()).ifPresentOrElse(
         parentNode -> new LdapNode(entry, parentNode),
         () -> {
           throw ServiceException.notFoundWithErrorCode(
@@ -201,7 +205,7 @@ class SambaStore {
             OrganizationalUnit.class.getSimpleName(),
             newValidatedParentDn.format(),
             ErrorCode.EC_OU_NOT_FOUND));
-    return findByDn(validatedDn.format())
+    return findByDn(validatedDn)
         .map(node -> {
           node.getParent().removeChild(node);
           newParent.addChild(node);
@@ -232,13 +236,13 @@ class SambaStore {
   }
 
   private Optional<Dn> rename(Dn dn, String newName) {
-    return findByDn(dn.format())
+    return findByDn(dn)
         .map(entry -> {
-          log.debug("Renaming dn [{}] to [{}]", dn.format(), newName);
+          log.debug("Renaming dn [{}] to [{}]", DnTool.toString(dn), newName);
           String rdnType = dn.getRDn().getNameValue().getName();
           RDn rdn = new RDn(new NameValue(rdnType, newName));
           Dn newDn = Dn.builder().add(rdn).add(dn.getParent()).build();
-          log.debug("Renaming dn [{}] to [{}]", dn.format(), newDn.format());
+          log.debug("Renaming dn [{}] to [{}]", DnTool.toString(dn), DnTool.toString(newDn));
           entry.setDn(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
           AdConstants.DN.setValue(entry, newDn);
           return newDn;
@@ -257,9 +261,9 @@ class SambaStore {
   }
 
   synchronized Dn renameOrganizationalUnit(Dn ouDn, String newName) {
-    String dn = ouDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+    String dn = DnTool.toString(ouDn);
     return rename(ouDn, newName)
-        .flatMap(newDn -> findByDn(newDn.format()))
+        .flatMap(this::findByDn)
         .map(node -> {
           AdConstants.NAME.setValue(node, newName);
           return new Dn(node.getDn());

@@ -57,19 +57,6 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
         .filter(rdn -> !rdn.getNameValue().hasName("dc"))
         .map(rdn -> rdn.getNameValue().getStringValue())
         .collect(Collectors.joining(" → "));
-    // TODO
-    /*
-    String nameTree = Stream.ofNullable(getDn())
-        .map(Dn::getRDns)
-        .flatMap(rdnList -> {
-          List<RDn> rdns = new ArrayList<>(getDn().getRDns());
-          Collections.reverse(rdns);
-          return rdns.stream();
-        })
-        .filter(rdn -> !rdn.getNameValue().hasName("dc"))
-        .map(rdn -> rdn.getNameValue().getStringValue())
-        .collect(Collectors.joining(" → "));
-    */
     if (nameTree.isEmpty()) {
       return getName();
     }

@@ -31,7 +31,7 @@ class MockedSambaToolUser implements SambaToolUser {
   public void addUser(DomainUser domainUser, Dn ou, Boolean useUsernameAsCn,
       Boolean isRfc2307Enabled) {
     Dn parentDn = store.getDnTool().addBaseDn(ou);
-    store.findByDn(parentDn.format()).ifPresent(parentNode -> {
+    store.findByDn(parentDn).ifPresent(parentNode -> {
       LdapEntry entry = ldapEntryFactory.newUserEntry(
           domainUser.getSamAccountName(),
           parentDn,
@@ -51,7 +51,7 @@ class MockedSambaToolUser implements SambaToolUser {
     } else {
       userDn = oldDomainUser.getDn();
     }
-    store.findByDn(userDn.format()).ifPresent(node -> {
+    store.findByDn(userDn).ifPresent(node -> {
       AdConstants.SAM_ACCOUNT_NAME.setValue(node, newDomainUser.getSamAccountName());
       AdConstants.NAME.setValue(node, newDomainUser.getSamAccountName());
       if (DnTool.isValidDn(newDn)) {

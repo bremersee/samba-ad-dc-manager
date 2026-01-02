@@ -26,7 +26,7 @@ class MockedSambaToolOu implements SambaToolOu {
   @Override
   public void addOrganizationalUnit(OrganizationalUnit ou, Dn parentOu) {
     Dn parentDn = store.getDnTool().addBaseDn(parentOu);
-    store.findByDn(parentDn.format()).ifPresent(parentNode -> {
+    store.findByDn(parentDn).ifPresent(parentNode -> {
       LdapEntry entry = ldapEntryFactory.newOrganizationalUnitEntry(
           ou.getName(),
           parentDn);
