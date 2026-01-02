@@ -128,7 +128,7 @@ spring:
   security:
     user:
       name: Administrator
-      password: mock
+      password: demo
       roles:
         - "LOCAL_USER"
         - "ADMIN"
