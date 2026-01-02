@@ -118,14 +118,6 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
     AdConstants.DESCRIPTION
         .setValue(destination, source.getDescription())
         .ifPresent(modifications::add);
-    boolean isSystemOu = AdConstants.IS_CRITICAL_SYSTEM_OBJECT
-        .getValue(destination, source.isSystemOu())
-        .orElse(false);
-    if (!isSystemOu) {
-      AdConstants.NAME
-          .setValue(destination, source.getName())
-          .ifPresent(modifications::add);
-    }
     return modifications.toArray(AttributeModification[]::new);
   }
 

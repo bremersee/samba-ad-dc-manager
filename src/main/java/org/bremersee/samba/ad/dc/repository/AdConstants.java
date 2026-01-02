@@ -29,9 +29,9 @@ public abstract class AdConstants {
 
   public static final String RDN_ATTR_NAME_OU = "OU";
 
-  public static final Dn BASE_DN_COMPUTERS = new Dn("CN=Computers");
+  public static final String BASE_DN_COMPUTERS = "CN=Computers";
 
-  public static final Dn BASE_DN_USERS = new Dn("CN=Users");
+  public static final String BASE_DN_USERS = "CN=Users";
 
   public static final String YELLOW_PAGES = "CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System";
 
