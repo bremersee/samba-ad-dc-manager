@@ -59,10 +59,8 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
       DomainGroup newDomainGroup,
       Dn newDn) {
 
-    String oldCn = new Dn(oldDomainGroup.getDistinguishedName())
-        .getRDn().getNameValue().getStringValue();
-    String newCn = newDn
-        .getRDn().getNameValue().getStringValue();
+    String oldCn = oldDomainGroup.getDn().getRDn().getNameValue().getStringValue();
+    String newCn = newDn.getRDn().getNameValue().getStringValue();
     boolean cnChanged = !oldCn.equalsIgnoreCase(newCn);
     Dn oldParentDn = oldDomainGroup.getDn().getParent();
 
@@ -87,7 +85,7 @@ class SambaToolGroupCli extends SambaToolCli implements SambaToolGroup {
         commands.add("--force-new-cn=" + quote(newCn));
       }
       if (emailChanged) {
-        commands.add(" --mail-address=" + quote(oldEmail));
+        commands.add(" --mail-address=" + quote(newEmail));
       }
       execute(commands, new GroupRenameValidator(oldDomainGroup, newDomainGroup));
     }
