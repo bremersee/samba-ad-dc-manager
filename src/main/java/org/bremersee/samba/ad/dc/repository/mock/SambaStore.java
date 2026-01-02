@@ -45,10 +45,10 @@ class SambaStore {
 
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
 
+  private final AtomicInteger sidPostfix = new AtomicInteger(Sid.MAX_SYSTEM_SID_SUFFIX + 1);
+
   @Getter(AccessLevel.PACKAGE)
   private final DnTool dnTool;
-
-  private final AtomicInteger sidPostfix = new AtomicInteger(Sid.MAX_SYSTEM_SID_SUFFIX + 1);
 
   private DomainInfo domainInfo;
 
@@ -69,7 +69,6 @@ class SambaStore {
     AdConstants.OBJECT_SID.setValue(this.root, Sid.builder()
         .value(DOMAIN_SID)
         .build());
-    log.info("Base entry {}.", root.getDn());
     new SambaStoreInit(this).init();
   }
 

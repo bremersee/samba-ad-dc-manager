@@ -9,9 +9,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
@@ -26,11 +26,10 @@ import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.PresenceFilter;
 import org.ldaptive.filter.SubstringFilter;
 
-@Getter
+@Getter(AccessLevel.PACKAGE)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 class LdapNode extends LdapEntry {
 
-  @Setter
   private LdapNode parent;
 
   private final List<LdapNode> children = new ArrayList<>();
@@ -63,7 +62,7 @@ class LdapNode extends LdapEntry {
   }
 
   void removeChild(LdapNode child) {
-    if (!isEmpty(child) && getChildren()
+    if (!isEmpty(child) && children
         .removeIf(c -> DnTool.isSameDn(c.getDn(), child.getDn()))) {
       child.parent = null;
     }
