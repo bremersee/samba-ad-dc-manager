@@ -125,14 +125,14 @@ spring:
     activate:
       on-profile: mock
 
-  security:
-    user:
-      name: Administrator
-      password: demo
-      roles:
-        - "LOCAL_USER"
-        - "ADMIN"
-        - "ACTUATOR_ADMIN"
+#  security:
+#    user:
+#      name: Administrator
+#      password: demo
+#      roles:
+#        - "LOCAL_USER"
+#        - "ADMIN"
+#        - "ACTUATOR_ADMIN"
 bremersee:
   dc:
     base-dn: dc=samdom,dc=example,dc=org

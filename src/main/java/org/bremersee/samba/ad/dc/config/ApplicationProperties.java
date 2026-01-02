@@ -70,4 +70,7 @@ public class ApplicationProperties implements Serializable {
   @NestedConfigurationProperty
   private DomainGroupProperties group = new DomainGroupProperties();
 
+  @NestedConfigurationProperty
+  private MockProperties mock = new MockProperties();
+
 }
