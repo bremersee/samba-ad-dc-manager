@@ -18,6 +18,7 @@ import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapUtils;
 import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.Filter;
@@ -25,6 +26,7 @@ import org.ldaptive.filter.NotFilter;
 import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.PresenceFilter;
 import org.ldaptive.filter.SubstringFilter;
+import org.springframework.util.Assert;
 
 @Getter(AccessLevel.PACKAGE)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
@@ -34,24 +36,42 @@ class LdapNode extends LdapEntry {
 
   private final List<LdapNode> children = new ArrayList<>();
 
-  LdapNode(String baseDn) {
-    setDn(baseDn);
-    AdConstants.DN.setValue(this, new Dn(getDn()));
+  private LdapNode() {
     OffsetDateTime now = OffsetDateTime.now();
     AdConstants.WHEN_CREATED.setValue(this, now);
     AdConstants.WHEN_CHANGED.setValue(this, now);
   }
 
-  LdapNode(LdapEntry entry, LdapNode parent) {
-    setDn(entry.getDn());
-    addAttributes(entry.getAttributes());
+  LdapNode(String baseDn) {
+    this();
+    Assert.isTrue(DnTool.isValidDn(baseDn), "Base DN must be valid.");
+    setDn(baseDn);
     AdConstants.DN.setValue(this, new Dn(getDn()));
-    OffsetDateTime now = OffsetDateTime.now();
-    AdConstants.WHEN_CREATED.setValue(this, now);
-    AdConstants.WHEN_CHANGED.setValue(this, now);
-    if (!isEmpty(parent)) {
-      parent.addChild(this);
+  }
+
+  LdapNode(LdapEntry entry, LdapNode parent) {
+    this(isEmpty(entry) ? null : entry.getDn());
+    Assert.notNull(parent, "Parent ldap entry is required.");
+    addAttributes(entry.getAttributes());
+    parent.addChild(this);
+  }
+
+  @Override
+  public LdapAttribute getAttribute(String name) {
+    LdapAttribute attr = super.getAttribute(name);
+    if (!isEmpty(attr) || !DnTool.isValidDn(getDn())) {
+      return attr;
     }
+    // creates a dynamic attribute from the rdn
+    // it is needed for the organizational unit is empty request
+    RDn rdn = new Dn(getDn()).getRDn();
+    if (rdn.getNameValue().getName().equalsIgnoreCase(name)) {
+      return LdapAttribute.builder()
+          .name(rdn.getNameValue().getName())
+          .values(rdn.getNameValue().getStringValue())
+          .build();
+    }
+    return null;
   }
 
   void addChild(LdapNode child) {
