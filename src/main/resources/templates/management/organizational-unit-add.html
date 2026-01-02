@@ -76,7 +76,7 @@
                 aria-describedby="parentOuValidation"
                 th:classappend="${#fields.hasErrors('parentOu')} ? 'is-invalid' : ''"
                 th:field="*{parentOu}">
-          <option th:each="o : ${ous}" th:value="${o.distinguishedNameNormalized}" th:text="${o.nameTree}">
+          <option th:each="o : ${ous}" th:value="${o.distinguishedName}" th:text="${o.nameTree}">
             Users
           </option>
         </select>

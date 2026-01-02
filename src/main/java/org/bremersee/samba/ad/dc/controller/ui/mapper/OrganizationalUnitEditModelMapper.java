@@ -12,7 +12,7 @@ import org.mapstruct.factory.Mappers;
 public interface OrganizationalUnitEditModelMapper {
 
   @Mapping(target = "ou", source = "distinguishedName")
-  @Mapping(target = "parentOu", source = "parentDistinguishedNameNormalized")
+  @Mapping(target = "parentOu", source = "parentDistinguishedName")
   OrganizationalUnitEditModel map(OrganizationalUnit source);
 
   OrganizationalUnitEditModelMapper INSTANCE = Mappers

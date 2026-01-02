@@ -27,6 +27,7 @@ import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
@@ -78,7 +79,7 @@ public class OrganizationalUnitAddController extends UiController
   public String displayOrganizationalUnitAdd(ModelMap model) {
     getLogger().debug("displayOrganizationalUnitAdd()");
     OrganizationalUnitAddModel addModel = new OrganizationalUnitAddModel();
-    addModel.setParentOu(getDnTool().getBaseDn().format());
+    addModel.setParentOu(DnTool.toString(getDnTool().getBaseDn()));
     model.addAttribute("addModel", addModel);
     return "management/organizational-unit-add";
   }
