@@ -16,7 +16,7 @@
   <cache-template name="listeners">
     <listeners>
       <listener>
-        <class>org.bremersee.samba.ad.dc.config.CacheEventLogger</class>
+        <class>org.bremersee.samba.ad.dc.misc.ehcache.CacheEventLogger</class>
         <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
         <event-ordering-mode>UNORDERED</event-ordering-mode>
         <events-to-fire-on>EVICTED</events-to-fire-on>

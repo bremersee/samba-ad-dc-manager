@@ -90,7 +90,7 @@ public class PasswordResetController extends UiController {
     this.domainUserService = domainUserService;
     this.cryptoService = cryptoService;
     this.eventPublisher = eventPublisher;
-    this.usernamePattern = Pattern.compile(properties.getUser().getNewSamAccountNameRegex());
+    this.usernamePattern = Pattern.compile(properties.getDomain().getNewSamAccountNameRegex());
   }
 
   /**

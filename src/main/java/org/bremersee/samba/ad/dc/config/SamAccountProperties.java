@@ -4,8 +4,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,8 +27,6 @@ abstract class SamAccountProperties implements Serializable {
 
   @Min(1)
   private int minQueryLength = 2;
-
-  private String newSamAccountNameRegex = "^(?![._-])[a-zA-Z0-9._-]{3,75}$";
 
   SamAccountProperties() {
     super();

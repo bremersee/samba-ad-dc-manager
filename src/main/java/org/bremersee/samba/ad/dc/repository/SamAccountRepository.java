@@ -64,7 +64,7 @@ public abstract class SamAccountRepository extends AdRepository {
       LdaptiveOperations ldapOperations) {
     super(properties, ldapOperations);
     this.newSamAccountNamePattern = Pattern
-        .compile(getProperties().getUser().getNewSamAccountNameRegex());
+        .compile(getProperties().getDomain().getNewSamAccountNameRegex());
     this.emailPattern = getProperties().getEmail().getEmailRegexFlags()
         .compile(properties.getEmail().getEmailRegex());
   }

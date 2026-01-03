@@ -24,5 +24,7 @@ public class DomainProperties implements Serializable {
 
   private List<String> forbiddenNewSamAccountNames = new ArrayList<>();
 
+  private String newSamAccountNameRegex = "^(?![._-])[a-zA-Z0-9._-]{3,75}$";
+
   private String defaultNisDomain;
 }
