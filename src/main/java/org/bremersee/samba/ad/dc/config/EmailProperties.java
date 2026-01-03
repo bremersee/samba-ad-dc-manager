@@ -33,7 +33,7 @@ public class EmailProperties implements Serializable {
   @NestedConfigurationProperty
   private RegexFlags emailRegexFlags = new RegexFlags();
 
-  private String sender = "christian@bremersee.org";
+  private String sender = "";
 
   private String baseUri = "http://localhost:8080";
 

@@ -2,10 +2,13 @@ bremersee:
   ldaptive:
     ldaptive-template-class: org.bremersee.ldaptive.LdaptiveSambaTemplate
     immutable: true
-    use-start-tls: ${LDAP_START_TLS:false}
-    bind-dn: ${LDAP_BIND_DN:Administrator}
-    bind-credentials: ${LDAP_BIND_PASSWORD:changeit}
-    pooled: ${LDAP_POOLED:false}
+    use-start-tls: false
+    # BREMERSEE_LDAPTIVE_BIND_DN
+    bind-dn: "Administrator"
+    # BREMERSEE_LDAPTIVE_BIND_CREDENTIALS
+    bind-credentials: ""
+    # BREMERSEE_LDAPTIVE_POOLED
+    pooled: false
     connection-validator:
       search-request:
         base-dn: ${bremersee.dc.base-dn}
@@ -20,6 +23,7 @@ bremersee:
           base-dn: ${bremersee.dc.base-dn}
   authentication:
     remember-me:
+      # BREMERSEE_AUTHENTICATION_REMEMBER_ME_KEY
       key: ${LDAP_REMEMBER_ME:${spring.application.name}}
     ldaptive:
       template: active_directory
@@ -40,11 +44,33 @@ bremersee:
         - source: "samba-admins"
           target: "ROLE_ADMIN"
   dc:
-    base-dn: ${LDAP_BASE_DN:dc=eixe,dc=bremersee,dc=org}
-    company-name: ${COMPANY_NAME:}
-    company-url: ${COMPANY_URL:}
+    # BREMERSEE_DC_BASE_DN
+    base-dn: ""
+    company-name: "Samba AD DC Manager"
+    company-url: "#"
+    # BREMERSEE_DC_CRYPTO_SECRET
+    crypto-secret: "change-it"
     cli:
+      hostname-binary: /usr/bin/hostname
+      samba-tool-binary: /usr/bin/samba-tool
       samba-tool-credentials-options: "-UAdministrator --password='${bremersee.ldaptive.bind-credentials}'"
+      dhcp-lease-list-binary: /usr/sbin/dhcp-lease-list
+      sudo:
+        using-sudo: false
+      ssh:
+        using-ssh: false
+    domain:
+      forbidden-new-sam-account-names:
+        - "root"
+        - "admin"
+        - "guest"
+    user:
+      user-able-to-change-email: true
+      default-language: "de-DE"
+      default-login-page:
+        url: ""
+        name: ""
+        using-netbios-domain-prefix: false
 
   exception-mapping:
     api-paths:
@@ -71,26 +97,26 @@ spring:
   profiles:
     default: mock
   application:
-    name: ${APPLICATION_NAME:samba-ad-dc-manager}
+    name: samba-ad-dc-manager
+  messages:
+    use-code-as-default-message: true
+    fallback-to-system-locale: false
   cache:
     jcache:
       config: classpath:ehcache.xml
   cloud:
     config:
-      enabled: ${CONFIG_CLIENT_ENABLED:false}
-      uri: ${CONFIG_URI:https://configserver.example.org}
-      username: ${CONFIG_USER:user}
-      password: ${CONFIG_PASSWORD:changeit}
-      fail-fast: ${CONFIG_CLIENT_FAIL_FAST:true}
+      enabled: false
+      uri:
+      username:
+      password:
+      fail-fast: true
       retry:
-        initial-interval: ${CONFIG_RETRY_INIT_INTERVAL:3000}
-        max-interval: ${CONFIG_RETRY_MAX_INTERVAL:4000}
-        max-attempts: ${CONFIG_RETRY_MAX_ATTEMPTS:8}
-        multiplier: ${CONFIG_RETRY_MULTIPLIER:1.1}
+        initial-interval: 3000
+        max-interval: 4000
+        max-attempts: 8
+        multiplier: 1.1
 
-  messages:
-    use-code-as-default-message: true
-    fallback-to-system-locale: false
 management:
   endpoints:
     web:
@@ -108,14 +134,14 @@ management:
       enabled: false
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 logging:
   level:
     ROOT: info
     com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
-    org.bremersee: debug
+    org.bremersee: info
     org.springframework.cloud.configclient: warn
 
 ---
@@ -125,14 +151,6 @@ spring:
     activate:
       on-profile: mock
 
-#  security:
-#    user:
-#      name: Administrator
-#      password: demo
-#      roles:
-#        - "LOCAL_USER"
-#        - "ADMIN"
-#        - "ACTUATOR_ADMIN"
 bremersee:
   dc:
     base-dn: dc=samdom,dc=example,dc=org
@@ -146,9 +164,14 @@ spring:
 
 bremersee:
   ldaptive:
-    ldap-url: ${LDAP_URL:ldaps://localhost:636}
+    ldap-url: ldaps://localhost:636
+    ssl-config:
+      trust-certificates: "/var/lib/samba/private/tls/ca.pem,/var/lib/samba/private/tls/cert.pem"
   dc:
     cli:
+      sudo:
+        using-sudo: true
+        sudo-command: /usr/bin/sudo
       ssh:
         using-ssh: false
 
@@ -161,12 +184,18 @@ spring:
 
 bremersee:
   ldaptive:
-    ldap-url: ${LDAP_URL:ldaps://dc1.eixe.bremersee.org:636}
+    # BREMERSEE_LDAPTIVE_LDAP_URL
+    ldap-url: ldaps://localhost:636
   dc:
     cli:
+      sudo:
+        using-sudo: false
       ssh:
         using-ssh: true
-        ssh-command: ${SSH_COMMAND:ssh root@dc1}
+        ssh-command: /usr/bin/ssh root@${bremersee.dc.domain.host-name:}
+    domain:
+      # BREMERSEE_DC_DOMAIN_HOST_NAME
+      host-name: "localhost"
 
 ---
 
@@ -175,15 +204,21 @@ spring:
     activate:
       on-profile: mail
   mail:
+    # SPRING_MAIL_HOST
     host: smtp.mail.me.com
+    # SPRING_MAIL_PORT
     port: 587
-    test-connection: false
+    test-connection: true
     properties:
       mail.smtp.starttls.enable: true
+    # SPRING_MAIL_USERNAME
+    # SPRING_MAIL_PASSWORD
 bremersee:
   dc:
     email:
-      sender: christian@bremersee.org
+      # BREMERSEE_DC_EMAIL_SENDER
+      sender: ""
+      base-uri: "http://localhost:8080"
 
 ---
 
@@ -211,6 +246,13 @@ bremersee:
           replacement: "_"
         - regex: "_ADMINS"
           replacement: "_ADMIN"
+      default-roles:
+        - "ROLE_LOCAL_USER"
+      role-mapping:
+        - source: "Domain Admins"
+          target: "ROLE_ADMIN"
+        - source: "samba-admins"
+          target: "ROLE_ADMIN"
 
 ---
 
@@ -221,7 +263,7 @@ spring:
 
 logging:
   file:
-    name: /var/log/dc-con/dc-con.log
+    name: /var/log/samba-ad-dc-manager/samba-ad-dc-manager.log
   logback:
     rollingpolicy:
       max-history: 25
@@ -230,5 +272,5 @@ server:
   tomcat:
     accesslog:
       enabled: true
-      directory: /var/log/dc-con
+      directory: /var/log/samba-ad-dc-manager
       prefix: access_log

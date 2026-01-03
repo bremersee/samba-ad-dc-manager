@@ -183,11 +183,11 @@ public abstract class SamAccountRepository extends AdRepository {
       throw ServiceException.badRequest(
           "SamAccountName contains illegal characters.", EC_ILLEGAL_SAM_ACCOUNT_NAME);
     }
-    boolean isForbidden = getProperties().getUser().getForbiddenNewSamAccountNames().stream()
+    boolean isForbidden = getProperties().getDomain().getForbiddenNewSamAccountNames().stream()
         .anyMatch(forbidden -> samAccount.getSamAccountName().equalsIgnoreCase(forbidden));
     if (isForbidden) {
       throw ServiceException.badRequest(
-          "SamAccountName is forbiiden.", EC_ILLEGAL_SAM_ACCOUNT_NAME);
+          "SamAccountName is forbidden.", EC_ILLEGAL_SAM_ACCOUNT_NAME);
     }
   }
 

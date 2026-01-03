@@ -100,9 +100,9 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private String url = "https://data.eixe.bremersee.org";
+    private String url;
 
-    private String name = "DATA";
+    private String name;
 
     private boolean usingNetbiosDomainPrefix = true;
 

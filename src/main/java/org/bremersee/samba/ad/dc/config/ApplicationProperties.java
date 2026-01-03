@@ -65,10 +65,10 @@ public class ApplicationProperties implements Serializable {
   private DomainComputerProperties computer = new DomainComputerProperties();
 
   @NestedConfigurationProperty
-  private DomainUserProperties user = new DomainUserProperties();
+  private DomainGroupProperties group = new DomainGroupProperties();
 
   @NestedConfigurationProperty
-  private DomainGroupProperties group = new DomainGroupProperties();
+  private DomainUserProperties user = new DomainUserProperties();
 
   @NestedConfigurationProperty
   private MockProperties mock = new MockProperties();
