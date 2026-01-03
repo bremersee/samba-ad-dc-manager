@@ -1,2 +1,2 @@
-# samba-ad-dc-manager
+# Samba AD DC Manager
 Management application for Samba AD DC
