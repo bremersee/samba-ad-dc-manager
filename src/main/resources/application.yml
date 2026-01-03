@@ -64,9 +64,8 @@ bremersee:
       samba-tool-binary: /usr/bin/samba-tool
       #
       # Set username and password of a DND admin.
-      # Sometimes you must remove the quotes from the password. Check messages in the log file.
       #
-      samba-tool-credentials-options: "-UAdministrator --password='${bremersee.ldaptive.bind-credentials}'"
+      samba-tool-credentials-options: "-UAdministrator --password=${bremersee.ldaptive.bind-credentials}"
       dhcp-lease-list-binary: /usr/sbin/dhcp-lease-list
       sudo:
         using-sudo: false
