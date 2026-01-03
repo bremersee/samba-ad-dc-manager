@@ -4,9 +4,12 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+@Slf4j
 public abstract class AbstractController {
 
   public static final String PAGE = "page";
@@ -80,6 +83,9 @@ public abstract class AbstractController {
 
   private static String getBaseUri(HttpServletRequest request) {
     // TODO be proxy aware
+    String forwardedPort = request.getHeader("X-Forwarded-Port");
+    String forwardedProto = request.getHeader("X-Forwarded-Proto");
+    log.info("forwardedProto = {}, forwardedPort = {}", forwardedProto, forwardedPort);
     return null;
   }
 

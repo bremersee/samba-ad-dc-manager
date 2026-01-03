@@ -3,12 +3,15 @@ bremersee:
     ldaptive-template-class: org.bremersee.ldaptive.LdaptiveSambaTemplate
     immutable: true
     use-start-tls: false
-    # BREMERSEE_LDAPTIVE_BIND_DN
-    bind-dn: "Administrator"
-    # BREMERSEE_LDAPTIVE_BIND_CREDENTIALS
+    #
+    # Set the bind DN of an administrator account.
+    #
+    bind-dn: "Administrator@samdom.example.org"
+    #
+    # Set the password of the administrator account.
+    #
     bind-credentials: ""
-    # BREMERSEE_LDAPTIVE_POOLED
-    pooled: false
+    pooled: true
     connection-validator:
       search-request:
         base-dn: ${bremersee.dc.base-dn}
@@ -23,8 +26,10 @@ bremersee:
           base-dn: ${bremersee.dc.base-dn}
   authentication:
     remember-me:
-      # BREMERSEE_AUTHENTICATION_REMEMBER_ME_KEY
-      key: ${LDAP_REMEMBER_ME:${spring.application.name}}
+      #
+      # Set a remember me key.
+      #
+      key: ${spring.application.name}
     ldaptive:
       template: active_directory
       user-base-dn: ${bremersee.dc.base-dn}
@@ -44,15 +49,23 @@ bremersee:
         - source: "samba-admins"
           target: "ROLE_ADMIN"
   dc:
-    # BREMERSEE_DC_BASE_DN
+    #
+    # Set the base DN like DC=samdom,DC=example,DC=org
+    #
     base-dn: ""
     company-name: "Samba AD DC Manager"
     company-url: "#"
-    # BREMERSEE_DC_CRYPTO_SECRET
+    #
+    # Set a long random secret.
+    #
     crypto-secret: "change-it"
     cli:
       hostname-binary: /usr/bin/hostname
       samba-tool-binary: /usr/bin/samba-tool
+      #
+      # Set username and password of a DND admin.
+      # Sometimes you must remove the quotes from the password. Check messages in the log file.
+      #
       samba-tool-credentials-options: "-UAdministrator --password='${bremersee.ldaptive.bind-credentials}'"
       dhcp-lease-list-binary: /usr/sbin/dhcp-lease-list
       sudo:
@@ -67,6 +80,9 @@ bremersee:
     user:
       user-able-to-change-email: true
       default-language: "de-DE"
+      #
+      # Set an optional default login page.
+      #
       default-login-page:
         url: ""
         name: ""
@@ -164,9 +180,15 @@ spring:
 
 bremersee:
   ldaptive:
+    #
+    # Set the ldap url(s)
+    #
     ldap-url: ldaps://localhost:636
+    #
+    # Remove if you have official signed certificates
+    #
     ssl-config:
-      trust-certificates: "/var/lib/samba/private/tls/ca.pem,/var/lib/samba/private/tls/cert.pem"
+      trust-certificates: "file:/var/lib/samba/private/tls/ca.pem,file:/var/lib/samba/private/tls/cert.pem"
   dc:
     cli:
       sudo:
@@ -184,7 +206,9 @@ spring:
 
 bremersee:
   ldaptive:
-    # BREMERSEE_LDAPTIVE_LDAP_URL
+    #
+    # Set the ldap url(s)
+    #
     ldap-url: ldaps://localhost:636
   dc:
     cli:
@@ -194,7 +218,9 @@ bremersee:
         using-ssh: true
         ssh-command: /usr/bin/ssh root@${bremersee.dc.domain.host-name:}
     domain:
-      # BREMERSEE_DC_DOMAIN_HOST_NAME
+      #
+      # Set the hostname of the domain controller.
+      #
       host-name: "localhost"
 
 ---
@@ -204,19 +230,24 @@ spring:
     activate:
       on-profile: mail
   mail:
-    # SPRING_MAIL_HOST
+    #
+    # Set your smtp server.
+    #
     host: smtp.mail.me.com
-    # SPRING_MAIL_PORT
     port: 587
+    #username: ""
+    #password: ""
     test-connection: true
     properties:
       mail.smtp.starttls.enable: true
-    # SPRING_MAIL_USERNAME
-    # SPRING_MAIL_PASSWORD
+    #ssl:
+    #  enabled: false
 bremersee:
   dc:
     email:
-      # BREMERSEE_DC_EMAIL_SENDER
+      #
+      # Set your email address.
+      #
       sender: ""
       base-uri: "http://localhost:8080"
 

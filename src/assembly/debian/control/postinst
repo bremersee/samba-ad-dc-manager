@@ -4,8 +4,8 @@ DEBIAN_NAME="samba-ad-dc-manager"
 APP_NAME=$DEBIAN_NAME
 USER_NAME="smb-mngr"
 GROUP_NAME=$USER_NAME
-SUDO_FILE=/etc/sudoers
-SUDO_ENTRY="$USER_NAME ALL = NOPASSWD: /usr/bin/samba-tool, /usr/sbin/dhcp-lease-list"
+SUDO_FILE=/etc/sudoers.d/$DEBIAN_NAME
+SUDO_ENTRY="$USER_NAME ALL = NOPASSWD: /usr/bin/hostname, /usr/bin/samba-tool, /usr/sbin/dhcp-lease-list"
 
 /usr/bin/getent passwd $USER_NAME
 if [ ! $? -eq 0 ]; then
@@ -24,12 +24,15 @@ if [ ! -e /etc/systemd/system/$DEBIAN_NAME.service ]; then
   ln -s /lib/systemd/system/$DEBIAN_NAME.service /etc/systemd/system/$DEBIAN_NAME.service
 fi
 
+if [ ! -e $SUDO_FILE ]; then
+  touch "$SUDO_FILE"
+fi
 grep -q "$SUDO_ENTRY" "$SUDO_FILE"
 if [ $? -eq 1 ]; then
   echo -e "$SUDO_ENTRY" >> "$SUDO_FILE"
 fi
 
-/bin/systemctl enable $DEBIAN_NAME.service
+/bin/systemctl enable /lib/systemd/system/$DEBIAN_NAME.service
 if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ] && [ -e /var/lib/$DEBIAN_NAME/application.yml.user ]; then
   if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ]; then
     cp /var/lib/$DEBIAN_NAME/$APP_NAME.conf /var/lib/$DEBIAN_NAME/$APP_NAME.conf.package

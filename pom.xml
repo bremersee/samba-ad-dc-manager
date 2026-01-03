@@ -386,6 +386,7 @@
       </build>
     </profile>
 
+    <!-- TODO rename repo to debian-java-apps -->
     <profile>
       <id>deploy-to-repo-debian-bullseye</id>
       <activation>
@@ -442,7 +443,7 @@
                   <commands>
                     <command>sudo -n /usr/bin/apt-get update</command>
                     <command>sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get
-                      -yq install spring-config-server
+                      -yq install samba-ad-dc-manager
                     </command>
                   </commands>
                   <displayCommandOutputs>true</displayCommandOutputs>
