@@ -1,4 +1,4 @@
-# Domain Controller Connector Application
+# Samba AD DC Manager
 
-The Domain Controller Connector Application provides a REST API for 
+Manager application for 
 a [Samba 4 Domain Controller](https://www.samba.org/).

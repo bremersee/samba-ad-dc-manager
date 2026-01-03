@@ -3,8 +3,8 @@ Description=Domain Controller Connector
 After=syslog.target
 
 [Service]
-User=dc-con
-ExecStart=/var/lib/dc-con/dc-con.jar
+User=smb-mngr
+ExecStart=/var/lib/samba-ad-dc-manager/samba-ad-dc-manager.jar
 SuccessExitStatus=1 4 3
 
 [Install]
