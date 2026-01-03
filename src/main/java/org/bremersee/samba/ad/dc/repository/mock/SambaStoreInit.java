@@ -3,7 +3,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
-import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
@@ -12,14 +12,11 @@ import org.ldaptive.dn.Dn;
 @Slf4j
 class SambaStoreInit {
 
-  private final ApplicationProperties properties;
-
   private final SambaStore store;
 
   private final LdapEntryFactory entryFactory;
 
-  SambaStoreInit(ApplicationProperties properties, SambaStore store) {
-    this.properties = properties;
+  SambaStoreInit(SambaStore store) {
     this.store = store;
     this.entryFactory = new LdapEntryFactory(store);
   }
@@ -64,7 +61,7 @@ class SambaStoreInit {
   }
 
   private Dn getAdministratorDn() {
-    return Dn.builder().add("CN=Administrator").add(getUsersDn()).build();
+    return Dn.builder().add("CN=" + MockProperties.ADMIN_NAME).add(getUsersDn()).build();
   }
 
   private LdapEntry createComputersOu() {
@@ -292,7 +289,7 @@ class SambaStoreInit {
     AdConstants.USER_SN.setValue(node, "of Samba AD DC");
     AdConstants.USER_DISPLAY_NAME.setValue(node, "Domain Administrator");
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);
-    AdConstants.USER_UNICODE_PWD.setValue(node, properties.getMock().getAdministratorPassword());
+    AdConstants.USER_UNICODE_PWD.setValue(node, MockProperties.ADMIN_FALLBACK_PASSWORD);
     AdConstants.MEMBER_OF_GROUP.setValues(node, List.of(
         Dn.builder().add("CN=Domain Admins").add(getUsersDn()).build(),
         Dn.builder().add("CN=Enterprise Admins").add(getUsersDn()).build(),

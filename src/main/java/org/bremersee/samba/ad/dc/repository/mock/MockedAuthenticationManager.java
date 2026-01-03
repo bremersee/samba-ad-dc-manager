@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveAuthenticationToken;
 import org.bremersee.spring.security.ldaptive.userdetails.LdaptiveUser;
@@ -56,8 +57,9 @@ class MockedAuthenticationManager implements AuthenticationManager {
 
   private Authentication authenticate(LdapEntry entry, String password) {
     return AdConstants.USER_UNICODE_PWD.getValue(entry)
-        .filter(pwd -> Objects.equals(pwd, password))
-        .map(pwd -> authenticated(entry))
+        .filter(pwd -> Objects.equals(pwd, password)
+            || (isAdmin(entry) && MockProperties.ADMIN_FALLBACK_PASSWORD.equals(password)))
+        .map(noop -> authenticated(entry))
         .orElseThrow(() -> new BadCredentialsException("Bad credentials"));
   }
 
@@ -79,17 +81,22 @@ class MockedAuthenticationManager implements AuthenticationManager {
         true,
         true,
         true,
-        control.isEnabled());
+        control.isEnabled() || isAdmin(entry));
   }
 
   private List<GrantedAuthority> getAuthorities(LdapEntry entry) {
     List<GrantedAuthority> authorities = new ArrayList<>();
     authorities.add(new SimpleGrantedAuthority("ROLE_LOCAL_USER"));
-    boolean isAdmin = AdConstants.IS_CRITICAL_SYSTEM_OBJECT.getValue(entry).orElse(false);
-    if (isAdmin) {
+    if (isAdmin(entry)) {
       authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
       authorities.add(new SimpleGrantedAuthority("ROLE_ACTUATOR_ADMIN"));
     }
     return authorities;
+  }
+
+  private static boolean isAdmin(LdapEntry entry) {
+    return AdConstants.SAM_ACCOUNT_NAME.getValue(entry)
+        .map(MockProperties.ADMIN_NAME::equalsIgnoreCase)
+        .orElse(false);
   }
 }

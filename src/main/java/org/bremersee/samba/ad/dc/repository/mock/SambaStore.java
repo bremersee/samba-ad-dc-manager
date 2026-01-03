@@ -35,7 +35,6 @@ import org.ldaptive.dn.NameValue;
 import org.ldaptive.dn.RDn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.lang.Nullable;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -70,7 +69,7 @@ class SambaStore {
     AdConstants.OBJECT_SID.setValue(this.root, Sid.builder()
         .value(DOMAIN_SID)
         .build());
-    new SambaStoreInit(properties, this).init();
+    new SambaStoreInit(this).init();
   }
 
   DomainInfo getDomainInfo() {

@@ -10,6 +10,8 @@ public class MockProperties implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private String administratorPassword = "demo";
+  public static final String ADMIN_NAME = "Administrator";
+
+  public static final String ADMIN_FALLBACK_PASSWORD = "demo";
 
 }
