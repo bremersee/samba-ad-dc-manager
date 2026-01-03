@@ -1,4 +1,4 @@
-Package: dc-con
+Package: samba-ad-dc-manager
 Version: [[version]]
 Section: net
 Priority: optional

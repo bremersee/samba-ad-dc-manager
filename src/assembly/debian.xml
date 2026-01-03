@@ -1,7 +1,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
 
-    <id>debian11</id>
+    <id>debian</id>
     <formats>
         <format>tar.gz</format>
         <format>zip</format>
@@ -10,26 +10,26 @@
     <files>
         <file>
             <source>src/main/resources/application.yml</source>
-            <outputDirectory>var/lib/dc-con</outputDirectory>
+            <outputDirectory>var/lib/samba-ad-dc-manager</outputDirectory>
             <filtered>false</filtered>
             <fileMode>600</fileMode>
         </file>
         <file>
-            <source>src/assembly/debian11/dc-con.conf</source>
-            <outputDirectory>var/lib/dc-con</outputDirectory>
+            <source>src/assembly/debian/samba-ad-dc-manager.conf</source>
+            <outputDirectory>var/lib/samba-ad-dc-manager</outputDirectory>
             <filtered>false</filtered>
             <fileMode>600</fileMode>
         </file>
         <file>
-            <source>src/assembly/debian11/dc-con.service</source>
+            <source>src/assembly/debian/samba-ad-dc-manager.service</source>
             <outputDirectory>lib/systemd/system</outputDirectory>
             <filtered>false</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>target/dc-con.jar</source>
-            <outputDirectory>var/lib/dc-con</outputDirectory>
-            <destName>dc-con.jar</destName>
+            <source>target/samba-ad-dc-manager.jar</source>
+            <outputDirectory>var/lib/samba-ad-dc-manager</outputDirectory>
+            <destName>samba-ad-dc-manager.jar</destName>
             <filtered>false</filtered>
             <fileMode>755</fileMode>
         </file>

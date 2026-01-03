@@ -27,7 +27,7 @@
 
     <!--suppress UnresolvedMavenProperty -->
     <debBaseName>
-      dc-con_${project.version}-${maven.build.timestamp}+${buildNumber}_all
+      samba-ad-dc-manager_${project.version}-${maven.build.timestamp}+${buildNumber}_all
     </debBaseName>
     <debName>${debBaseName}.deb</debName>
     <debChangesName>${debBaseName}.changes</debChangesName>
@@ -92,14 +92,6 @@
   </distributionManagement>
 
   <dependencies>
-    <!--
-    <dependency>
-      <groupId>org.bremersee</groupId>
-      <artifactId>dc-con-api-spring</artifactId>
-      <version>${dc-con-api-spring.version}</version>
-    </dependency>
-    -->
-
     <dependency>
       <groupId>org.bremersee</groupId>
       <artifactId>spring-integration-boot-autoconfigure</artifactId>
@@ -112,12 +104,6 @@
       <groupId>org.bremersee</groupId>
       <artifactId>spring-integration-web</artifactId>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>org.bremersee</groupId>
-      <artifactId>spring-integration-thymeleaf</artifactId>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.bremersee</groupId>
       <artifactId>spring-integration-security-ldaptive</artifactId>
@@ -311,7 +297,7 @@
   </dependencies>
 
   <build>
-    <finalName>dc-con</finalName>
+    <finalName>samba-ad-dc-manager</finalName>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -332,15 +318,15 @@
 
   <profiles>
     <profile>
-      <id>debian11</id>
+      <id>debian</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-        <assembly-config>debian11.xml</assembly-config>
+        <assembly-config>debian.xml</assembly-config>
       </properties>
       <build>
-        <finalName>dc-con</finalName>
+        <finalName>samba-ad-dc-manager</finalName>
         <plugins>
           <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -359,7 +345,7 @@
             </configuration>
             <executions>
               <execution>
-                <id>debian11-archive</id>
+                <id>debian-archive</id>
                 <phase>package</phase>
                 <goals>
                   <goal>single</goal>
@@ -372,7 +358,7 @@
             <groupId>org.vafer</groupId>
             <executions>
               <execution>
-                <id>debian11-deb</id>
+                <id>debian-deb</id>
                 <phase>package</phase>
                 <goals>
                   <goal>jdeb</goal>
@@ -381,10 +367,10 @@
                   <verbose>true</verbose>
                   <deb>${project.build.directory}/${debName}</deb>
                   <changesOut>${project.build.directory}/${debChangesName}</changesOut>
-                  <controlDir>${basedir}/src/assembly/debian11/control</controlDir>
+                  <controlDir>${basedir}/src/assembly/debian/control</controlDir>
                   <dataSet>
                     <data>
-                      <src>${project.build.directory}/dc-con-debian11.tar.gz</src>
+                      <src>${project.build.directory}/samba-ad-dc-manager-debian.tar.gz</src>
                       <type>archive</type>
                       <mapper>
                         <type>perm</type>
@@ -490,7 +476,7 @@
                   <serverId>bremersee-dpkg</serverId>
                   <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
                   <fromFile>${project.build.directory}/${debName}</fromFile>
-                  <toFile>dc-con.deb</toFile>
+                  <toFile>samba-ad-dc-manager.deb</toFile>
                 </configuration>
               </execution>
               <execution>
@@ -503,8 +489,8 @@
                   <serverId>bremersee-dpkg</serverId>
                   <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
                   <commands>
-                    <command>sudo -n /usr/bin/dpkg -i /home/giacomo/dc-con.deb</command>
-                    <command>rm /home/giacomo/dc-con.deb</command>
+                    <command>sudo -n /usr/bin/dpkg -i /home/giacomo/samba-ad-dc-manager.deb</command>
+                    <command>rm /home/giacomo/samba-ad-dc-manager.deb</command>
                   </commands>
                   <displayCommandOutputs>true</displayCommandOutputs>
                   <failOnError>true</failOnError>
