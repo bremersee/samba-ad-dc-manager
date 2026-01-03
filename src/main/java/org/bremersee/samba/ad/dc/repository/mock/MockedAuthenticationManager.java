@@ -1,5 +1,6 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,6 +71,11 @@ class MockedAuthenticationManager implements AuthenticationManager {
   private LdaptiveUserDetails getUserDetails(LdapEntry entry) {
     UserAccountControl control = AdConstants.USER_USER_ACCOUNT_CONTROL.getValue(entry)
         .orElseGet(UserAccountControl::new);
+    AdConstants.USER_LAST_LOGON.setValue(entry, OffsetDateTime.now());
+    AdConstants.USER_LOGON_COUNT.getValue(entry)
+        .ifPresentOrElse(
+            counter -> AdConstants.USER_LOGON_COUNT.setValue(entry, counter + 1),
+            () -> AdConstants.USER_LOGON_COUNT.setValue(entry, 1));
     return new LdaptiveUser(
         entry,
         AdConstants.SAM_ACCOUNT_NAME.getValue(entry).orElse(null),

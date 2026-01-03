@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNullElseGet;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
@@ -71,13 +72,14 @@ class LdapEntryFactory {
     ));
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, false);
     AdConstants.USER_LAST_LOGON.setValue(entry, now);
-    AdConstants.USER_LOGON_COUNT.setValue(entry, 1);
+    AdConstants.USER_LOGON_COUNT.setValue(entry, 0);
     AdConstants.NAME.setValue(entry, samAccountName);
     AdConstants.OBJECT_SID.setValue(entry, requireNonNullElseGet(sid, store::getNextSid));
     AdConstants.PRIMARY_GROUP_ID.setValue(entry, requireNonNullElse(primaryGroupId, 513));
     AdConstants.USER_PWD_LAST_SET.setValue(entry, now);
     AdConstants.SAM_ACCOUNT_NAME.setValue(entry, samAccountName);
     AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(entry, new UserAccountControl());
+    AdConstants.USER_UNICODE_PWD.setValue(entry, MockProperties.ADMIN_FALLBACK_PASSWORD);
     return entry;
   }
 

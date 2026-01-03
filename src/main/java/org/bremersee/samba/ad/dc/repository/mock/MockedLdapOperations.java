@@ -81,8 +81,10 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modify(ModifyRequest request) {
-    store.findByDn(request.getDn())
-        .ifPresent(node -> modify(node, request.getModifications()));
+    synchronized (store) {
+      store.findByDn(request.getDn())
+          .ifPresent(node -> modify(node, request.getModifications()));
+    }
   }
 
   private void modify(LdapEntry entry, AttributeModification[] modifications) {
@@ -98,6 +100,9 @@ class MockedLdapOperations implements LdaptiveOperations {
     Type type = modification.getOperation();
     if (Type.ADD.equals(type) || Type.REPLACE.equals(type)) {
       addAttribute(entry, attr);
+      if (AdConstants.USER_UNICODE_PWD.getName().equalsIgnoreCase(attr.getName())) {
+        AdConstants.USER_PWD_LAST_SET.setValue(entry, OffsetDateTime.now());
+      }
     } else if (Type.DELETE.equals(type)) {
       removeAttribute(entry, attr);
     }

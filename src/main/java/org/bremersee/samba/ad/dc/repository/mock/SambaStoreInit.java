@@ -289,7 +289,6 @@ class SambaStoreInit {
     AdConstants.USER_SN.setValue(node, "of Samba AD DC");
     AdConstants.USER_DISPLAY_NAME.setValue(node, "Domain Administrator");
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);
-    AdConstants.USER_UNICODE_PWD.setValue(node, MockProperties.ADMIN_FALLBACK_PASSWORD);
     AdConstants.MEMBER_OF_GROUP.setValues(node, List.of(
         Dn.builder().add("CN=Domain Admins").add(getUsersDn()).build(),
         Dn.builder().add("CN=Enterprise Admins").add(getUsersDn()).build(),
