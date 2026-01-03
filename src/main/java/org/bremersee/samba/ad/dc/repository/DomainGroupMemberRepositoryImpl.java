@@ -34,6 +34,7 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool.DnPair;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
@@ -285,7 +286,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
       return group;
     }
     Set<DnPair> members = group.getMembers().stream()
-        .map(dn -> new DnPair(dn, new Dn(dn).format()))
+        .map(DnTool::getDnPair)
         .collect(Collectors.toCollection(LinkedHashSet::new));
     Set<DnPair> add = toDnPairs(group, membersToAdd);
     members.addAll(add);
@@ -305,26 +306,9 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         .filter(member -> !isEmpty(member))
         .filter(member -> !Objects
             .equals(member.getPrimaryGroupId(), group.getGroupId()))
-        .map(AdEntry::getDistinguishedName)
-        .map(dn -> new DnPair(dn, new Dn(dn).format()))
+        .map(AdEntry::getDn)
+        .map(DnTool::getDnPair)
         .collect(Collectors.toSet());
-  }
-
-  private record DnPair(String dn, String formattedDn) {
-
-    @Override
-    public boolean equals(Object o) {
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      DnPair dnPair = (DnPair) o;
-      return Objects.equals(formattedDn, dnPair.formattedDn);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(formattedDn);
-    }
   }
 
 }
