@@ -34,6 +34,8 @@ public interface AdEntry extends Serializable, DistinguishedNameProvider {
     return "";
   }
 
+  AdEntry withDistinguishedName(String distinguishedName);
+
   /**
    * Gets distinguished name normalized.
    *

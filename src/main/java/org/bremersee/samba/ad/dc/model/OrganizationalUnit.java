@@ -1,5 +1,7 @@
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.requireNonNullElse;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -31,6 +33,14 @@ import org.springframework.lang.Nullable;
 @JsonSerialize(as = ImmutableOrganizationalUnit.class)
 @JsonDeserialize(as = ImmutableOrganizationalUnit.class)
 public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<OrganizationalUnit> {
+
+  @Override
+  default OrganizationalUnit withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
 
   @Nullable
   String getDescription();

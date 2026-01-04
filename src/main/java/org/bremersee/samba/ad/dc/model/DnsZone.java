@@ -1,5 +1,7 @@
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.requireNonNullElse;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -22,6 +24,14 @@ import org.springframework.lang.Nullable;
 @JsonSerialize(as = ImmutableDnsZone.class)
 @JsonDeserialize(as = ImmutableDnsZone.class)
 public interface DnsZone extends AdEntry {
+
+  @Override
+  default DnsZone withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
 
   @Schema(description = "The zone name.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "name", required = true)

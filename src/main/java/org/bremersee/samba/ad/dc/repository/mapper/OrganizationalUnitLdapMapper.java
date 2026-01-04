@@ -61,7 +61,10 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
 
   @Override
   public String[] getObjectClasses() {
-    return new String[0];
+    return new String[]{
+        "organizationalUnit",
+        "top"
+    };
   }
 
   @Override
@@ -117,6 +120,9 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
         .mapAndComputeModifications(source, destination)));
     AdConstants.DESCRIPTION
         .setValue(destination, source.getDescription())
+        .ifPresent(modifications::add);
+    AdConstants.NAME
+        .setValue(destination, source.getName(), (e, n) -> isNull(e))
         .ifPresent(modifications::add);
     return modifications.toArray(AttributeModification[]::new);
   }

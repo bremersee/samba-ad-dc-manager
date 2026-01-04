@@ -1,5 +1,6 @@
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import org.immutables.serial.Serial;
@@ -40,9 +40,12 @@ public interface DomainUser extends SamAccount, NisDomainMember {
    * @param distinguishedName the distinguished name
    * @return the domain user
    */
-  @NotNull
-  default DomainUser withDistinguishedName(@NotNull String distinguishedName) {
-    return builder().distinguishedName(distinguishedName).build();
+  @Override
+  default DomainUser withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
   }
 
   /**

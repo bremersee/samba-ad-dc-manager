@@ -1,5 +1,7 @@
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.requireNonNullElse;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -8,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import org.immutables.serial.Serial;
@@ -30,8 +31,13 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainGroup.class)
 public interface DomainGroup extends SamAccount, NisDomainMember {
 
-  @NotNull
-  DomainGroup withDistinguishedName(@NotNull String distinguishedName);
+  @Override
+  default DomainGroup withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
 
   /**
    * The description of the domain group.

@@ -1,5 +1,7 @@
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.requireNonNullElse;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +26,14 @@ import org.immutables.value.Value;
 @JsonSerialize(as = ImmutableAdEntryIntermediate.class)
 @JsonDeserialize(as = ImmutableAdEntryIntermediate.class)
 public interface AdEntryIntermediate extends AdEntry {
+
+  @Override
+  default AdEntry withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
 
   /**
    * Gets the immutable builder.

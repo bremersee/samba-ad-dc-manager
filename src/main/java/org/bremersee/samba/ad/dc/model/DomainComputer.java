@@ -1,5 +1,6 @@
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +28,14 @@ import org.springframework.lang.Nullable;
 @JsonSerialize(as = ImmutableDomainComputer.class)
 @JsonDeserialize(as = ImmutableDomainComputer.class)
 public interface DomainComputer extends SamAccount {
+
+  @Override
+  default DomainComputer withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
 
   @Schema(description = "The name of the computer.")
   @JsonProperty(value = "name")

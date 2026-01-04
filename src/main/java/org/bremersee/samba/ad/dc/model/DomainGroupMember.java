@@ -26,6 +26,14 @@ import org.springframework.lang.NonNull;
 @JsonDeserialize(as = ImmutableDomainGroupMember.class)
 public interface DomainGroupMember extends SamAccount {
 
+  @Override
+  default DomainGroupMember withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
   @Schema(description = "The type of the member.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "memberType", required = true)
   DomainGroupMemberType getMemberType();

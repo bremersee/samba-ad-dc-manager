@@ -72,7 +72,10 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
 
   @Override
   public String[] getObjectClasses() {
-    return new String[0];
+    return new String[]{
+        "group",
+        "top"
+    };
   }
 
   @Override

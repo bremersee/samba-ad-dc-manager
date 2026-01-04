@@ -104,7 +104,12 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
 
   @Override
   public String[] getObjectClasses() {
-    return new String[0];
+    return new String[]{
+        "organizationalPerson",
+        "person",
+        "top",
+        "user"
+    };
   }
 
   @Override

@@ -54,16 +54,12 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
   private final LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper;
 
-  private final SambaToolOu sambaToolOu;
-
   OrganizationalUnitRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
-      LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper,
-      SambaToolOu sambaToolOu) {
+      LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper) {
     super(properties, ldapOperations);
     this.ouLdapMapper = ouLdapMapper;
-    this.sambaToolOu = sambaToolOu;
   }
 
   Dn getDefaultOu() {
@@ -182,28 +178,23 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
       throw ServiceException.badRequest(
           "Name of organizational unit is required.", EC_OU_NAME_REQUIRED);
     }
-    if (organizationalUnit.getName().contains(",")) {
+    if (organizationalUnit.getName().contains(",") || organizationalUnit.getName().contains("=")) {
       throw ServiceException.badRequest(
           "Name of organizational unit contains illegal characters.", EC_ILLEGAL_OU_NAME);
     }
     Dn dn = new Dn(new RDn(new NameValue(
         AdConstants.RDN_ATTR_NAME_OU,
         organizationalUnit.getName())));
-    if (!isEmpty(parentOu) && !parentOu.isEmpty()) {
-      dn.add(validateParentOu(parentOu));
-    }
+    dn.add(validateParentOu(parentOu));
     if (exists(dn)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           OrganizationalUnit.class.getSimpleName(),
           organizationalUnit.getName(),
           EC_OU_ALREADY_EXISTS);
     }
-    sambaToolOu.addOrganizationalUnit(organizationalUnit, validateParentOu(parentOu));
-    return findOne(dn)
-        .orElseThrow(() -> ServiceException
-            .internalServerError(
-                String.format("Adding organization unit '%s' failed.", dn.format(rdn -> rdn)),
-                ErrorCode.EC_ADDING_OU_FAILED));
+    String dnStr = dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
+    return getLdapOperations()
+        .save(organizationalUnit.withDistinguishedName(dnStr), ouLdapMapper);
   }
 
   @Override
