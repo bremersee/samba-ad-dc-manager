@@ -85,7 +85,9 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     super(properties, ldapOperations);
     this.domainRepository = domainRepository;
     this.domainUserTool = domainUserTool;
-    this.domainUserLdapMapper = new DomainUserLdapMapper(this.domainRepository::isRfc2307Enabled);
+    this.domainUserLdapMapper = new DomainUserLdapMapper(
+        this.domainRepository::createRandomPassword,
+        this.domainRepository::isRfc2307Enabled);
   }
 
   @Override

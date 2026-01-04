@@ -62,7 +62,7 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
   @Override
   public String[] getObjectClasses() {
     return new String[]{
-        "organizationalUnit",
+        AdConstants.OBJECT_CLASS_OU,
         "top"
     };
   }

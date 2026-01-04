@@ -70,4 +70,6 @@ public interface DomainRepository {
    */
   PasswordInformation getPasswordInformation();
 
+  String createRandomPassword();
+
 }

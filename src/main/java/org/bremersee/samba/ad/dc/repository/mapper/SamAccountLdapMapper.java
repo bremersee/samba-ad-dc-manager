@@ -113,7 +113,7 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
           .setValue(
               destination,
               source.getPrimaryGroupId(),
-              (oldValue, newValue) -> !isEmpty(oldValue) && !isEmpty(newValue))
+              (oldValue, newValue) -> !isEmpty(newValue))
           .ifPresent(modifications::add);
     }
     return modifications.toArray(AttributeModification[]::new);

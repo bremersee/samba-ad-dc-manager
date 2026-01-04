@@ -286,6 +286,14 @@ public interface DomainUser extends SamAccount, NisDomainMember {
     return "de-DE";
   }
 
+  @Schema(description = "The primary group ID of the user.")
+  @JsonProperty(value = "primaryGroupId")
+  @Value.Default
+  @Override
+  default Integer getPrimaryGroupId() {
+    return 513; // Domain Users
+  }
+
   /**
    * User's profile path.
    *

@@ -18,20 +18,17 @@ package org.bremersee.samba.ad.dc.repository;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.PasswordGenerator;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -41,11 +38,13 @@ import org.springframework.stereotype.Component;
  */
 @Component("domainRepository")
 @Slf4j
-public class DomainRepositoryImpl extends AdRepository implements DomainRepository, KeyGenerator {
+public class DomainRepositoryImpl extends AdRepository implements DomainRepository {
 
   private final HostNameSupplier hostNameSupplier;
 
   private final SambaToolDomain domainTool;
+
+  private final PasswordGenerator passwordGenerator;
 
   private String hostName;
 
@@ -58,11 +57,13 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
       HostNameSupplier hostNameSupplier,
-      SambaToolDomain domainTool) {
+      SambaToolDomain domainTool,
+      PasswordGenerator passwordGenerator) {
     super(properties, ldapOperations);
     this.hostName = properties.getDomain().getHostName();
     this.hostNameSupplier = hostNameSupplier;
     this.domainTool = domainTool;
+    this.passwordGenerator = passwordGenerator;
   }
 
   @Override
@@ -97,35 +98,27 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     return result;
   }
 
-  @Cacheable(value = "domainInfoCache", keyGenerator = "domainRepository")
   @Override
   public DomainInfo getDomainInfo() {
     log.debug("getDomainInfo()");
     return domainTool.getDomainInfo(getHostName());
   }
 
-  @Cacheable(value = "domainInfoCache", key = "#p0")
   @Override
   public DomainInfo getDomainInfo(String ipOrHostname) {
     log.debug("getDomainInfo({})", ipOrHostname);
     return domainTool.getDomainInfo(ipOrHostname);
   }
 
-  @Cacheable(value = "passwordInformationCache")
   @Override
   public PasswordInformation getPasswordInformation() {
     log.debug("getPasswordInformation()");
     return domainTool.getPasswordInformation();
   }
 
-  @NonNull
   @Override
-  public Object generate(
-      @NonNull Object target,
-      @NonNull Method method,
-      @NonNull Object... params) {
-
-    // the cache key for getDomainInfo()
-    return getHostName();
+  public String createRandomPassword() {
+    return passwordGenerator.generatePassword(getPasswordInformation());
   }
+
 }

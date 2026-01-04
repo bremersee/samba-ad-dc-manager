@@ -16,7 +16,6 @@
 
 package org.bremersee.samba.ad.dc.repository.mapper;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -53,6 +52,8 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
   // Actually max is Long.MAX_VALUE, year > 30000. Year 9999 should be great enough.
   private static final OffsetDateTime MAX_EXPIRES = OffsetDateTime.parse("9999-01-01T00:00:00Z");
 
+  private final Supplier<String> passwordSupplier;
+
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
   private final SamAccountLdapMapper samAccountLdapMapper;
@@ -60,7 +61,10 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
   @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
-  public DomainUserLdapMapper(Supplier<Boolean> rfc2307EnabledSupplier) {
+  public DomainUserLdapMapper(
+      Supplier<String> passwordSupplier,
+      Supplier<Boolean> rfc2307EnabledSupplier) {
+    this.passwordSupplier = passwordSupplier;
     this.rfc2307EnabledSupplier = rfc2307EnabledSupplier;
     samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainUser();
@@ -108,7 +112,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
         "organizationalPerson",
         "person",
         "top",
-        "user"
+        AdConstants.OBJECT_CLASS_USER
     };
   }
 
@@ -241,7 +245,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
       DomainUser source,
       LdapEntry destination) {
 
-    if (isNull(source) || isNull(destination)) {
+    if (isEmpty(source) || isEmpty(destination)) {
       return new AttributeModification[0];
     }
     var modifications = new ArrayList<>(Arrays.asList(samAccountLdapMapper
@@ -318,6 +322,16 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
 
     AdConstants.USER_PRINCIPAL_NAME.setValue(destination, source.getUserPrincipalName())
         .ifPresent(modifications::add);
+
+    // TODO ich kann es ja gar nicht lesen. Wie stelle ich fest, dass der Benutzer neu ist? Sid wenn null, dann ja
+    // Vielleicht brauche ich auch keins
+    /*
+    if (isEmpty(source.getSid())) {
+      AdConstants.USER_UNICODE_PWD
+          .setValue(destination, passwordSupplier.get())
+          .ifPresent(modifications::add);
+    }
+     */
 
     UserAccountControl userAccountControl = Optional.ofNullable(source.getAccountControl())
         .map(DomainUserAccountControl::getUserAccountControl)

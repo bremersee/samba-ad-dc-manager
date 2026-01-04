@@ -51,7 +51,7 @@ class DomainUserLdapMapperTest {
    */
   @BeforeAll
   static void init() {
-    mapper = new DomainUserLdapMapper(() -> true);
+    mapper = new DomainUserLdapMapper(() -> "password", () -> true);
   }
 
   /**

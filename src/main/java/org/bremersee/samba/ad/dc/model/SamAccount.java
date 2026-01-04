@@ -56,7 +56,6 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
    *
    * @return the primary group id
    */
-  @Nullable
   Integer getPrimaryGroupId();
 
   /**

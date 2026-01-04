@@ -1,23 +1,20 @@
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.misc;
 
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.ehcache.config.units.MemoryUnit;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
-import org.passay.PasswordGenerator;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PassayPasswordGeneratorService implements PasswordGeneratorService {
+public class PassayPasswordGenerator implements PasswordGenerator {
 
   private final Random random;
 
-  public PassayPasswordGeneratorService() {
-    MemoryUnit memoryUnit = MemoryUnit.MB;
+  public PassayPasswordGenerator() {
     this.random = new SecureRandom();
   }
 
@@ -34,7 +31,7 @@ public class PassayPasswordGeneratorService implements PasswordGeneratorService 
     int digit = Math.max((int) Math.floor(length * 0.2), 1);
     int special = Math.max((int) Math.floor(length * 0.1), 1);
     List<CharacterRule> rules = getCharacterRules(lower, upper, digit, special);
-    return new PasswordGenerator(random).generatePassword(length, rules);
+    return new org.passay.PasswordGenerator(random).generatePassword(length, rules);
   }
 
   /**

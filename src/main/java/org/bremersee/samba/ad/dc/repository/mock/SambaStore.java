@@ -28,6 +28,7 @@ import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
+import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -50,6 +51,9 @@ class SambaStore {
   @Getter(AccessLevel.PACKAGE)
   private final DnTool dnTool;
 
+  @Getter(AccessLevel.PACKAGE)
+  private final LdapEntryFactory entryFactory;
+
   private DomainInfo domainInfo;
 
   private PasswordInformation passwordInformation;
@@ -69,6 +73,7 @@ class SambaStore {
     AdConstants.OBJECT_SID.setValue(this.root, Sid.builder()
         .value(DOMAIN_SID)
         .build());
+    this.entryFactory = new LdapEntryFactory(this);
     new SambaStoreInit(this).init();
   }
 
@@ -187,6 +192,87 @@ class SambaStore {
         });
   }
 
+  synchronized void remove(String dn) {
+    findByDn(dn).ifPresent(node -> {
+      node.getParent().getChildren().remove(node);
+      adjustDns(new Dn(dn), null);
+    });
+  }
+
+  synchronized void modifyDn(ModifyDnRequest request) {
+    findByDn(request.getOldDn()).ifPresent(entry -> {
+      Dn oldDn = new Dn(entry.getDn());
+      Dn newDn = new Dn(request.getNewRDn());
+      if (isEmpty(request.getNewSuperiorDn())) {
+        newDn.add(oldDn.getParent());
+      } else {
+        newDn.add(new Dn(request.getNewSuperiorDn()));
+      }
+      if (!oldDn.getParent().isSame(newDn.getParent())) {
+        entry.getParent().removeChild(entry);
+        findByDn(newDn).ifPresent(newParent -> newParent.addChild(entry));
+      }
+      AdConstants.NAME.setValue(entry, newDn.getRDn().getNameValue().getStringValue());
+      adjustDns(oldDn, newDn);
+    });
+  }
+
+  private void adjustDns(Dn oldDn, @Nullable Dn newDn) {
+    modifyAll(
+        entry -> {
+          Dn adjustedDn = renameDn(oldDn, newDn, new Dn(entry.getDn()));
+          entry.setDn(DnTool.toString(adjustedDn));
+          AdConstants.DN.setValue(entry, adjustedDn);
+        },
+        entry -> true);
+    List<LdaptiveAttribute<Dn>> attrList = List.of(
+        AdConstants.GROUP_MEMBER,
+        AdConstants.MEMBER_OF_GROUP);
+    for (LdaptiveAttribute<Dn> attr : attrList) {
+      modifyAll(
+          entry -> {
+            List<Dn> list = attr.getValues(entry)
+                .map(dn -> renameDn(oldDn, newDn, dn))
+                .filter(dn -> !isEmpty(dn) && !dn.isEmpty())
+                .toList();
+            attr.setValues(entry, list);
+          },
+          attr::exists);
+    }
+  }
+
+  private Dn renameDn(Dn oldDn, @Nullable Dn newDn, Dn targetDn) {
+    if (oldDn.isSame(targetDn)) {
+      return newDn;
+    }
+    if (oldDn.isAncestor(targetDn)) {
+      return DnTool.replaceAncestor(targetDn, oldDn, newDn);
+    }
+    return targetDn;
+  }
+
+  private void modifyAll(Consumer<LdapEntry> modification, Predicate<LdapEntry> condition) {
+    if (condition.test(root)) {
+      modification.accept(root);
+    }
+    modifyAll(root.getChildren(), modification, condition);
+  }
+
+  private void modifyAll(
+      List<LdapNode> children,
+      Consumer<LdapEntry> modification,
+      Predicate<LdapEntry> condition) {
+    for (LdapNode child : children) {
+      if (condition.test(child)) {
+        modification.accept(child);
+      }
+      modifyAll(child.getChildren(), modification, condition);
+    }
+  }
+
+
+
+  // der rest kann weg:
   private Optional<Dn> move(Dn dn, Dn newParentDn) {
     if (!DnTool.isValidDn(dn)) {
       return Optional.empty();
@@ -275,13 +361,6 @@ class SambaStore {
             OrganizationalUnit.class.getSimpleName(), dn, ErrorCode.EC_OU_NOT_FOUND));
   }
 
-  synchronized void remove(String dn) {
-    findByDn(dn).ifPresent(node -> {
-      node.getParent().getChildren().remove(node);
-      onEntryDnChange(new Dn(dn), null);
-    });
-  }
-
   private void onEntryDnChange(Dn oldDn, @Nullable Dn newDn) {
     List<LdaptiveAttribute<Dn>> attrList = List.of(
         AdConstants.GROUP_MEMBER,
@@ -330,25 +409,6 @@ class SambaStore {
         .map(dn -> DnTool.replaceAncestor(dn, oldDn, newDn))
         .toList();
     attr.setValues(entry, newValues);
-  }
-
-  private void modifyAll(Consumer<LdapEntry> modification, Predicate<LdapEntry> condition) {
-    if (condition.test(root)) {
-      modification.accept(root);
-    }
-    modifyAll(root.getChildren(), modification, condition);
-  }
-
-  private void modifyAll(
-      List<LdapNode> children,
-      Consumer<LdapEntry> modification,
-      Predicate<LdapEntry> condition) {
-    for (LdapNode child : children) {
-      if (condition.test(child)) {
-        modification.accept(child);
-      }
-      modifyAll(child.getChildren(), modification, condition);
-    }
   }
 
 }

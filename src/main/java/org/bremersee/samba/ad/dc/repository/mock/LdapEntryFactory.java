@@ -5,13 +5,17 @@ import static java.util.Objects.requireNonNullElseGet;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
+import org.springframework.util.Assert;
 
 @SuppressWarnings("ClassCanBeRecord")
 class LdapEntryFactory {
@@ -20,6 +24,30 @@ class LdapEntryFactory {
 
   LdapEntryFactory(SambaStore store) {
     this.store = store;
+  }
+
+  void setDefaultValues(LdapEntry entry) {
+    Assert.hasText(entry.getDn(), "DN must be present.");
+    Dn dn = new Dn(entry.getDn());
+    Set<String> objectClasses = AdConstants.OBJECT_CLASS.getValues(entry)
+        .collect(Collectors.toSet());
+    Assert.notEmpty(objectClasses, "Object classes have to be present.");
+    AdConstants.DN.setValue(entry, dn);
+    OffsetDateTime now = OffsetDateTime.now();
+    AdConstants.WHEN_CREATED.setValue(entry, now);
+    AdConstants.WHEN_CHANGED.setValue(entry, now);
+    AdConstants.NAME.setValue(entry, dn.getRDn().getNameValue().getStringValue());
+    if (objectClasses.contains(AdConstants.OBJECT_CLASS_GROUP)) {
+      AdConstants.OBJECT_SID.setValue(entry, store.getNextSid());
+    } else if (objectClasses.contains(AdConstants.OBJECT_CLASS_USER)) {
+      AdConstants.USER_LAST_LOGON.setValue(entry, now);
+      AdConstants.USER_LOGON_COUNT.setValue(entry, 0);
+      AdConstants.OBJECT_SID.setValue(entry, store.getNextSid());
+      AdConstants.PRIMARY_GROUP_ID.setValue(entry, 513);
+      AdConstants.USER_PWD_LAST_SET.setValue(entry, now);
+      AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(entry, new UserAccountControl());
+      AdConstants.USER_UNICODE_PWD.setValue(entry, MockProperties.ADMIN_FALLBACK_PASSWORD);
+    }
   }
 
   LdapEntry newEntry(String rdn, Dn parentDn) {
@@ -37,7 +65,7 @@ class LdapEntryFactory {
   LdapEntry newOrganizationalUnitEntry(String name, Dn parentDn) {
     LdapEntry entry = newEntry("OU=" + name, parentDn);
     AdConstants.OBJECT_CLASS.setValues(entry, List.of(
-        "organizationalUnit", "top"
+        AdConstants.OBJECT_CLASS_OU, "top"
     ));
     AdConstants.NAME.setValue(entry, name);
     AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, false);
@@ -50,7 +78,7 @@ class LdapEntryFactory {
       Sid sid) {
     LdapEntry entry = newEntry("CN=" + samAccountName, parentDn);
     AdConstants.OBJECT_CLASS.setValues(entry, List.of(
-        "group", "top"
+        AdConstants.OBJECT_CLASS_GROUP, "top"
     ));
     AdConstants.GROUP_TYPE.setValue(entry, groupType);
     AdConstants.NIS_NAME.setValue(entry, samAccountName);

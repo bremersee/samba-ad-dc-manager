@@ -3,9 +3,9 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveErrorHandler;
-import org.bremersee.ldaptive.LdaptiveException;
 import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AddRequest;
@@ -121,7 +121,7 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modifyDn(ModifyDnRequest request) {
-    throw new UnsupportedOperationException("modifyDn(ModifyDnRequest) is not implemented.");
+    store.modifyDn(request);
   }
 
   @Override
@@ -145,9 +145,14 @@ class MockedLdapOperations implements LdaptiveOperations {
           AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now());
           return entryMapper.map(node);
         })
-        .orElseThrow(() -> LdaptiveException.builder()
-            .reason(String.format("No ldap entry found with dn = %s", dn))
-            .httpStatus(404)
-            .build());
+        .orElseGet(() -> {
+          LdapEntry entry = new LdapEntry();
+          entry.setDn(entryMapper.mapDn(domainObject));
+          AdConstants.OBJECT_CLASS.setValues(entry, Arrays.asList(entryMapper.getObjectClasses()));
+          entryMapper.map(domainObject, entry);
+          store.getEntryFactory().setDefaultValues(entry);
+          store.add(entry);
+          return entryMapper.map(entry);
+        });
   }
 }

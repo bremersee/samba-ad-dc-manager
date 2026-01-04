@@ -17,6 +17,7 @@
 package org.bremersee.samba.ad.dc.service;
 
 import java.util.Map;
+import org.bremersee.samba.ad.dc.misc.PasswordGenerator;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
@@ -33,19 +34,14 @@ public class DomainServiceImpl implements DomainService, TemplateEngineContextSu
 
   private final DomainRepository domainRepository;
 
-  private final PasswordGeneratorService passwordGeneratorService;
-
   /**
    * Instantiates a new domain service.
    *
    * @param domainRepository the domain repository
-   * @param passwordGeneratorService the password generator service
    */
   public DomainServiceImpl(
-      DomainRepository domainRepository,
-      PasswordGeneratorService passwordGeneratorService) {
+      DomainRepository domainRepository) {
     this.domainRepository = domainRepository;
-    this.passwordGeneratorService = passwordGeneratorService;
   }
 
   @Override
@@ -75,7 +71,7 @@ public class DomainServiceImpl implements DomainService, TemplateEngineContextSu
 
   @Override
   public String createRandomPassword() {
-    return passwordGeneratorService.generatePassword(getPasswordInformation());
+    return domainRepository.createRandomPassword();
   }
 
 }

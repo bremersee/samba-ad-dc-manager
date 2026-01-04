@@ -18,7 +18,7 @@ class SambaStoreInit {
 
   SambaStoreInit(SambaStore store) {
     this.store = store;
-    this.entryFactory = new LdapEntryFactory(store);
+    this.entryFactory = store.getEntryFactory();
   }
 
   void init() {

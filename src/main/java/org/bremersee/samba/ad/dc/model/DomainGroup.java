@@ -97,11 +97,6 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
         .orElse(null);
   }
 
-  /*
-  @Schema(description = "Groups have no primary group id. It is always null.",
-      accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(value = "primaryGroupId", access = Access.READ_ONLY)
-  */
   @Hidden
   @JsonIgnore
   @Value.Lazy

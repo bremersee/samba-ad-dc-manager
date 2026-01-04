@@ -73,7 +73,7 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
   @Override
   public String[] getObjectClasses() {
     return new String[]{
-        "group",
+        AdConstants.OBJECT_CLASS_GROUP,
         "top"
     };
   }
@@ -142,6 +142,9 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
         .mapAndComputeModifications(source, destination)));
     AdConstants.DESCRIPTION
         .setValue(destination, source.getDescription())
+        .ifPresent(modifications::add);
+    AdConstants.GROUP_TYPE
+        .setValue(destination, source.getGroupType().getValue(), (e, n) -> isNull(e))
         .ifPresent(modifications::add);
     AdConstants.MAIL
         .setValue(destination, source.getEmail())

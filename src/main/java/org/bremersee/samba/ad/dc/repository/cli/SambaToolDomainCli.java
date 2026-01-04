@@ -8,6 +8,7 @@ import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.repository.SambaToolDomain;
 import org.bremersee.samba.ad.dc.repository.cli.parser.DomainInfoParser;
 import org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,6 +24,7 @@ public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain 
     return "domain";
   }
 
+  @Cacheable(value = "domainInfoCache", key = "#p0")
   @Override
   public DomainInfo getDomainInfo(String ipOrHostname) {
     List<String> commands = getCommands();
@@ -33,6 +35,7 @@ public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain 
         DomainInfoParser.defaultParser());
   }
 
+  @Cacheable(value = "passwordInformationCache")
   @Override
   public PasswordInformation getPasswordInformation() {
     List<String> commands = getCommands();

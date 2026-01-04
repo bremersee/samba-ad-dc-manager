@@ -42,7 +42,13 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
 
   @Override
   public String[] getObjectClasses() {
-    return new String[0];
+    return new String[]{
+        AdConstants.OBJECT_CLASS_COMPUTER,
+        "organizationalPerson",
+        "person",
+        "top",
+        AdConstants.OBJECT_CLASS_USER
+    };
   }
 
   @Override
