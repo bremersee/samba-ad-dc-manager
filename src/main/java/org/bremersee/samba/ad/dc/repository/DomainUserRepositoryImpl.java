@@ -17,6 +17,7 @@
 package org.bremersee.samba.ad.dc.repository;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Objects;
@@ -37,6 +38,7 @@ import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainUserLdapMapper;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;
+import org.ldaptive.DeleteRequest;
 import org.ldaptive.LdapException;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.ResultCode;
@@ -68,8 +70,6 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
   private final DomainRepository domainRepository;
 
-  private final SambaToolUser domainUserTool;
-
   /**
    * Instantiates a new domain user repository.
    *
@@ -80,14 +80,10 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   public DomainUserRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
-      DomainRepository domainRepository,
-      SambaToolUser domainUserTool) {
+      DomainRepository domainRepository) {
     super(properties, ldapOperations);
     this.domainRepository = domainRepository;
-    this.domainUserTool = domainUserTool;
-    this.domainUserLdapMapper = new DomainUserLdapMapper(
-        this.domainRepository::createRandomPassword,
-        this.domainRepository::isRfc2307Enabled);
+    this.domainUserLdapMapper = new DomainUserLdapMapper(this.domainRepository::isRfc2307Enabled);
   }
 
   @Override
@@ -266,27 +262,50 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .isPresent();
   }
 
+  private RDn getRdn(DomainUser user, Boolean useUsernameAsCn) {
+    boolean useUsername = requireNonNullElse(
+        useUsernameAsCn, getProperties().getUser().isUseUsernameAsCn())
+        || isEmpty(user.getFirstName())
+        || isEmpty(user.getLastName());
+    String cn = useUsername
+        ? user.getSamAccountName()
+        : user.getFirstName() + ' ' + user.getLastName();
+    return new RDn(new NameValue(AdConstants.CN.getName(), cn));
+  }
+
+  private RDn getRdn(DomainUser oldUser, DomainUser newUser) {
+    RDn oldRdn = oldUser.getDn().getRDn();
+    boolean useUsername = oldUser.getSamAccountName()
+        .equalsIgnoreCase(oldRdn.getNameValue().getStringValue())
+        || isEmpty(newUser.getFirstName())
+        || isEmpty(newUser.getLastName());
+    String cn = useUsername
+        ? newUser.getSamAccountName()
+        : newUser.getFirstName() + ' ' + oldUser.getLastName();
+    return new RDn(new NameValue(oldRdn.getNameValue().getName(), cn));
+  }
+
   @Override
   public DomainUser add(
-      DomainUser domainUser,
+      DomainUser user,
       String clearPassword,
       Dn ou,
       Boolean useUsernameAsCn) {
 
-    log.debug("add({}, {}, {}, {})", domainUser.getSamAccountName(),
+    log.debug("add({}, {}, {}, {})", user.getSamAccountName(),
         isEmpty(clearPassword) ? "null" : "****", ou, useUsernameAsCn);
 
-    validateNewSamAccountName(domainUser);
-    validateEmail(domainUser.getEmail());
+    validateNewSamAccountName(user);
+    validateEmail(user.getEmail());
 
-    String defaultPrincipalName = Optional.ofNullable(domainUser.getUserPrincipalName())
+    String defaultPrincipalName = Optional.ofNullable(user.getUserPrincipalName())
         .filter(name -> !isEmpty(name))
-        .orElseGet(() -> domainUser.getSamAccountName()
+        .orElseGet(() -> user.getSamAccountName()
             + '@' + domainRepository.getDomainInfo().getDomain());
-    if (samAccountExists(domainUser) || existsByPrincipalName(defaultPrincipalName)) {
+    if (samAccountExists(user) || existsByPrincipalName(defaultPrincipalName)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
-          domainUser.getSamAccountName(),
+          user.getSamAccountName(),
           EC_SAM_ACCOUNT_ALREADY_EXISTS);
     }
     Pattern passwordPattern = domainRepository.getPasswordInformation().getPasswordPattern();
@@ -294,37 +313,30 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
       throw ServiceException.badRequest(
           String.format(
               "The password of user '%s' does not meet the complexity criteria!",
-              domainUser.getSamAccountName()),
+              user.getSamAccountName()),
           EC_PASSWORD_RESTRICTIONS);
     }
-    if (existsByUid(domainUser.getUid())) {
+    if (existsByUid(user.getUid())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName() + ".uid",
-          domainUser.getUid(),
+          user.getUid(),
           EC_UID_ALREADY_EXISTS);
     }
-    if (existsByUidNumber(domainUser.getUidNumber())) {
+    if (existsByUidNumber(user.getUidNumber())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName() + ".uidNumber",
-          domainUser.getUidNumber(),
+          user.getUidNumber(),
           EC_UID_NUMBER_ALREADY_EXISTS);
     }
-    Dn userOu = DnTool.isValidDn(ou) ? ou : getDefaultOu();
-    domainUserTool
-        .addUser(domainUser, userOu, useUsernameAsCn, domainRepository.isRfc2307Enabled());
-    return findDnOfSamAccount(domainUser)
-        .map(dn -> getLdapOperations()
-            .save(domainUser.withDistinguishedName(dn), domainUserLdapMapper))
-        .map(newUser -> {
-          if (!isEmpty(clearPassword)) {
-            doSavePassword(newUser.getDistinguishedName(), clearPassword);
-          }
-          return newUser;
-        })
-        .orElseThrow(() -> ServiceException
-            .internalServerError(
-                String.format("Adding user '%s' failed.", domainUser.getSamAccountName()),
-                EC_ADDING_USER_FAILED));
+    Dn dn = new Dn(getRdn(user, useUsernameAsCn));
+    dn.add(validateParentDn(ou, this::getDefaultOu));
+    String dnStr = DnTool.toString(dn);
+    DomainUser addedUser = getLdapOperations()
+        .save(user.withDistinguishedName(dnStr), domainUserLdapMapper);
+    if (!isEmpty(clearPassword)) {
+      doSavePassword(addedUser.getDistinguishedName(), clearPassword);
+    }
+    return addedUser;
   }
 
   @Override
@@ -375,46 +387,18 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
           EC_UID_NUMBER_ALREADY_EXISTS);
     }
     Dn oldDn = new Dn(existingDomainUser.getDistinguishedName());
-    Dn newDn = getNewDn(existingDomainUser, domainUser, newOu);
+    Dn newDn = new Dn(getRdn(existingDomainUser, domainUser));
+    newDn.add(validateParentDn(newOu, oldDn::getParent));
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName(),
           getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
-
-    domainUserTool.renameAndMoveUser(existingDomainUser, domainUser, newDn);
-    return findDnOfSamAccount(domainUser)
-        .map(domainUser::withDistinguishedName)
-        .map(user -> getLdapOperations().save(user, domainUserLdapMapper))
-        .orElseThrow(() -> ServiceException.internalServerError(
-            String.format("Updating user '%s' failed.", userName),
-            EC_UPDATING_USER_FAILED));
-  }
-
-  Dn getNewDn(DomainUser oldUser, DomainUser newUser, Dn newOu) {
-    Dn newParentDn;
-    if (DnTool.isValidDn(newOu)) {
-      newParentDn = getDnTool().addBaseDn(newOu);
-    } else {
-      newParentDn = oldUser.getDn().getParent();
-    }
-
-    RDn oldRdn = new Dn(oldUser.getDistinguishedName()).getRDn();
-    String oldCn = oldRdn.getNameValue().getStringValue().toLowerCase();
-    String newCn;
-    if (oldCn.equalsIgnoreCase(newUser.getSamAccountName())
-        || oldCn.equalsIgnoreCase(newUser.getDisplayName())) {
-      newCn = oldCn;
-    } else if (oldCn.equalsIgnoreCase(oldUser.getDisplayName())
-        && !isEmpty(newUser.getFirstName()) && !isEmpty(newUser.getLastName())) {
-      newCn = newUser.getFirstName() + " " + newUser.getLastName();
-    } else {
-      newCn = newUser.getSamAccountName();
-    }
-    Dn newDn = new Dn(new RDn(new NameValue(oldRdn.getNameValue().getName(), newCn)));
-    newDn.add(newParentDn);
-    return newDn;
+    moveAndRename(oldDn, newDn);
+    String newDnStr = DnTool.toString(newDn);
+    return getLdapOperations()
+        .save(domainUser.withDistinguishedName(newDnStr), domainUserLdapMapper);
   }
 
   @Override
@@ -478,7 +462,9 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
                     user.getSamAccountName()),
                 EC_ILLEGAL_SYSTEM_ENTITY_OPERATION);
           }
-          domainUserTool.deleteUser(user.getSamAccountName());
+          getLdapOperations().delete(DeleteRequest.builder()
+              .dn(user.getDistinguishedName())
+              .build());
           return true;
         })
         .orElse(false);

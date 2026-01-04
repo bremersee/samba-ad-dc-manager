@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Schema(description = "The domain group.")
 @Value.Style(
@@ -73,6 +74,12 @@ public interface DomainGroupMember extends SamAccount {
         .primaryMember(isPrimaryMember)
         .build();
   }
+
+  @Schema(description = "The primary group ID of the member.")
+  @JsonProperty(value = "primaryGroupId")
+  @Nullable
+  @Override
+  Integer getPrimaryGroupId();
 
   @Override
   default int compareTo(@NonNull SamAccount o) {

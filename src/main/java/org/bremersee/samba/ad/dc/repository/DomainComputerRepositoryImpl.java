@@ -12,14 +12,12 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
-import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainComputerLdapMapper;
+import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
-import org.ldaptive.dn.NameValue;
-import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.OrFilter;
@@ -33,15 +31,11 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
 
   private final LdaptiveEntryMapper<DomainComputer> domainComputerLdapMapper;
 
-  private final SambaToolComputer domainComputerTool;
-
   DomainComputerRepositoryImpl(
       ApplicationProperties properties,
-      SambaToolComputer domainComputerTool,
       LdaptiveOperations ldapOperations) {
     super(properties, ldapOperations);
     this.domainComputerLdapMapper = new DomainComputerLdapMapper();
-    this.domainComputerTool = domainComputerTool;
   }
 
   @Override
@@ -128,22 +122,18 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
             domainComputer.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
     Dn oldDn = new Dn(existingDomainComputer.getDistinguishedName());
-    Dn newDn = getNewDn(existingDomainComputer, domainComputer, newOu);
+    Dn newDn = new Dn(oldDn.getRDn());
+    newDn.add(validateParentDn(newOu, oldDn::getParent));
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
-          DomainUser.class.getSimpleName(),
+          DomainComputer.class.getSimpleName(),
           getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
-    if (!oldDn.isSame(newDn)) {
-      domainComputerTool.moveComputer(existingDomainComputer, newDn);
-    }
-    DomainComputer newComputer = DomainComputer.builder()
-        .from(existingDomainComputer)
-        .distinguishedName(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
-        .description(domainComputer.getDescription())
-        .build();
-    return getLdapOperations().save(newComputer, domainComputerLdapMapper);
+    moveAndRename(oldDn, newDn);
+    String newDnStr = DnTool.toString(newDn);
+    return getLdapOperations()
+        .save(domainComputer.withDistinguishedName(newDnStr), domainComputerLdapMapper);
   }
 
   @Override
@@ -151,25 +141,12 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
     log.debug("delete({})", name);
     return findOne(name, null, null)
         .map(domainComputer -> {
-          domainComputerTool.deleteComputer(domainComputer);
-          return findOne(name, null, null).isEmpty();
+          getLdapOperations().delete(DeleteRequest.builder()
+              .dn(domainComputer.getDistinguishedName())
+              .build());
+          return true;
         })
         .orElse(false);
-  }
-
-  Dn getNewDn(DomainComputer oldComputer, DomainComputer newComputer, Dn newOu) {
-    Dn oldDn = new Dn(oldComputer.getDistinguishedName());
-    Dn newDn = new Dn(new RDn(new NameValue(
-        oldDn.getRDn().getNameValue().getName(),
-        newComputer.getSamAccountName())));
-    Dn parentDn;
-    if (DnTool.isValidDn(newOu)) {
-      parentDn = getDnTool().addBaseDn(newOu);
-    } else {
-      parentDn = oldDn.getParent();
-    }
-    newDn.add(parentDn);
-    return newDn;
   }
 
 }

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.springframework.lang.Nullable;
 
 /**
  * The base of a 'SamAccount' like 'User', 'Group' and 'Computer' with immutable builder.
@@ -35,9 +34,6 @@ public interface SamAccountIntermediate extends SamAccount {
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
         .build();
   }
-
-  @Nullable
-  Integer getPrimaryGroupId();
 
   /**
    * Gets the immutable builder.

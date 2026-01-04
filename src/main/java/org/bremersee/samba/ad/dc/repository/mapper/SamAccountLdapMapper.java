@@ -1,6 +1,5 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
-import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
@@ -96,7 +95,7 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
   public AttributeModification[] mapAndComputeModifications(SamAccount source,
       LdapEntry destination) {
 
-    if (isNull(source) || isNull(destination)) {
+    if (isEmpty(source) || isEmpty(destination)) {
       return new AttributeModification[0];
     }
     var modifications = new ArrayList<>(Arrays.asList(adEntryLdapMapper
@@ -109,12 +108,11 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
       AdConstants.SAM_ACCOUNT_NAME
           .setValue(destination, source.getSamAccountName())
           .ifPresent(modifications::add);
-      AdConstants.PRIMARY_GROUP_ID
-          .setValue(
-              destination,
-              source.getPrimaryGroupId(),
-              (oldValue, newValue) -> !isEmpty(newValue))
-          .ifPresent(modifications::add);
+      if (!isEmpty(source.getPrimaryGroupId()) && !isEmpty(source.getSid())) {
+        AdConstants.PRIMARY_GROUP_ID
+            .setValue(destination, source.getPrimaryGroupId())
+            .ifPresent(modifications::add);
+      }
     }
     return modifications.toArray(AttributeModification[]::new);
   }

@@ -45,11 +45,9 @@ public interface DomainComputer extends SamAccount {
 
   @Schema(description = "The primary group ID of the computer.")
   @JsonProperty(value = "primaryGroupId")
-  @Value.Default
+  @Nullable
   @Override
-  default Integer getPrimaryGroupId() {
-    return 515; // Domain Computers, Domain Controllers is 516
-  }
+  Integer getPrimaryGroupId();
 
   @Schema(description = "The dns host name of the computer.")
   @Nullable
