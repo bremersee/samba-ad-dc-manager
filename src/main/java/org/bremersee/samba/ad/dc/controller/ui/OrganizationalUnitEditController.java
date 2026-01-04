@@ -179,24 +179,24 @@ public class OrganizationalUnitEditController extends UiController
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_OU_NAME_REQUIRED: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("newName", "code",
             "Name of organizational unit is required.");
         break;
       }
       case EC_ILLEGAL_OU_NAME: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("newName", "code",
             "Name of organizational unit contains illegal characters.");
         break;
       }
       case EC_OU_ALREADY_EXISTS: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("newName", "code",
             "Organizational unit already exists.");
         bindingResult.rejectValue("parentOu", "code",
             "Organizational unit already exists.");
         break;
       }
       case EC_ILLEGAL_SYSTEM_ENTITY_OPERATION: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("newName", "code",
             "Organizational unit is a critical system object. Moving and renaming is not permitted.");
         bindingResult.rejectValue("parentOu", "code",
             "Organizational unit is a critical system object. Moving and renaming is not permitted.");

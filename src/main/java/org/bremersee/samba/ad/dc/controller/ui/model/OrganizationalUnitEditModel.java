@@ -40,7 +40,7 @@ public class OrganizationalUnitEditModel implements Serializable {
 
   private String parentOu;
 
-  private String name;
+  private String newName;
 
   private String description;
 

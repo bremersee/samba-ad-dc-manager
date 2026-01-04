@@ -20,7 +20,6 @@ import static org.bremersee.exception.ServiceException.badRequest;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
@@ -30,6 +29,8 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -216,7 +217,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
       throw ServiceException.badRequest(
           "Name of organizational unit is required.", EC_OU_NAME_REQUIRED);
     }
-    if (organizationalUnit.getName().contains(",")) {
+    if (organizationalUnit.getName().contains(",") || organizationalUnit.getName().contains("=")) {
       throw ServiceException.badRequest(
           "Name of organizational unit contains illegal characters.", EC_ILLEGAL_OU_NAME);
     }
@@ -237,7 +238,6 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     }
 
     Dn existingDn = new Dn(existing.getDistinguishedName());
-    log.debug("Existing ou dn: {}", existingDn);
     Dn wantedDn = new Dn(new RDn(new NameValue(
         AdConstants.RDN_ATTR_NAME_OU,
         organizationalUnit.getName())));
@@ -246,29 +246,24 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     } else {
       wantedDn.add(validateParentOu(newParentOu));
     }
-    log.debug("Wanted ou dn: {}", wantedDn);
     if (!existingDn.isSame(wantedDn) && exists(wantedDn)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           OrganizationalUnit.class.getSimpleName(),
           organizationalUnit.getName(),
           EC_OU_ALREADY_EXISTS);
     }
-
-    Dn currentDn = new Dn(existing.getDistinguishedName());
-    String tmpName = null;
-    if (!existingDn.getParent().isSame(wantedDn.getParent())) {
-      if (!existing.getName().equalsIgnoreCase(organizationalUnit.getName())) {
-        tmpName = organizationalUnit.getName() + '-' + UUID.randomUUID();
-        currentDn = sambaToolOu.renameOrganizationalUnit(currentDn, tmpName);
+    if (!existingDn.isSame(wantedDn)) {
+      ModifyDnRequest.Builder reqBuilder = ModifyDnRequest.builder()
+          .oldDN(existingDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+          .newRDN(wantedDn.getRDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+          .delete(true);
+      if (!existingDn.getParent().isSame(wantedDn.getParent())) {
+        reqBuilder.superior(wantedDn.getParent().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
       }
-      currentDn = sambaToolOu.moveOrganizationalUnit(currentDn, wantedDn.getParent());
+      getLdapOperations().modifyDn(reqBuilder.build());
     }
-    if (!isEmpty(tmpName)
-        || (!existing.getName().equalsIgnoreCase(organizationalUnit.getName()))) {
-      currentDn = sambaToolOu
-          .renameOrganizationalUnit(currentDn, organizationalUnit.getName());
-    }
-    return findOne(currentDn)
+
+    return findOne(wantedDn)
         .map(ou -> OrganizationalUnit.builder()
             .from(ou)
             .description(organizationalUnit.getDescription())
@@ -285,22 +280,17 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
   public boolean delete(Dn ou) {
     return findOne(ou)
         .filter(this::isDeletable)
-        .map(o -> doDelete(ou))
+        .map(o -> {
+          getLdapOperations().delete(DeleteRequest.builder()
+              .dn(o.getDistinguishedName())
+              .build());
+          return true;
+        })
         .orElse(false);
   }
 
   boolean isDeletable(OrganizationalUnit o) {
     return !o.isSystemOu();
-  }
-
-  boolean doDelete(Dn ou) {
-    sambaToolOu.deleteOrganizationalUnit(ou);
-    if (exists(ou)) {
-      throw ServiceException.internalServerError(
-          String.format("Deleting organization unit '%s' failed.", ou.format(rdn -> rdn)),
-          ErrorCode.EC_DELETING_OU_FAILED);
-    }
-    return true;
   }
 
 }

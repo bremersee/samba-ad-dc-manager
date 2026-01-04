@@ -13,6 +13,7 @@ public interface OrganizationalUnitEditModelMapper {
 
   @Mapping(target = "ou", source = "distinguishedName")
   @Mapping(target = "parentOu", source = "parentDistinguishedName")
+  @Mapping(target = "newName", source = "name")
   OrganizationalUnitEditModel map(OrganizationalUnit source);
 
   OrganizationalUnitEditModelMapper INSTANCE = Mappers
@@ -27,6 +28,7 @@ public interface OrganizationalUnitEditModelMapper {
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)
   @Mapping(target = "systemOu", ignore = true)
+  @Mapping(target = "name", source = "newName")
   OrganizationalUnit mergeInternal(
       OrganizationalUnitEditModel source,
       @MappingTarget ImmutableOrganizationalUnit.Builder target);
