@@ -16,7 +16,6 @@
 
 package org.bremersee.samba.ad.dc.repository;
 
-import static org.bremersee.exception.ServiceException.badRequest;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Optional;
@@ -158,20 +157,6 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     return !getLdapOperations().findAll(searchRequest).isEmpty();
   }
 
-  Dn validateParentOu(Dn ou) {
-    Dn ouDn = isEmpty(ou) || ou.isEmpty() ? getDefaultOu() : ou;
-    if (isEmpty(ouDn) || ouDn.isEmpty()) {
-      throw badRequest("Organizational unit cannot be empty.", EC_EMPTY_OU_RDN);
-    }
-    Dn dn = getDnTool().addBaseDn(ouDn);
-    if (!getLdapOperations().exists(dn.format())) {
-      throw badRequest(
-          String.format("Organizational unit '%s' does not exist.", ouDn.format()),
-          EC_OU_NOT_FOUND);
-    }
-    return ouDn;
-  }
-
   @Override
   public OrganizationalUnit add(OrganizationalUnit organizationalUnit, Dn parentOu) {
     if (isEmpty(organizationalUnit.getName())) {
@@ -185,7 +170,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     Dn dn = new Dn(new RDn(new NameValue(
         AdConstants.RDN_ATTR_NAME_OU,
         organizationalUnit.getName())));
-    dn.add(validateParentOu(parentOu));
+    dn.add(validateParentDn(parentOu, this::getDefaultOu));
     if (exists(dn)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           OrganizationalUnit.class.getSimpleName(),
@@ -235,7 +220,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     if (isEmpty(newParentOu) || newParentOu.isEmpty()) {
       wantedDn.add(existingDn.getParent());
     } else {
-      wantedDn.add(validateParentOu(newParentOu));
+      wantedDn.add(validateParentDn(newParentOu, this::getDefaultOu));
     }
     if (!existingDn.isSame(wantedDn) && exists(wantedDn)) {
       throw ServiceException.alreadyExistsWithErrorCode(
@@ -243,17 +228,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
           organizationalUnit.getName(),
           EC_OU_ALREADY_EXISTS);
     }
-    if (!existingDn.isSame(wantedDn)) {
-      ModifyDnRequest.Builder reqBuilder = ModifyDnRequest.builder()
-          .oldDN(existingDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
-          .newRDN(wantedDn.getRDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
-          .delete(true);
-      if (!existingDn.getParent().isSame(wantedDn.getParent())) {
-        reqBuilder.superior(wantedDn.getParent().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
-      }
-      getLdapOperations().modifyDn(reqBuilder.build());
-    }
-
+    moveAndRename(existingDn, wantedDn);
     return findOne(wantedDn)
         .map(ou -> OrganizationalUnit.builder()
             .from(ou)

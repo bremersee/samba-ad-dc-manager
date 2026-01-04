@@ -69,8 +69,8 @@ public class GroupAddModel implements Serializable {
 
   public GroupAddModel(String newOu) {
     this.newOu = newOu;
-    this.groupScope = Scope.GLOBAL.name();
-    this.groupPurpose = Purpose.SECURITY.name();
+    this.groupScope = Scope.GLOBAL.getValue();
+    this.groupPurpose = Purpose.SECURITY.getValue();
   }
 
   public Dn getNewOuDn() {

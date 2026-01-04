@@ -31,6 +31,7 @@ import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupLdapMapper;
+import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -57,8 +58,6 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
 
   private final DomainRepository domainRepository;
 
-  private final SambaToolGroup domainGroupTool;
-
   /**
    * Instantiates a new domain group repository.
    *
@@ -68,11 +67,9 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   public DomainGroupRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
-      DomainRepository domainRepository,
-      SambaToolGroup domainGroupTool) {
+      DomainRepository domainRepository) {
     super(properties, ldapOperations);
     this.domainRepository = domainRepository;
-    this.domainGroupTool = domainGroupTool;
     this.domainGroupLdapMapper = new DomainGroupLdapMapper(this.domainRepository::isRfc2307Enabled);
   }
 
@@ -199,97 +196,70 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   }
 
   @Override
-  public DomainGroup add(DomainGroup domainGroup, Dn ou) {
-    validateSamAccountName(domainGroup);
-    if (samAccountExists(domainGroup)) {
+  public DomainGroup add(DomainGroup group, Dn ou) {
+    validateSamAccountName(group);
+    if (samAccountExists(group)) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName(),
-          domainGroup.getSamAccountName(),
+          group.getSamAccountName(),
           EC_SAM_ACCOUNT_ALREADY_EXISTS);
     }
-    if (existsByGidNumber(domainGroup.getGidNumber())) {
+    if (existsByGidNumber(group.getGidNumber())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName() + ".gidNumber",
-          domainGroup.getGidNumber(),
+          group.getGidNumber(),
           EC_GID_NUMBER_ALREADY_EXISTS);
     }
-    Dn newOu = DnTool.isValidDn(ou) ? ou : getDefaultOu();
-    domainGroupTool.addGroup(domainGroup, newOu, domainRepository.isRfc2307Enabled());
-    return findDnOfSamAccount(domainGroup)
-        .map(dn -> getLdapOperations()
-            .save(
-                domainGroup.withDistinguishedName(dn),
-                domainGroupLdapMapper))
-        .orElseThrow(() -> ServiceException
-            .internalServerError(
-                String.format("Adding group '%s' failed.", domainGroup.getSamAccountName()),
-                EC_ADDING_GROUP_FAILED));
+    Dn dn = new Dn(new RDn(new NameValue(AdConstants.CN.getName(), group.getSamAccountName())));
+    dn.add(validateParentDn(ou, this::getDefaultOu));
+    String dnStr = DnTool.toString(dn);
+    return getLdapOperations().save(group.withDistinguishedName(dnStr), domainGroupLdapMapper);
   }
 
   @Override
-  public DomainGroup update(String groupName, DomainGroup domainGroup, Dn newOu) {
-    log.debug("update({}, {}, {})", groupName, domainGroup.getSamAccountName(), newOu);
-    validateSamAccountName(domainGroup);
-    if (!groupName.equalsIgnoreCase(domainGroup.getSamAccountName())
-        && samAccountNameExists(domainGroup.getSamAccountName())) {
+  public DomainGroup update(String name, DomainGroup group, Dn newOu) {
+    log.debug("update({}, {}, {})", name, group.getSamAccountName(), newOu);
+    validateSamAccountName(group);
+    if (!name.equalsIgnoreCase(group.getSamAccountName())
+        && samAccountNameExists(group.getSamAccountName())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName(),
-          domainGroup.getSamAccountName(),
+          group.getSamAccountName(),
           EC_SAM_ACCOUNT_ALREADY_EXISTS);
     }
-    DomainGroup existingDomainGroup = findOne(groupName, null, null)
+    DomainGroup existingGroup = findOne(name, null, null)
         .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
             DomainGroup.class.getSimpleName(),
-            domainGroup.getSamAccountName(),
+            group.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
-    if (!isEmpty(domainGroup.getGidNumber())
-        && !Objects.equals(domainGroup.getGidNumber(), existingDomainGroup.getGidNumber())
-        && existsByGidNumber(domainGroup.getGidNumber())) {
+    if (!isEmpty(group.getGidNumber())
+        && !Objects.equals(group.getGidNumber(), existingGroup.getGidNumber())
+        && existsByGidNumber(group.getGidNumber())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName() + ".gidNumber",
-          domainGroup.getGidNumber(),
+          group.getGidNumber(),
           EC_GID_NUMBER_ALREADY_EXISTS);
     }
-    Dn oldDn = existingDomainGroup.getDn();
-    Dn newDn = getNewDn(existingDomainGroup, domainGroup, newOu);
-    if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
+    Dn oldDn = existingGroup.getDn();
+    Dn newDn = new Dn(new RDn(new NameValue(
+        oldDn.getRDn().getNameValue().getName(),
+        group.getSamAccountName())));
+    newDn.add(validateParentDn(newOu, oldDn::getParent));
+    if (!newDn.isSame(oldDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName(),
           getDnTool().removeBaseDn(newDn),
           EC_DN_ALREADY_EXISTS);
     }
-    domainGroupTool.renameAndMoveGroup(existingDomainGroup, domainGroup, newDn);
-    return findDnOfSamAccount(domainGroup)
-        .map(dn -> DomainGroup.builder()
-            .from(domainGroup)
-            .distinguishedName(dn)
-            .members(existingDomainGroup.getMembers())
-            .build())
-        .map(group -> getLdapOperations().save(group, domainGroupLdapMapper))
-        .orElseThrow(() -> ServiceException.internalServerError(
-            String.format("Updating group '%s' failed.", groupName),
-            EC_UPDATING_GROUP_FAILED));
-  }
-
-  Dn getNewDn(DomainGroup oldDomainGroup, DomainGroup newDomainGroup, Dn newOu) {
-    Dn newParentDn;
-    if (DnTool.isValidDn(newOu)) {
-      newParentDn = getDnTool().addBaseDn(newOu);
-    } else {
-      newParentDn = oldDomainGroup.getDn().getParent();
-    }
-
-    RDn oldRdn = new Dn(oldDomainGroup.getDistinguishedName()).getRDn();
-    String newCn = newDomainGroup.getSamAccountName();
-    Dn newDn = new Dn(new RDn(new NameValue(oldRdn.getNameValue().getName(), newCn)));
-    newDn.add(newParentDn);
-    return newDn;
+    moveAndRename(oldDn, newDn);
+    String newDnStr = DnTool.toString(newDn);
+    return getLdapOperations().save(group.withDistinguishedName(newDnStr), domainGroupLdapMapper);
   }
 
   @Override
-  public boolean delete(String groupName) {
-    log.debug("delete({})", groupName);
-    return findOne(groupName, null, null)
+  public boolean delete(String name) {
+    log.debug("delete({})", name);
+    return findOne(name, null, null)
         .map(group -> {
           if (group.isCriticalSystemObject()) {
             throw ServiceException.badRequest(
@@ -298,15 +268,17 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
                     group.getSamAccountName()),
                 EC_ILLEGAL_SYSTEM_ENTITY_OPERATION);
           }
-          domainGroupTool.deleteGroup(group.getSamAccountName());
+          getLdapOperations().delete(DeleteRequest.builder()
+              .dn(group.getDistinguishedName())
+              .build());
           return true;
         })
         .orElse(false);
   }
 
   @Override
-  public DomainGroup save(DomainGroup domainGroup) {
-    return getLdapOperations().save(domainGroup, domainGroupLdapMapper);
+  public DomainGroup save(DomainGroup group) {
+    return getLdapOperations().save(group, domainGroupLdapMapper);
   }
 
 }

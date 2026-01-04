@@ -17,12 +17,14 @@
 package org.bremersee.samba.ad.dc.repository;
 
 import static java.util.Objects.nonNull;
+import static org.bremersee.exception.ServiceException.badRequest;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -36,6 +38,7 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DistinguishedNameProvider;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
+import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -159,6 +162,33 @@ public abstract class AdRepository implements ErrorCode {
               .anyMatch(wantedObjectClasses::contains);
         })
         .orElse(false);
+  }
+
+  protected Dn validateParentDn(Dn parentDn, Supplier<Dn> defaultParentDn) {
+    Dn validatedDn = isEmpty(parentDn) || parentDn.isEmpty() ? defaultParentDn.get() : parentDn;
+    if (isEmpty(validatedDn) || validatedDn.isEmpty()) {
+      throw badRequest("Parent dn cannot be empty.", EC_EMPTY_OU_RDN);
+    }
+    Dn dn = getDnTool().addBaseDn(validatedDn);
+    if (!getLdapOperations().exists(dn.format())) {
+      throw badRequest(
+          String.format("Parent dn '%s' does not exist.", DnTool.toString(dn)),
+          EC_OU_NOT_FOUND);
+    }
+    return dn;
+  }
+
+  protected void moveAndRename(Dn existingDn, Dn wantedDn) {
+    if (!existingDn.isSame(wantedDn)) {
+      ModifyDnRequest.Builder reqBuilder = ModifyDnRequest.builder()
+          .oldDN(existingDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+          .newRDN(wantedDn.getRDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))
+          .delete(true);
+      if (!existingDn.getParent().isSame(wantedDn.getParent())) {
+        reqBuilder.superior(wantedDn.getParent().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
+      }
+      getLdapOperations().modifyDn(reqBuilder.build());
+    }
   }
 
 }
