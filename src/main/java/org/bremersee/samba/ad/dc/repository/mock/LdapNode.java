@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -194,26 +195,16 @@ class LdapNode extends LdapEntry {
   private boolean matches(EqualityFilter ef) {
     String attrName = ef.getAttributeDesc();
     return Optional.ofNullable(getAttribute(attrName))
-        .map(attr -> matches(ef, attr))
+        .map(attr -> {
+          String assertionValue = attr.isBinary()
+              ? LdapUtils.base64Encode(ef.getAssertionValue())
+              : LdapUtils.utf8Encode(ef.getAssertionValue());
+          return Stream.ofNullable(attr.getStringValues())
+              .flatMap(Collection::stream)
+              .filter(Objects::nonNull)
+              .anyMatch(value -> value.equalsIgnoreCase(assertionValue));
+        })
         .orElse(false);
-  }
-
-  private boolean matches(EqualityFilter ef, LdapAttribute attr) {
-    return attr.isBinary()
-        ? matchesBytes(ef.getAssertionValue(), attr.getBinaryValues())
-        : matchesString(LdapUtils.utf8Encode(ef.getAssertionValue()), attr.getStringValues());
-  }
-
-  private boolean matchesBytes(byte[] assertionValue, Collection<byte[]> attrValues) {
-    return Stream.ofNullable(attrValues)
-        .flatMap(Collection::stream)
-        .anyMatch(value -> Arrays.equals(value, assertionValue));
-  }
-
-  private boolean matchesString(String assertionValue, Collection<String> attrValues) {
-    return Stream.ofNullable(attrValues)
-        .flatMap(Collection::stream)
-        .anyMatch(value -> value.equalsIgnoreCase(assertionValue));
   }
 
   private boolean matches(SubstringFilter sf) {
