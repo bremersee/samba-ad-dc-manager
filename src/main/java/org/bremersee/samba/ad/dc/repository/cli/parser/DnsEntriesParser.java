@@ -32,17 +32,27 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The interface DnsEntriesParser.
+ * The dns entries parser.
  *
  * @author Christian Bremer
  */
 public interface DnsEntriesParser
     extends CommandExecutorResponseParser<Stream<DnsEntry>> {
 
+  /**
+   * Returns a new default dns entries parser.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @return the dns entries parser
+   */
   static DnsEntriesParser defaultParser(String zoneName, String name) {
     return new Default(zoneName, name);
   }
 
+  /**
+   * The default dns entries parser.
+   */
   @Slf4j
   class Default extends AbstractCommandExecutorResponseParser<Stream<DnsEntry>>
       implements DnsEntriesParser {
@@ -67,6 +77,12 @@ public interface DnsEntriesParser
 
     private final String name;
 
+    /**
+     * Instantiates a new default dns entries parser.
+     *
+     * @param zoneName the zone name
+     * @param name the name
+     */
     Default(String zoneName, String name) {
       this.zoneName = zoneName;
       this.name = name;
@@ -84,6 +100,7 @@ public interface DnsEntriesParser
       String line;
       while (nonNull(line = reader.readLine())) {
         line = line.trim();
+        log.debug("Parsing line: {}", line);
         if (line.startsWith(NAME_KEY)) {
           parseName(line, currentEntry);
         } else if (currentEntry.nameIsSet()) {
