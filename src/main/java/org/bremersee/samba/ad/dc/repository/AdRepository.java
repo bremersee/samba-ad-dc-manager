@@ -170,12 +170,16 @@ public abstract class AdRepository implements ErrorCode {
       throw badRequest("Parent dn cannot be empty.", EC_EMPTY_OU_RDN);
     }
     Dn dn = getDnTool().addBaseDn(validatedDn);
-    if (!getLdapOperations().exists(dn.format())) {
-      throw badRequest(
-          String.format("Parent dn '%s' does not exist.", DnTool.toString(dn)),
-          EC_OU_NOT_FOUND);
-    }
-    return dn;
+    return getLdapOperations().findOne(SearchRequest.builder()
+            .dn(dn.format())
+            .scope(SearchScope.OBJECT)
+            .returnAttributes(AdConstants.DN.getName())
+            .sizeLimit(1)
+            .build())
+        .flatMap(AdConstants.DN::getValue)
+        .orElseThrow(() -> badRequest(
+            String.format("Parent dn '%s' does not exist.", DnTool.toString(dn)),
+            EC_OU_NOT_FOUND));
   }
 
   protected void moveAndRename(Dn existingDn, Dn wantedDn) {

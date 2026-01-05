@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,12 +16,14 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool.DnPair;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapUtils;
+import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.AndFilter;
@@ -32,6 +35,7 @@ import org.ldaptive.filter.PresenceFilter;
 import org.ldaptive.filter.SubstringFilter;
 import org.springframework.util.Assert;
 
+@Slf4j
 @Getter(AccessLevel.PACKAGE)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 class LdapNode extends LdapEntry {
@@ -190,11 +194,36 @@ class LdapNode extends LdapEntry {
 
   private boolean matches(EqualityFilter ef) {
     String attrName = ef.getAttributeDesc();
-    return Stream.ofNullable(getAttribute(attrName))
-        .map(LdapAttribute::getStringValues)
+    return Optional.ofNullable(getAttribute(attrName))
+        .map(attr -> matches(ef, attr))
+        .orElse(false);
+  }
+
+  private boolean matches(EqualityFilter ef, LdapAttribute attr) {
+    if (attr.isBinary()) {
+      byte[] assertionValue;
+      if (AdConstants.OBJECT_SID.getName().equalsIgnoreCase(attr.getName())) {
+        assertionValue = SecurityIdentifier.toBytes(LdapUtils.utf8Encode(ef.getAssertionValue()));
+      } else {
+        assertionValue = ef.getAssertionValue();
+      }
+      return matchesBytes(assertionValue, attr.getBinaryValues());
+    }
+    String assertionValue = LdapUtils.utf8Encode(ef.getAssertionValue());
+    return matchesString(assertionValue, attr.getStringValues());
+  }
+
+  private boolean matchesString(String assertionValue, Collection<String> attrValues) {
+    return Stream.ofNullable(attrValues)
         .flatMap(Collection::stream)
-        .anyMatch(value -> value
-            .equalsIgnoreCase(LdapUtils.utf8Encode(ef.getAssertionValue())));
+        .anyMatch(value -> value.equalsIgnoreCase(assertionValue));
+  }
+
+  private boolean matchesBytes(byte[] assertionValue, Collection<byte[]> attrValues) {
+
+    return Stream.ofNullable(attrValues)
+        .flatMap(Collection::stream)
+        .anyMatch(value -> Arrays.equals(value, assertionValue));
   }
 
   private boolean matches(SubstringFilter sf) {
