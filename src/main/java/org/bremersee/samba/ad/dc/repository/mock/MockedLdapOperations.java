@@ -83,7 +83,7 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modify(ModifyRequest request) {
-    synchronized (store) {
+    synchronized (SambaStore.LOCK) {
       store.findByDn(request.getDn())
           .ifPresent(node -> modify(node, request.getModifications()));
     }
@@ -140,21 +140,24 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public <T> T save(T domainObject, LdaptiveEntryMapper<T> entryMapper) {
-    String dn = entryMapper.mapDn(domainObject);
-    return store.findByDn(dn)
-        .map(node -> {
-          entryMapper.map(domainObject, node);
-          AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now());
-          return entryMapper.map(node);
-        })
-        .orElseGet(() -> {
-          LdapEntry entry = new LdapEntry();
-          entry.setDn(entryMapper.mapDn(domainObject));
-          AdConstants.OBJECT_CLASS.setValues(entry, Arrays.asList(entryMapper.getObjectClasses()));
-          entryMapper.map(domainObject, entry);
-          store.getEntryFactory().setDefaultValues(entry);
-          store.add(entry);
-          return entryMapper.map(entry);
-        });
+    synchronized (SambaStore.LOCK) {
+      String dn = entryMapper.mapDn(domainObject);
+      return store.findByDn(dn)
+          .map(node -> {
+            entryMapper.map(domainObject, node);
+            AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now());
+            return entryMapper.map(node);
+          })
+          .orElseGet(() -> {
+            LdapEntry entry = new LdapEntry();
+            entry.setDn(entryMapper.mapDn(domainObject));
+            AdConstants.OBJECT_CLASS.setValues(entry,
+                Arrays.asList(entryMapper.getObjectClasses()));
+            entryMapper.map(domainObject, entry);
+            store.getEntryFactory().setDefaultValues(entry);
+            store.add(entry);
+            return entryMapper.map(entry);
+          });
+    }
   }
 }

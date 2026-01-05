@@ -32,8 +32,6 @@ import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
-import org.ldaptive.dn.NameValue;
-import org.ldaptive.dn.RDn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -43,6 +41,8 @@ import org.springframework.util.Assert;
 @Profile("mock")
 @Slf4j
 class SambaStore {
+  
+  static final Object LOCK = new Object();
 
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
 
@@ -61,6 +61,8 @@ class SambaStore {
   private final LdapNode root;
 
   private final Map<DnsZone, List<DnsEntry>> dns;
+
+  // TODO primaryGroup bei Usern geht nocht nicht richtig
 
   SambaStore(ApplicationProperties properties) {
     this.dnTool = new DefaultDnTool(properties);
@@ -113,16 +115,18 @@ class SambaStore {
     return findByDn(DnTool.toString(dn));
   }
 
-  synchronized Optional<LdapNode> findByDn(String dn) {
+  Optional<LdapNode> findByDn(String dn) {
     if (!dnTool.isValidDnWithBaseDn(dn)) {
       return Optional.empty();
     }
-    if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
-      LdapNode ypServers = new LdapNode(dn);
-      AdConstants.OBJECT_CLASS.setValues(ypServers, List.of("container", "top"));
-      return Optional.of(ypServers);
+    synchronized (LOCK) {
+      if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
+        LdapNode ypServers = new LdapNode(dn);
+        AdConstants.OBJECT_CLASS.setValues(ypServers, List.of("container", "top"));
+        return Optional.of(ypServers);
+      }
+      return findByDn(root, dn);
     }
-    return findByDn(root, dn);
   }
 
   Optional<LdapNode> findByDn(LdapNode node, Dn dn) {
@@ -142,29 +146,31 @@ class SambaStore {
     return Optional.empty();
   }
 
-  synchronized List<LdapEntry> find(SearchRequest request) {
+  List<LdapEntry> find(SearchRequest request) {
     List<LdapEntry> response = new ArrayList<>();
     if (isEmpty(request) || isEmpty(request.getBaseDn())) {
       return response;
     }
-    Optional<LdapNode> foundNode = findByDn(request.getBaseDn());
-    if (foundNode.isEmpty()) {
+    synchronized (LOCK) {
+      Optional<LdapNode> foundNode = findByDn(request.getBaseDn());
+      if (foundNode.isEmpty()) {
+        return response;
+      }
+      LdapNode node = foundNode.get();
+      if (node.matches(request.getFilter())) {
+        response.add(node);
+      }
+      if (SearchScope.OBJECT.equals(request.getSearchScope())) {
+        return response;
+      }
+      find(request, node.getChildren(), response);
+      if (request.getSizeLimit() > 0 && response.size() > request.getSizeLimit()) {
+        throw LdaptiveException.builder()
+            .reason("Response size exceeds limit of " + request.getSizeLimit())
+            .build();
+      }
       return response;
     }
-    LdapNode node = foundNode.get();
-    if (node.matches(request.getFilter())) {
-      response.add(node);
-    }
-    if (SearchScope.OBJECT.equals(request.getSearchScope())) {
-      return response;
-    }
-    find(request, node.getChildren(), response);
-    if (request.getSizeLimit() > 0 && response.size() > request.getSizeLimit()) {
-      throw LdaptiveException.builder()
-          .reason("Response size exceeds limit of " + request.getSizeLimit())
-          .build();
-    }
-    return response;
   }
 
   private void find(SearchRequest request, List<LdapNode> children, List<LdapEntry> response) {
@@ -178,43 +184,49 @@ class SambaStore {
     }
   }
 
-  synchronized void add(LdapEntry entry) {
+  void add(LdapEntry entry) {
     Assert.notNull(entry, "Ldap entry must not be null.");
     log.info("Adding entry: {}", entry.getDn());
     Assert.isTrue(dnTool.isValidDnWithBaseDn(entry.getDn()), "Dn is invalid.");
-    findByDn(new Dn(entry.getDn()).getParent()).ifPresentOrElse(
-        parentNode -> new LdapNode(entry, parentNode),
-        () -> {
-          throw ServiceException.notFoundWithErrorCode(
-              OrganizationalUnit.class.getSimpleName(),
-              new Dn(entry.getDn()).getParent().format(),
-              ErrorCode.EC_OU_NOT_FOUND);
-        });
+    synchronized (LOCK) {
+      findByDn(new Dn(entry.getDn()).getParent()).ifPresentOrElse(
+          parentNode -> new LdapNode(entry, parentNode),
+          () -> {
+            throw ServiceException.notFoundWithErrorCode(
+                OrganizationalUnit.class.getSimpleName(),
+                new Dn(entry.getDn()).getParent().format(),
+                ErrorCode.EC_OU_NOT_FOUND);
+          });
+    }
   }
 
-  synchronized void remove(String dn) {
-    findByDn(dn).ifPresent(node -> {
-      node.getParent().getChildren().remove(node);
-      adjustDns(new Dn(dn), null);
-    });
+  void remove(String dn) {
+    synchronized (LOCK) {
+      findByDn(dn).ifPresent(node -> {
+        node.getParent().getChildren().remove(node);
+        adjustDns(new Dn(dn), null);
+      });
+    }
   }
 
-  synchronized void modifyDn(ModifyDnRequest request) {
-    findByDn(request.getOldDn()).ifPresent(entry -> {
-      Dn oldDn = new Dn(entry.getDn());
-      Dn newDn = new Dn(request.getNewRDn());
-      if (isEmpty(request.getNewSuperiorDn())) {
-        newDn.add(oldDn.getParent());
-      } else {
-        newDn.add(new Dn(request.getNewSuperiorDn()));
-      }
-      if (!oldDn.getParent().isSame(newDn.getParent())) {
-        entry.getParent().removeChild(entry);
-        findByDn(newDn).ifPresent(newParent -> newParent.addChild(entry));
-      }
-      AdConstants.NAME.setValue(entry, newDn.getRDn().getNameValue().getStringValue());
-      adjustDns(oldDn, newDn);
-    });
+  void modifyDn(ModifyDnRequest request) {
+    synchronized (LOCK) {
+      findByDn(request.getOldDn()).ifPresent(entry -> {
+        Dn oldDn = new Dn(entry.getDn());
+        Dn newDn = new Dn(request.getNewRDn());
+        if (isEmpty(request.getNewSuperiorDn())) {
+          newDn.add(oldDn.getParent());
+        } else {
+          newDn.add(new Dn(request.getNewSuperiorDn()));
+        }
+        if (!oldDn.getParent().isSame(newDn.getParent())) {
+          entry.getParent().removeChild(entry);
+          findByDn(newDn).ifPresent(newParent -> newParent.addChild(entry));
+        }
+        AdConstants.NAME.setValue(entry, newDn.getRDn().getNameValue().getStringValue());
+        adjustDns(oldDn, newDn);
+      });
+    }
   }
 
   private void adjustDns(Dn oldDn, @Nullable Dn newDn) {
@@ -269,146 +281,4 @@ class SambaStore {
       modifyAll(child.getChildren(), modification, condition);
     }
   }
-
-
-
-  // der rest kann weg:
-  private Optional<Dn> move(Dn dn, Dn newParentDn) {
-    if (!DnTool.isValidDn(dn)) {
-      return Optional.empty();
-    }
-    if (!DnTool.isValidDn(newParentDn)) {
-      return Optional.of(dn);
-    }
-    Dn validatedDn = dnTool.addBaseDn(dn);
-    Dn newValidatedParentDn = dnTool.addBaseDn(newParentDn);
-    if (DnTool.isSameDn(newValidatedParentDn, validatedDn.getParent())) {
-      return Optional.of(validatedDn);
-    }
-    LdapNode newParent = findByDn(newValidatedParentDn.format())
-        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
-            OrganizationalUnit.class.getSimpleName(),
-            newValidatedParentDn.format(),
-            ErrorCode.EC_OU_NOT_FOUND));
-    return findByDn(validatedDn)
-        .map(node -> {
-          node.getParent().removeChild(node);
-          newParent.addChild(node);
-          Dn newDn = new Dn(validatedDn.getRDn());
-          newDn.add(newValidatedParentDn);
-          node.setDn(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
-          AdConstants.DN.setValue(node, newDn);
-          return newDn;
-        });
-  }
-
-  synchronized void moveEntry(Dn dn, Dn newParentDn) {
-    Dn validatedDn = dnTool.addBaseDn(dn);
-    move(dn, newParentDn)
-        .ifPresent(newDn -> onEntryDnChange(validatedDn, newDn));
-  }
-
-  synchronized Dn moveOrganizationalUnit(Dn ouDn, Dn newParentOu) {
-    return move(ouDn, newParentOu)
-        .map(newDn -> {
-          onOrganizationalUnitDnChange(ouDn, newDn);
-          return newDn;
-        })
-        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
-            OrganizationalUnit.class.getSimpleName(),
-            Optional.ofNullable(ouDn).map(Dn::format).orElse("null"),
-            ErrorCode.EC_OU_NOT_FOUND));
-  }
-
-  private Optional<Dn> rename(Dn dn, String newName) {
-    return findByDn(dn)
-        .map(entry -> {
-          log.debug("Renaming dn [{}] to [{}]", DnTool.toString(dn), newName);
-          String rdnType = dn.getRDn().getNameValue().getName();
-          RDn rdn = new RDn(new NameValue(rdnType, newName));
-          Dn newDn = Dn.builder().add(rdn).add(dn.getParent()).build();
-          log.debug("Renaming dn [{}] to [{}]", DnTool.toString(dn), DnTool.toString(newDn));
-          entry.setDn(newDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
-          AdConstants.DN.setValue(entry, newDn);
-          return newDn;
-        });
-  }
-
-  synchronized Dn renameEntry(Dn dn, String newName) {
-    String dnStr = dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);
-    return rename(dn, newName)
-        .map(newDn -> {
-          onEntryDnChange(dn, newDn);
-          return newDn;
-        })
-        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
-            OrganizationalUnit.class.getSimpleName(), dnStr, ErrorCode.EC_OU_NOT_FOUND));
-  }
-
-  synchronized Dn renameOrganizationalUnit(Dn ouDn, String newName) {
-    String dn = DnTool.toString(ouDn);
-    return rename(ouDn, newName)
-        .flatMap(this::findByDn)
-        .map(node -> {
-          AdConstants.NAME.setValue(node, newName);
-          return new Dn(node.getDn());
-        })
-        .map(newDn -> {
-          onOrganizationalUnitDnChange(ouDn, newDn);
-          return newDn;
-        })
-        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
-            OrganizationalUnit.class.getSimpleName(), dn, ErrorCode.EC_OU_NOT_FOUND));
-  }
-
-  private void onEntryDnChange(Dn oldDn, @Nullable Dn newDn) {
-    List<LdaptiveAttribute<Dn>> attrList = List.of(
-        AdConstants.GROUP_MEMBER,
-        AdConstants.MEMBER_OF_GROUP);
-    for (LdaptiveAttribute<Dn> attr : attrList) {
-      modifyAll(
-          entry -> {
-            List<Dn> list = attr.getValues(entry)
-                .map(dn -> DnTool.replaceAncestor(dn, oldDn, newDn))
-                .filter(dn -> !isEmpty(dn) && !dn.isEmpty())
-                .toList();
-            attr.setValues(entry, list);
-          },
-          attr::exists);
-    }
-  }
-
-  private void onOrganizationalUnitDnChange(Dn oldDn, Dn newDn) {
-    log.debug("on ou dn change [{}] to [{}]", DnTool.toString(oldDn), DnTool.toString(newDn));
-    modifyAll(
-        entry -> onOrganizationalUnitDnChange(entry, oldDn, newDn),
-        entry -> true);
-    List<LdaptiveAttribute<Dn>> attrList = List.of(
-        AdConstants.GROUP_MEMBER,
-        AdConstants.MEMBER_OF_GROUP);
-    for (LdaptiveAttribute<Dn> attr : attrList) {
-      modifyAll(
-          entry -> onOrganizationalUnitDnChange(entry, attr, oldDn, newDn),
-          attr::exists);
-    }
-  }
-
-  private void onOrganizationalUnitDnChange(LdapEntry entry, Dn oldDn, Dn newDn) {
-    log.debug("on ou dn change [{}] to [{}]: checking entry [{}]",
-        DnTool.toString(oldDn), DnTool.toString(newDn), entry.getDn());
-    Dn entryDn = new Dn(entry.getDn());
-    Dn newEntryDn = DnTool.replaceAncestor(entryDn, oldDn, newDn);
-    log.debug("on ou dn change old [{}] -> new [{}]", entry.getDn(), DnTool.toString(newEntryDn));
-    entry.setDn(newEntryDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
-    AdConstants.DN.setValue(entry, newEntryDn);
-  }
-
-  private void onOrganizationalUnitDnChange(
-      LdapEntry entry, LdaptiveAttribute<Dn> attr, Dn oldDn, Dn newDn) {
-    List<Dn> newValues = attr.getValues(entry)
-        .map(dn -> DnTool.replaceAncestor(dn, oldDn, newDn))
-        .toList();
-    attr.setValues(entry, newValues);
-  }
-
 }

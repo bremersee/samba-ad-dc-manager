@@ -6,13 +6,17 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool.DnPair;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -56,14 +60,43 @@ class LdapNode extends LdapEntry {
     parent.addChild(this);
   }
 
+  boolean isRoot() {
+    return isEmpty(parent);
+  }
+
+  LdapNode getRoot() {
+    LdapNode tmp = this;
+    while (!tmp.isRoot()) {
+      tmp = tmp.getParent();
+    }
+    return tmp;
+  }
+
+  boolean hasObjectClass(String objectClass) {
+    return Stream.ofNullable(getAttribute(AdConstants.OBJECT_CLASS.getName()))
+        .map(LdapAttribute::getStringValues)
+        .flatMap(Collection::stream)
+        .anyMatch(oc -> oc.equalsIgnoreCase(objectClass));
+  }
+
   @Override
   public LdapAttribute getAttribute(String name) {
     LdapAttribute attr = super.getAttribute(name);
+    boolean isMemberOf = AdConstants.MEMBER_OF_GROUP.getName().equalsIgnoreCase(name)
+        && (hasObjectClass(AdConstants.OBJECT_CLASS_USER)
+        || hasObjectClass(AdConstants.OBJECT_CLASS_GROUP));
+    if (isMemberOf) {
+      synchronized (SambaStore.LOCK) {
+        return getMemberships(attr);
+      }
+    }
     if (!isEmpty(attr) || !DnTool.isValidDn(getDn())) {
       return attr;
     }
-    // creates a dynamic attribute from the rdn
-    // it is needed for the organizational unit is empty request
+    return getRdnAttribute(name);
+  }
+
+  private LdapAttribute getRdnAttribute(String name) {
     RDn rdn = new Dn(getDn()).getRDn();
     if (rdn.getNameValue().getName().equalsIgnoreCase(name)) {
       return LdapAttribute.builder()
@@ -72,6 +105,38 @@ class LdapNode extends LdapEntry {
           .build();
     }
     return null;
+  }
+
+  private LdapAttribute getMemberships(LdapAttribute attr) {
+    Set<DnPair> memberOfSet = Stream.ofNullable(attr)
+        .map(LdapAttribute::getStringValues)
+        .flatMap(Collection::stream)
+        .map(DnTool::getDnPair)
+        .collect(Collectors.toCollection(HashSet::new));
+    collectMemberships(getRoot().getChildren(), memberOfSet);
+    if (memberOfSet.isEmpty()) {
+      return null;
+    }
+    return LdapAttribute.builder()
+        .name(AdConstants.MEMBER_OF_GROUP.getName())
+        .stringValues(memberOfSet.stream().map(DnPair::dn).toList())
+        .build();
+  }
+
+  private void collectMemberships(Collection<LdapNode> children, Set<DnPair> memberOfSet) {
+    for (LdapNode child : children) {
+      if (child.hasObjectClass(AdConstants.OBJECT_CLASS_GROUP)) {
+        LdapAttribute members = child.getAttribute(AdConstants.GROUP_MEMBER.getName());
+        boolean containsThis = Stream.ofNullable(members)
+            .map(LdapAttribute::getStringValues)
+            .flatMap(Collection::stream)
+            .anyMatch(dn -> DnTool.isSameDn(getDn(), dn));
+        if (containsThis) {
+          memberOfSet.add(DnTool.getDnPair(child.getDn()));
+        }
+      }
+      collectMemberships(child.getChildren(), memberOfSet);
+    }
   }
 
   void addChild(LdapNode child) {
