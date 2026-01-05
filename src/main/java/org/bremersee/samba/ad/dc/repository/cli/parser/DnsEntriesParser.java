@@ -17,14 +17,17 @@
 package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import static java.util.Objects.nonNull;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.model.ModifiableDnsEntry;
 import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
@@ -76,100 +79,126 @@ public interface DnsEntriesParser
 
     @Override
     protected Stream<DnsEntry> doParse(BufferedReader reader) throws IOException {
-      Stream<DnsEntry> entries = Stream.empty();
-      DnsEntry currentEntry = null;
+      List<DnsEntry> entries = new ArrayList<>();
+      ModifiableDnsEntry currentEntry = ModifiableDnsEntry.create();
       String line;
       while (nonNull(line = reader.readLine())) {
         line = line.trim();
         if (line.startsWith(NAME_KEY)) {
-          int end = line.indexOf(RECORDS);
-          String currentName;
-          if (end > 0) {
-            currentName = line.substring(NAME_KEY.length(), end).trim();
-          } else {
-            currentName = line.substring(NAME_KEY.length()).trim();
-          }
-          if (currentName.isEmpty()) {
-            currentName = this.name;
-          }
-          currentEntry = DnsEntry.builder()
-              .zoneName(zoneName)
-              .name(currentName)
-              .build(); // TODO type and value should not be nullable
-        } else if (nonNull(currentEntry)) {
-          int i0 = line.indexOf(RECORD_LINE_INDICATOR);
-          if (i0 > 0) {
-            String recordType = line.substring(0, i0).trim();
-            if (CONFLICT.equalsIgnoreCase(recordType)) {
-              int i1 = line.indexOf(RECORDS);
-              StringBuilder sb = new StringBuilder(currentEntry.getName())
-                  .append(DnsEntry.CONFLICT_NAME_PART);
-              if (i1 > i0) {
-                sb.append(line.substring(i0 + 1, i1).trim());
-              } else {
-                sb.append(line.substring(i0 + 1).trim());
-              }
-              currentEntry = DnsEntry.builder()
-                  .from(currentEntry)
-                  .name(sb.toString())
-                  .build();
-            } else {
-              currentEntry = parseDnsRecord(line, currentEntry);
-              String currentName = currentEntry.getName();
-              if (!isEmpty(currentName) && !isEmpty(currentEntry.getType())
-                  && !DnsEntryType.ALL.equals(currentEntry.getType())
-                  && !isEmpty(currentEntry.getValue())) {
-                entries = Stream.concat(entries, Stream.of(currentEntry));
-                currentEntry = DnsEntry.builder()
-                    .zoneName(zoneName)
-                    .name(currentEntry.getName())
-                    .build();
-              }
-            }
-          }
+          parseName(line, currentEntry);
+        } else if (currentEntry.nameIsSet()) {
+          parseConflictOrDnsRecord(line, currentEntry)
+              .ifPresent(entries::add);
         }
       }
-      return entries;
+      return entries.stream();
     }
 
-    private DnsEntry parseDnsRecord(String line, DnsEntry currentEntry) { // TODO use builder
-      DnsEntry.Builder dnsEntryBuilder = DnsEntry.builder().from(currentEntry);
+    private void parseName(String line, ModifiableDnsEntry dnsEntry) {
+      int end = line.indexOf(RECORDS);
+      String currentName;
+      if (end > 0) {
+        currentName = line.substring(NAME_KEY.length(), end).trim();
+      } else {
+        currentName = line.substring(NAME_KEY.length()).trim();
+      }
+      if (currentName.isEmpty()) {
+        currentName = this.name;
+      }
+      dnsEntry.setZoneName(zoneName)
+          .setName(currentName);
+    }
+
+    private Optional<DnsEntry> parseConflictOrDnsRecord(String line, ModifiableDnsEntry dnsEntry) {
       int i0 = line.indexOf(RECORD_LINE_INDICATOR);
       if (i0 > 0) {
-        dnsEntryBuilder.type(DnsEntryType.fromValue(line.substring(0, i0).trim(), null));
-        int i1 = line.indexOf(FLAGS, i0 + 1);
-        if (i1 > i0) {
-          String value = line.substring(i0 + 1, i1).trim();
-          dnsEntryBuilder.value(value);
-          i0 = i1 + FLAGS.length();
-          i1 = line.indexOf(SERIAL, i0);
-          if (i1 > i0) {
-            String flags = line.substring(i0, i1).trim();
-            dnsEntryBuilder.flags(flags);
-            i0 = i1 + SERIAL.length();
-            i1 = line.indexOf(TTL, i0);
-            if (i1 > i0) {
-              String serial = line.substring(i0, i1).trim();
-              try {
-                dnsEntryBuilder.serial(Integer.parseInt(serial));
-              } catch (NumberFormatException ignored) {
-                // ignored
-              }
-              i0 = i1 + TTL.length();
-              i1 = line.indexOf(END, i0);
-              if (i1 > i0) {
-                String ttl = line.substring(i0, i1).trim();
-                try {
-                  dnsEntryBuilder.ttlSeconds(Integer.parseInt(ttl));
-                } catch (NumberFormatException ignored) {
-                  // ignored
-                }
-              }
-            }
+        String recordType = line.substring(0, i0).trim();
+        if (CONFLICT.equalsIgnoreCase(recordType)) {
+          parseConflict(line, dnsEntry, i0);
+        } else {
+          parseDnsRecord(line, dnsEntry);
+          if (dnsEntry.isInitialized()) {
+            Optional<DnsEntry> next = Optional.of(dnsEntry.toImmutable());
+            String currentName = dnsEntry.getName();
+            dnsEntry.clear()
+                .setZoneName(zoneName)
+                .setName(currentName);
+            return next;
           }
         }
       }
-      return dnsEntryBuilder.build();
+      return Optional.empty();
+    }
+
+    private void parseConflict(String line, ModifiableDnsEntry dnsEntry, int i0) {
+      int i1 = line.indexOf(RECORDS);
+      StringBuilder sb = new StringBuilder(dnsEntry.getName())
+          .append(DnsEntry.CONFLICT_NAME_PART);
+      if (i1 > i0) {
+        sb.append(line.substring(i0 + 1, i1).trim());
+      } else {
+        sb.append(line.substring(i0 + 1).trim());
+      }
+      dnsEntry.from(dnsEntry)
+          .setName(sb.toString());
+    }
+
+    private void parseDnsRecord(String line, ModifiableDnsEntry dnsEntry) {
+      int i0 = line.indexOf(RECORD_LINE_INDICATOR);
+      if (i0 > 0) {
+        parseType(line, dnsEntry, i0);
+      }
+    }
+
+    private void parseType(String line, ModifiableDnsEntry dnsEntry, int i0) {
+      dnsEntry.setType(DnsEntryType.fromValue(line.substring(0, i0).trim(), null));
+      int i1 = line.indexOf(FLAGS, i0 + 1);
+      if (i1 > i0) {
+        parseValue(line, dnsEntry, i0, i1);
+      }
+    }
+
+    private void parseValue(String line, ModifiableDnsEntry dnsEntry, int i0, int i1) {
+      String value = line.substring(i0 + 1, i1).trim();
+      dnsEntry.setValue(value);
+      i0 = i1 + FLAGS.length();
+      i1 = line.indexOf(SERIAL, i0);
+      if (i1 > i0) {
+        parseFlags(line, dnsEntry, i0, i1);
+      }
+    }
+
+    private void parseFlags(String line, ModifiableDnsEntry dnsEntry, int i0, int i1) {
+      String flags = line.substring(i0, i1).trim();
+      dnsEntry.setFlags(flags);
+      i0 = i1 + SERIAL.length();
+      i1 = line.indexOf(TTL, i0);
+      if (i1 > i0) {
+        parseSerial(line, dnsEntry, i0, i1);
+      }
+    }
+
+    private void parseSerial(String line, ModifiableDnsEntry dnsEntry, int i0, int i1) {
+      String serial = line.substring(i0, i1).trim();
+      try {
+        dnsEntry.setSerial(Integer.parseInt(serial));
+      } catch (NumberFormatException ignored) {
+        // ignored
+      }
+      i0 = i1 + TTL.length();
+      i1 = line.indexOf(END, i0);
+      if (i1 > i0) {
+        parseTtl(line, dnsEntry, i0, i1);
+      }
+    }
+
+    private void parseTtl(String line, ModifiableDnsEntry dnsEntry, int i0, int i1) {
+      String ttl = line.substring(i0, i1).trim();
+      try {
+        dnsEntry.setTtlSeconds(Integer.parseInt(ttl));
+      } catch (NumberFormatException ignored) {
+        // ignored
+      }
     }
 
   }

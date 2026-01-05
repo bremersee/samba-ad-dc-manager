@@ -13,17 +13,19 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.UUID;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
 import org.springframework.lang.Nullable;
 
 @Schema(description = "DNS entry.")
 @Value.Style(
-    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
     withUnaryOperator = "with*")
 @Value.Immutable
+@Value.Modifiable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDnsEntry.class)
 @JsonDeserialize(as = ImmutableDnsEntry.class)
@@ -51,14 +53,10 @@ public interface DnsEntry extends AdEntry {
 
   @Schema(description = "The type of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "type", required = true)
-  @Nullable
-    // TODO parsing error? Some internal entries have no type and value
   DnsEntryType getType();
 
   @Schema(description = "The value of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "value", required = true)
-  @Nullable
-    // TODO parsing error?
   String getValue();
 
   @Schema(description = "The flags of this dns entry.")
@@ -110,15 +108,8 @@ public interface DnsEntry extends AdEntry {
    *
    * @return the builder
    */
-  static Builder builder() {
-    return new Builder();
-  }
-
-  /**
-   * The immutable builder.
-   */
-  class Builder extends ImmutableDnsEntry.Builder {
-
+  static ImmutableDnsEntry.Builder builder() {
+    return ImmutableDnsEntry.builder();
   }
 
 }
