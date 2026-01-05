@@ -34,6 +34,7 @@ import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupLdapMapper;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
+import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.NameValue;
 import org.ldaptive.dn.RDn;
@@ -140,7 +141,8 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         .flatMap(sid -> {
           Filter filter = new AndFilter(
               objectClassFilter(),
-              new EqualityFilter(AdConstants.OBJECT_SID.getName(), sid));
+              new EqualityFilter(AdConstants.OBJECT_SID.getName(), SecurityIdentifier.toBytes(sid)));
+          // SecurityIdentifier.toBytes(sid)
           SearchRequest searchRequest = SearchRequest.builder()
               .dn(getProperties().getBaseDn())
               .filter(filter)

@@ -23,7 +23,6 @@ import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapUtils;
-import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.AndFilter;
@@ -200,30 +199,21 @@ class LdapNode extends LdapEntry {
   }
 
   private boolean matches(EqualityFilter ef, LdapAttribute attr) {
-    if (attr.isBinary()) {
-      byte[] assertionValue;
-      if (AdConstants.OBJECT_SID.getName().equalsIgnoreCase(attr.getName())) {
-        assertionValue = SecurityIdentifier.toBytes(LdapUtils.utf8Encode(ef.getAssertionValue()));
-      } else {
-        assertionValue = ef.getAssertionValue();
-      }
-      return matchesBytes(assertionValue, attr.getBinaryValues());
-    }
-    String assertionValue = LdapUtils.utf8Encode(ef.getAssertionValue());
-    return matchesString(assertionValue, attr.getStringValues());
+    return attr.isBinary()
+        ? matchesBytes(ef.getAssertionValue(), attr.getBinaryValues())
+        : matchesString(LdapUtils.utf8Encode(ef.getAssertionValue()), attr.getStringValues());
+  }
+
+  private boolean matchesBytes(byte[] assertionValue, Collection<byte[]> attrValues) {
+    return Stream.ofNullable(attrValues)
+        .flatMap(Collection::stream)
+        .anyMatch(value -> Arrays.equals(value, assertionValue));
   }
 
   private boolean matchesString(String assertionValue, Collection<String> attrValues) {
     return Stream.ofNullable(attrValues)
         .flatMap(Collection::stream)
         .anyMatch(value -> value.equalsIgnoreCase(assertionValue));
-  }
-
-  private boolean matchesBytes(byte[] assertionValue, Collection<byte[]> attrValues) {
-
-    return Stream.ofNullable(attrValues)
-        .flatMap(Collection::stream)
-        .anyMatch(value -> Arrays.equals(value, assertionValue));
   }
 
   private boolean matches(SubstringFilter sf) {
