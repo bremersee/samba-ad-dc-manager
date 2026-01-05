@@ -2,6 +2,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 
 import static java.util.Objects.requireNonNullElse;
 import static java.util.Objects.requireNonNullElseGet;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -10,7 +11,6 @@ import java.util.stream.Collectors;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
-import org.bremersee.samba.ad.dc.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
@@ -45,7 +45,8 @@ class LdapEntryFactory {
       AdConstants.OBJECT_SID.setValue(entry, store.getNextSid());
       AdConstants.PRIMARY_GROUP_ID.setValue(entry, 513);
       AdConstants.USER_PWD_LAST_SET.setValue(entry, now);
-      AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(entry, new UserAccountControl());
+      AdConstants.USER_USER_ACCOUNT_CONTROL
+          .setValue(entry, new UserAccountControl(), (e, n) -> isEmpty(e));
       AdConstants.USER_UNICODE_PWD.setValue(entry, MockProperties.ADMIN_FALLBACK_PASSWORD);
     }
   }

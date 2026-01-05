@@ -2,6 +2,8 @@ package org.bremersee.samba.ad.dc.repository.mock;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveException;
+import org.bremersee.ldaptive.serializable.SerLdapEntry;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
@@ -33,6 +36,7 @@ import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -41,12 +45,14 @@ import org.springframework.util.Assert;
 @Profile("mock")
 @Slf4j
 class SambaStore {
-  
+
   static final Object LOCK = new Object();
 
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
 
   private final AtomicInteger sidPostfix = new AtomicInteger(Sid.MAX_SYSTEM_SID_SUFFIX + 1);
+
+  private final ObjectMapper objectMapper;
 
   @Getter(AccessLevel.PACKAGE)
   private final DnTool dnTool;
@@ -62,9 +68,10 @@ class SambaStore {
 
   private final Map<DnsZone, List<DnsEntry>> dns;
 
-  // TODO primaryGroup bei Usern geht nocht nicht richtig
+  // TODO primaryGroup bei NEUEN Usern geht nocht nicht richtig
 
-  SambaStore(ApplicationProperties properties) {
+  SambaStore(ApplicationProperties properties, Jackson2ObjectMapperBuilder objectMapperBuilder) {
+    this.objectMapper = objectMapperBuilder.build();
     this.dnTool = new DefaultDnTool(properties);
     this.root = new LdapNode(properties.getBaseDn());
     this.dns = new HashMap<>();
@@ -186,7 +193,7 @@ class SambaStore {
 
   void add(LdapEntry entry) {
     Assert.notNull(entry, "Ldap entry must not be null.");
-    log.info("Adding entry: {}", entry.getDn());
+    log.info("Adding entry: {}", toJson(new SerLdapEntry(entry)));
     Assert.isTrue(dnTool.isValidDnWithBaseDn(entry.getDn()), "Dn is invalid.");
     synchronized (LOCK) {
       findByDn(new Dn(entry.getDn()).getParent()).ifPresentOrElse(
@@ -279,6 +286,17 @@ class SambaStore {
         modification.accept(child);
       }
       modifyAll(child.getChildren(), modification, condition);
+    }
+  }
+
+  private String toJson(Object value) {
+    if (value == null) {
+      return null;
+    }
+    try {
+      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+    } catch (JsonProcessingException e) {
+      return e.getMessage();
     }
   }
 }
