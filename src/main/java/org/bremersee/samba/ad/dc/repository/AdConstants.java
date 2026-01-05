@@ -50,7 +50,7 @@ public abstract class AdConstants {
       false,
       ValueTranscoderFactory.getGeneralizedTimeToOffsetDateTimeValueTranscoder());
 
-  public static final LdaptiveAttribute<String> CN = define("cn");
+  public static final LdaptiveAttribute<String> CN = define("CN");
 
   public static final LdaptiveAttribute<String> DESCRIPTION = define("description");
 
