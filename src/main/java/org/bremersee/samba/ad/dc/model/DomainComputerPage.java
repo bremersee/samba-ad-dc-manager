@@ -9,11 +9,8 @@ public class DomainComputerPage extends JsonPageDto<DomainComputer> {
   @Serial
   private static final long serialVersionUID = 1;
 
-  public DomainComputerPage() {
-    super();
-  }
-
   public DomainComputerPage(Page<? extends DomainComputer> page) {
     super(page);
   }
+
 }
