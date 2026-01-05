@@ -26,22 +26,35 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The interface HostNameResponseParser.
+ * The host name parser.
  *
  * @author Christian Bremer
  */
 public interface HostNameParser extends CommandExecutorResponseParser<String> {
 
+  /**
+   * Returns the default host name parser.
+   *
+   * @return the host name parser
+   */
   static HostNameParser defaultParser() {
     return Default.getInstance();
   }
 
+  /**
+   * The efault host name parser.
+   */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   class Default extends AbstractCommandExecutorResponseParser<String>
       implements HostNameParser {
 
     private static HostNameParser instance;
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static HostNameParser getInstance() {
       if (instance == null) {
         instance = new Default();

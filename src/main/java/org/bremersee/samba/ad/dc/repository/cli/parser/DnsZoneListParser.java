@@ -28,24 +28,40 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The interface DnsZoneListParser.
+ * The dns zone list parser.
  *
  * @author Christian Bremer
  */
 public interface DnsZoneListParser extends CommandExecutorResponseParser<List<String>> {
 
+  /**
+   * Retruns the default dns zone list parser.
+   *
+   * @return the dns zone list parser
+   */
   static DnsZoneListParser defaultParser() {
     return Default.getInstance();
   }
 
+  /**
+   * The default dns zone list parser.
+   */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   class Default extends AbstractCommandExecutorResponseParser<List<String>>
       implements DnsZoneListParser {
 
+    /**
+     * The zone name.
+     */
     static final String ZONE_NAME = "pszZoneName";
 
     private static DnsZoneListParser instance;
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     static DnsZoneListParser getInstance() {
       if (isNull(instance)) {
         instance = new Default();

@@ -51,22 +51,48 @@ public interface DomainInfoParser
   @Slf4j
   class Default implements DomainInfoParser {
 
+    /**
+     * The Forest.
+     */
     static final String FOREST = "Forest";
 
+    /**
+     * The Domain.
+     */
     static final String DOMAIN = "Domain";
 
+    /**
+     * The Netbios domain.
+     */
     static final String NETBIOS_DOMAIN = "Netbios domain";
 
+    /**
+     * The Dc name.
+     */
     static final String DC_NAME = "DC name";
 
+    /**
+     * The Dc netbios name.
+     */
     static final String DC_NETBIOS_NAME = "DC netbios name";
 
+    /**
+     * The Server site.
+     */
     static final String SERVER_SITE = "Server site";
 
+    /**
+     * The Client site.
+     */
     static final String CLIENT_SITE = "Client site";
 
     private static DomainInfoParser instance;
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     static DomainInfoParser getInstance() {
       if (instance == null) {
         instance = new Default();

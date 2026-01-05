@@ -37,7 +37,7 @@ public interface PasswordInformationParser
     extends CommandExecutorResponseParser<PasswordInformation> {
 
   /**
-   * Return default password information parser.
+   * Return the default password information parser.
    *
    * @return the password information parser
    */
@@ -99,6 +99,11 @@ public interface PasswordInformationParser
 
     private static PasswordInformationParser instance;
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     static PasswordInformationParser getInstance() {
       if (instance == null) {
         instance = new Default();
