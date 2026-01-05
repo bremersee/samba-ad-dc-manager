@@ -10,10 +10,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
-import org.bremersee.samba.ad.dc.model.DomainComputer;
-import org.bremersee.samba.ad.dc.model.DomainComputerPage;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,20 +27,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/computers")
-public class ComputerApiController extends ApiController {
+@RequestMapping(path = "/api/groups")
+public class GroupApiController extends ApiController {
 
-  private final DomainComputerService domainComputerService;
+  private final DomainGroupService domainGroupService;
 
-  public ComputerApiController(
+  public GroupApiController(
       SortMapper sortMapper,
-      DomainComputerService domainComputerService) {
+      DomainGroupService domainGroupService) {
     super(sortMapper);
-    this.domainComputerService = domainComputerService;
+    this.domainGroupService = domainGroupService;
   }
 
   @Operation(
-      description = "Get computer page.",
+      description = "Get group page.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
           @SecurityRequirement(name = "basicAuth")}
   )
@@ -52,7 +52,7 @@ public class ComputerApiController extends ApiController {
       }
   )
   @GetMapping
-  public ResponseEntity<DomainComputerPage> getComputers(
+  public ResponseEntity<DomainGroupPage> getGroups(
       @Parameter(description = "Zero-based page index (0..N).",
           name = PAGE,
           schema = @Schema(type = "integer", defaultValue = PAGE_DEFAULT))
@@ -74,7 +74,7 @@ public class ComputerApiController extends ApiController {
       String query,
 
       @Parameter(name = OU,
-          description = "The search base (organizational unit) like 'CN=Computers'.",
+          description = "The search base (organizational unit) like 'CN=Users'.",
           schema = @Schema(type = "string"))
       @RequestParam(name = OU, required = false)
       Dn ou,
@@ -84,15 +84,15 @@ public class ComputerApiController extends ApiController {
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
-    Sort sort = getSortMapper().toSort(sortOrder, COMPUTER_SORT);
+    Sort sort = getSortMapper().toSort(sortOrder, GROUP_SORT);
     Pageable pageable = PageRequest.of(page, size, sort);
-    Page<DomainComputer> computerPage = domainComputerService
-        .getComputers(pageable, query, ou, scope);
-    return ResponseEntity.ok(new DomainComputerPage(computerPage));
+    Page<DomainGroup> groupPage = domainGroupService
+        .getGroups(pageable, query, ou, scope);
+    return ResponseEntity.ok(new DomainGroupPage(groupPage));
   }
 
   @Operation(
-      description = "Get computer.",
+      description = "Get group.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
           @SecurityRequirement(name = "basicAuth")}
   )
@@ -105,12 +105,12 @@ public class ComputerApiController extends ApiController {
       }
   )
   @GetMapping(path = "/{name}")
-  public ResponseEntity<DomainComputer> getComputer(
-      @Parameter(name = "name", description = "The name of the computer.")
+  public ResponseEntity<DomainGroup> getGroup(
+      @Parameter(name = "name", description = "The name of the group.")
       @PathVariable("name") String name,
 
       @Parameter(name = OU,
-          description = "The search base (organizational unit) like 'CN=Computers'.",
+          description = "The search base (organizational unit) like 'CN=Groups'.",
           schema = @Schema(type = "string"))
       @RequestParam(name = OU, required = false)
       Dn ou,
@@ -119,6 +119,6 @@ public class ComputerApiController extends ApiController {
           schema = @Schema(type = "string"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
-    return ResponseEntity.of(domainComputerService.getComputer(name, ou, scope));
+    return ResponseEntity.of(domainGroupService.getGroup(name, ou, scope));
   }
 }

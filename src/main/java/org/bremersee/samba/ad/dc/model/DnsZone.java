@@ -39,7 +39,7 @@ public interface DnsZone extends AdEntry {
 
   @Schema(description = "The zone type.")
   @Nullable
-  String getZoneType();
+  String getZoneType(); // DNS_ZONE_TYPE_PRIMARY, DNS_ZONE_TYPE_CACHE
 
   @Schema(description = "Specifies whether this zone is a reverse zone or not.")
   @Nullable
