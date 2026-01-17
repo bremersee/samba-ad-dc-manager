@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
- * The type PaginationHelper.
+ * The pagination helper.
  *
  * @author Christian Bremer
  */

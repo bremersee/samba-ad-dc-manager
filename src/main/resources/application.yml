@@ -14,16 +14,22 @@ bremersee:
     pooled: true
     connection-validator:
       search-request:
-        base-dn: ${bremersee.dc.base-dn}
+        base-dn: #${bremersee.dc.base-dn}
+        search-scope: object
+        return-attributes:
+          - objectClass
     connection-pool:
       min-pool-size: 3
       max-pool-size: 10
-      validate-on-check-in: false
-      validate-on-check-out: false
+      validate-on-check-in: true
+      validate-on-check-out: true
       validate-periodically: true
       validator:
         search-request:
           base-dn: ${bremersee.dc.base-dn}
+          search-scope: object
+          return-attributes:
+            - objectClass
   authentication:
     remember-me:
       #
@@ -132,6 +138,7 @@ spring:
         max-attempts: 8
         multiplier: 1.1
 
+
 management:
   endpoints:
     web:
@@ -156,7 +163,7 @@ logging:
     ROOT: info
     com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
-    org.bremersee: info
+    org.bremersee: debug
     org.springframework.cloud.configclient: warn
 
 ---
@@ -248,7 +255,11 @@ bremersee:
       # Set your email address.
       #
       sender: ""
-      base-uri: "http://localhost:8080"
+      #
+      # Set the base uri. For example https://samdom.example.org
+      # If it is empty, it will be detected.
+      #
+      base-uri: ""
 
 ---
 

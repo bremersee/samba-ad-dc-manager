@@ -64,7 +64,7 @@
                  th:classappend="${error} ? 'is-invalid' : ''" />
         </div>
         <div id="usernameHelp" class="form-text mb-4"
-             th:text="#{templates.login.username.help(${netbiosDomainNamePrefix})}">
+             th:text="#{templates.login.username.help(${domainInfo.domainControllerNetbiosName})}">
           Please enter your plain username without NetBIOS domain name EIXE.
         </div>
         <div class="input-group mb-4">

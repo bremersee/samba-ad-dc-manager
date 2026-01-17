@@ -85,19 +85,15 @@ public abstract class UiController extends AbstractController implements LoggerP
     this.domainService = domainService;
   }
 
+  @ModelAttribute("properties")
+  @Override
+  public ApplicationProperties getProperties() {
+    return properties;
+  }
+
   @ModelAttribute("domainInfo")
   public DomainInfo getDomainInfo() {
     return getDomainService().getDomainInfo();
-  }
-
-  @ModelAttribute("netbiosDomainNamePrefix")
-  public String getNetbiosDomainNamePrefix() {
-    return getDomainInfo().getNetbiosDomain() + '\\';
-  }
-
-  @ModelAttribute("companyName")
-  public String getCompanyName() {
-    return getProperties().getCompanyName();
   }
 
   @ModelAttribute("companyUrl")

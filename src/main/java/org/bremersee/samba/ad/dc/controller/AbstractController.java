@@ -3,9 +3,9 @@ package org.bremersee.samba.ad.dc.controller;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -62,7 +62,7 @@ public abstract class AbstractController {
     super();
   }
 
-  protected String getBaseUri(String configuredBaseUri) {
+  protected static String getBaseUri(String configuredBaseUri) {
     if (!isEmpty(configuredBaseUri)
         && (configuredBaseUri.toLowerCase().startsWith("http://")
         || configuredBaseUri.toLowerCase().startsWith("https://"))) {
@@ -82,11 +82,53 @@ public abstract class AbstractController {
   }
 
   private static String getBaseUri(HttpServletRequest request) {
-    // TODO be proxy aware
-    String forwardedPort = request.getHeader("X-Forwarded-Port");
-    String forwardedProto = request.getHeader("X-Forwarded-Proto");
-    log.info("forwardedProto = {}, forwardedPort = {}", forwardedProto, forwardedPort);
-    return null;
+    StringBuilder baseUriBuilder = new StringBuilder(getScheme(request));
+    baseUriBuilder.append("://");
+    baseUriBuilder.append(getServerName(request));
+    int port = getPort(request);
+    if (!(port == 80 || port == 443)) {
+      baseUriBuilder.append(':').append(port);
+    }
+    baseUriBuilder.append(request.getContextPath());
+    return baseUriBuilder.toString();
+  }
+
+  private static String getScheme(HttpServletRequest request) {
+    String value = null;
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      if ("X-Forwarded-Proto".equalsIgnoreCase(headerName)) {
+        value = request.getHeader(headerName);
+        break;
+      }
+    }
+    if (isEmpty(value)) {
+      value = request.getScheme();
+    }
+    if ("http".equalsIgnoreCase(value) || "https".equalsIgnoreCase(value)) {
+      return value;
+    }
+    return "http";
+  }
+
+  private static String getServerName(HttpServletRequest request) {
+    return request.getServerName();
+  }
+
+  private static int getPort(HttpServletRequest request) {
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String headerName = headerNames.nextElement();
+      if ("X-Forwarded-Port".equalsIgnoreCase(headerName)) {
+        try {
+          return Integer.parseInt(request.getHeader(headerName));
+        } catch (RuntimeException ignored) {
+          // ignored
+        }
+      }
+    }
+    return request.getServerPort();
   }
 
 }

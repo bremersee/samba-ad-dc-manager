@@ -35,7 +35,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#"
        th:href="${#strings.isEmpty(companyUrl) ? '#' : companyUrl}"
-       th:text="${#strings.isEmpty(companyName) ? 'Samba AD DC Manager' : companyName}">
+       th:text="${#strings.isEmpty(properties.companyName) ? 'Samba AD DC Manager' : properties.companyName}">
       bremersee.org
     </a>
   </div>
@@ -46,7 +46,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#"
        th:href="${#strings.isEmpty(companyUrl) ? '#' : companyUrl}"
-       th:text="${#strings.isEmpty(companyName) ? 'Samba AD DC Manager' : companyName}">
+       th:text="${#strings.isEmpty(properties.companyName) ? 'Samba AD DC Manager' : properties.companyName}">
       bremersee.org
     </a>
     <div>
@@ -72,7 +72,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#"
        th:href="${#strings.isEmpty(companyUrl) ? '#' : companyUrl}"
-       th:text="${#strings.isEmpty(companyName) ? 'Samba AD DC Manager' : companyName}">
+       th:text="${#strings.isEmpty(properties.companyName) ? 'Samba AD DC Manager' : properties.companyName}">
       bremersee.org
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"

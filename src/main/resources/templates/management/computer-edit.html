@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Edit computer</title>
+  <title th:text="#{templates.management.computer-edit.t}">Edit computer</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -71,7 +71,7 @@
       <div class="col">
         <div class="container">
           <div class="d-flex justify-content-center">
-            <h3 class="small">Edit computer</h3>
+            <h3 class="small" th:text="#{templates.management.computer-edit.text}">Edit computer</h3>
           </div>
           <div class="d-flex justify-content-center">
             <h3 th:text="${computer.name}">Zander</h3>
@@ -122,7 +122,7 @@
       <input type="hidden" name="samAccountName" th:value="${computer.samAccountName}"/>
 
       <div class="mb-3">
-        <label for="newOu" class="form-label">Organizational Unit</label>
+        <label for="newOu" class="form-label" th:text="#{templates.management.ou.label}">Organizational Unit</label>
         <select id="newOu" class="form-select" aria-label="Organizational Unit"
                 aria-describedby="newOuValidation"
                 th:readonly="${computer.criticalSystemObject}"
@@ -139,34 +139,38 @@
       </div>
 
       <div class="mb-3">
-        <div class="form-label">Name</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.name}">Name</div>
         <div class="form-control text-secondary" th:text="${computer.name}">
           zander
         </div>
       </div>
 
       <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label" th:text="#{templates.management.computer-edit.description}">
+          Description
+        </label>
         <input type="text" class="form-control" id="description" name="description"
                th:field="*{description}" />
       </div>
 
       <div class="mb-3" th:if="${primaryGroup != null}">
-        <div class="form-label">Primary Group</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.primary-group}">Primary Group</div>
         <div class="form-control text-secondary" th:text="${primaryGroup.name}">
           Domain Computers
         </div>
       </div>
 
       <div class="mb-3" th:if="${not #strings.isEmpty(computer.dnsHostName)}">
-        <div class="form-label">Host Name</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.host-name}">Host Name</div>
         <div class="form-control text-secondary" th:text="${computer.dnsHostName}">
           zander.bremersee.org
         </div>
       </div>
 
       <div class="mb-3" th:if="${not #lists.isEmpty(computer.networkAddresses)}">
-        <div class="form-label">Network Addresses</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.network-addresses}">
+          Network Addresses
+        </div>
         <ul class="list-group">
           <li class="list-group-item" th:each="ip : ${computer.networkAddresses}">
             <span class="text-secondary" th:text="${ip}">
@@ -177,21 +181,27 @@
       </div>
 
       <div class="mb-3" th:if="${not #strings.isEmpty(computer.operatingSystem)}">
-        <div class="form-label">Operating System</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.operating-system}">
+          Operating System
+        </div>
         <div class="form-control text-secondary" th:text="${computer.operatingSystem}">
           Linux
         </div>
       </div>
 
       <div class="mb-3" th:if="${not #strings.isEmpty(computer.operatingSystemVersion)}">
-        <div class="form-label">Operating System Version</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.operating-system-version}">
+          Operating System Version
+        </div>
         <div class="form-control text-secondary" th:text="${computer.operatingSystemVersion}">
           Linux
         </div>
       </div>
 
       <div class="mb-3" th:if="${not #lists.isEmpty(computer.servicePrincipalNames)}">
-        <div class="form-label">Service Principal Names</div>
+        <div class="form-label" th:text="#{templates.management.computer-edit.service-principal-names}">
+          Service Principal Names
+        </div>
         <ul class="list-group">
           <li class="list-group-item" th:each="service : ${computer.servicePrincipalNames}">
             <span class="text-secondary" th:text="${service}">
@@ -201,12 +211,12 @@
         </ul>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-3">
-        Update
+      <button type="submit" class="btn btn-primary mt-3 mb-5" th:text="#{templates.management.computer-edit.save}">
+        Save
       </button>
       <a href="computers.html"
          th:href="@{computers(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-         class="btn btn-secondary ml-3 mt-3">
+         class="btn btn-secondary ml-3 mt-3 mb-5" th:text="#{templates.management.computer-edit.cancel}">
         Cancel
       </a>
     </form>

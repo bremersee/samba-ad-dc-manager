@@ -100,7 +100,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
         })
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
-            COMPUTER,
+            "Computer",
             "controller.ui.computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,

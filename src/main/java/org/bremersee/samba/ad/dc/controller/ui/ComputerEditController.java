@@ -65,6 +65,16 @@ public class ComputerEditController extends UiController implements PageableComp
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new computer edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
   public ComputerEditController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -83,6 +93,16 @@ public class ComputerEditController extends UiController implements PageableComp
     return COMPUTER_SORT;
   }
 
+  /**
+   * Display computer edit view.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
   @GetMapping(path = "/management/computer-edit")
   public String displayComputerEdit(
       @RequestParam(value = "name", required = false) String computerName,
@@ -103,12 +123,24 @@ public class ComputerEditController extends UiController implements PageableComp
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "todo",
+            "controller.ui.computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
   }
 
+  /**
+   * Update computer.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the new view
+   */
   @PostMapping(path = "/management/computer-edit")
   public String updateComputer(
       @RequestParam(value = "samAccountName", required = false) String samAccountName,
@@ -128,7 +160,7 @@ public class ComputerEditController extends UiController implements PageableComp
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "todo",
+            "controller.ui.computer.not-found",
             samAccountName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
@@ -157,7 +189,7 @@ public class ComputerEditController extends UiController implements PageableComp
       RedirectMessage rmsg = getRedirectMessage(
           RedirectMessageType.SUCCESS,
           msg,
-          "todo",
+          "controller.ui.computer-edit-c.updated-message",
           updatedComputer.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
@@ -194,12 +226,12 @@ public class ComputerEditController extends UiController implements PageableComp
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "ec.empty-ou-rdn",
             "Organizational unit is empty.");
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "ec.ou-not-found",
             "Organizational unit was not found.");
         break;
       }
@@ -215,6 +247,6 @@ public class ComputerEditController extends UiController implements PageableComp
         .map(DomainComputer::getPrimaryGroupId)
         .flatMap(domainGroupService::getGroupByPrimaryGroupId)
         .ifPresent(group -> model.addAttribute("primaryGroup", group));
-
   }
+
 }
