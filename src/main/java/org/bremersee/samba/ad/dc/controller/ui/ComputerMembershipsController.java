@@ -35,7 +35,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type ComputersController.
+ * The computer memberships controller.
  *
  * @author Christian Bremer
  */
@@ -47,6 +47,15 @@ public class ComputerMembershipsController extends UiController
 
   private final DomainGroupService domainGroupService;
 
+  /**
+   * Instantiates a new computer memberships controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   * @param domainGroupService the domain group service
+   */
   public ComputerMembershipsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -63,6 +72,16 @@ public class ComputerMembershipsController extends UiController
     return COMPUTER_SORT;
   }
 
+  /**
+   * Display computer edit memberships direct view.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/computer-memberships-direct")
   public String displayComputerEditMembershipsDirect(
       @RequestParam(value = "name", required = false) String computerName,
@@ -75,6 +94,16 @@ public class ComputerMembershipsController extends UiController
         true, computerName, ou, searchScope, model, redirectAttributes);
   }
 
+  /**
+   * Display computer edit memberships resolved view.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/computer-memberships-resolved")
   public String displayComputerEditMembershipsResolved(
       @RequestParam(value = "name", required = false) String computerName,
@@ -114,7 +143,7 @@ public class ComputerMembershipsController extends UiController
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "todo",
+            "controller.ui.computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));

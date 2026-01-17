@@ -53,6 +53,16 @@ public class ComputersController extends UiController
 
   private final SortMapper sortMapper;
 
+  /**
+   * Instantiates a new computer list controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   * @param organizationalUnitService the organizational unit service
+   * @param sortMapper the sort mapper
+   */
   public ComputersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -81,6 +91,18 @@ public class ComputersController extends UiController
     return "computers";
   }
 
+  /**
+   * Display computer list view.
+   *
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/computers")
   public String displayComputers(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,

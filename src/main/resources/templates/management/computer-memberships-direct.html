@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Direct memberships of computer</title>
+  <title th:text="#{templates.management.computer-memberships-direct.t}">Direct memberships of computer</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -69,7 +69,9 @@
       <div class="col">
         <div class="container">
           <div class="d-flex justify-content-center">
-            <h3 class="small">Direct memberships of computer</h3>
+            <h3 class="small" th:text="#{templates.management.computer-memberships-direct.text}">
+              Direct memberships of computer
+            </h3>
           </div>
           <div class="d-flex justify-content-center">
             <h3 th:text="${computer.name}">Zander</h3>
@@ -105,7 +107,7 @@
       </li>
     </ul>
 
-    <div class="mx-0 mx-sm-1 mx-md-3">
+    <div class="mx-0 mx-sm-1 mx-md-3 mb-5">
 
       <div class="d-flex justify-content-center mb-3">
         <ul class="nav nav-pills">
@@ -126,7 +128,8 @@
       </div>
 
       <div th:if="${#lists.isEmpty(memberships)}"
-           class="alert alert-info" role="alert">
+           class="alert alert-info" role="alert"
+           th:text="#{templates.management.computer-memberships-direct.no-groups}">
         No groups were found.
       </div>
 
@@ -138,7 +141,7 @@
             <h6 class="mb-1" th:text="${entry.samAccountName}">
               Administrators
             </h6>
-            <span class="far fa-edit" aria-hidden="true"></span>
+            <span class="far fa-edit" aria-hidden="true" th:title="#{templates.management.edit.label}"></span>
           </div>
         </a>
       </div>

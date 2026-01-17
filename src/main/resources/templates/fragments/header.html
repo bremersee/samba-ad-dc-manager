@@ -59,7 +59,7 @@
       <form class="d-flex" action="/logout" th:action="@{/logout}" method="post">
         <button class="btn btn-outline-danger" type="submit" title="Logout"
                 sec:authorize="isFullyAuthenticated()"
-                th:onclick="'return confirm(\'' + #{templates.fragments.header.logout.confirm} + '\');'">
+                th:onclick="'return confirm(\'' + #{logout.confirm} + '\');'">
           <span class="far fa-right-from-bracket" aria-hidden="true"></span>
         </button>
       </form>
@@ -167,7 +167,7 @@
       </ul>
       <form class="d-flex" action="/logout" th:action="@{/logout}" method="post">
         <button class="btn btn-outline-danger" type="submit" title="Logout"
-                th:onclick="'return confirm(\'' + #{templates.fragments.header.logout.confirm} + '\');'">
+                th:onclick="'return confirm(\'' + #{logout.confirm} + '\');'">
           <span class="far fa-right-from-bracket" aria-hidden="true"></span>
         </button>
       </form>
