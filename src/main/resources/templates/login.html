@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title th:text="#{templates.login.sign-in.t(${domainInfo.domain})}">Login</title>
+  <title th:text="#{login-page.title(${domainInfo.domain})}">Login</title>
   <link rel="stylesheet" href="../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -49,7 +49,7 @@
 <main role="main" class="container">
 
   <div class="d-flex justify-content-center mb-2">
-    <h3 th:text="#{templates.login.sign-in}">Sign in</h3>
+    <h3 th:text="#{login-page.sign-in.label}">Sign in</h3>
   </div>
   <div class="d-flex justify-content-center mb-4">
     <h5 th:text="${domainInfo.domain}">bremersee.org</h5>
@@ -60,19 +60,19 @@
       <form th:action="@{login}" method="post">
         <div class="input-group mb-1">
           <input type="text" class="form-control" id="username" name="username" required
-                 aria-label="Username" placeholder="Username" th:placeholder="#{templates.login.username}"
+                 aria-label="Username" placeholder="Username" th:placeholder="#{login-page.username.label}"
                  th:classappend="${error} ? 'is-invalid' : ''" />
         </div>
         <div id="usernameHelp" class="form-text mb-4"
-             th:text="#{templates.login.username.help(${domainInfo.domainControllerNetbiosName})}">
+             th:text="#{login-page.username.help(${domainInfo.domainControllerNetbiosName})}">
           Please enter your plain username without NetBIOS domain name EIXE.
         </div>
         <div class="input-group mb-4">
           <input type="password" class="form-control" id="password" name="password" required
-                 aria-label="Password" placeholder="Password" th:placeholder="#{templates.login.password}"
+                 aria-label="Password" placeholder="Password" th:placeholder="#{login-page.password.label}"
                  th:classappend="${error} ? 'is-invalid' : ''" />
           <div id="error" class="invalid-feedback" th:if="${error}">
-            <span th:text="#{templates.login.failed}">
+            <span th:text="#{login-page.login-failed}">
               Login failed. Either your username or password is incorrect.
             </span>
           </div>
@@ -81,20 +81,20 @@
           <div class="col col-auto">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me" />
-              <label class="form-check-label" for="remember-me" th:text="#{templates.login.remember-me}">
+              <label class="form-check-label" for="remember-me" th:text="#{login-page.remember-me}">
                 Remember me on this computer.
               </label>
             </div>
           </div>
           <div class="col col-auto">
             <a href="passwd/password-reset-request.html" th:href="@{passwd/password-reset-request}">
-              <span th:text="#{templates.login.forgot-password}">Forgot password?</span>
+              <span th:text="#{login-page.forgot-password}">Forgot password?</span>
             </a>
           </div>
         </div>
         <div class="d-flex justify-content-center mb-5">
           <button type="submit" class="btn btn-primary mm-4">
-            <span th:text="#{templates.login.sign-in.button}">Sign In</span>
+            <span th:text="#{login-page.sign-in.button}">Sign In</span>
           </button>
         </div>
       </form>

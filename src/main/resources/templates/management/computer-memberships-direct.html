@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title th:text="#{templates.management.computer-memberships-direct.t}">Direct memberships of computer</title>
+  <title th:text="#{computer-memberships-direct.title}">Direct memberships of computer</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -61,7 +61,7 @@
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="computers.html"
            th:href="@{computers(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+          <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
             <span style="display: none;">Back</span>
           </span>
         </a>
@@ -69,7 +69,7 @@
       <div class="col">
         <div class="container">
           <div class="d-flex justify-content-center">
-            <h3 class="small" th:text="#{templates.management.computer-memberships-direct.text}">
+            <h3 class="small" th:text="#{computer-memberships-direct.text}">
               Direct memberships of computer
             </h3>
           </div>
@@ -83,7 +83,7 @@
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a class="nav-link" href="computer-edit.html" th:title="#{templates.management.edit.label}"
+        <a class="nav-link" href="computer-edit.html" th:title="#{common.edit}"
            th:href="@{computer-edit(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-computer" aria-hidden="true">
             <span style="display: none;">Edit</span>
@@ -91,14 +91,14 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#" th:title="#{templates.management.memberships.label}">
+        <a class="nav-link active" aria-current="page" href="#" th:title="#{common.memberships.label}">
           <span class="fa fa-folder-tree" aria-hidden="true">
             <span style="display: none;">Memberships</span>
           </span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="computer-delete.html" th:title="#{templates.management.delete.label}"
+        <a class="nav-link" href="computer-delete.html" th:title="#{common.delete}"
            th:href="@{computer-delete(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-trash-alt" aria-hidden="true">
             <span style="display: none;">Delete</span>
@@ -113,13 +113,13 @@
         <ul class="nav nav-pills">
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#"
-               th:text="#{templates.management.memberships.direct.label}">
+               th:text="#{common.memberships.direct}">
               Direct
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="computer-memberships-resolved.html"
-               th:text="#{templates.management.memberships.resolved.label}"
+               th:text="#{common.memberships.resolved}"
                th:href="@{computer-memberships-resolved(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
               Resolved
             </a>
@@ -129,7 +129,7 @@
 
       <div th:if="${#lists.isEmpty(memberships)}"
            class="alert alert-info" role="alert"
-           th:text="#{templates.management.computer-memberships-direct.no-groups}">
+           th:text="#{groups.not-found}">
         No groups were found.
       </div>
 
@@ -141,7 +141,7 @@
             <h6 class="mb-1" th:text="${entry.samAccountName}">
               Administrators
             </h6>
-            <span class="far fa-edit" aria-hidden="true" th:title="#{templates.management.edit.label}"></span>
+            <span class="far fa-edit" aria-hidden="true" th:title="#{common.edit}"></span>
           </div>
         </a>
       </div>

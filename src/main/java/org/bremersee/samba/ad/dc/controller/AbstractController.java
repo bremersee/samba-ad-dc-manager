@@ -5,12 +5,15 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.samba.ad.dc.misc.SortMapperAware;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Slf4j
-public abstract class AbstractController {
+public abstract class AbstractController implements SortMapperAware {
 
   public static final String PAGE = "page";
 
@@ -58,8 +61,17 @@ public abstract class AbstractController {
 
   public static final String DNS_ENTRY_VALUE = "value";
 
+  @Getter
+  private SortMapper sortMapper;
+
   protected AbstractController() {
-    super();
+    this.sortMapper = SortMapper.defaultSortMapper();
+  }
+
+  public void setSortMapper(SortMapper sortMapper) {
+    if (!isEmpty(sortMapper)) {
+      this.sortMapper = sortMapper;
+    }
   }
 
   protected static String getBaseUri(String configuredBaseUri) {

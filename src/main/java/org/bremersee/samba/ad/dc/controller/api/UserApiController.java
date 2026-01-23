@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Optional;
-import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.model.DomainUser;
@@ -33,9 +32,7 @@ public class UserApiController extends ApiController {
   private final DomainUserService domainUserService;
 
   public UserApiController(
-      SortMapper sortMapper,
       DomainUserService domainUserService) {
-    super(sortMapper);
     this.domainUserService = domainUserService;
   }
 
@@ -55,7 +52,7 @@ public class UserApiController extends ApiController {
   @GetMapping(path = "/{name}")
   public ResponseEntity<DomainUser> getUser(
       @Parameter(name = "name", description = "The name of the user.")
-      @PathVariable("name") String name,
+      @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,
           description = "The search base (organizational unit) like 'CN=Users'.",
@@ -68,7 +65,7 @@ public class UserApiController extends ApiController {
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
-    return ResponseEntity.of(domainUserService.getUser(name, ou, scope));
+    return ResponseEntity.of(domainUserService.getUser(samAccountName, ou, scope));
   }
 
   @Operation(description = "Get user avatar.")
@@ -82,18 +79,18 @@ public class UserApiController extends ApiController {
       value = "/{name}/avatar",
       produces = {MediaType.IMAGE_JPEG_VALUE})
   public ResponseEntity<byte[]> getUserAvatar(
-      @PathVariable String name,
+      @PathVariable(name = "name") String samAccountName,
       @RequestParam(name = "d", defaultValue = "NOT_FOUND") AvatarDefault avatarDefault,
       @RequestParam(name = "s", defaultValue = "80") Integer size) {
 
-    String filename = Optional.of(name)
+    String filename = Optional.of(samAccountName)
         .filter(DnTool::isValidDn)
         .map(Dn::new)
         .map(Dn::getRDn)
         .map(RDn::getNameValue)
         .map(NameValue::getStringValue)
-        .orElse(name);
-    return domainUserService.getUserAvatar(name, null, null, avatarDefault, size)
+        .orElse(samAccountName);
+    return domainUserService.getUserAvatar(samAccountName, null, null, avatarDefault, size)
         .map(avatar -> ResponseEntity
             .status(HttpStatus.OK)
             .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + ".jpg\"")

@@ -123,7 +123,7 @@ public class ComputerEditController extends UiController implements PageableComp
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "controller.ui.computer.not-found",
+            "computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
@@ -160,7 +160,7 @@ public class ComputerEditController extends UiController implements PageableComp
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "controller.ui.computer.not-found",
+            "computer.not-found",
             samAccountName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
@@ -189,7 +189,7 @@ public class ComputerEditController extends UiController implements PageableComp
       RedirectMessage rmsg = getRedirectMessage(
           RedirectMessageType.SUCCESS,
           msg,
-          "controller.ui.computer-edit-c.updated-message",
+          "computer-edit.success",
           updatedComputer.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 

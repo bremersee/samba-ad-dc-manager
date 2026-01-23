@@ -61,7 +61,7 @@
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="users.html"
            th:href="@{users(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+          <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
             <span style="display: none;">Back</span>
           </span>
         </a>
@@ -87,14 +87,14 @@
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#" th:title="#{templates.management.edit.label}">
+        <a class="nav-link active" aria-current="page" href="#" th:title="#{common.edit}">
           <span class="fa fa-user-edit" aria-hidden="true">
             <span style="display: none;">Edit</span>
           </span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="user-memberships-direct.html" th:title="#{templates.management.memberships.label}"
+        <a class="nav-link" href="user-memberships-direct.html" th:title="#{common.memberships.label}"
            th:href="@{user-memberships-direct(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-folder-tree" aria-hidden="true">
             <span style="display: none;">Memberships</span>
@@ -102,7 +102,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="user-delete.html" th:title="#{templates.management.delete.label}"
+        <a class="nav-link" href="user-delete.html" th:title="#{common.delete}"
            th:classappend="${user.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${user.sid.systemEntity}"
            th:href="@{user-delete(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">

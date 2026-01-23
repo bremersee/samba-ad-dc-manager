@@ -143,8 +143,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-commons</artifactId>
+      <groupId>org.bremersee</groupId>
+      <artifactId>comparator-spring-boot-web-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.bremersee</groupId>

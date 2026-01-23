@@ -62,7 +62,7 @@
     <div class="col-1">
       <a class="btn btn-outline-secondary show-spinner" href="dns-zone-entries.html"
          th:href="@{dns-zone-entries(zone-type=${zoneType},zone-name=${dnsEntry.zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+        <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
           <span style="display: none;">Back</span>
         </span>
       </a>
@@ -82,7 +82,7 @@
 
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
-      <a class="nav-link show-spinner" href="dns-entry-edit.html" th:title="#{templates.management.edit.label}"
+      <a class="nav-link show-spinner" href="dns-entry-edit.html" th:title="#{common.edit}"
          th:href="@{dns-entry-edit(zone-type=${zoneType},zone-name=${dnsEntry.zoneName},name=${dnsEntry.name},type=${dnsEntry.type},value=${dnsEntry.value},page=${page},size=${size},sort=${sort},q=${q})}">
         <span class="fa fa-edit" aria-hidden="true">
             <span style="display: none;">Edit</span>
@@ -90,7 +90,7 @@
       </a>
     </li>
     <li class="nav-item">
-      <a class="nav-link active" aria-current="page" href="#" th:title="#{templates.management.delete.label}">
+      <a class="nav-link active" aria-current="page" href="#" th:title="#{common.delete}">
         <span class="fa fa-trash-alt" aria-hidden="true">
             <span style="display: none;">Delete</span>
         </span>

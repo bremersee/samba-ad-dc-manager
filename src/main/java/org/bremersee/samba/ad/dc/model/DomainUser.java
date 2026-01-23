@@ -107,7 +107,10 @@ public interface DomainUser extends SamAccount, NisDomainMember {
    * @return the domain user
    */
   default DomainUser withEmail(String email) {
-    return builder().email(email).build();
+    return builder()
+        .from(this)
+        .email(email)
+        .build();
   }
 
   /**

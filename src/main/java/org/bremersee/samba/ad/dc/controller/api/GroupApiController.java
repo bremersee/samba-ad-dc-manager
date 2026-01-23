@@ -2,23 +2,19 @@ package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.List;
-import org.bremersee.comparator.model.SortOrder;
-import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,12 +29,11 @@ public class GroupApiController extends ApiController {
   private final DomainGroupService domainGroupService;
 
   public GroupApiController(
-      SortMapper sortMapper,
       DomainGroupService domainGroupService) {
-    super(sortMapper);
     this.domainGroupService = domainGroupService;
   }
 
+  @PageableAsQueryParam
   @Operation(
       description = "Get group page.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
@@ -53,21 +48,9 @@ public class GroupApiController extends ApiController {
   )
   @GetMapping
   public ResponseEntity<DomainGroupPage> getGroups(
-      @Parameter(description = "Zero-based page index (0..N).",
-          name = PAGE,
-          schema = @Schema(type = "integer", defaultValue = PAGE_DEFAULT))
-      @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
 
-      @Parameter(description = "The size of the page to be returned.",
-          name = SIZE,
-          schema = @Schema(type = "integer", defaultValue = SIZE_DEFAULT))
-      @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
-
-      @Parameter(description = "Sorting criteria in the format: property,(asc|desc). Default "
-          + "sort order is ascending. Multiple sort criteria are supported.",
-          name = SORT,
-          array = @ArraySchema(schema = @Schema(type = "string")))
-      @RequestParam(name = SORT, required = false) List<SortOrder> sortOrder,
+      @Parameter(hidden = true)
+      @PageableDefault(size = SIZE_DEFAULT_INT, sort = GROUP_SORT) Pageable pageable,
 
       @Parameter(name = QUERY, description = "A search term.")
       @RequestParam(name = QUERY, required = false)
@@ -84,8 +67,6 @@ public class GroupApiController extends ApiController {
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
-    Sort sort = getSortMapper().toSort(sortOrder, GROUP_SORT);
-    Pageable pageable = PageRequest.of(page, size, sort);
     Page<DomainGroup> groupPage = domainGroupService
         .getGroups(pageable, query, ou, scope);
     return ResponseEntity.ok(new DomainGroupPage(groupPage));
@@ -107,7 +88,7 @@ public class GroupApiController extends ApiController {
   @GetMapping(path = "/{name}")
   public ResponseEntity<DomainGroup> getGroup(
       @Parameter(name = "name", description = "The name of the group.")
-      @PathVariable("name") String name,
+      @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,
           description = "The search base (organizational unit) like 'CN=Groups'.",
@@ -119,6 +100,6 @@ public class GroupApiController extends ApiController {
           schema = @Schema(type = "string"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
-    return ResponseEntity.of(domainGroupService.getGroup(name, ou, scope));
+    return ResponseEntity.of(domainGroupService.getGroup(samAccountName, ou, scope));
   }
 }

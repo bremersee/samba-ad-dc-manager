@@ -101,7 +101,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "controller.ui.computer.not-found",
+            "computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
@@ -136,7 +136,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
           }
           bindingResult.rejectValue(
               "verificationName",
-              "controller.ui.computer-delete-c.name-does-not-match",
+              "computer-delete.name-does-not-match",
               "The name doesn't match.");
           model.addAttribute(COMPUTER, computer);
           return "management/computer-delete";
@@ -144,7 +144,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             COMPUTER,
-            "controller.ui.computer.not-found",
+            "computer.not-found",
             deleteModel.getSamAccountName(),
             PAGE_AND_OU_PARAMS,
             COMPUTERS));
@@ -162,13 +162,13 @@ public class ComputerDeleteController extends UiController implements PageableCo
       redirectMessage = getRedirectMessage(
           RedirectMessageType.SUCCESS,
           String.format("Computer '%s' was successfully deleted.", computer.getName()),
-          "controller.ui.computer-delete-c.deleted-message",
+          "computer-delete.success",
           computer.getName());
     } else {
       redirectMessage = getRedirectMessage(
           RedirectMessageType.WARNING,
           String.format("Somehow the computer '%s' was not deleted.", computer.getName()),
-          "controller.ui.computer-delete-c.not-deleted-message",
+          "computer-delete.failure",
           computer.getName());
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);

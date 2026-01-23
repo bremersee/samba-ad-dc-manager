@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.comparator.spring.web.SortOrderRequestParam;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitDropdown;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigationComponent;
@@ -51,8 +52,6 @@ public class ComputersController extends UiController
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
-  private final SortMapper sortMapper;
-
   /**
    * Instantiates a new computer list controller.
    *
@@ -61,19 +60,16 @@ public class ComputersController extends UiController
    * @param domainService the domain service
    * @param domainComputerService the domain computer service
    * @param organizationalUnitService the organizational unit service
-   * @param sortMapper the sort mapper
    */
   public ComputersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainComputerService domainComputerService,
-      OrganizationalUnitService organizationalUnitService,
-      SortMapper sortMapper) {
+      OrganizationalUnitService organizationalUnitService) {
     super(properties, localeResolver, domainService);
     this.domainComputerService = domainComputerService;
     this.organizationalUnitService = organizationalUnitService;
-    this.sortMapper = sortMapper;
   }
 
   @Override
@@ -107,8 +103,7 @@ public class ComputersController extends UiController
   public String displayComputers(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
-      @RequestParam(name = SORT, defaultValue = COMPUTER_SORT)
-      SortOrder sort,
+      @SortOrderRequestParam(defaultSort = COMPUTER_SORT) SortOrder sort,
       @RequestParam(name = QUERY, required = false) String query,
       @RequestParam(name = OU, required = false) Dn ou,
       @RequestParam(name = SCOPE, required = false) TreeSearchScope scope,
@@ -116,7 +111,7 @@ public class ComputersController extends UiController
 
     OrganizationalUnitDropdown ouDropdown = getOrganizationalUnitDropdown(ou, scope);
     addOrganizationalUnitDropdown(model, ouDropdown);
-    Pageable pageable = PageRequest.of(page, size, sortMapper.toSort(sort));
+    Pageable pageable = PageRequest.of(page, size, getSortMapper().toSort(sort));
     DomainComputerPage computerPage = new DomainComputerPage(domainComputerService.getComputers(
         pageable, query, ou, ouDropdown.getSelectedScope()));
     model.addAttribute("computerPage", computerPage);

@@ -54,7 +54,7 @@
     <div class="col-1">
       <a class="btn btn-outline-secondary show-spinner" href="dns-zones.html"
          th:href="@{dns-zones(zone-type=${zoneType})}">
-        <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+        <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
           <span style="display: none;">Back</span>
         </span>
       </a>
@@ -115,7 +115,7 @@
           <span class="me-2" th:text="${zoneName}">intranet</span>
         </b>
         <a id="copyNameToClipboard" href="#">
-          <span class="fas fa-clipboard" aria-hidden="true" th:title="#{templates.management.copy-to-clipboard.label}">
+          <span class="fas fa-clipboard" aria-hidden="true" th:title="#{common.copy-to-clipboard}">
             <span style="display: none;">Copy to clipboard</span>
           </span>
         </a>

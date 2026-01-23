@@ -258,7 +258,7 @@ public class PasswordResetController extends UiController {
           if (!usernamePattern.matcher(passwordResetModel.getUsername()).matches()) {
             bindingResult.rejectValue(
                 USERNAME,
-                "controller.ui.password-reset-c.username.pattern",
+                "password-reset.username.invalid",
                 "The username is not valid. Please try another one.");
           }
           String newPassword = requireNonNullElse(passwordResetModel.getNewPassword(), "");
@@ -266,7 +266,7 @@ public class PasswordResetController extends UiController {
           if (!newPassword.equals(newPasswordRepetition)) {
             bindingResult.rejectValue(
                 "newPasswordRepetition",
-                "controller.ui.password-reset-c.passwords-not-equal",
+                "password-reset.passwords-not-equal",
                 "Passwords must be equal.");
           } else if (!passwordPattern.matcher(newPassword).matches()) {
             bindingResult.rejectValue(

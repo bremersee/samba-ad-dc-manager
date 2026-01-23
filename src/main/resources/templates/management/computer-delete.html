@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title th:text="#{templates.management.computer-delete.t}">Delete computer</title>
+  <title th:text="#{computer-delete.title}">Delete computer</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -61,7 +61,7 @@
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="computers.html"
            th:href="@{computers(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+          <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
             <span style="display: none;">Back</span>
           </span>
         </a>
@@ -69,7 +69,7 @@
       <div class="col">
         <div class="container">
           <div class="d-flex justify-content-center">
-            <h3 class="small" th:text="#{templates.management.computer.label}">
+            <h3 class="small" th:text="#{computer-delete.computer.label}">
               Computer
             </h3>
           </div>
@@ -83,7 +83,7 @@
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a class="nav-link" href="computer-edit.html" th:title="#{templates.management.edit.label}"
+        <a class="nav-link" href="computer-edit.html" th:title="#{common.edit}"
            th:href="@{computer-edit(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-computer" aria-hidden="true">
             <span style="display: none;">Edit</span>
@@ -91,7 +91,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="computer-memberships-direct.html" th:title="#{templates.management.memberships.label}"
+        <a class="nav-link" href="computer-memberships-direct.html" th:title="#{common.memberships.label}"
            th:href="@{computer-memberships-direct(name=${computer.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-folder-tree" aria-hidden="true">
             <span style="display: none;">Memberships</span>
@@ -99,7 +99,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#" th:title="#{templates.management.delete.label}">
+        <a class="nav-link active" aria-current="page" href="#" th:title="#{common.delete}">
           <span class="fa fa-trash-alt" aria-hidden="true">
             <span style="display: none;">Delete</span>
           </span>
@@ -111,14 +111,14 @@
 
       <div class="mb-4 p-3 border border-1 border-danger" th:if="${not computer.criticalSystemObject}">
         <div class="h5 mb-3">
-          <span class="me-2" th:text="#{templates.management.computer-delete.text}">
+          <span class="me-2" th:text="#{computer-delete.text}">
             Delete Computer
           </span>
           <b>
             <span class="me-2" th:text="${computer.name}">zander</span>
           </b>
           <a id="copyNameToClipboard" href="#">
-            <span class="fas fa-clipboard" aria-hidden="true" th:title="#{templates.management.copy-to-clipboard.label}">
+            <span class="fas fa-clipboard" aria-hidden="true" th:title="#{common.copy-to-clipboard}">
               <span style="display: none;">Copy to clipboard</span>
             </span>
           </a>
@@ -138,7 +138,7 @@
                    th:classappend="${#fields.hasErrors('verificationName')} ? 'is-invalid' : ''"
                    th:field="*{verificationName}" />
             <label for="verificationName" id="verificationNameHelp" class="form-text"
-                   th:text="#{templates.management.computer-delete.help}">
+                   th:text="#{computer-delete.help}">
               Please enter the computer name for deletion.
             </label>
             <div id="verificationNameValidation" class="invalid-feedback"
@@ -146,7 +146,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-danger mt-3 mb-5" th:text="#{templates.management.delete.label}">
+          <button type="submit" class="btn btn-danger mt-3 mb-5" th:text="#{common.delete}">
             Delete
           </button>
         </form>

@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
 import org.bremersee.comparator.model.SortOrder;
-import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.comparator.spring.web.SortOrderRequestParam;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
@@ -61,19 +61,15 @@ public class GroupEditMembersController extends UiController implements Pageable
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
-  private final SortMapper sortMapper;
-
   public GroupEditMembersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainGroupService domainGroupService,
-      OrganizationalUnitService organizationalUnitService,
-      SortMapper sortMapper) {
+      OrganizationalUnitService organizationalUnitService) {
     super(properties, localeResolver, domainService);
     this.domainGroupService = domainGroupService;
     this.organizationalUnitService = organizationalUnitService;
-    this.sortMapper = sortMapper;
   }
 
   @Override
@@ -111,7 +107,7 @@ public class GroupEditMembersController extends UiController implements Pageable
 
       @RequestParam(name = "member-" + PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = "member-" + SIZE, defaultValue = "10") int size,
-      @RequestParam(name = "member-" + SORT, defaultValue = "displayName") SortOrder sort,
+      @SortOrderRequestParam(name = "member-" + SORT, defaultSort = "displayName") SortOrder sort,
       @RequestParam(name = "member-" + QUERY, defaultValue = "") String query,
       @RequestParam(name = "member-primary", defaultValue = "true") boolean withPrimaryMembers,
       @RequestParam(name = "member-type-computer", defaultValue = "true") boolean typeComputer,
@@ -127,7 +123,7 @@ public class GroupEditMembersController extends UiController implements Pageable
           model.addAttribute("group", group);
           model.addAttribute("memberPageNo", page);
           model.addAttribute("memberPageSize", size);
-          model.addAttribute("memberSort", sortMapper.getSortOrderText(sort, ""));
+          model.addAttribute("memberSort", getSortMapper().getSortOrderText(sort));
           model.addAttribute("memberQuery", query);
           model.addAttribute("withPrimaryMembers", withPrimaryMembers);
           Set<DomainGroupMemberType> memberTypes = getMemberTypes(
@@ -138,7 +134,7 @@ public class GroupEditMembersController extends UiController implements Pageable
               memberTypes.contains(DomainGroupMemberType.GROUP));
           model.addAttribute("memberTypeUser",
               memberTypes.contains(DomainGroupMemberType.USER));
-          Pageable pageable = PageRequest.of(page, size, sortMapper.toSort(sort));
+          Pageable pageable = PageRequest.of(page, size, getSortMapper().toSort(sort));
           Page<DomainGroupMember> memberPage = domainGroupService.getMemberSelection(
               pageable,
               query,

@@ -17,12 +17,15 @@
 package org.bremersee.samba.ad.dc.controller.ui.shared;
 
 import java.util.Optional;
+import org.bremersee.comparator.model.SortOrder;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.comparator.spring.web.SortOrderRequestParam;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * The interface PageableComponent.
+ * The pageable component.
  *
  * @author Christian Bremer
  */
@@ -42,12 +45,17 @@ public interface PageableComponent {
     return size;
   }
 
+  SortMapper getSortMapper();
+
   String getDefaultSort();
 
   @ModelAttribute(AbstractController.SORT)
-  default String addSort(
-      @RequestParam(name = AbstractController.SORT, required = false) String sort) {
-    return Optional.ofNullable(sort).orElse(getDefaultSort());
+  default String addSort(@SortOrderRequestParam SortOrder sort) {
+    return Optional.ofNullable(sort)
+        .filter(s -> !s.isUnsorted())
+        .map(sortOrder -> getSortMapper().getSortOrderText(sortOrder))
+        .filter(sortOrderText -> !sortOrderText.isBlank())
+        .orElse(getDefaultSort());
   }
 
   @ModelAttribute(AbstractController.QUERY)

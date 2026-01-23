@@ -143,7 +143,7 @@ public class ComputerMembershipsController extends UiController
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Computer",
-            "controller.ui.computer.not-found",
+            "computer.not-found",
             computerName,
             PAGE_AND_OU_PARAMS,
             COMPUTERS));

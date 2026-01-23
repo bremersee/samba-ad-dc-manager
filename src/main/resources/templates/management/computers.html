@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title th:text="#{templates.management.computers.t}">Computers</title>
+  <title th:text="#{computers.title}">Computers</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -54,7 +54,7 @@
     <div class="col-1">
       <a class="btn btn-outline-secondary" href="index.html"
          th:href="@{index(ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}">
-        <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+        <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
           <span style="display: none;">Back</span>
         </span>
       </a>
@@ -62,7 +62,7 @@
     <div class="col">
       <div class="container">
         <div class="d-flex justify-content-center">
-          <h3 th:text="#{templates.management.computers.h}">Computers</h3>
+          <h3 th:text="#{computers.header}">Computers</h3>
         </div>
         <div class="d-flex justify-content-center">
           <h3 class="small text-secondary">
@@ -92,11 +92,11 @@
               <!--suppress HtmlFormInputWithoutLabel -->
               <input type="text" id="q" name="q" class="form-control"
                      placeholder="Search ..."
-                     th:placeholder="#{templates.management.computers.search.placeholder}"
+                     th:placeholder="#{common.search.placeholder}"
                      th:value="${q}">
               <span class="input-group-text" th:if="${not #strings.isEmpty(q)}">
                 <a id="searchInputReset" href="#" title="Reset search"
-                   th:title="#{templates.management.computers.search.reset}"
+                   th:title="#{common.search.reset}"
                    th:href="@{computers(page='0',size=${size},sort=${sort},ou=${ouDropdown.selectedOu.distinguishedName},scope=${ouDropdown.selectedScope.parameterValue})}"
                    th:classappend="${#strings.isEmpty(q)} ? 'disabled' : ''"
                    th:disabled="${#strings.isEmpty(q)}"
@@ -124,7 +124,7 @@
         <h6 class="mb-1" th:text="${entry.name}">
           DC1
         </h6>
-        <span class="far fa-edit" aria-hidden="true" th:title="#{templates.management.edit.label}"></span>
+        <span class="far fa-edit" aria-hidden="true" th:title="#{common.edit}"></span>
       </div>
     </a>
   </div>

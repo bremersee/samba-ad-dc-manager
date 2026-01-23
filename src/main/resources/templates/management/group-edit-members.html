@@ -63,7 +63,7 @@
       <div class="col-1">
         <a class="btn btn-outline-secondary" href="groups.html"
            th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
-          <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+          <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
             <span style="display: none;">Back</span>
           </span>
         </a>
@@ -83,7 +83,7 @@
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a class="nav-link" href="group-edit.html" th:title="#{templates.management.edit.label}"
+        <a class="nav-link" href="group-edit.html" th:title="#{common.edit}"
            th:href="@{group-edit(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${group.parentDistinguishedName},scope=${scope})}">
           <span class="fa fa-edit" aria-hidden="true">
             <span style="display: none;">Edit</span>
@@ -98,7 +98,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="group-memberships-direct.html" th:title="#{templates.management.memberships.label}"
+        <a class="nav-link" href="group-memberships-direct.html" th:title="#{common.memberships.label}"
            th:href="@{group-memberships-direct(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-folder-tree" aria-hidden="true">
             <span style="display: none;">Memberships</span>
@@ -106,7 +106,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="group-delete.html" th:title="#{templates.management.delete.label}"
+        <a class="nav-link" href="group-delete.html" th:title="#{common.delete}"
            th:classappend="${group.sid.systemEntity} ? 'disabled' : ''"
            th:attr="aria-disabled=${group.sid.systemEntity}"
            th:href="@{group-delete(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">

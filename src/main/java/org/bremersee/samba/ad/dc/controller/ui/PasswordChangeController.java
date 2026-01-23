@@ -147,7 +147,7 @@ public class PasswordChangeController extends UiController {
     if (isEmpty(username)) {
       bindingResult.rejectValue(
           "username",
-          "controller.ui.password-change-c.username.required",
+          "password-change.username.required",
           "Username is required.");
     }
     String oldPassword = changePasswordModel.getOldPassword();
@@ -156,7 +156,7 @@ public class PasswordChangeController extends UiController {
     if (!newPassword.equals(newPasswordRepetition)) {
       bindingResult.rejectValue(
           "newPasswordRepetition",
-          "controller.ui.password-change-c.passwords-not-equal",
+          "password-change.passwords-not-equal",
           "Passwords must be equal.");
     }
     if (bindingResult.hasErrors()) {
@@ -168,7 +168,7 @@ public class PasswordChangeController extends UiController {
     } catch (AuthenticationException ae) {
       bindingResult.rejectValue(
           "oldPassword",
-          "controller.ui.password-change-c.authentication-failed",
+          "password-change.authentication-failed",
           "Authentication failed.");
       return HTML_TEMPLATE;
 
@@ -186,7 +186,7 @@ public class PasswordChangeController extends UiController {
     model.clear();
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
         "Your password was successfully changed.",
-        "controller.ui.password-change-c.password-changed");
+        "password-change.success");
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     return "redirect:password-change";
   }

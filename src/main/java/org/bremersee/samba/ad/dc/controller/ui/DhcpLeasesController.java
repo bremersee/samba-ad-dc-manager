@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.bremersee.comparator.model.SortOrder;
-import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.comparator.spring.web.SortOrderRequestParam;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
@@ -52,17 +52,13 @@ public class DhcpLeasesController extends UiController
 
   private final DnsService dnsService;
 
-  private final SortMapper sortMapper;
-
   public DhcpLeasesController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
       DomainService domainService,
-      DnsService dnsService,
-      SortMapper sortMapper) {
+      DnsService dnsService) {
     super(properties, localeResolver, domainService);
     this.dnsService = dnsService;
-    this.sortMapper = sortMapper;
   }
 
   @Override
@@ -79,7 +75,7 @@ public class DhcpLeasesController extends UiController
   public String displayDhcpLeases(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
-      @RequestParam(name = SORT, defaultValue = DHCP_LEASE_SORT) SortOrder sort,
+      @SortOrderRequestParam(defaultSort = DHCP_LEASE_SORT) SortOrder sort,
       @RequestParam(name = QUERY, required = false) String query,
       @RequestParam(name = "ip", required = false) String ipAddress,
       ModelMap model) {
@@ -101,14 +97,16 @@ public class DhcpLeasesController extends UiController
           return getRedirectUri("dns-entry-edit", PAGE_AND_DNS_ENTRY_PARAMS, parameters);
         })
         .orElseGet(() -> {
-          Pageable pageable = PageRequest.of(page, size, sortMapper.toSort(sort));
+          Pageable pageable = PageRequest.of(page, size, getSortMapper().toSort(sort));
           DhcpLeasePage dhcpLeasePage = new DhcpLeasePage(
               dnsService.getDhcpLeases(pageable, query));
           model.addAttribute("dhcpLeasePage", dhcpLeasePage);
           if (!isEmpty(ipAddress)) {
+            String defaultMessage = String
+                .format("No dns entry with ip address '%s' was found.", ipAddress);
+            String message = getMessage(defaultMessage, "dhcp-leases.ip.not-found", ipAddress);
             model.addAttribute("rmsg",
-                new RedirectMessage("No dns entry with ip address '" + ipAddress + "' was found.",
-                    RedirectMessageType.WARNING));
+                new RedirectMessage(message, RedirectMessageType.WARNING));
           }
           return "management/dhcp-leases";
         });

@@ -140,14 +140,14 @@ public class ProfileController extends UiController {
           model.addAttribute(EDIT_MODEL, new ProfileEditModel(newDomainUser));
           String defaultMsg = "Your new email address was successfully changed.";
           return getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
-              "controller.ui.profile-c.email-changed-successfully");
+              "user-profile.change-email.success");
         })
         .orElseGet(() -> {
           model.addAttribute(USER, domainUser);
           model.addAttribute(EDIT_MODEL, new ProfileEditModel(domainUser));
           String defaultMsg = "Your request to change your email address is invalid.";
           return getRedirectMessage(RedirectMessageType.WARNING, defaultMsg,
-              "controller.ui.profile-c.email-change-request-invalid");
+              "user-profile.change-email.invalid");
         });
     model.addAttribute("rmsg", rmsg);
     return USER_SLASH_PROFILE;
@@ -182,7 +182,7 @@ public class ProfileController extends UiController {
     if (emailPattern.matcher(editModel.getNewEmail()).matches()) {
       bindingResult.rejectValue(
           "newEmail",
-          "controller.ui.profile-c.email.invalid",
+          "user-profile.email.invalid",
           null,
           "The email address is not accepted.");
       model.addAttribute(USER, domainUser);
@@ -195,7 +195,7 @@ public class ProfileController extends UiController {
     String defaultMsg = String
         .format("The confirmation mail was sent to %s.", editModel.getNewEmail());
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
-        "controller.ui.profile-c.email-change-request-sent", editModel.getNewEmail());
+        "user-profile.change-email.confirmation-sent", editModel.getNewEmail());
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     return "redirect:profile";
   }

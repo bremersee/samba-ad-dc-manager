@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>DHCP Leases</title>
+  <title th:text="#{dhcp-leases.title}">DHCP Leases</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -54,7 +54,7 @@
     <div class="col-1">
       <a class="btn btn-outline-secondary" href="index.html"
          th:href="@{index}">
-        <span class="fa fa-backward" aria-hidden="true" th:title="#{templates.management.back.label}">
+        <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
           <span style="display: none;">Back</span>
         </span>
       </a>
@@ -62,7 +62,7 @@
     <div class="col">
       <div class="container">
         <div class="d-flex justify-content-center">
-          <h3>DHCP Leases</h3>
+          <h3 th:text="#{dhcp-leases.header}">DHCP Leases</h3>
         </div>
       </div>
     </div>
@@ -87,14 +87,16 @@
                 <!--suppress HtmlFormInputWithoutLabel -->
                 <input type="text" id="q" name="q" class="form-control"
                        placeholder="Search ..."
+                       th:placeholder="#{common.search.placeholder}"
                        th:value="${q}">
                 <span class="input-group-text">
-                <a id="searchInputSubmit" href="#" title="Search">
+                <a id="searchInputSubmit" href="#" title="Search" th:title="#{common.search.label}">
                   <span class="glyphicon glyphicon-search text-primary" aria-hidden="true"></span>
                 </a>
               </span>
                 <span class="input-group-text" th:if="${not #strings.isEmpty(q)}">
                 <a id="searchInputReset" href="#" title="Reset search" class="show-spinner"
+                   th:title="#{common.search.reset}"
                    th:href="@{${currentPage}(page=0,size=${size},sort=${sort})}"
                    th:classappend="${#strings.isEmpty(q)} ? 'disabled' : ''"
                    th:disabled="${#strings.isEmpty(q)}"
@@ -112,7 +114,7 @@
     </div>
 
     <div th:if="${#lists.isEmpty(dhcpLeasePage.content)}"
-         class="alert alert-info" role="alert">
+         class="alert alert-info" role="alert" th:text="#{dhcp-leases.not-found}">
       No dhcp leases were found.
     </div>
 
@@ -122,7 +124,7 @@
          class="list-group-item list-group-item-action show-spinner">
         <div class="row">
           <div class="col col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2 col-xxl-2 me-1">
-            <span>IP</span>:
+            <span th:text="#{dhcp-leases.ip.label}">IP:</span>
           </div>
           <div class="col col-auto" th:text="${entry.ip}">
             192.168.1.112
@@ -136,7 +138,7 @@
         <div class="small text-secondary">
           <div class="row">
             <div class="col col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2 col-xxl-2 me-1">
-              Hostname:
+              <span th:text="#{dhcp-leases.hostname.label}">Hostname:</span>
             </div>
             <div class="col col-auto" th:text="${entry.hostname}">
               zander
@@ -144,7 +146,7 @@
           </div>
           <div class="row">
             <div class="col col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2 col-xxl-2 me-1">
-              Mac:
+              <span th:text="#{dhcp-leases.mac.label}">Mac:</span>
             </div>
             <div class="col col-auto" th:text="${entry.mac}">
               ab:ab:ab:ab
@@ -152,7 +154,7 @@
           </div>
           <div class="row">
             <div class="col col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2 col-xxl-2 me-1">
-              Manufacturer:
+              <span th:text="#{dhcp-leases.manufacturer.label}">Manufacturer:</span>
             </div>
             <div class="col col-auto" th:text="${entry.manufacturer}">
               Apple
@@ -160,7 +162,7 @@
           </div>
           <div class="row">
             <div class="col col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2 col-xxl-2 me-1">
-              Begin:
+              <span th:text="#{dhcp-leases.begin.label}">Begin:</span>
             </div>
             <div class="col col-auto" th:text="${#temporals.format(entry.begin, #locale)}">
               2014-11-23
@@ -168,7 +170,7 @@
           </div>
           <div class="row">
             <div class="col col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2 col-xxl-2 me-1">
-              End:
+              <span th:text="#{dhcp-leases.end.label}">End:</span>
             </div>
             <div class="col col-auto" th:text="${#temporals.format(entry.end, #locale)}">
               2014-11-23
@@ -179,7 +181,7 @@
     </div>
 
     <nav aria-label="Page navigation" th:if="${@paginationHelper.getTotalPages(dhcpLeasePage) > 1}">
-      <ul class="pagination justify-content-center">
+      <ul class="pagination justify-content-center mb-5">
         <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(dhcpLeasePage, dhcpLeasePage.number - 3)}">
           <a class="page-link show-spinner" href="#" aria-label="First"
              th:href="@{${currentPage}(page=0,size=${size},sort=${sort},q=${q})}">
