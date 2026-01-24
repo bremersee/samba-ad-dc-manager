@@ -47,11 +47,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsEntryEditController extends UiController implements PageableComponent,
-    DnsZoneTypeComponent {
+public class DnsEntryEditController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns entry edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsEntryEditController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -66,6 +74,17 @@ public class DnsEntryEditController extends UiController implements PageableComp
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display edit dns entry view.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-entry-edit")
   public String displayEditDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -106,10 +125,26 @@ public class DnsEntryEditController extends UiController implements PageableComp
           return "management/dns-entry-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Dns Entry", "todo", name, PAGE_AND_ZONE_NAME_PARAMS,
-            "dns-zone-entries"));
+            redirectAttributes, "Dns Entry", "dns-entry.not-found", name,
+            PAGE_AND_ZONE_NAME_PARAMS, "dns-zone-entries"));
   }
 
+  /**
+   * Update dns entry.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param reverseZoneName the reverse zone name
+   * @param reverseName the reverse name
+   * @param reverseType the reverse type
+   * @param reverseValue the reverse value
+   * @param editModel the edit model
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/dns-entry-edit")
   public String updateDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -171,7 +206,7 @@ public class DnsEntryEditController extends UiController implements PageableComp
       String msg = String.format("Dns entry '%s' was successfully updated.",
           editModel.getNewName());
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", editModel.getNewName());
+          "dns-entry-edit.success", editModel.getNewName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
       parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, editModel.getNewName());
@@ -188,7 +223,7 @@ public class DnsEntryEditController extends UiController implements PageableComp
 
       String msg = String.format("Updating of dns entry '%s' failed.", name);
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
-          "todo", name);
+          "dns-entry-edit.failure", name);
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
       String redirect = getRedirectUri("dns-zone-entries",
           PAGE_AND_ZONE_NAME_PARAMS, parameters);

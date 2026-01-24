@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Edit dns entry</title>
+  <title th:text="#{dns-entry-conflict.title}">DNS entry with conflict</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -70,7 +70,7 @@
     <div class="col">
       <div class="container">
         <div class="d-flex justify-content-center">
-          <h3 class="small">Resolve conflicts of dns entry</h3>
+          <h3 class="small" th:text="#{dns-entry-conflict.header}">Resolve conflicts of dns entry</h3>
         </div>
         <div class="d-flex justify-content-center">
           <h3 th:text="${dnsEntry.displayName}">zander</h3>
@@ -83,11 +83,11 @@
   <div class="mx-0 mx-sm-1 mx-md-3">
     <div class="mb-4 p-3 border border-1 border-danger">
       <div class="h5 mb-3">
-        <div>This dns entry is marked as conflict.</div>
+        <div th:text="#{dns-entry-conflict.text}">This DNS entry is marked as conflict.</div>
       </div>
       <div class="row">
         <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
-          <span>Name</span>:
+          <span th:text="#{dns-entry-conflict.name.label}">Name:</span>
         </div>
         <div class="col col-auto">
           <span class="me-2" th:text="${dnsEntry.displayName}">zander</span>
@@ -100,7 +100,7 @@
       </div>
       <div class="small text-secondary">
         <div class="row">
-          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.type.label}">
             Type:
           </div>
           <div class="col col-auto" th:text="${dnsEntry.type}">
@@ -108,7 +108,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.value.label}">
             Value:
           </div>
           <div class="col col-auto" th:text="${dnsEntry.value}">
@@ -116,7 +116,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.created.label}">
             Created:
           </div>
           <div class="col col-auto" th:text="${#temporals.format(dnsEntry.created, #locale)}">
@@ -124,7 +124,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+          <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.modified.label}">
             Modified:
           </div>
           <div class="col col-auto" th:text="${#temporals.format(dnsEntry.modified, #locale)}">
@@ -152,7 +152,8 @@
                    th:classappend="${#fields.hasErrors('verificationName')} ? 'is-invalid' : ''"
                    th:field="*{verificationName}" />
             <div>
-              <label for="verificationName" id="verificationNameHelp" class="form-text">
+              <label for="verificationName" id="verificationNameHelp" class="form-text"
+                     th:text="#{dns-entry-conflict.name.help}">
                 Please enter the dns entry name for deletion.
               </label>
             </div>
@@ -160,7 +161,7 @@
                  th:text="${#fields.hasErrors('verificationName')} ? ${#fields.errors('verificationName')[0]} : ''">
             </div>
             <div>
-              <button type="submit" class="btn btn-danger mt-3 show-spinner">
+              <button type="submit" class="btn btn-danger mt-3 show-spinner" th:text="#{common.delete}">
                 Delete
               </button>
             </div>
@@ -171,7 +172,7 @@
 
     <div th:if="${not #lists.isEmpty(dnsEntries)}">
       <div class="h5 mb-2">
-        <span>It may have conflicts with</span>:
+        <span th:text="#{dns-entry-conflict.conflicts-with.text}">It may have conflicts with:</span>
       </div>
       <div class="list-group list-group-flush">
         <a th:each="entry,iter : ${dnsEntries}"
@@ -180,7 +181,7 @@
            class="list-group-item list-group-item-action">
           <div class="row">
             <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
-              <span>Name</span>:
+              <span th:text="#{dns-entry-conflict.name.label}">Name</span>
             </div>
             <div class="col col-auto" th:text="${entry.displayName}">
               zander
@@ -188,7 +189,7 @@
           </div>
           <div class="small text-secondary">
             <div class="row">
-              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.type.label}">
                 Type:
               </div>
               <div class="col col-auto" th:text="${entry.type}">
@@ -196,7 +197,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.value.label}">
                 Value:
               </div>
               <div class="col col-auto" th:text="${entry.value}">
@@ -204,7 +205,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.created.label}">
                 Created:
               </div>
               <div class="col col-auto" th:text="${#temporals.format(entry.created, #locale)}">
@@ -212,7 +213,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1">
+              <div class="col col-3 col-sm-2 col-md-2 col-lg-1 me-1" th:text="#{dns-entry-conflict.modified.label}">
                 Modified:
               </div>
               <div class="col col-auto" th:text="${#temporals.format(entry.modified, #locale)}">

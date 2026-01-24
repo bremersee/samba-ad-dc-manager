@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Edit dns entry</title>
+  <title th:text="#{dns-entry-edit.title}">Edit dns entry</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -70,7 +70,7 @@
     <div class="col">
       <div class="container">
         <div class="d-flex justify-content-center">
-          <h3 class="small">DNS entry</h3>
+          <h3 class="small" th:text="#{dns-entry.header}">DNS entry</h3>
         </div>
         <div class="d-flex justify-content-center">
           <h3 th:text="${dnsEntry.name}">zander</h3>
@@ -115,14 +115,14 @@
       <input type="hidden" name="value" th:value="${dnsEntry.value}"/>
 
       <div class="mb-3" th:if="${dnsEntry.type.name() == 'SOA'}">
-        <div class="form-label">Name</div>
+        <div class="form-label" th:text="#{common.name.label}">Name</div>
         <div class="form-control text-secondary" th:text="${dnsEntry.name}">
           zander
         </div>
         <input type="hidden" th:field="*{newName}">
       </div>
       <div class="mb-3" th:if="${dnsEntry.type.name() != 'SOA'}">
-        <label for="newName" class="form-label">Name</label>
+        <label for="newName" class="form-label" th:text="#{common.name.label}">Name</label>
         <input type="text" class="form-control" id="newName" name="newName"
                aria-describedby="newNameValidation" required
                th:field="*{newName}"
@@ -133,14 +133,14 @@
       </div>
 
       <div class="mb-3" th:if="${dnsEntry.type.name() == 'SOA'}">
-        <div class="form-label">Type</div>
+        <div class="form-label" th:text="#{dns-entry-edit.type.label}">Type</div>
         <div class="form-control text-secondary" th:text="${dnsEntry.type}">
           A
         </div>
         <input type="hidden" th:field="*{newType}">
       </div>
       <div class="mb-3" th:if="${dnsEntry.type.name() != 'SOA'}">
-        <label for="newType" class="form-label">Type</label>
+        <label for="newType" class="form-label" th:text="#{dns-entry-edit.type.label}">Type</label>
         <select id="newType" class="form-select" aria-label="Dns entry types"
                 aria-describedby="newTypeValidation" required
                 th:classappend="${#fields.hasErrors('newType')} ? 'is-invalid' : ''"
@@ -155,7 +155,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="newValue" class="form-label">Value</label>
+        <label for="newValue" class="form-label" th:text="#{dns-entry-edit.value.label}">Value</label>
         <input type="text" class="form-control" id="newValue" name="newValue"
                aria-describedby="newValueValidation" required
                th:classappend="${#fields.hasErrors('newValue')} ? 'is-invalid' : ''"
@@ -166,31 +166,31 @@
       </div>
 
       <div class="mb-3">
-        <div class="form-label">Flags</div>
+        <div class="form-label" th:text="#{dns-entry-edit.flags.label}">Flags</div>
         <div class="form-control text-secondary" th:text="${dnsEntry.flags}">
           Flag
         </div>
       </div>
       <div class="mb-3">
-        <div class="form-label">Serial</div>
+        <div class="form-label" th:text="#{dns-entry-edit.serial.label}">Serial</div>
         <div class="form-control text-secondary" th:text="${dnsEntry.serial}">
           100
         </div>
       </div>
       <div class="mb-3">
-        <div class="form-label">TTL (seconds)</div>
+        <div class="form-label" th:text="#{dns-entry-edit.ttl.label}">TTL (seconds)</div>
         <div class="form-control text-secondary" th:text="${dnsEntry.ttlSeconds}">
           600
         </div>
       </div>
       <div class="mb-3">
-        <div class="form-label">Created</div>
+        <div class="form-label" th:text="#{dns-entry-edit.created.label}">Created</div>
         <div class="form-control text-secondary" th:text="${#temporals.format(dnsEntry.created, #locale)}">
           25-10-2014 13:54:46
         </div>
       </div>
       <div class="mb-3">
-        <div class="form-label">Modified</div>
+        <div class="form-label" th:text="#{dns-entry-edit.modified.label}">Modified</div>
         <div class="form-control text-secondary" th:text="${#temporals.format(dnsEntry.modified, #locale)}">
           25-10-2014 13:54:46
         </div>
@@ -203,10 +203,10 @@
         <input type="hidden" name="reverse-type" th:value="${reverseDnsEntry.type}"/>
         <input type="hidden" name="reverse-value" th:value="${reverseDnsEntry.value}"/>
         <div class="h5 mb-3">
-          <span>Reverse dns entry </span>
+          <span th:text="#{dns-entry-edit.reverse-entry.header}">Reverse dns entry</span>
         </div>
         <div class="mb-3">
-          <label for="newNameOfReverseEntry" class="form-label">Name</label>
+          <label for="newNameOfReverseEntry" class="form-label" th:text="#{common.name.label}">Name</label>
           <input type="text" class="form-control" id="newNameOfReverseEntry" name="newNameOfReverseEntry"
                  aria-describedby="newNameOfReverseEntryValidation" required
                  th:field="*{newNameOfReverseEntry}"
@@ -216,7 +216,7 @@
           </div>
         </div>
         <div class="mb-3">
-          <label for="newValueOfReverseEntry" class="form-label">Value</label>
+          <label for="newValueOfReverseEntry" class="form-label" th:text="#{dns-entry-edit.value.label}">Value</label>
           <input type="text" class="form-control" id="newValueOfReverseEntry" name="newValueOfReverseEntry"
                  aria-describedby="newValueOfReverseEntryValidation" required
                  th:classappend="${#fields.hasErrors('newValueOfReverseEntry')} ? 'is-invalid' : ''"
@@ -226,13 +226,13 @@
           </div>
         </div>
         <div class="mb-3">
-          <div class="form-label">Created</div>
+          <div class="form-label" th:text="#{dns-entry-edit.created.label}">Created</div>
           <div class="form-control text-secondary" th:text="${#temporals.format(reverseDnsEntry.created, #locale)}">
             25-10-2014 13:54:46
           </div>
         </div>
         <div class="mb-3">
-          <div class="form-label">Modified</div>
+          <div class="form-label" th:text="#{dns-entry-edit.modified.label}">Modified</div>
           <div class="form-control text-secondary" th:text="${#temporals.format(reverseDnsEntry.modified, #locale)}">
             25-10-2014 13:54:46
           </div>
@@ -240,18 +240,18 @@
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="updateReverseEntry"
                  name="updateReverseEntry" th:field="*{updateReverseEntry}" />
-          <label class="form-check-label" for="updateReverseEntry">
+          <label class="form-check-label" for="updateReverseEntry" th:text="#{dns-entry-edit.reverse-entry.switch}">
             Also update reverse entry
           </label>
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-1 mb-4 show-spinner">
-        Update
+      <button type="submit" class="btn btn-primary mt-1 mb-5 show-spinner" th:text="#{common.save}">
+        Save
       </button>
       <a href="dns-zone-entries.html"
          th:href="@{dns-zone-entries(zone-type=${zoneType},zone-name=${dnsEntry.zoneName},page=${page},size=${size},sort=${sort},q=${q})}"
-         class="btn btn-secondary mx-2 mt-1 mb-4 show-spinner">
+         class="btn btn-secondary mx-2 mt-1 mb-5 show-spinner" th:text="#{common.cancel}">
         Cancel
       </a>
     </form>

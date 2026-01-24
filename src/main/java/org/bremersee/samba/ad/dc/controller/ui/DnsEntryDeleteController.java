@@ -46,11 +46,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsEntryDeleteController extends UiController implements PageableComponent,
-    DnsZoneTypeComponent {
+public class DnsEntryDeleteController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns entry delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsEntryDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -65,6 +73,16 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display delete dns entry view.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-entry-delete")
   public String displayDeleteDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -89,6 +107,19 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
     return "management/dns-entry-delete";
   }
 
+  /**
+   * Delete dns entry.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/dns-entry-delete")
   public String deleteDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -109,7 +140,8 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
         .value(value)
         .build();
     if (!name.equalsIgnoreCase(deleteModel.getVerificationName())) {
-      bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
+      bindingResult.rejectValue("verificationName", "dns-entry-delete.name-does-not-match",
+          "The name doesn't match.");
       model.addAttribute("dnsEntry", dnsEntry);
       model.addAttribute("mayHaveReverseEntry", mayHaveReverseEntry(dnsEntry));
       return "management/dns-entry-delete";
@@ -127,7 +159,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
 
       String msg = String.format("Dns entry '%s' was successfully deleted.", name);
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", name);
+          "dns-entry-delete.success", name);
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     } catch (ServiceException e) {
@@ -135,7 +167,7 @@ public class DnsEntryDeleteController extends UiController implements PageableCo
       String msg = String.format("Deletion of dns entry '%s' failed.", name);
       log.error(msg, e);
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
-          "todo", name);
+          "dns-entry-delete.failure", name);
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     }
 

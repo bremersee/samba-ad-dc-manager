@@ -47,11 +47,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsEntryAddController extends UiController implements PageableComponent,
-    DnsZoneTypeComponent {
+public class DnsEntryAddController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns entry add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsEntryAddController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -66,6 +74,13 @@ public class DnsEntryAddController extends UiController implements PageableCompo
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display add dns entry view.
+   *
+   * @param zoneName the zone name
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-entry-add")
   public String displayAddDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -84,6 +99,15 @@ public class DnsEntryAddController extends UiController implements PageableCompo
     return "management/dns-entry-add";
   }
 
+  /**
+   * Add dns entry.
+   *
+   * @param zoneName the zone name
+   * @param addModel the add model
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/dns-entry-add")
   public String addDnsEntry(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -104,7 +128,7 @@ public class DnsEntryAddController extends UiController implements PageableCompo
       String msg = String.format("Dns entry '%s' was successfully added.",
           dnsEntry.getDisplayName());
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", dnsEntry.getDisplayName());
+          "dns-entry-add.success", dnsEntry.getDisplayName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
       parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, dnsEntry.getName());
@@ -120,7 +144,7 @@ public class DnsEntryAddController extends UiController implements PageableCompo
       String msg = String.format("Adding of dns entry '%s' failed.", addModel.getName());
       log.error(msg, e);
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
-          "todo", addModel.getName());
+          "dns-entry-add.failure", addModel.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
       String redirect = getRedirectUri("dns-zone-entries",
           PAGE_AND_ZONE_NAME_PARAMS, parameters);

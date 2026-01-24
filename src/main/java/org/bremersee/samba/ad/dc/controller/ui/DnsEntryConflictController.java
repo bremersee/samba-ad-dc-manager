@@ -50,11 +50,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @Slf4j
-public class DnsEntryConflictController extends UiController implements PageableComponent,
-    DnsZoneTypeComponent {
+public class DnsEntryConflictController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns entry conflict controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsEntryConflictController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -69,6 +77,17 @@ public class DnsEntryConflictController extends UiController implements Pageable
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display dns entry conflict view.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-entry-conflict")
   public String displayDnsEntryConflict(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -103,10 +122,23 @@ public class DnsEntryConflictController extends UiController implements Pageable
           return "management/dns-entry-conflict";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Dns Entry", "todo", name, PAGE_AND_ZONE_NAME_PARAMS,
-            "dns-zone-entries"));
+            redirectAttributes, "DNS entry", "dns-entry.not-found", name,
+            PAGE_AND_ZONE_NAME_PARAMS, "dns-zone-entries"));
   }
 
+  /**
+   * Delete dns entry conflict.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/dns-entry-conflict")
   public String deleteDnsEntryConflict(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -129,7 +161,8 @@ public class DnsEntryConflictController extends UiController implements Pageable
             .build())
         .map(entry -> {
           if (!entry.getDisplayName().equals(deleteModel.getVerificationName())) {
-            bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
+            bindingResult.rejectValue("verificationName", "dns-entry-delete.name-does-not-match",
+                "The name doesn't match.");
             model.addAttribute("dnsEntry", entry);
             List<DnsEntry> dnsEntries = dnsService.findDnsEntriesConflictingWith(entry)
                 .filter(e -> nonNull(e.getModified()))
@@ -144,7 +177,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
 
             String msg = String.format("Dns entry '%s' was successfully deleted.", name);
             RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-                "todo", name);
+                "dns-entry-delete.success", name);
             redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
           } catch (ServiceException e) {
@@ -152,7 +185,7 @@ public class DnsEntryConflictController extends UiController implements Pageable
             String msg = String.format("Deletion of dns entry '%s' failed.", name);
             log.error(msg, e);
             RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,
-                "todo", name);
+                "dns-entry-delete.failure", name);
             redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
           }
 
@@ -164,8 +197,8 @@ public class DnsEntryConflictController extends UiController implements Pageable
           return redirect;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Dns Entry", "todo", name, PAGE_AND_ZONE_NAME_PARAMS,
-            "dns-zone-entries"));
+            redirectAttributes, "DNS entry", "dns-entry.not-found", name,
+            PAGE_AND_ZONE_NAME_PARAMS, "dns-zone-entries"));
   }
 
 }

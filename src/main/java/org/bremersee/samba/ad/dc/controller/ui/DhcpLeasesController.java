@@ -52,6 +52,14 @@ public class DhcpLeasesController extends UiController
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dhcp leases controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DhcpLeasesController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -71,6 +79,17 @@ public class DhcpLeasesController extends UiController
     return "dhcp-leases";
   }
 
+  /**
+   * Display dhcp leases view.
+   *
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param ipAddress the ip address
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/dhcp-leases")
   public String displayDhcpLeases(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
