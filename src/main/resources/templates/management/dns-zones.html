@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Dns zones</title>
+  <title th:text="#{dns-zones.title}">Dns zones</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -83,6 +83,7 @@
       </div>
       <div class="col col-auto mt-sm-2 mt-md-0">
         <a id="addZone" href="dns-zone-create.html" title="Add zone" class="btn btn-outline-primary"
+           th:title="#{dns-zones.add-zone}"
            th:href="@{dns-zone-create}">
           <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
         </a>
@@ -91,7 +92,7 @@
   </div>
 
   <div th:if="${#lists.isEmpty(dnsZoneNames)}"
-       class="alert alert-info" role="alert">
+       class="alert alert-info" role="alert" th:text="#{dns-zones.not-found}">
     No dns zones were found.
   </div>
 

@@ -50,6 +50,14 @@ public class DnsZoneDeleteController extends UiController
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns zone delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsZoneDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -69,8 +77,15 @@ public class DnsZoneDeleteController extends UiController
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display dns zone delete view.
+   *
+   * @param zoneName the zone name
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-zone-delete")
-  public String displayDnsZoneInfo(
+  public String displayDnsZoneDelete(
       @RequestParam(name = ZONE_NAME) String zoneName,
       ModelMap model) {
 
@@ -79,6 +94,16 @@ public class DnsZoneDeleteController extends UiController
     return "management/dns-zone-delete";
   }
 
+  /**
+   * Delete dns zone.
+   *
+   * @param zoneName the zone name
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/dns-zone-delete")
   public String deleteDnsZone(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -90,7 +115,8 @@ public class DnsZoneDeleteController extends UiController
     log.debug("deleteDnsEntry({}, {})", zoneName, deleteModel);
 
     if (!zoneName.equalsIgnoreCase(deleteModel.getVerificationName())) {
-      bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
+      bindingResult.rejectValue("verificationName", "dns-zone-delete.name-does-not-match",
+          "The name doesn't match.");
       model.addAttribute("zoneName", zoneName);
       return "management/dns-zone-delete";
     }
@@ -101,7 +127,7 @@ public class DnsZoneDeleteController extends UiController
 
       String msg = String.format("Dns zone '%s' was successfully deleted.", zoneName);
       RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", zoneName);
+          "dns-zone-delete.success", zoneName);
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
 
     } catch (ServiceException e) {
@@ -109,7 +135,7 @@ public class DnsZoneDeleteController extends UiController
       String msg = String.format("Deletion of dns zone '%s' failed.", zoneName);
       log.error(msg, e);
       RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,
-          "todo", zoneName);
+          "dns-zone-delete.failure", zoneName);
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
     }
 

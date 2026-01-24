@@ -40,6 +40,14 @@ public class DnsZonesController extends UiController
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns zones controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsZonesController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -59,6 +67,13 @@ public class DnsZonesController extends UiController
     return "";
   }
 
+  /**
+   * Display dns zones view.
+   *
+   * @param zoneType the zone type
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-zones")
   public String displayDnsZones(
       @RequestParam(name = ZONE_TYPE, defaultValue = ZONE_TYPE_DEFAULT) DnsZoneType zoneType,

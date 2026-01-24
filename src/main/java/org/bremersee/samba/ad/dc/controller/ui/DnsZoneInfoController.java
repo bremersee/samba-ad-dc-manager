@@ -41,6 +41,14 @@ public class DnsZoneInfoController extends UiController
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns zone info controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsZoneInfoController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -60,6 +68,14 @@ public class DnsZoneInfoController extends UiController
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display dns zone info view.
+   *
+   * @param zoneName the zone name
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-zone-info")
   public String displayDnsZoneInfo(
       @RequestParam(name = ZONE_NAME) String zoneName,
@@ -73,8 +89,8 @@ public class DnsZoneInfoController extends UiController
     } catch (ServiceException serviceException) {
 
       return entityNotFoundRedirect(
-          redirectAttributes, "DNS Zone", "todo", zoneName, PAGE_AND_ZONE_TYPE_PARAMS,
-          "dns-zones");
+          redirectAttributes, "DNS Zone", "dns-zone.not-found", zoneName,
+          PAGE_AND_ZONE_TYPE_PARAMS, "dns-zones");
     }
   }
 

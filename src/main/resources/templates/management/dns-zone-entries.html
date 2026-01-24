@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Dns zone entries</title>
+  <title th:text="#{dns-zone-entries.title}">Dns zone entries</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -62,7 +62,7 @@
     <div class="col">
       <div class="container">
         <div class="d-flex justify-content-center">
-          <h3 class="small">Dns entries of zone</h3>
+          <h3 class="small" th:text="#{dns-zone-entries.header}">Dns entries of zone</h3>
         </div>
         <div class="d-flex justify-content-center">
           <h3 th:text="${zoneName}">eixe.bremersee.org</h3>
@@ -83,7 +83,7 @@
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="#">
-        <span class="fa fa-list" aria-hidden="true">
+        <span class="fa fa-list" aria-hidden="true" th:title="#{dns-zone-entries.title}">
           <span style="display: none;">Entries</span>
         </span>
       </a>
@@ -91,7 +91,7 @@
     <li class="nav-item">
       <a class="nav-link show-spinner" href="dns-zone-info.html"
          th:href="@{dns-zone-info(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-info" aria-hidden="true">
+        <span class="fa fa-info" aria-hidden="true" th:title="#{dns-zone-info.title}">
           <span style="display: none;">Info</span>
         </span>
       </a>
@@ -99,7 +99,7 @@
     <li class="nav-item">
       <a class="nav-link" href="dns-zone-delete.html"
          th:href="@{dns-zone-delete(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
-        <span class="fa fa-trash-alt" aria-hidden="true">
+        <span class="fa fa-trash-alt" aria-hidden="true" th:title="#{dns-zone-delete.title}">
           <span style="display: none;">Delete</span>
         </span>
       </a>
@@ -116,14 +116,16 @@
                 <!--suppress HtmlFormInputWithoutLabel -->
                 <input type="text" id="q" name="q" class="form-control"
                        placeholder="Search ..."
+                       th:placeholder="#{common.search.placeholder}"
                        th:value="${q}">
                 <span class="input-group-text">
-                <a id="searchInputSubmit" href="#" title="Search">
+                <a id="searchInputSubmit" href="#" title="Search" th:title="#{common.search.label}">
                   <span class="glyphicon glyphicon-search text-primary" aria-hidden="true"></span>
                 </a>
               </span>
                 <span class="input-group-text" th:if="${not #strings.isEmpty(q)}">
                 <a id="searchInputReset" href="#" title="Reset search" class="show-spinner"
+                   th:title="#{common.search.reset}"
                    th:href="@{${currentPage}(zone-name=${zoneName},zone-type=${zoneType},page=0,size=${size},sort=${sort})}"
                    th:classappend="${#strings.isEmpty(q)} ? 'disabled' : ''"
                    th:disabled="${#strings.isEmpty(q)}"
@@ -146,7 +148,7 @@
     </div>
 
     <div th:if="${#lists.isEmpty(dnsEntryPage.content)}"
-         class="alert alert-info" role="alert">
+         class="alert alert-info" role="alert" th:text="#{dns-zone-entries.not-found}">
       No entries were found.
     </div>
 
@@ -161,9 +163,7 @@
                   th:if="${entry.conflict}">
           </span>
           </h6>
-          <span class="glyphicon glyphicon-ban-circle text-danger"
-                aria-hidden="true">
-        </span>
+          <span class="far fa-edit" aria-hidden="true" th:title="#{common.edit}"></span>
         </div>
         <div class="small text-secondary">
           <span th:text="${entry.type}">A</span>

@@ -44,6 +44,14 @@ public class DnsZoneEntriesController extends UiController
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new Dns zone entries controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsZoneEntriesController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -63,6 +71,17 @@ public class DnsZoneEntriesController extends UiController
     return DNS_ENTRY_SORT;
   }
 
+  /**
+   * Display dns zone entries view.
+   *
+   * @param zoneName the zone name
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-zone-entries")
   public String displayDnsZoneEntries(
       @RequestParam(name = ZONE_NAME) String zoneName,

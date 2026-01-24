@@ -42,6 +42,14 @@ public class DnsZoneCreateController extends UiController {
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns zone create controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
   public DnsZoneCreateController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -51,11 +59,23 @@ public class DnsZoneCreateController extends UiController {
     this.dnsService = dnsService;
   }
 
+  /**
+   * Display create zone view.
+   *
+   * @return the view
+   */
   @GetMapping(path = "/management/dns-zone-create")
   public String displayCreateZone() {
     return "management/dns-zone-create";
   }
 
+  /**
+   * Create zone.
+   *
+   * @param name the name
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/dns-zone-create")
   public String createZone(
       @RequestParam(name = "name") String name,
@@ -66,7 +86,7 @@ public class DnsZoneCreateController extends UiController {
       String msg = String.format("Dns zone '%s' was successfully created.",
           zone.getName());
       RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "todo", zone.getName());
+          "dns-zone-create.success", zone.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
       return "redirect:dns-zones";
 
@@ -75,7 +95,7 @@ public class DnsZoneCreateController extends UiController {
       String msg = String.format("Creation of dns zone '%s' failed.", name);
       log.error(msg, e);
       RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,
-          "todo", name);
+          "dns-zone-create.failure", name);
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
       return "redirect:dns-zones";
     }

@@ -112,7 +112,7 @@
   </div>
 
   <div th:if="${#lists.isEmpty(computerPage.content)}"
-       class="alert alert-info" role="alert">
+       class="alert alert-info" role="alert" th:text="#{computers.not-found}">
     No computers were found.
   </div>
 
