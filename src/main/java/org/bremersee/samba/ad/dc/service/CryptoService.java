@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 public interface CryptoService<S, T> {
 
   @NotNull
-  T encrypt(@NotNull S passwordReset);
+  T encrypt(@NotNull S source);
 
   @NotNull
-  S decrypt(@NotNull T encryptedPasswordReset);
+  S decrypt(@NotNull T encryptedValue);
 
 }
