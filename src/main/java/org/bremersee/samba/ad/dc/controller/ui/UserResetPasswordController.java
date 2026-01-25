@@ -53,10 +53,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserResetPasswordController extends UiController
     implements PageableComponent, OrganizationalUnitComponent {
 
+  private static final String RESET_PASSWORD_VIEW = "management/user-reset-password";
+
   private final DomainUserService domainUserService;
 
   private final ApplicationEventPublisher eventPublisher;
 
+  /**
+   * Instantiates a new user reset password controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param eventPublisher the event publisher
+   */
   public UserResetPasswordController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -73,17 +84,37 @@ public class UserResetPasswordController extends UiController
     return USER_SORT;
   }
 
+  /**
+   * Gets password pattern.
+   *
+   * @return the password pattern
+   */
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
     return getDomainService().getPasswordInformation().getPasswordRegex();
   }
 
+  /**
+   * Gets password description.
+   *
+   * @return the password description
+   */
   @ModelAttribute("passwordDescription")
   public String getPasswordDescription() {
     return getDomainService().getPasswordInformation()
         .getPasswordDescription(getMessageSource(), getResolvedLocale());
   }
 
+  /**
+   * Display user reset password view.
+   *
+   * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/user-reset-password")
   public String displayUserResetPassword(
       @RequestParam(value = "user", required = false) String userName,
@@ -97,12 +128,23 @@ public class UserResetPasswordController extends UiController
         .map(user -> {
           model.addAttribute("user", user);
           model.addAttribute("passwordRequest", new UserResetPasswordModel(user));
-          return "management/user-reset-password";
+          return RESET_PASSWORD_VIEW;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
+            redirectAttributes, "User", "user.not-found", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
+  /**
+   * Reset password.
+   *
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param passwordRequest the password request
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/user-reset-password")
   public String resetPassword(
       @RequestParam(value = OU, required = false) Dn ou,
@@ -117,9 +159,8 @@ public class UserResetPasswordController extends UiController
         .flatMap(name -> domainUserService.getUser(name, ou, searchScope))
         .map(user -> resetPassword(
             user, passwordRequest, model, bindingResult, redirectAttributes))
-        .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", passwordRequest.getSamAccountName(),
-            PAGE_AND_OU_PARAMS, "users"));
+        .orElseGet(() -> entityNotFoundRedirect(redirectAttributes, "User", "user.not-found",
+            passwordRequest.getSamAccountName(), PAGE_AND_OU_PARAMS, "users"));
   }
 
   private String resetPassword(
@@ -136,15 +177,15 @@ public class UserResetPasswordController extends UiController
       password = passwordRequest.getPassword();
       if (!Pattern.compile(getPasswordPattern()).matcher(password).matches()) {
         String defaultMsg = "Password doesn't match the required pattern.";
-        bindingResult.rejectValue("password", "todo", defaultMsg);
+        bindingResult.rejectValue("password", "user.password.restrictions", defaultMsg);
         model.addAttribute("user", user);
-        return "management/user-reset-password";
+        return RESET_PASSWORD_VIEW;
       }
     } else {
       String defaultMsg = "Resetting password failed. Password is required.";
-      bindingResult.rejectValue("password", "todo", defaultMsg);
+      bindingResult.rejectValue("password", "user.password.required", defaultMsg);
       model.addAttribute("user", user);
-      return "management/user-reset-password";
+      return RESET_PASSWORD_VIEW;
     }
     domainUserService.updateUserPassword(user.getSamAccountName(), password);
     if (passwordRequest.isGenerateRandomPassword()) {
@@ -154,7 +195,8 @@ public class UserResetPasswordController extends UiController
     }
 
     String defaultMsg = "Password was successfully changed.";
-    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg, "todo");
+    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
+        "user-reset-password.success");
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     Map<String, Object> parameters = getParamterMap();
     String redirect = getRedirectUri("user-reset-password?user={{userName}}",

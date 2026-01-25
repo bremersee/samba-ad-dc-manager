@@ -174,7 +174,7 @@ public class PasswordResetController extends UiController {
       BindingResult bindingResult) {
     String username = resetPasswordRequestModel.getUsername();
     if (isEmpty(username)) {
-      bindingResult.rejectValue(USERNAME, "todo", "Username must not be blank.");
+      bindingResult.rejectValue(USERNAME, "user.username.required", "Username must not be blank.");
       return "passwd/password-reset-request";
     }
     domainUserService.getUser(username, null, null)

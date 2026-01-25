@@ -45,11 +45,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class UserDeleteController extends UiController implements PageableComponent,
-    OrganizationalUnitComponent {
+public class UserDeleteController extends UiController
+    implements PageableComponent, OrganizationalUnitComponent {
+
+  private static final String USERS = "users";
 
   private final DomainUserService domainUserService;
 
+  /**
+   * Instantiates a new user delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   */
   public UserDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -64,6 +74,16 @@ public class UserDeleteController extends UiController implements PageableCompon
     return USER_SORT;
   }
 
+  /**
+   * Display user delete view.
+   *
+   * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/user-delete")
   public String displayUserDelete(
       @RequestParam(value = "user", required = false) String userName,
@@ -80,9 +100,20 @@ public class UserDeleteController extends UiController implements PageableCompon
           return "management/user-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
+            redirectAttributes, "User", "user.not-found", userName, PAGE_AND_OU_PARAMS, USERS));
   }
 
+  /**
+   * Delete user.
+   *
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param deleteRequest the delete request
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/user-delete")
   public String deleteUser(
       @RequestParam(value = OU, required = false) Dn ou,
@@ -97,15 +128,15 @@ public class UserDeleteController extends UiController implements PageableCompon
         .flatMap(name -> domainUserService.getUser(name, ou, searchScope))
         .map(user -> {
           if (!user.getSamAccountName().equalsIgnoreCase(deleteRequest.getVerificationName())) {
-            bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
+            bindingResult.rejectValue("verificationName", "user-delete.name-does-not-match",
+                "The name doesn't match.");
             model.addAttribute("user", user);
             return "management/user-delete";
           }
           return deleteUser(user, model, redirectAttributes);
         })
-        .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", deleteRequest.getSamAccountName(),
-            PAGE_AND_OU_PARAMS, "users"));
+        .orElseGet(() -> entityNotFoundRedirect(redirectAttributes, "User", "user.not-found",
+            deleteRequest.getSamAccountName(), PAGE_AND_OU_PARAMS, USERS));
   }
 
   private String deleteUser(
@@ -119,16 +150,16 @@ public class UserDeleteController extends UiController implements PageableCompon
     if (result) {
       rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
           String.format("User '%s' was successfully deleted.", user.getName()),
-          "todo", user.getName());
+          "user-delete.success", user.getName());
     } else {
       rmsg = getRedirectMessage(RedirectMessageType.WARNING,
-          String.format("Somehow the computer '%s' was not deleted.", user.getName()),
-          "todo", user.getName());
+          String.format("Somehow the user '%s' was not deleted.", user.getName()),
+          "user-delete.failure", user.getName());
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     Map<String, Object> parameters = getParamterMap();
-    String redirect = getRedirectUri("users", PAGE_AND_OU_PARAMS, parameters);
+    String redirect = getRedirectUri(USERS, PAGE_AND_OU_PARAMS, parameters);
     logRedirectTo("User deletion message.", redirect);
     return redirect;
   }

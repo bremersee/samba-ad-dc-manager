@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
@@ -64,6 +65,10 @@ public class UserAddController extends UiController
     implements PageableComponent, RedirectComponent, FieldTemplateComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
+  private static final String ADD_USER_VIEW = "management/user-add";
+
+  private static final String EMAIL = "email";
+
   private final DomainUserService domainUserService;
 
   @Getter
@@ -74,6 +79,17 @@ public class UserAddController extends UiController
 
   private final ApplicationEventPublisher eventPublisher;
 
+  /**
+   * Instantiates a new user add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param organizationalUnitService the organizational unit service
+   * @param templateEngine the template engine
+   * @param eventPublisher the event publisher
+   */
   public UserAddController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -89,11 +105,32 @@ public class UserAddController extends UiController
     this.eventPublisher = eventPublisher;
   }
 
+  /**
+   * Gets password pattern.
+   *
+   * @return the password pattern
+   */
   @ModelAttribute("passwordPattern")
   public String getPasswordPattern() {
     return getDomainService().getPasswordInformation().getPasswordRegex();
   }
 
+  /**
+   * Gets password description.
+   *
+   * @return the password description
+   */
+  @ModelAttribute("passwordDescription")
+  public String getPasswordDescription() {
+    return getDomainService().getPasswordInformation()
+        .getPasswordDescription(getMessageSource(), getResolvedLocale());
+  }
+
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
     return getDomainService().isRfc2307Enabled();
@@ -104,6 +141,13 @@ public class UserAddController extends UiController
     return USER_SORT;
   }
 
+  /**
+   * Display user add string.
+   *
+   * @param ou the ou
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/management/user-add")
   public String displayUserAdd(
       @RequestParam(name = OU, required = false) Dn ou,
@@ -112,9 +156,18 @@ public class UserAddController extends UiController
     getLogger().debug("displayUserAdd({})", ou);
     UserAddModel addModel = newUserAddModel(ou);
     model.addAttribute("addModel", addModel);
-    return "management/user-add";
+    return ADD_USER_VIEW;
   }
 
+  /**
+   * Add user string.
+   *
+   * @param addModel the add model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
   @PostMapping(path = "/management/user-add")
   public String addUser(
       @ModelAttribute(name = "addModel") UserAddModel addModel,
@@ -127,31 +180,31 @@ public class UserAddController extends UiController
     processTemplates(bindingResult, addModel);
 
     if (addModel.isSendEmail() && isEmpty(addModel.getEmail())) {
-      bindingResult.rejectValue("email", "code",
+      bindingResult.rejectValue(EMAIL, "user-add.send-invitation.email-required",
           "If you want to send an invitation email, you have to enter an email address.");
     }
     if (addModel.isSendEmail()) {
       addModel.setPassword(null);
     } else if (isEmpty(addModel.getPassword())) {
-      bindingResult.rejectValue("password", "code",
+      bindingResult.rejectValue("password", "user.password.required",
           "Password is required.");
     }
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding user failed. Some fields were invalid.");
-      return "management/user-add";
+      return ADD_USER_VIEW;
     }
 
     DomainUser addedUser = addUser(bindingResult, addModel);
 
     if (bindingResult.hasErrors()) {
       getLogger().debug("Adding user failed. Some fields were invalid.");
-      return "management/user-add";
+      return ADD_USER_VIEW;
     }
 
     model.clear();
     String msg = String.format("User '%s' was successfully added.", addedUser.getName());
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-        "i18n.user.added", addedUser.getName());
+        "user-add.success", addedUser.getName());
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     Map<String, Object> parameters = getParamterMap(addedUser.getDn().getParent());
@@ -192,59 +245,66 @@ public class UserAddController extends UiController
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.required",
             "Username is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.illegal",
             "Username contains illegal characters.");
+        replaceInvalidValuesWithDefaults(addModel);
         break;
       }
       case EC_ILLEGAL_FIRST_NAME: {
-        bindingResult.rejectValue("firstName", "code",
+        bindingResult.rejectValue("firstName", "user.first-name.illegal",
             "First name contains illegal characters.");
+        replaceInvalidValuesWithDefaults(addModel);
         break;
       }
       case EC_ILLEGAL_LAST_NAME: {
-        bindingResult.rejectValue("lastName", "code",
+        bindingResult.rejectValue("lastName", "user.last-name.illegal",
             "Last name contains illegal characters.");
+        replaceInvalidValuesWithDefaults(addModel);
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.already-exists",
             "Username already exists.");
-        replaceInvalidUsernameWithDefaults(
-            addModel, getProperties().getUser(), isRfc2307Enabled());
+        replaceInvalidValuesWithDefaults(addModel);
+        break;
+      }
+      case EC_PRINCIPAL_ALREADY_EXISTS: {
+        bindingResult.rejectValue("userPrincipalName", "user.principal-name.already-exists",
+            "User principal name already exists.");
         break;
       }
       case EC_UID_ALREADY_EXISTS: {
-        bindingResult.rejectValue("uid", "code",
+        bindingResult.rejectValue("uid", "user.uid.already-exists",
             "User's unix uid already exists.");
         break;
       }
       case EC_UID_NUMBER_ALREADY_EXISTS: {
-        bindingResult.rejectValue("uidNumber", "code",
+        bindingResult.rejectValue("uidNumber", "user.uid-number.already-exists",
             "User's unix uid number already exists.");
         break;
       }
       case EC_EMAIL_INVALID: {
-        bindingResult.rejectValue("email", "code",
+        bindingResult.rejectValue(EMAIL, "common.email.invalid",
             "Email is invalid.");
         break;
       }
       case EC_PASSWORD_RESTRICTIONS: {
-        bindingResult.rejectValue("password", "code",
+        bindingResult.rejectValue("password", "user.password.restrictions",
             "Password restrictions are not met.");
         break;
       }
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "ec.ou.required",
             "Organizational unit is empty.");
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "ec.ou.not-found",
             "Organizational unit was not found.");
         break;
       }
@@ -283,7 +343,7 @@ public class UserAddController extends UiController
     value = processTemplatedField(bindingResult, "displayName", addRequest.getDisplayName(), map);
     addRequest.setDisplayName(value);
 
-    value = processTemplatedField(bindingResult, "email", addRequest.getEmail(), map);
+    value = processTemplatedField(bindingResult, EMAIL, addRequest.getEmail(), map);
     addRequest.setEmail(value);
 
     value = processTemplatedField(bindingResult, "userPrincipalName", addRequest.getEmail(), map);
@@ -326,53 +386,59 @@ public class UserAddController extends UiController
     addRequest.setUnixHomeDirectory(value);
   }
 
-  private void replaceInvalidUsernameWithDefaults(
-      UserAddModel addRequest,
-      DomainUserProperties properties,
-      boolean isRfc2307Enabled) {
+  private void replaceInvalidValuesWithDefaults(UserAddModel addRequest) {
 
-    if (isEmpty(addRequest) || isEmpty(addRequest.getSamAccountName())) {
+    if (isEmpty(addRequest)) {
       return;
     }
-    String username = addRequest.getSamAccountName().toLowerCase();
-    if (!isEmpty(addRequest.getDisplayName())
-        && addRequest.getDisplayName().toLowerCase().contains(username)) {
-      addRequest.setDisplayName(properties.getDefaultDisplayName());
+    List<String> values = List.of(
+        addRequest.getSamAccountName(),
+        addRequest.getFirstName(),
+        addRequest.getLastName()
+    );
+    values.forEach(value -> replaceInvalidValueWithDefaults(value, addRequest));
+  }
+
+  private void replaceInvalidValueWithDefaults(
+      String value,
+      UserAddModel addRequest) {
+
+    if (isEmpty(value)) {
+      return;
     }
-    if (!isEmpty(addRequest.getEmail())
-        && addRequest.getEmail().toLowerCase().contains(username)) {
-      addRequest.setEmail(properties.getDefaultEmail());
+
+    DomainUserProperties properties = getProperties().getUser();
+    String lowerValue = value.toLowerCase();
+    reset(lowerValue, addRequest.getDisplayName(),
+        () -> addRequest.setDisplayName(properties.getDefaultDisplayName()));
+    reset(lowerValue, addRequest.getEmail(),
+        () -> addRequest.setEmail(properties.getDefaultEmail()));
+    reset(lowerValue, addRequest.getUserPrincipalName(),
+        () -> addRequest.setUserPrincipalName(properties.getDefaultUserPrincipalName()));
+    reset(lowerValue, addRequest.getHomeDirectory(),
+        () -> addRequest.setHomeDirectory(properties.getDefaultHomeDirectory()));
+    reset(lowerValue, addRequest.getScriptPath(),
+        () -> addRequest.setScriptPath(properties.getDefaultScriptPath()));
+
+    if (isRfc2307Enabled()) {
+      reset(lowerValue, addRequest.getGecos(),
+          () -> addRequest.setGecos(properties.getDefaultGecos()));
+      reset(lowerValue, addRequest.getLoginShell(),
+          () -> addRequest.setLoginShell(properties.getDefaultLoginShell()));
+      reset(lowerValue, addRequest.getUid(), () -> addRequest.setUid(properties.getDefaultUid()));
+      reset(lowerValue, addRequest.getUnixHomeDirectory(),
+          () -> addRequest.setUnixHomeDirectory(properties.getDefaultUnixHomeDirectory()));
     }
-    if (!isEmpty(addRequest.getUserPrincipalName())
-        && addRequest.getUserPrincipalName().toLowerCase().contains(username)) {
-      addRequest.setUserPrincipalName(properties.getDefaultUserPrincipalName());
+  }
+
+  private void reset(String lowerValue, String value, Runnable reset) {
+    if (containsUsername(lowerValue, value)) {
+      reset.run();
     }
-    if (!isEmpty(addRequest.getHomeDirectory())
-        && addRequest.getHomeDirectory().toLowerCase().contains(username)) {
-      addRequest.setHomeDirectory(properties.getDefaultHomeDirectory());
-    }
-    if (!isEmpty(addRequest.getScriptPath())
-        && addRequest.getScriptPath().toLowerCase().contains(username)) {
-      addRequest.setScriptPath(properties.getDefaultScriptPath());
-    }
-    if (isRfc2307Enabled) {
-      if (!isEmpty(addRequest.getGecos())
-          && addRequest.getGecos().toLowerCase().contains(username)) {
-        addRequest.setGecos(properties.getDefaultGecos());
-      }
-      if (!isEmpty(addRequest.getLoginShell())
-          && addRequest.getLoginShell().toLowerCase().contains(username)) {
-        addRequest.setLoginShell(properties.getDefaultLoginShell());
-      }
-      if (!isEmpty(addRequest.getUid())
-          && addRequest.getUid().toLowerCase().contains(username)) {
-        addRequest.setUid(properties.getDefaultUid());
-      }
-      if (!isEmpty(addRequest.getUnixHomeDirectory())
-          && addRequest.getUnixHomeDirectory().toLowerCase().contains(username)) {
-        addRequest.setUnixHomeDirectory(properties.getDefaultUnixHomeDirectory());
-      }
-    }
+  }
+
+  private boolean containsUsername(String lowerValue, String value) {
+    return !isEmpty(value) && value.toLowerCase().contains(lowerValue);
   }
 
 }

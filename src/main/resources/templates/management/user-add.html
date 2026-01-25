@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Add user</title>
+  <title th:text="#{user-add.title}">Add user</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -58,7 +58,7 @@
       </a>
     </div>
     <div class="col d-flex justify-content-center">
-      <h3>Add user</h3>
+      <h3 th:text="#{user-add.header}">Add user</h3>
     </div>
     <div class="col-1"></div>
   </div>
@@ -75,7 +75,7 @@
       <input type="hidden" id="accountExpires" name="accountExpires" th:field="*{accountExpiresIso}" />
 
       <div class="mb-3">
-        <label for="newOu" class="form-label">Organizational Unit</label>
+        <label for="newOu" class="form-label" th:text="#{common.ou.label}">Organizational Unit</label>
         <select id="newOu" class="form-select" aria-label="Organizational Unit"
                 aria-describedby="newOuValidation"
                 th:classappend="${#fields.hasErrors('newOu')} ? 'is-invalid' : ''"
@@ -90,7 +90,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="samAccountName" class="form-label">Username</label>
+        <label for="samAccountName" class="form-label" th:text="#{user.username.label}">Username</label>
         <input type="text" class="form-control" id="samAccountName" name="samAccountName"
                aria-describedby="samAccountNameValidation" required th:field="*{samAccountName}"
                th:classappend="${#fields.hasErrors('samAccountName')} ? 'is-invalid' : ''"/>
@@ -102,7 +102,7 @@
       <div class="form-check form-switch mb-3">
         <input class="form-check-input" type="checkbox" id="useUsernameAsCn"
                name="useUsernameAsCn" th:field="*{useUsernameAsCn}" />
-        <label class="form-check-label" for="useUsernameAsCn">
+        <label class="form-check-label" for="useUsernameAsCn" th:text="#{user-add.username-as-cn.label}">
           Use username as CN
         </label>
       </div>
@@ -110,7 +110,7 @@
       <div class="form-check form-switch mb-3">
         <input class="form-check-input" type="checkbox" id="enabled" name="enabled"
                th:field="*{enabled}" />
-        <label class="form-check-label" for="enabled" th:text="#{common.enabled}">
+        <label class="form-check-label" for="enabled" th:text="#{user.enabled.label}">
           Enabled
         </label>
       </div>
@@ -119,7 +119,8 @@
         <input class="form-check-input" type="checkbox"
                id="passwordExpirationEnabled" name="passwordExpirationEnabled"
                th:field="*{passwordExpirationEnabled}" />
-        <label class="form-check-label" for="passwordExpirationEnabled">
+        <label class="form-check-label" for="passwordExpirationEnabled"
+               th:text="#{user.password-expiration-enabled.label}">
           Password expiration enabled
         </label>
       </div>
@@ -129,17 +130,19 @@
                id="noExpiry"
                name="noExpiry"
                th:field="*{noExpiry}"/>
-        <label for="noExpiry" class="form-label">
+        <label for="noExpiry" class="form-label" th:text="#{user.no-expiry.label}">
           No expiry
         </label>
       </div>
 
       <div id="accountExpiresUiDiv" class="mb-3">
-        <label for="accountExpiresUi" class="form-label">Account expires</label>
+        <label for="accountExpiresUi" class="form-label" th:text="#{user.expiry.label}">
+          Account expires
+        </label>
         <input type="datetime-local" class="form-control" id="accountExpiresUi" name="accountExpiresUi"
-               aria-describedby="accountExpiresUiValidation" value=""
+               aria-describedby="accountExpiresUiHelp" value=""
                th:classappend="${#fields.hasErrors('accountExpires')} ? 'is-invalid' : ''"/>
-        <div id="accountExpiresUiHelp" class="form-text">
+        <div id="accountExpiresUiHelp" class="form-text" th:text="#{user.expiry.help}">
           Please enter the expiration date-time of the account.
         </div>
         <div id="accountExpiresUiValidation" class="invalid-feedback"
@@ -148,7 +151,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="userPrincipalName" class="form-label">Principal name</label>
+        <label for="userPrincipalName" class="form-label" th:text="#{user.principal-name.label}">
+          Principal name
+        </label>
         <input type="text" class="form-control" id="userPrincipalName" name="userPrincipalName"
                aria-describedby="userPrincipalNameValidation" th:field="*{userPrincipalName}"
                th:classappend="${#fields.hasErrors('userPrincipalName')} ? 'is-invalid' : ''"/>
@@ -158,7 +163,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="firstName" class="form-label">First Name</label>
+        <label for="firstName" class="form-label" th:text="#{user.first-name.label}">First Name</label>
         <input type="text" class="form-control" id="firstName" name="firstName"
                aria-describedby="firstNameValidation" th:field="*{firstName}"
                th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"/>
@@ -168,7 +173,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="lastName" class="form-label">Last Name</label>
+        <label for="lastName" class="form-label" th:text="#{user.last-name.label}">Last Name</label>
         <input type="text" class="form-control" id="lastName" name="lastName"
                aria-describedby="lastNameValidation" th:field="*{lastName}"
                th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"/>
@@ -178,23 +183,25 @@
       </div>
 
       <div class="mb-3">
-        <label for="displayName" class="form-label">Display Name</label>
+        <label for="displayName" class="form-label" th:text="#{user.display-name.label}">Display Name</label>
         <input type="text" class="form-control" id="displayName" name="displayName"
                th:field="*{displayName}" />
       </div>
 
-      <div class="mb-3">
-        <label for="initials" class="form-label">Initials</label>
+      <div class="mb-3" th:if="${properties.user.initialsDisplayed}">
+        <label for="initials" class="form-label" th:text="#{user.initials.label}">Initials</label>
         <input type="text" class="form-control" id="initials" name="initials"
                th:field="*{initials}" />
       </div>
 
       <div class="mb-3">
-        <label for="preferredLanguage" class="form-label">Preferred language</label>
+        <label for="preferredLanguage" class="form-label" th:text="#{user.preferred-language.label}">
+          Preferred language
+        </label>
         <input type="text" class="form-control" id="preferredLanguage" name="preferredLanguage"
-               aria-describedby="preferredLanguageValidation" th:field="*{preferredLanguage}"
+               aria-describedby="preferredLanguageHelp" th:field="*{preferredLanguage}"
                th:classappend="${#fields.hasErrors('preferredLanguage')} ? 'is-invalid' : ''"/>
-        <div id="preferredLanguageHelp" class="form-text">
+        <div id="preferredLanguageHelp" class="form-text" th:text="#{user.preferred-language.help}">
           User's preferred language. ISO 639-1 language codes. The combinations like de-DE and
           en-US with ISO-639 and ISO-3166 also work.
         </div>
@@ -204,7 +211,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
+        <label for="email" class="form-label" th:text="#{common.email.label}">Email</label>
         <input type="text" class="form-control" id="email" name="email"
                aria-describedby="emailValidation" th:field="*{email}"
                th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"/>
@@ -213,68 +220,72 @@
         </div>
       </div>
 
-      <div class="mb-3">
-        <label for="mobile" class="form-label">Mobile phone number</label>
+      <div class="mb-3" th:if="${properties.user.mobilePhoneNumberDisplayed}">
+        <label for="mobile" class="form-label" th:text="#{user.mobile-phone-number.label}">
+          Mobile phone number
+        </label>
         <input type="text" class="form-control" id="mobile" name="mobile"
                th:field="*{mobile}" />
       </div>
 
-      <div class="mb-3">
-        <label for="telephoneNumber" class="form-label">Telephone number</label>
+      <div class="mb-3" th:if="${properties.user.telephoneNumberDisplayed}">
+        <label for="telephoneNumber" class="form-label" th:text="#{user.telephone-number.label}">
+          Telephone number
+        </label>
         <input type="text" class="form-control" id="telephoneNumber" name="telephoneNumber"
                th:field="*{telephoneNumber}" />
       </div>
 
       <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label" th:text="#{common.description.label}">Description</label>
         <input type="text" class="form-control" id="description" name="description"
                th:field="*{description}" />
       </div>
 
-      <div class="mb-3">
-        <label for="homeDirectory" class="form-label">Home directory</label>
+      <div class="mb-3" th:if="${properties.user.homeDirectoryDisplayed}">
+        <label for="homeDirectory" class="form-label" th:text="#{user.home-directory.label}">Home directory</label>
         <input type="text" class="form-control" id="homeDirectory" name="homeDirectory"
                th:field="*{homeDirectory}" />
       </div>
 
-      <div class="mb-3">
-        <label for="homeDrive" class="form-label">Home Drive Letter</label>
+      <div class="mb-3" th:if="${properties.user.homeDriveDisplayed}">
+        <label for="homeDrive" class="form-label" th:text="#{user.home-drive.label}">Home Drive Letter</label>
         <input type="text" class="form-control" id="homeDrive" name="homeDrive"
                th:field="*{homeDrive}" />
       </div>
 
-      <div class="mb-3">
-        <label for="profilePath" class="form-label">Profile path</label>
+      <div class="mb-3" th:if="${properties.user.profilePathDisplayed}">
+        <label for="profilePath" class="form-label" th:text="#{user.profile-path.label}">Profile path</label>
         <input type="text" class="form-control" id="profilePath" name="profilePath"
                th:field="*{profilePath}" />
       </div>
 
-      <div class="mb-3">
-        <label for="scriptPath" class="form-label">Logon script path</label>
+      <div class="mb-3" th:if="${properties.user.scriptPathDisplayed}">
+        <label for="scriptPath" class="form-label" th:text="#{user.script-path.label}">Logon script path</label>
         <input type="text" class="form-control" id="scriptPath" name="scriptPath"
                th:field="*{scriptPath}" />
       </div>
 
-      <div class="mb-3">
-        <label for="company" class="form-label">Company</label>
+      <div class="mb-3" th:if="${properties.user.companyDisplayed}">
+        <label for="company" class="form-label" th:text="#{user.company.label}">Company</label>
         <input type="text" class="form-control" id="company" name="company"
                th:field="*{company}" />
       </div>
 
-      <div class="mb-3">
-        <label for="title" class="form-label">Job title</label>
+      <div class="mb-3" th:if="${properties.user.jobTitleDisplayed}">
+        <label for="title" class="form-label" th:text="#{user.job-title.label}">Job title</label>
         <input type="text" class="form-control" id="title" name="title"
                th:field="*{title}" />
       </div>
 
-      <div class="mb-3">
-        <label for="department" class="form-label">Department</label>
+      <div class="mb-3" th:if="${properties.user.departmentDisplayed}">
+        <label for="department" class="form-label" th:text="#{user.department.label}">Department</label>
         <input type="text" class="form-control" id="department" name="department"
                th:field="*{department}" />
       </div>
 
-      <div class="mb-3">
-        <label for="physicalDeliveryOfficeName" class="form-label">
+      <div class="mb-3" th:if="${properties.user.physicalDeliveryOfficeNameDisplayed}">
+        <label for="physicalDeliveryOfficeName" class="form-label" th:text="#{user.office-location.label}">
           Office location
         </label>
         <input type="text" class="form-control" id="physicalDeliveryOfficeName"
@@ -283,7 +294,7 @@
 
       <div th:if="${rfc2307Enabled}">
         <div class="mb-3">
-          <label for="uid" class="form-label">User's Unix/RFC2307 username</label>
+          <label for="uid" class="form-label" th:text="#{user.uid.label}">User's Unix/RFC2307 username</label>
           <input type="text" class="form-control" id="uid" name="uid"
                  aria-describedby="uidValidation" th:field="*{uid}"
                  th:classappend="${#fields.hasErrors('uid')} ? 'is-invalid' : ''"/>
@@ -293,7 +304,9 @@
         </div>
 
         <div class="mb-3">
-          <label for="uidNumber" class="form-label">User's Unix/RFC2307 UID number</label>
+          <label for="uidNumber" class="form-label" th:text="#{user.uid-number.label}">
+            User's Unix/RFC2307 UID number
+          </label>
           <input type="text" class="form-control" id="uidNumber" name="uidNumber"
                  aria-describedby="uidNumberValidation" th:field="*{uidNumber}"
                  th:classappend="${#fields.hasErrors('uidNumber')} ? 'is-invalid' : ''"/>
@@ -303,7 +316,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="gidNumber" class="form-label">
+          <label for="gidNumber" class="form-label" th:text="#{user.gid-number.label}">
             User's Unix/RFC2307 primary group ID
           </label>
           <input type="number" class="form-control" id="gidNumber"
@@ -311,13 +324,15 @@
         </div>
 
         <div class="mb-3">
-          <label for="loginShell" class="form-label">User's Unix/RFC2307 login shell</label>
+          <label for="loginShell" class="form-label" th:text="#{user.login-shell.label}">
+            User's Unix/RFC2307 login shell
+          </label>
           <input type="text" class="form-control" id="loginShell" name="loginShell"
                  th:field="*{loginShell}" />
         </div>
 
         <div class="mb-3">
-          <label for="unixHomeDirectory" class="form-label">
+          <label for="unixHomeDirectory" class="form-label" th:text="#{user.unix-home-directory.label}">
             User's Unix/RFC2307 home directory
           </label>
           <input type="text" class="form-control" id="unixHomeDirectory" name="unixHomeDirectory"
@@ -325,7 +340,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="gecos" class="form-label">
+          <label for="gecos" class="form-label" th:text="#{user.gecos.label}">
             User's Unix/RFC2307 GECOS field
           </label>
           <input type="text" class="form-control" id="gecos" name="gecos"
@@ -333,7 +348,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="nisDomain" class="form-label">
+          <label for="nisDomain" class="form-label" th:text="#{user.nis-domain.label}">
             User's Unix/RFC2307 NIS domain
           </label>
           <input type="text" class="form-control" id="nisDomain"
@@ -342,13 +357,13 @@
       </div> <!-- end of rfc2307Enabled -->
 
       <div id="passwordDiv" class="mb-3">
-        <label for="password" class="form-label">Password</label>
+        <label for="password" class="form-label" th:text="#{user.password.label}">Password</label>
         <input type="password" class="form-control" id="password" name="password"
-               aria-describedby="passwordValidation" th:field="*{password}"
+               aria-describedby="passwordHelp" th:field="*{password}"
                th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
                pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).{8,75}$"
                th:pattern="${passwordPattern}"/>
-        <div id="passwordHelp" class="form-text">
+        <div id="passwordHelp" class="form-text" th:text="${passwordDescription}">
           Please enter a new password. It must be between 8 and 75 characters in length and must
           include at least one upper case letter, one lower case letter, and one numeric digit.
         </div>
@@ -360,17 +375,17 @@
       <div class="form-check form-switch mb-3">
         <input class="form-check-input" type="checkbox" id="sendEmail"
                name="sendEmail" th:field="*{sendEmail}" />
-        <label class="form-check-label" for="sendEmail">
-          Send an invitation email with a random password
+        <label class="form-check-label" for="sendEmail" th:text="#{user-add.send-invitation.label}">
+          Send an invitation email
         </label>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-3">
+      <button type="submit" class="btn btn-primary mt-3 mb-5" th:text="#{common.add}">
         Add
       </button>
       <a href="users.html"
          th:href="@{users(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-         class="btn btn-secondary ml-3 mt-3">
+         class="btn btn-secondary ml-3 mt-3 mb-5" th:text="#{common.cancel}">
         Cancel
       </a>
     </form>

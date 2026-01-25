@@ -226,7 +226,7 @@ public class ComputerEditController extends UiController implements PageableComp
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("newOu", "ec.empty-ou-rdn",
+        bindingResult.rejectValue("newOu", "ec.ou.required",
             "Organizational unit is empty.");
         break;
       }

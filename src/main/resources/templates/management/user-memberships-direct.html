@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Direct memberships of user</title>
+  <title th:text="#{user-memberships-direct.title}">Direct memberships of user</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -75,7 +75,7 @@
                  style="width: 200px; height: 200px; object-fit: cover;"  />
           </div>
           <div class="d-flex justify-content-center">
-            <h3 class="small">Direct memberships of user</h3>
+            <h3 class="small" th:text="#{user-memberships-direct.header}">Direct memberships of user</h3>
           </div>
           <div class="d-flex justify-content-center">
             <h3 th:text="${user.name}">Administrator</h3>
@@ -112,7 +112,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="user-reset-password.html"
+        <a class="nav-link" href="user-reset-password.html" th:title="#{user-reset-password.title}"
            th:href="@{user-reset-password(user=${user.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-shapes" aria-hidden="true">
             <span style="display: none;">Password</span>
@@ -142,7 +142,7 @@
       </div>
 
       <div th:if="${#lists.isEmpty(memberships)}"
-           class="alert alert-info" role="alert">
+           class="alert alert-info" role="alert" th:text="#{groups.not-found}">
         No groups were found.
       </div>
 

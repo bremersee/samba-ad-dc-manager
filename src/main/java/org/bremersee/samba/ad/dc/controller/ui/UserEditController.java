@@ -64,6 +64,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserEditController extends UiController implements PageableComponent,
     OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
+  private static final String SAM_ACCOUNT_NAME = "samAccountName";
+
   private final DomainUserService domainUserService;
 
   private final DomainGroupService domainGroupService;
@@ -71,6 +73,16 @@ public class UserEditController extends UiController implements PageableComponen
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new user edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
   public UserEditController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -89,11 +101,22 @@ public class UserEditController extends UiController implements PageableComponen
     return USER_SORT;
   }
 
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
     return getDomainService().isRfc2307Enabled();
   }
 
+  /**
+   * Determines whether avatar exists or not.
+   *
+   * @param userName the username
+   * @return {@code true} if avatar, otherwise {@code false}
+   */
   @ModelAttribute("avatarExists")
   public boolean avatarExists(@RequestParam(value = "user", required = false) String userName) {
     return Optional.ofNullable(userName)
@@ -101,6 +124,16 @@ public class UserEditController extends UiController implements PageableComponen
         .orElse(false);
   }
 
+  /**
+   * Display user edit view.
+   *
+   * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/user-edit")
   public String displayUserEdit(
       @RequestParam(value = "user", required = false) String userName,
@@ -121,9 +154,24 @@ public class UserEditController extends UiController implements PageableComponen
           return "management/user-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
+            redirectAttributes, "User", "user.not-found", userName, PAGE_AND_OU_PARAMS, "users"));
   }
 
+  /**
+   * Update user.
+   *
+   * @param oldSamAccountName the old sam account name
+   * @param previousSamAccountName the previous sam account name
+   * @param previousFirstName the previous first name
+   * @param previousLastName the previous last name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/user-edit")
   public String updateUser(
       @RequestParam(value = "user", required = false) String oldSamAccountName,
@@ -151,7 +199,8 @@ public class UserEditController extends UiController implements PageableComponen
         .map(existingUser -> updateUser(
             existingUser, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", oldSamAccountName, PAGE_AND_OU_PARAMS, "users"));
+            redirectAttributes, "User", "user.not-found", oldSamAccountName, PAGE_AND_OU_PARAMS,
+            "users"));
   }
 
   private String updateUser(
@@ -175,7 +224,7 @@ public class UserEditController extends UiController implements PageableComponen
       String defaultMsg = String
           .format("User '%s' was successfully updated.", updatedUser.getName());
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
-          "todo", updatedUser.getName());
+          "user-edit.success", updatedUser.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
       Map<String, Object> parameters = getParamterMap(updatedUser.getDn().getParent());
@@ -210,7 +259,7 @@ public class UserEditController extends UiController implements PageableComponen
     }
   }
 
-  public void replaceNames(UserEditModel userEditRequest, String oldName, String newName) {
+  private void replaceNames(UserEditModel userEditRequest, String oldName, String newName) {
     if (isEmpty(userEditRequest) || isEmpty(oldName)) {
       return;
     }
@@ -256,7 +305,7 @@ public class UserEditController extends UiController implements PageableComponen
         domainUserService.updateUserAvatar(userEditRequest.getSamAccountName(), in);
       } catch (IOException e) {
         getLogger().error("updateAvatar({})", userEditRequest, e);
-        bindingResult.rejectValue("avatar", "todo", "Uploading avatar failed.");
+        bindingResult.rejectValue("avatar", "user-edit.avatar.failure", "Uploading avatar failed.");
       }
     }
   }
@@ -269,62 +318,62 @@ public class UserEditController extends UiController implements PageableComponen
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.required",
             "Username is required.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.already-exists",
             "Username already exists.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.illegal",
             "Username contains illegal characters.");
         break;
       }
       case EC_EMAIL_INVALID: {
-        bindingResult.rejectValue("email", "code",
+        bindingResult.rejectValue("email", "common.email.invalid",
             "Email is invalid.");
         break;
       }
       case EC_ILLEGAL_FIRST_NAME: {
-        bindingResult.rejectValue("firstName", "code",
+        bindingResult.rejectValue("firstName", "user.first-name.illegal",
             "First name contains illegal characters.");
         break;
       }
       case EC_ILLEGAL_LAST_NAME: {
-        bindingResult.rejectValue("lastName", "code",
+        bindingResult.rejectValue("lastName", "user.last-name.illegal",
             "Last name contains illegal characters.");
         break;
       }
       case EC_PRINCIPAL_ALREADY_EXISTS: {
-        bindingResult.rejectValue("userPrincipalName", "code",
+        bindingResult.rejectValue("userPrincipalName", "user.principal-name.already-exists",
             "User principal name already exists.");
         break;
       }
       case EC_UID_ALREADY_EXISTS: {
-        bindingResult.rejectValue("uid", "code",
+        bindingResult.rejectValue("uid", "user.uid.already-exists",
             "User's unix uid already exists.");
         break;
       }
       case EC_UID_NUMBER_ALREADY_EXISTS: {
-        bindingResult.rejectValue("uidNumber", "code",
+        bindingResult.rejectValue("uidNumber", "user.uid-number.already-exists",
             "User's unix uid number already exists.");
         break;
       }
       case EC_DN_ALREADY_EXISTS: {
-        bindingResult.rejectValue("samAccountName", "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "user.username.already-exists",
             "Distinguished name already exists.");
         break;
       }
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "ec.ou.required",
             "Organizational unit is empty.");
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "ec.ou.not-found",
             "Organizational unit was not found.");
         break;
       }

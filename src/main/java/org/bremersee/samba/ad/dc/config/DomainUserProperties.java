@@ -56,7 +56,21 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
 
   private boolean userAbleToChangeEmail = true;
 
+  private boolean initialsDisplayed = true;
+
+  private boolean mobilePhoneNumberDisplayed = true;
+
+  private boolean telephoneNumberDisplayed = true;
+
+  private boolean companyDisplayed = true;
+
   private String defaultCompany;
+
+  private boolean jobTitleDisplayed = true;
+
+  private boolean departmentDisplayed = true;
+
+  private boolean physicalDeliveryOfficeNameDisplayed = true;
 
   private String defaultDisplayName = "{{user.firstName}} {{user.lastName}}";
 
@@ -68,7 +82,11 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
 
   private Integer defaultGidNumber; // = 100; // = Domain Users
 
+  private boolean homeDirectoryDisplayed = true;
+
   private String defaultHomeDirectory;
+
+  private boolean homeDriveDisplayed = true;
 
   private String defaultHomeDrive;
 
@@ -78,7 +96,11 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
 
   private String defaultLanguage = "de-DE";
 
+  private boolean profilePathDisplayed = true;
+
   private String defaultProfilePath;
+
+  private boolean scriptPathDisplayed = true;
 
   private String defaultScriptPath;
 

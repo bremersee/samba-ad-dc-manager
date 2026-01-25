@@ -47,6 +47,15 @@ public class UserMembershipsController extends UiController
 
   private final DomainGroupService domainGroupService;
 
+  /**
+   * Instantiates a new user memberships controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param domainGroupService the domain group service
+   */
   public UserMembershipsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -63,6 +72,16 @@ public class UserMembershipsController extends UiController
     return USER_SORT;
   }
 
+  /**
+   * Display user edit memberships direct view.
+   *
+   * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/user-memberships-direct")
   public String displayUserEditMembershipsDirect(
       @RequestParam(value = "user", required = false) String userName,
@@ -75,6 +94,16 @@ public class UserMembershipsController extends UiController
         true, userName, ou, searchScope, model, redirectAttributes);
   }
 
+  /**
+   * Display user edit memberships resolved view.
+   *
+   * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/user-memberships-resolved")
   public String displayUserEditMembershipsResolved(
       @RequestParam(value = "user", required = false) String userName,
@@ -111,8 +140,9 @@ public class UserMembershipsController extends UiController
           model.addAttribute("memberships", memberships.toList());
           return page;
         })
-        .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "User", "todo", userName, PAGE_AND_OU_PARAMS, "users"));
+        .orElseGet(
+            () -> entityNotFoundRedirect(redirectAttributes, "User", "user.not-found", userName,
+                PAGE_AND_OU_PARAMS, "users"));
   }
 
 }

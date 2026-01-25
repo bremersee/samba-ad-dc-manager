@@ -42,7 +42,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The base Ui controller.
+ * The base ui controller.
  *
  * @author Christian Bremer
  */
