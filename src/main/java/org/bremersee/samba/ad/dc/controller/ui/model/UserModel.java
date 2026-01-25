@@ -45,18 +45,39 @@ abstract class UserModel implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The new organizational unit.
+   */
   private String newOu;
 
+  /**
+   * The sam account name.
+   */
   private String samAccountName;
 
+  /**
+   * The user principal name.
+   */
   private String userPrincipalName;
 
+  /**
+   * The enabled flag.
+   */
   private boolean enabled = true;
 
+  /**
+   * The password expiration enabled flag.
+   */
   private boolean passwordExpirationEnabled = false;
 
+  /**
+   * The no-expiry flag.
+   */
   private boolean noExpiry = true;
 
+  /**
+   * The date-time of account expiration.
+   */
   private OffsetDateTime accountExpires;
 
   /**

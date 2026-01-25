@@ -38,12 +38,24 @@ public class UserEditModel extends UserModel implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The multipart request for the avatar.
+   */
   private transient MultipartFile avatar;
 
+  /**
+   * The remove avatar flag.
+   */
   private boolean removeAvatar;
 
+  /**
+   * The rename names automatically flag.
+   */
   private boolean renameNamesAutomatically = true;
 
+  /**
+   * The primary group ID.
+   */
   private Integer primaryGroupId;
 
   /**

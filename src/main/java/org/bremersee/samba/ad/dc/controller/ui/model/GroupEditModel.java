@@ -20,7 +20,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.ldaptive.dn.Dn;
 
@@ -30,14 +29,19 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class GroupEditModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The new organizational unit.
+   */
   private String newOu;
 
+  /**
+   * The sam account name.
+   */
   private String samAccountName;
 
   /**
@@ -60,6 +64,18 @@ public class GroupEditModel implements Serializable {
    */
   private String nisDomain;
 
+  /**
+   * Instantiates a new group edit model.
+   */
+  public GroupEditModel() {
+    super();
+  }
+
+  /**
+   * Gets new distinguished name of the organizational unit.
+   *
+   * @return the new distinguished name of the organizational unit
+   */
   public Optional<Dn> getNewOuDn() {
     return Optional.ofNullable(newOu)
         .filter(DnTool::isValidDn)

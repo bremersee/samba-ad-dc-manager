@@ -19,22 +19,37 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 
+/**
+ * The user reset password model.
+ */
 @Data
-@NoArgsConstructor
 public class UserResetPasswordModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The sam account name.
+   */
   private String samAccountName;
 
+  /**
+   * The password.
+   */
   private String password;
 
+  /**
+   * The generate password flag.
+   */
   private boolean generateRandomPassword;
 
+  /**
+   * Instantiates a new user reset password model.
+   *
+   * @param user the user
+   */
   public UserResetPasswordModel(DomainUser user) {
     this.samAccountName = user.getSamAccountName();
   }

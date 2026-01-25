@@ -19,7 +19,6 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 
 /**
@@ -28,16 +27,26 @@ import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class OrganizationalUnitDeleteModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The distinguished name of the organizational unit.
+   */
   private String ou;
 
+  /**
+   * The verification name.
+   */
   private String verificationName;
 
+  /**
+   * Instantiates a new organizational unit delete model.
+   *
+   * @param ou the organizational unit
+   */
   public OrganizationalUnitDeleteModel(OrganizationalUnit ou) {
     this.ou = ou.getDistinguishedName();
   }

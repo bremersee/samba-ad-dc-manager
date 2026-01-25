@@ -34,10 +34,21 @@ public class SamAccountDeleteModel implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The sam account name.
+   */
   private String samAccountName;
 
+  /**
+   * The verification name.
+   */
   private String verificationName;
 
+  /**
+   * Instantiates a new sam account delete model.
+   *
+   * @param samAccount the sam account
+   */
   public SamAccountDeleteModel(SamAccount samAccount) {
     this.samAccountName = samAccount.getSamAccountName();
   }

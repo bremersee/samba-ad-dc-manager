@@ -40,6 +40,9 @@ public class UserAddModel extends UserModel implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The use username as common name flag.
+   */
   private boolean useUsernameAsCn = true;
 
   /**
@@ -47,14 +50,10 @@ public class UserAddModel extends UserModel implements Serializable {
    */
   private String password;
 
-  private boolean sendEmail;
-
   /**
-   * Instantiates a new user add model.
+   * The send email flag.
    */
-  public UserAddModel() {
-    super();
-  }
+  private boolean sendEmail;
 
   /**
    * Instantiates a new user add model.

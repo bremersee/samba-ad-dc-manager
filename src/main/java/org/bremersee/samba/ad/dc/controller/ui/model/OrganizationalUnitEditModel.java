@@ -21,7 +21,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.ldaptive.dn.Dn;
 
 /**
@@ -30,20 +29,43 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class OrganizationalUnitEditModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The distinguished name of the organizational unit.
+   */
   private String ou;
 
+  /**
+   * The parent organizational unit.
+   */
   private String parentOu;
 
+  /**
+   * The new name of the organizational unit.
+   */
   private String newName;
 
+  /**
+   * The description of the organizational unit.
+   */
   private String description;
 
+  /**
+   * Instantiates a new organizational unit edit model.
+   */
+  public OrganizationalUnitEditModel() {
+    super();
+  }
+
+  /**
+   * Gets the distinguished name of the parent organizational unit.
+   *
+   * @return the parent ou dn
+   */
   public Dn getParentOuDn() {
     if (isEmpty(parentOu)) {
       return null;

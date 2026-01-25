@@ -20,7 +20,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.model.DomainGroupType.Purpose;
@@ -33,18 +32,29 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class GroupAddModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The new organizational unit.
+   */
   private String newOu;
 
+  /**
+   * The sam account name.
+   */
   private String samAccountName;
 
+  /**
+   * The group scope.
+   */
   private String groupScope;
 
+  /**
+   * The group purpose.
+   */
   private String groupPurpose;
 
   /**
@@ -67,12 +77,22 @@ public class GroupAddModel implements Serializable {
    */
   private String nisDomain;
 
+  /**
+   * Instantiates a new group add model.
+   *
+   * @param newOu the new ou
+   */
   public GroupAddModel(String newOu) {
     this.newOu = newOu;
     this.groupScope = Scope.GLOBAL.getValue();
     this.groupPurpose = Purpose.SECURITY.getValue();
   }
 
+  /**
+   * Gets new distinguished name of the organizational unit.
+   *
+   * @return the new distinguished name of the organizational unit
+   */
   public Dn getNewOuDn() {
     if (DnTool.isValidDn(newOu)) {
       return new Dn(newOu);
@@ -92,6 +112,11 @@ public class GroupAddModel implements Serializable {
         .orElse(Purpose.SECURITY);
   }
 
+  /**
+   * Gets selected group type.
+   *
+   * @return the selected group type
+   */
   public DomainGroupType getSelectedGroupType() {
     return DomainGroupType.from(
         getSelectedGroupScope(),
