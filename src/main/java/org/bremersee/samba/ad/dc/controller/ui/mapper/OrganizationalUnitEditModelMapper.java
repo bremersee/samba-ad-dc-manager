@@ -8,22 +8,48 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The organizational unit edit model mapper.
+ */
 @Mapper
 public interface OrganizationalUnitEditModelMapper {
 
+  /**
+   * Map organizational unit edit model.
+   *
+   * @param source the source
+   * @return the organizational unit edit model
+   */
   @Mapping(target = "ou", source = "distinguishedName")
   @Mapping(target = "parentOu", source = "parentDistinguishedName")
   @Mapping(target = "newName", source = "name")
   OrganizationalUnitEditModel map(OrganizationalUnit source);
 
+  /**
+   * The constant INSTANCE.
+   */
   OrganizationalUnitEditModelMapper INSTANCE = Mappers
       .getMapper(OrganizationalUnitEditModelMapper.class);
 
+  /**
+   * Merge organizational unit.
+   *
+   * @param source the source
+   * @param existing the existing
+   * @return the organizational unit
+   */
   default OrganizationalUnit merge(OrganizationalUnitEditModel source,
       OrganizationalUnit existing) {
     return mergeInternal(source, OrganizationalUnit.builder().from(existing));
   }
 
+  /**
+   * Merge internal organizational unit.
+   *
+   * @param source the source
+   * @param target the target
+   * @return the organizational unit
+   */
   @Mapping(target = "distinguishedName", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)

@@ -6,11 +6,23 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The user add model mapper.
+ */
 @Mapper
 public interface UserAddModelMapper {
 
+  /**
+   * The constant INSTANCE.
+   */
   UserAddModelMapper INSTANCE = Mappers.getMapper(UserAddModelMapper.class);
 
+  /**
+   * Map domain user.
+   *
+   * @param source the source
+   * @return the domain user
+   */
   @Mapping(target = "distinguishedName", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)

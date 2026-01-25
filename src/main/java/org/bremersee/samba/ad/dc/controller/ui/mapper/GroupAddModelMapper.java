@@ -6,11 +6,23 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The group add model mapper.
+ */
 @Mapper
 public interface GroupAddModelMapper {
 
+  /**
+   * The constant INSTANCE.
+   */
   GroupAddModelMapper INSTANCE = Mappers.getMapper(GroupAddModelMapper.class);
 
+  /**
+   * Map domain group.
+   *
+   * @param source the source
+   * @return the domain group
+   */
   @Mapping(target = "distinguishedName", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)

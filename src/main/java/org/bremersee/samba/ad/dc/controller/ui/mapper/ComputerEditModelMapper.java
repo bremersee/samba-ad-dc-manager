@@ -8,18 +8,44 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The computer edit model mapper.
+ */
 @Mapper
 public interface ComputerEditModelMapper {
 
+  /**
+   * The constant INSTANCE.
+   */
   ComputerEditModelMapper INSTANCE = Mappers.getMapper(ComputerEditModelMapper.class);
 
+  /**
+   * Map computer edit model.
+   *
+   * @param source the source
+   * @return the computer edit model
+   */
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
   ComputerEditModel map(DomainComputer source);
 
+  /**
+   * Merge domain computer.
+   *
+   * @param source the source
+   * @param existing the existing
+   * @return the domain computer
+   */
   default DomainComputer merge(ComputerEditModel source, DomainComputer existing) {
     return mergeInternal(source, DomainComputer.builder().from(existing));
   }
 
+  /**
+   * Merge internal domain computer.
+   *
+   * @param source the source
+   * @param target the target
+   * @return the domain computer
+   */
   @Mapping(target = "distinguishedName", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)

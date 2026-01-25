@@ -22,12 +22,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * The interface DnsZoneTypeComponent.
+ * The dns zone type component.
  *
  * @author Christian Bremer
  */
 public interface DnsZoneTypeComponent {
 
+  /**
+   * Add dns zone type to model.
+   *
+   * @param zoneType the zone type
+   * @return the zone type
+   */
   @ModelAttribute("zoneType")
   default String addDnsZoneType(
       @RequestParam(name = AbstractController.ZONE_TYPE,

@@ -13,11 +13,23 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The user edit model mapper.
+ */
 @Mapper
 public interface UserEditModelMapper {
 
+  /**
+   * The constant INSTANCE.
+   */
   UserEditModelMapper INSTANCE = Mappers.getMapper(UserEditModelMapper.class);
 
+  /**
+   * Map user edit model.
+   *
+   * @param source the source
+   * @return the user edit model
+   */
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
   @Mapping(target = "enabled", source = "accountControl.enabled")
   @Mapping(
@@ -30,15 +42,35 @@ public interface UserEditModelMapper {
   @Mapping(target = "accountExpiresIso", ignore = true)
   UserEditModel map(DomainUser source);
 
+  /**
+   * Map no expiry internal.
+   *
+   * @param source the source
+   * @return the boolean
+   */
   @Named("mapNoExpiry")
   default boolean mapNoExpiryInternal(DomainUser source) {
     return isNull(source.getAccountExpires());
   }
 
+  /**
+   * Merge domain user.
+   *
+   * @param source the source
+   * @param existingDomainUser the existing domain user
+   * @return the domain user
+   */
   default DomainUser merge(UserEditModel source, DomainUser existingDomainUser) {
     return mergeInternal(source, DomainUser.builder().from(existingDomainUser));
   }
 
+  /**
+   * Merge internal domain user.
+   *
+   * @param source the source
+   * @param target the target
+   * @return the domain user
+   */
   @Mapping(
       target = "accountExpires",
       source = "source",
@@ -57,6 +89,12 @@ public interface UserEditModelMapper {
       UserEditModel source,
       @MappingTarget ImmutableDomainUser.Builder target);
 
+  /**
+   * Merge account expires internal.
+   *
+   * @param source the source
+   * @return the offset date time
+   */
   @Named("mergeAccountExpiresInternal")
   default OffsetDateTime mergeAccountExpiresInternal(UserEditModel source) {
     if (source.isNoExpiry()) {
@@ -65,6 +103,12 @@ public interface UserEditModelMapper {
     return source.getAccountExpires();
   }
 
+  /**
+   * Merge account control internal.
+   *
+   * @param source the source
+   * @return the domain user account control
+   */
   @Named("mergeAccountControl")
   default DomainUserAccountControl mergeAccountControlInternal(UserEditModel source) {
     if (isNull(source)) {

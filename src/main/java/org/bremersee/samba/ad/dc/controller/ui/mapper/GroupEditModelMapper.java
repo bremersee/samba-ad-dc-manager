@@ -8,18 +8,44 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+/**
+ * The group edit model mapper.
+ */
 @Mapper
 public interface GroupEditModelMapper {
 
+  /**
+   * The constant INSTANCE.
+   */
   GroupEditModelMapper INSTANCE = Mappers.getMapper(GroupEditModelMapper.class);
 
+  /**
+   * Map group edit model.
+   *
+   * @param source the source
+   * @return the group edit model
+   */
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
   GroupEditModel map(DomainGroup source);
 
+  /**
+   * Merge domain group.
+   *
+   * @param source the source
+   * @param existing the existing
+   * @return the domain group
+   */
   default DomainGroup merge(GroupEditModel source, DomainGroup existing) {
     return mergeInternal(source, DomainGroup.builder().from(existing));
   }
 
+  /**
+   * Merge internal domain group.
+   *
+   * @param source the source
+   * @param target the target
+   * @return the domain group
+   */
   @Mapping(target = "distinguishedName", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "modified", ignore = true)

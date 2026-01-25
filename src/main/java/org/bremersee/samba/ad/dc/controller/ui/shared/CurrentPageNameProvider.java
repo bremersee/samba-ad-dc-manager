@@ -19,14 +19,24 @@ package org.bremersee.samba.ad.dc.controller.ui.shared;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
- * The interface CurrentPageProvider.
+ * The current page provider.
  *
  * @author Christian Bremer
  */
 public interface CurrentPageNameProvider {
 
+  /**
+   * Gets current page name.
+   *
+   * @return the current page name
+   */
   String getCurrentPageName();
 
+  /**
+   * Add current page name to model.
+   *
+   * @return the current page name
+   */
   @ModelAttribute("currentPage")
   default String addCurrentPageName() {
     return getCurrentPageName();
