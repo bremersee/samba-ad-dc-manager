@@ -16,17 +16,16 @@
 
 package org.bremersee.samba.ad.dc.controller.ui.model;
 
-import static java.util.Objects.nonNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.service.DnsService;
+import org.springframework.util.Assert;
 
 /**
  * The dns entry add model.
@@ -34,7 +33,6 @@ import org.bremersee.samba.ad.dc.service.DnsService;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class DnsEntryAddModel implements Serializable {
 
   @Serial
@@ -54,12 +52,24 @@ public class DnsEntryAddModel implements Serializable {
 
   private String valueOfReverseEntry;
 
+  /**
+   * Instantiates a new dns entry add model.
+   *
+   * @param zoneName the zone name
+   */
   public DnsEntryAddModel(String zoneName) {
-    if (nonNull(zoneName) && zoneName.toLowerCase().endsWith(DnsService.REVERSE_ZONE_POSTFIX)) {
+    Assert.hasText(zoneName, "Zone name is required.");
+    if (zoneName.toLowerCase().endsWith(DnsService.REVERSE_ZONE_POSTFIX)) {
       type = DnsEntryType.PTR;
     }
   }
 
+  /**
+   * To dns entry.
+   *
+   * @param zoneName the zone name
+   * @return the dns entry
+   */
   public DnsEntry toDnsEntry(String zoneName) {
     return DnsEntry.builder()
         .zoneName(zoneName)
@@ -69,6 +79,11 @@ public class DnsEntryAddModel implements Serializable {
         .build();
   }
 
+  /**
+   * To reverse dns entry.
+   *
+   * @return the optional reverse dns entry
+   */
   public Optional<DnsEntry> toReverseDnsEntry() {
     if (!addReverseEntry || isEmpty(reverseZoneName)
         || isEmpty(nameOfReverseEntry) || isEmpty(valueOfReverseEntry)

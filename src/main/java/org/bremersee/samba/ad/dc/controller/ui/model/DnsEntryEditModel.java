@@ -21,7 +21,6 @@ import static java.util.Objects.nonNull;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 
@@ -31,7 +30,6 @@ import org.bremersee.samba.ad.dc.model.DnsEntryType;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class DnsEntryEditModel implements Serializable {
 
   @Serial
@@ -49,10 +47,21 @@ public class DnsEntryEditModel implements Serializable {
 
   private String newValueOfReverseEntry;
 
+  /**
+   * Instantiates a new dns entry edit model.
+   *
+   * @param dnsEntry the dns entry
+   */
   public DnsEntryEditModel(DnsEntry dnsEntry) {
     this(dnsEntry, null);
   }
 
+  /**
+   * Instantiates a new dns entry edit model.
+   *
+   * @param dnsEntry the dns entry
+   * @param reverseDnsEntry the reverse dns entry
+   */
   public DnsEntryEditModel(DnsEntry dnsEntry, DnsEntry reverseDnsEntry) {
     this.newName = dnsEntry.getName();
     this.newType = dnsEntry.getType();
@@ -64,6 +73,12 @@ public class DnsEntryEditModel implements Serializable {
     }
   }
 
+  /**
+   * To new dns entry dns entry.
+   *
+   * @param zoneName the zone name
+   * @return the dns entry
+   */
   public DnsEntry toNewDnsEntry(String zoneName) {
     return DnsEntry.builder()
         .zoneName(zoneName)

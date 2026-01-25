@@ -19,7 +19,6 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * The dns entry delete model.
@@ -27,14 +26,25 @@ import lombok.NoArgsConstructor;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class DnsEntryDeleteModel implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The verification name.
+   */
   private String verificationName;
 
+  /**
+   * Specifies whether to delete the reverse entry or not.
+   */
   private boolean deleteReverseEntry;
 
+  /**
+   * Instantiates a new dns entry delete model.
+   */
+  public DnsEntryDeleteModel() {
+    super();
+  }
 }
