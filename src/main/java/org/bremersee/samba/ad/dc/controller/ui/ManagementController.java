@@ -32,6 +32,13 @@ import org.springframework.web.servlet.LocaleResolver;
 public class ManagementController extends UiController
     implements OrganizationalUnitComponent {
 
+  /**
+   * Instantiates a new management controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   */
   public ManagementController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -39,11 +46,21 @@ public class ManagementController extends UiController
     super(properties, localeResolver, domainService);
   }
 
+  /**
+   * Display management index view.
+   *
+   * @return the view
+   */
   @GetMapping("/management/index")
   public String displayManagementIndex() {
     return "management/index";
   }
 
+  /**
+   * Display management view.
+   *
+   * @return the view
+   */
   @GetMapping({"/management", "/management/"})
   public String displayManagement() {
     return "redirect:/management/index";

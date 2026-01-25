@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Management</title>
+  <title th:text="#{management.title}">Management</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -54,7 +54,7 @@
     <h3 th:text="#{samba-ad-dc-manager.label}">Samba AD DC Manager</h3>
   </div>
   <div class="d-flex justify-content-center mb-2">
-    <h6>of domain</h6>
+    <h6 th:text="#{management.of-domain}">of domain</h6>
   </div>
   <div class="d-flex justify-content-center mb-4">
     <h5 th:text="${domainInfo.domain}">bremersee.org</h5>
@@ -62,27 +62,33 @@
 
   <div class="d-grid gap-2 col-12 col-md-8 col-lg-6 mx-auto">
     <a class="btn btn-outline-secondary" href="users.html"
-       th:href="@{users(ou=${ou},scope=${scope})}">
+       th:href="@{users(ou=${ou},scope=${scope})}"
+       th:text="#{users.title}">
       Users
     </a>
     <a class="btn btn-outline-secondary" href="groups.html"
-       th:href="@{groups(ou=${ou},scope=${scope})}">
+       th:href="@{groups(ou=${ou},scope=${scope})}"
+       th:text="#{groups.title}">
       Groups
     </a>
     <a class="btn btn-outline-secondary" href="computers.html"
-       th:href="@{computers}">
+       th:href="@{computers}"
+       th:text="#{computers.title}">
       Computers
     </a>
     <a class="btn btn-outline-secondary" href="organizational-units.html"
-       th:href="@{organizational-units}">
+       th:href="@{organizational-units}"
+       th:text="#{organization-units.title}">
       Organizational Units
     </a>
     <a id="showDns" class="btn btn-outline-secondary show-spinner" href="dns-zones.html"
-       th:href="@{dns-zones}">
+       th:href="@{dns-zones}"
+       th:text="#{management.dns}">
       DNS
     </a>
     <a id="showDhcp" class="btn btn-outline-secondary show-spinner" href="dhcp-leases.html"
-       th:href="@{dhcp-leases}">
+       th:href="@{dhcp-leases}"
+       th:text="#{management.dhcp}">
       DHCP
     </a>
   </div>
