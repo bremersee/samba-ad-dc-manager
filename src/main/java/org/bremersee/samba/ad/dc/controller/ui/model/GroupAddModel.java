@@ -79,6 +79,13 @@ public class GroupAddModel implements Serializable {
 
   /**
    * Instantiates a new group add model.
+   */
+  public GroupAddModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new group add model.
    *
    * @param newOu the new ou
    */

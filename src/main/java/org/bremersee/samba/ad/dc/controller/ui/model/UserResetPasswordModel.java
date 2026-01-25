@@ -47,6 +47,13 @@ public class UserResetPasswordModel implements Serializable {
 
   /**
    * Instantiates a new user reset password model.
+   */
+  public UserResetPasswordModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new user reset password model.
    *
    * @param user the user
    */

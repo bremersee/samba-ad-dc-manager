@@ -21,6 +21,13 @@ public class PasswordChangeModel extends PasswordResetModel {
    */
   private String oldPassword;
 
+  /**
+   * Instantiates a new password change model.
+   */
+  public PasswordChangeModel() {
+    super();
+  }
+
   @Override
   public String toString() {
     return "PasswordChangeModel{"

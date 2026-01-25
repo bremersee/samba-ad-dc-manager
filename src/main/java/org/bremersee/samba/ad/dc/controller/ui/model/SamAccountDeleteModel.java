@@ -19,7 +19,6 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.SamAccount;
 
 /**
@@ -28,7 +27,6 @@ import org.bremersee.samba.ad.dc.model.SamAccount;
  * @author Christian Bremer
  */
 @Data
-@NoArgsConstructor
 public class SamAccountDeleteModel implements Serializable {
 
   @Serial
@@ -43,6 +41,13 @@ public class SamAccountDeleteModel implements Serializable {
    * The verification name.
    */
   private String verificationName;
+
+  /**
+   * Instantiates a new sam account delete model.
+   */
+  public SamAccountDeleteModel() {
+    super();
+  }
 
   /**
    * Instantiates a new sam account delete model.

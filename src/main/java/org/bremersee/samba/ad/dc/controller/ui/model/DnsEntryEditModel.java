@@ -49,6 +49,13 @@ public class DnsEntryEditModel implements Serializable {
 
   /**
    * Instantiates a new dns entry edit model.
+   */
+  public DnsEntryEditModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new dns entry edit model.
    *
    * @param dnsEntry the dns entry
    */

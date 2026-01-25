@@ -44,6 +44,13 @@ public class OrganizationalUnitDeleteModel implements Serializable {
 
   /**
    * Instantiates a new organizational unit delete model.
+   */
+  public OrganizationalUnitDeleteModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new organizational unit delete model.
    *
    * @param ou the organizational unit
    */

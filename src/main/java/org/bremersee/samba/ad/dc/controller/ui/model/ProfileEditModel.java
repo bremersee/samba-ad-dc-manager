@@ -21,6 +21,13 @@ public class ProfileEditModel implements Serializable {
 
   /**
    * Instantiates a new profile edit model.
+   */
+  public ProfileEditModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new profile edit model.
    *
    * @param user the user
    */

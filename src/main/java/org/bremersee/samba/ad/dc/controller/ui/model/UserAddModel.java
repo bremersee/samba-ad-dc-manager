@@ -57,6 +57,13 @@ public class UserAddModel extends UserModel implements Serializable {
 
   /**
    * Instantiates a new user add model.
+   */
+  public UserAddModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new user add model.
    *
    * @param properties the properties
    * @param passwordInformation the password information

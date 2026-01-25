@@ -68,8 +68,6 @@ class SambaStore {
 
   private final Map<DnsZone, List<DnsEntry>> dns;
 
-  // TODO primaryGroup bei NEUEN Usern geht nocht nicht richtig
-
   SambaStore(ApplicationProperties properties, Jackson2ObjectMapperBuilder objectMapperBuilder) {
     this.objectMapper = objectMapperBuilder.build();
     this.dnTool = new DefaultDnTool(properties);

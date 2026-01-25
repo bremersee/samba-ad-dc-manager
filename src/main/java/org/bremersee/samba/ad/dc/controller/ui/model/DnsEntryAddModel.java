@@ -54,6 +54,13 @@ public class DnsEntryAddModel implements Serializable {
 
   /**
    * Instantiates a new dns entry add model.
+   */
+  public DnsEntryAddModel() {
+    super();
+  }
+
+  /**
+   * Instantiates a new dns entry add model.
    *
    * @param zoneName the zone name
    */
