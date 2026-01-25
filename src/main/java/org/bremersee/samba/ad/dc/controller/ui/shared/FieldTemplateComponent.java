@@ -28,14 +28,28 @@ import org.springframework.lang.Nullable;
 import org.springframework.validation.BindingResult;
 
 /**
- * The interface FieldTemplateComponent.
+ * The field template component.
  *
  * @author Christian Bremer
  */
 public interface FieldTemplateComponent {
 
+  /**
+   * Gets template engine.
+   *
+   * @return the template engine
+   */
   TemplateEngine getTemplateEngine();
 
+  /**
+   * Process templated field.
+   *
+   * @param bindingResult the binding result
+   * @param fieldName the field name
+   * @param value the value
+   * @param context the context
+   * @return the processed field
+   */
   default String processTemplatedField(
       @NotNull BindingResult bindingResult,
       @NotEmpty String fieldName,

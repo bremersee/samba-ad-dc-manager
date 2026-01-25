@@ -25,16 +25,31 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The interface MessageProvider.
+ * The message provider.
  *
  * @author Christian Bremer
  */
 public interface MessageProvider extends MessageSourceAware {
 
+  /**
+   * Gets locale resolver.
+   *
+   * @return the locale resolver
+   */
   LocaleResolver getLocaleResolver();
 
+  /**
+   * Gets message source.
+   *
+   * @return the message source
+   */
   MessageSource getMessageSource();
 
+  /**
+   * Gets resolved locale.
+   *
+   * @return the resolved locale
+   */
   default Locale getResolvedLocale() {
     return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
         .filter(ServletRequestAttributes.class::isInstance)
@@ -44,10 +59,27 @@ public interface MessageProvider extends MessageSourceAware {
         .orElse(Locale.ENGLISH);
   }
 
+  /**
+   * Gets message.
+   *
+   * @param defaultMessage the default message
+   * @param code the code
+   * @param args the args
+   * @return the message
+   */
   default String getMessage(String defaultMessage, String code, Object... args) {
     return getMessageSource().getMessage(code, args, defaultMessage, getResolvedLocale());
   }
 
+  /**
+   * Gets redirect message.
+   *
+   * @param type the type
+   * @param defaultMessage the default message
+   * @param code the code
+   * @param args the args
+   * @return the redirect message
+   */
   default RedirectMessage getRedirectMessage(RedirectMessageType type,
       String defaultMessage, String code, Object... args) {
     return new RedirectMessage(getMessage(defaultMessage, code, args), type);

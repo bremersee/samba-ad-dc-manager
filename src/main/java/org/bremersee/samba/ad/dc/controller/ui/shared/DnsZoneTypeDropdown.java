@@ -27,7 +27,7 @@ import lombok.ToString;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
 
 /**
- * The type DnsZoneTypeDropdown.
+ * The dns zone type dropdown.
  *
  * @author Christian Bremer
  */
@@ -40,13 +40,26 @@ public class DnsZoneTypeDropdown implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The selected zone type.
+   */
   private final DnsZoneType selectedZoneType;
 
+  /**
+   * Instantiates a new dns zone type dropdown.
+   *
+   * @param selectedZoneType the selected zone type
+   */
   public DnsZoneTypeDropdown(DnsZoneType selectedZoneType) {
     this.selectedZoneType = Objects.requireNonNullElse(selectedZoneType, DnsZoneType.PRIMARY);
   }
 
-  public List<DnsZoneType> getSelectableZoneTypes() { // used in header-management.html
+  /**
+   * Gets selectable zone types.
+   *
+   * @return the selectable zone types
+   */
+  public List<DnsZoneType> getSelectableZoneTypes() { // used in header.html
     return Arrays.stream(DnsZoneType.values())
         .filter(zoneType -> zoneType != selectedZoneType)
         .toList();

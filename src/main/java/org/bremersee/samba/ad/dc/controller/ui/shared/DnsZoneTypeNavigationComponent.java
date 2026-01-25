@@ -22,12 +22,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * The interface DnsZoneTypeNavigationComponent.
+ * The dns zone type navigation component.
  *
  * @author Christian Bremer
  */
 public interface DnsZoneTypeNavigationComponent extends CurrentPageNameProvider, PageableComponent {
 
+  /**
+   * Gets zone type dropdown.
+   *
+   * @param zoneType the zone type
+   * @return the zone type dropdown
+   */
   @ModelAttribute("zoneTypeDropdown")
   default DnsZoneTypeDropdown getZoneTypeDropdown(
       @RequestParam(name = AbstractController.ZONE_TYPE,

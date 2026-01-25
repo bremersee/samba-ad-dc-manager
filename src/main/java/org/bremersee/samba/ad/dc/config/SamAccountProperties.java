@@ -10,6 +10,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 
+/**
+ * The type Sam account properties.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -28,6 +31,9 @@ abstract class SamAccountProperties implements Serializable {
   @Min(1)
   private int minQueryLength = 2;
 
+  /**
+   * Instantiates a new Sam account properties.
+   */
   SamAccountProperties() {
     super();
   }

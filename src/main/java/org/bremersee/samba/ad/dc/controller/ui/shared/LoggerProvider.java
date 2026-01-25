@@ -19,12 +19,17 @@ package org.bremersee.samba.ad.dc.controller.ui.shared;
 import org.slf4j.Logger;
 
 /**
- * The interface LoggerProvider.
+ * The logger provider.
  *
  * @author Christian Bremer
  */
 public interface LoggerProvider {
 
+  /**
+   * Gets logger.
+   *
+   * @return the logger
+   */
   Logger getLogger();
 
 }
