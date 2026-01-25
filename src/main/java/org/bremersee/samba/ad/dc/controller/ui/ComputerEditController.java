@@ -231,7 +231,7 @@ public class ComputerEditController extends UiController implements PageableComp
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("newOu", "ec.ou-not-found",
+        bindingResult.rejectValue("newOu", "ec.ou.not-found",
             "Organizational unit was not found.");
         break;
       }

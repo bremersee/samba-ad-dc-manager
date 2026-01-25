@@ -42,7 +42,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type OrganizationalUnitAddController.
+ * The organizational unit add controller.
  *
  * @author Christian Bremer
  */
@@ -52,6 +52,14 @@ public class OrganizationalUnitAddController extends UiController
 
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new organizational unit add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param organizationalUnitService the organizational unit service
+   */
   public OrganizationalUnitAddController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -66,8 +74,13 @@ public class OrganizationalUnitAddController extends UiController
     return OU_SORT;
   }
 
+  /**
+   * Add organizational units.
+   *
+   * @return the list
+   */
   @ModelAttribute("ous")
-  public List<OrganizationalUnit> addOrganisationalUnits() {
+  public List<OrganizationalUnit> addOrganizationalUnits() {
     Stream<OrganizationalUnit> baseStream = Stream.of(organizationalUnitService.getBase());
     Stream<OrganizationalUnit> otherParentsStream = organizationalUnitService
         .getOrganizationalUnits()
@@ -75,6 +88,12 @@ public class OrganizationalUnitAddController extends UiController
     return Stream.concat(baseStream, otherParentsStream).toList();
   }
 
+  /**
+   * Display organizational unit add view.
+   *
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/organizational-unit-add")
   public String displayOrganizationalUnitAdd(ModelMap model) {
     getLogger().debug("displayOrganizationalUnitAdd()");
@@ -84,6 +103,15 @@ public class OrganizationalUnitAddController extends UiController
     return "management/organizational-unit-add";
   }
 
+  /**
+   * Add organizational unit.
+   *
+   * @param addModel the add model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/organizational-unit-add")
   public String addOrganizationalUnit(
       @ModelAttribute(name = "addModel") OrganizationalUnitAddModel addModel,
@@ -112,7 +140,7 @@ public class OrganizationalUnitAddController extends UiController
     String name = addedOu.getName();
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
         String.format("Organizational unit '%s' was successfully added.", name),
-        "todo", name);
+        "organization-unit-add.success", name);
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     Map<String, Object> parameters = getParamterMap();
@@ -132,17 +160,17 @@ public class OrganizationalUnitAddController extends UiController
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_OU_NAME_REQUIRED: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("name", "ec.ou-name.required",
             "Name of organizational unit is required.");
         break;
       }
       case EC_ILLEGAL_OU_NAME: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("name", "ec.ou-name.illegal",
             "Name of organizational unit contains illegal characters.");
         break;
       }
       case EC_OU_ALREADY_EXISTS: {
-        bindingResult.rejectValue("name", "code",
+        bindingResult.rejectValue("name", "ec.ou.already-exists",
             "Organizational unit already exists.");
         break;
       }

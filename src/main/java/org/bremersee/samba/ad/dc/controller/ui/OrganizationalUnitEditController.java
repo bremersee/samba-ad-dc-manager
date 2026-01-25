@@ -56,8 +56,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class OrganizationalUnitEditController extends UiController
     implements PageableComponent, RedirectComponent {
 
+  private static final String NEW_NAME = "newName";
+
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new organizational unit edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param organizationalUnitService the organizational unit service
+   */
   public OrganizationalUnitEditController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -72,8 +82,14 @@ public class OrganizationalUnitEditController extends UiController
     return OU_SORT;
   }
 
+  /**
+   * Add organizational units.
+   *
+   * @param ouDn the ou dn
+   * @return the list
+   */
   @ModelAttribute("ous")
-  public List<OrganizationalUnit> addOrganisationalUnits(
+  public List<OrganizationalUnit> addOrganizationalUnits(
       @RequestParam(value = "name", required = false) Dn ouDn) {
     Stream<OrganizationalUnit> baseStream = Stream.of(organizationalUnitService.getBase());
     Stream<OrganizationalUnit> otherParentsStream = organizationalUnitService
@@ -83,6 +99,14 @@ public class OrganizationalUnitEditController extends UiController
     return Stream.concat(baseStream, otherParentsStream).toList();
   }
 
+  /**
+   * Display organizational unit edit view.
+   *
+   * @param ouDn the ou dn
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/organizational-unit-edit")
   public String displayOrganizationalUnitEdit(
       @RequestParam(value = "name", required = false) Dn ouDn,
@@ -107,10 +131,19 @@ public class OrganizationalUnitEditController extends UiController
           return "management/organizational-unit-edit";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name,
+            redirectAttributes, "Organizational Unit", "organizational-unit.not-found", name,
             PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
+  /**
+   * Update organizational unit.
+   *
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/organizational-unit-edit")
   public String updateOrganizationalUnit(
       @ModelAttribute(name = "editModel") OrganizationalUnitEditModel editModel,
@@ -133,7 +166,7 @@ public class OrganizationalUnitEditController extends UiController
         .map(ou -> updateOrganizationalUnit(
             ou, editModel, model, bindingResult, redirectAttributes))
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name,
+            redirectAttributes, "Organizational Unit", "organizational-unit.not-found", name,
             PAGE_AND_OU_PARAMS, "organizational-units"));
   }
 
@@ -159,7 +192,7 @@ public class OrganizationalUnitEditController extends UiController
     String newName = updatedOu.getName();
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
         String.format("Organizational unit '%s' was successfully updated.", newName),
-        "todo", newName);
+        "organization-unit-edit.success", newName);
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     Map<String, Object> parameters = getParamterMap();
@@ -179,26 +212,26 @@ public class OrganizationalUnitEditController extends UiController
     String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_OU_NAME_REQUIRED: {
-        bindingResult.rejectValue("newName", "code",
+        bindingResult.rejectValue(NEW_NAME, "ec.ou-name.required",
             "Name of organizational unit is required.");
         break;
       }
       case EC_ILLEGAL_OU_NAME: {
-        bindingResult.rejectValue("newName", "code",
+        bindingResult.rejectValue(NEW_NAME, "ec.ou-name.illegal",
             "Name of organizational unit contains illegal characters.");
         break;
       }
       case EC_OU_ALREADY_EXISTS: {
-        bindingResult.rejectValue("newName", "code",
+        bindingResult.rejectValue(NEW_NAME, "ec.ou.already-exists",
             "Organizational unit already exists.");
-        bindingResult.rejectValue("parentOu", "code",
+        bindingResult.rejectValue("parentOu", "ec.ou.already-exists",
             "Organizational unit already exists.");
         break;
       }
       case EC_ILLEGAL_SYSTEM_ENTITY_OPERATION: {
-        bindingResult.rejectValue("newName", "code",
+        bindingResult.rejectValue(NEW_NAME, "organization-unit-edit.illegal-operation",
             "Organizational unit is a critical system object. Moving and renaming is not permitted.");
-        bindingResult.rejectValue("parentOu", "code",
+        bindingResult.rejectValue("parentOu", "organization-unit-edit.illegal-operation",
             "Organizational unit is a critical system object. Moving and renaming is not permitted.");
         break;
       }

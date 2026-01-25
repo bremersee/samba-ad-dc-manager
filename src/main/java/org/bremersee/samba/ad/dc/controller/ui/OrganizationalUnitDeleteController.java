@@ -40,7 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type OrganizationalUnitAddController.
+ * The organizational unit delete controller.
  *
  * @author Christian Bremer
  */
@@ -48,8 +48,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class OrganizationalUnitDeleteController extends UiController
     implements PageableComponent, RedirectComponent {
 
+  private static final String ORGANIZATIONAL_UNITS = "organizational-units";
+
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new organizational unit delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param organizationalUnitService the organizational unit service
+   */
   public OrganizationalUnitDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -64,6 +74,14 @@ public class OrganizationalUnitDeleteController extends UiController
     return OU_SORT;
   }
 
+  /**
+   * Display organizational unit delete view.
+   *
+   * @param ouDn the ou dn
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/organizational-unit-delete")
   public String displayOrganizationalUnitDelete(
       @RequestParam(value = "name", required = false) Dn ouDn,
@@ -89,10 +107,19 @@ public class OrganizationalUnitDeleteController extends UiController
           return "management/organizational-unit-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS,
-            "organizational-units"));
+            redirectAttributes, "Organizational Unit", "organizational-unit.not-found", name,
+            PAGE_AND_OU_PARAMS, ORGANIZATIONAL_UNITS));
   }
 
+  /**
+   * Delete organizational unit.
+   *
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/organizational-unit-delete")
   public String deleteOrganizationalUnit(
       @ModelAttribute(name = "deleteModel") OrganizationalUnitDeleteModel deleteModel,
@@ -112,7 +139,8 @@ public class OrganizationalUnitDeleteController extends UiController
         .flatMap(organizationalUnitService::getOrganizationalUnit)
         .map(ou -> {
           if (!ou.getName().equalsIgnoreCase(deleteModel.getVerificationName())) {
-            bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
+            bindingResult.rejectValue("verificationName",
+                "organization-unit-delete.name-does-not-match", "The name doesn't match.");
             model.addAttribute("organizationalUnit", ou);
             boolean hasChildren = organizationalUnitService.hasChildren(ou.getDn());
             model.addAttribute("hasChildren", hasChildren);
@@ -126,22 +154,22 @@ public class OrganizationalUnitDeleteController extends UiController
           if (result) {
             rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
                 String.format("Organizational unit '%s' was successfully deleted.", name),
-                "todo", name);
+                "organization-unit-delete.success", name);
           } else {
             rmsg = getRedirectMessage(RedirectMessageType.WARNING,
                 String.format("Somehow the organizational unit '%s' was not deleted.", name),
-                "todo", name);
+                "organization-unit-delete.failure", name);
           }
           redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
           Map<String, Object> parameters = getParamterMap();
-          String redirect = getRedirectUri("organizational-units", PAGE_AND_OU_PARAMS, parameters);
+          String redirect = getRedirectUri(ORGANIZATIONAL_UNITS, PAGE_AND_OU_PARAMS, parameters);
           logRedirectTo("Organizational unit successfully deleted.", redirect);
           return redirect;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Organizational Unit", "todo", name, PAGE_AND_OU_PARAMS,
-            "organizational-units"));
+            redirectAttributes, "Organizational Unit", "organizational-unit.not-found", name,
+            PAGE_AND_OU_PARAMS, ORGANIZATIONAL_UNITS));
   }
 
 }

@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Edit organizational unit</title>
+  <title th:text="#{organization-unit-edit.title}">Edit organizational unit</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -65,8 +65,15 @@
         </span>
       </a>
     </div>
-    <div class="col d-flex justify-content-center">
-      <h3>Edit organizational unit</h3>
+    <div class="col">
+      <div class="container">
+        <div class="d-flex justify-content-center">
+          <h3 class="small" th:text="#{organization-unit-edit.header}">Edit organization unit</h3>
+        </div>
+        <div class="d-flex justify-content-center">
+          <h3 th:text="${organizationalUnit.name}">Users</h3>
+        </div>
+      </div>
     </div>
     <div class="col-1"></div>
   </div>
@@ -101,7 +108,9 @@
       <input type="hidden" name="ou" th:field="*{ou}"/>
 
       <div class="mb-3">
-        <label for="parentOu" class="form-label">Parent Organizational Unit</label>
+        <label for="parentOu" class="form-label" th:text="#{organization-unit.parent-ou.label}">
+          Parent Organizational Unit
+        </label>
         <select id="parentOu" class="form-select" aria-label="Organizational Unit"
                 aria-describedby="parentOuValidation"
                 th:readonly="${organizationalUnit.systemOu}"
@@ -118,7 +127,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="newName" class="form-label">Name</label>
+        <label for="newName" class="form-label" th:text="#{common.name.label}">Name</label>
         <input type="text" class="form-control" id="newName" name="newName"
                aria-describedby="newNameValidation" required th:field="*{newName}"
                th:readonly="${organizationalUnit.systemOu}"
@@ -129,7 +138,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label" th:text="#{common.description.label}">Description</label>
         <input type="text" class="form-control" id="description" name="description"
                aria-describedby="descriptionValidation" th:field="*{description}"
                th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"/>
@@ -138,12 +147,12 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-3">
+      <button type="submit" class="btn btn-primary mt-3 mb-5" th:text="#{common.save}">
         Update
       </button>
       <a href="organizational-units.html"
          th:href="@{organizational-units(page=${page},size=${size},q=${q})}"
-         class="btn btn-secondary ml-3 mt-3">
+         class="btn btn-secondary ml-3 mt-3 mb-5" th:text="#{common.cancel}">
         Cancel
       </a>
     </form>

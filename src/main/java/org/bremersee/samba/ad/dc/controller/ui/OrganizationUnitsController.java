@@ -41,6 +41,14 @@ public class OrganizationUnitsController extends UiController
 
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new organization units controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param organizationalUnitService the organizational unit service
+   */
   public OrganizationUnitsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -60,6 +68,15 @@ public class OrganizationUnitsController extends UiController
     return "organizational-units";
   }
 
+  /**
+   * Display organizational units view.
+   *
+   * @param page the page
+   * @param size the size
+   * @param query the query
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/organizational-units")
   public String displayOrganizationalUnits(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
