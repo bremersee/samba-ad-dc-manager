@@ -40,6 +40,11 @@ bremersee:
       template: active_directory
       user-base-dn: ${bremersee.dc.base-dn}
       user-find-one-search-scope: subtree
+      #
+      # After a user with group 'samba-admins' is defined, I would refuse the login of default account 'Administrator'.
+      #
+      #refused-usernames:
+      #  - "Administrator"
       role-prefix: "ROLE_"
       role-case-transformation: to_upper_case
       role-string-replacements:
