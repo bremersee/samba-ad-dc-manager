@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.AbstractController;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupEditModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditModel;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -56,7 +56,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 public class GroupEditController extends UiController implements PageableComponent,
-    OrganizationalUnitComponent, OrganisationalUnitsComponent {
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
 
   private final DomainGroupService domainGroupService;
 

@@ -25,7 +25,7 @@ import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.comparator.spring.web.SortOrderRequestParam;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
@@ -54,7 +54,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 public class GroupEditMembersController extends UiController implements PageableComponent,
-    CurrentPageNameProvider, OrganizationalUnitComponent, OrganisationalUnitsComponent {
+    CurrentPageNameProvider, OrganizationalUnitComponent, OrganizationalUnitsComponent {
 
   private final DomainGroupService domainGroupService;
 

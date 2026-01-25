@@ -6,9 +6,9 @@ import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
- * The rganizational units component.
+ * The organizational units component.
  */
-public interface OrganisationalUnitsComponent {
+public interface OrganizationalUnitsComponent {
 
   /**
    * Gets organizational unit service.
@@ -23,7 +23,7 @@ public interface OrganisationalUnitsComponent {
    * @return the list
    */
   @ModelAttribute("ous")
-  default List<OrganizationalUnit> addOrganisationalUnits() {
+  default List<OrganizationalUnit> addOrganizationalUnits() {
     return getOrganizationalUnitService().getOrganizationalUnitsWithSystemOus()
         .toList();
   }

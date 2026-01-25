@@ -29,7 +29,7 @@ import org.bremersee.samba.ad.dc.config.DomainUserProperties;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.UserAddModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.UserAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.FieldTemplateComponent;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -63,7 +63,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class UserAddController extends UiController
     implements PageableComponent, RedirectComponent, FieldTemplateComponent,
-    OrganizationalUnitComponent, OrganisationalUnitsComponent {
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
 
   private static final String ADD_USER_VIEW = "management/user-add";
 

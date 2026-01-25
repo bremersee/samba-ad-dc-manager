@@ -29,7 +29,7 @@ import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.UserEditModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.UserEditModel;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
@@ -62,7 +62,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 public class UserEditController extends UiController implements PageableComponent,
-    OrganizationalUnitComponent, OrganisationalUnitsComponent {
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
 
   private static final String SAM_ACCOUNT_NAME = "samAccountName";
 

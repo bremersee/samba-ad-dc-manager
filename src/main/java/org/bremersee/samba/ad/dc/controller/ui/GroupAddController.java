@@ -26,7 +26,7 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupAddModelMapper;
 import org.bremersee.samba.ad.dc.controller.ui.model.GroupAddModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.DomainGroupTypesComponent;
-import org.bremersee.samba.ad.dc.controller.ui.shared.OrganisationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
@@ -57,7 +57,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class GroupAddController extends UiController
     implements PageableComponent, RedirectComponent, DomainGroupTypesComponent,
-    OrganizationalUnitComponent, OrganisationalUnitsComponent {
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
 
   private final DomainGroupService domainGroupService;
 
