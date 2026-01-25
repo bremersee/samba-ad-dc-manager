@@ -34,7 +34,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type GroupsController.
+ * The group memberships controller.
  *
  * @author Christian Bremer
  */
@@ -44,6 +44,14 @@ public class GroupMembershipsController extends UiController
 
   private final DomainGroupService domainGroupService;
 
+  /**
+   * Instantiates a new group memberships controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   */
   public GroupMembershipsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -58,6 +66,16 @@ public class GroupMembershipsController extends UiController
     return GROUP_SORT;
   }
 
+  /**
+   * Display group edit memberships direct view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/group-memberships-direct")
   public String displayGroupEditMembershipsDirect(
       @RequestParam(value = "name", required = false) String groupName,
@@ -70,6 +88,16 @@ public class GroupMembershipsController extends UiController
         true, groupName, ou, searchScope, model, redirectAttributes);
   }
 
+  /**
+   * Display group edit memberships resolved view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/group-memberships-resolved")
   public String displayGroupEditMembershipsResolved(
       @RequestParam(value = "name", required = false) String groupName,
@@ -107,7 +135,7 @@ public class GroupMembershipsController extends UiController
           return page;
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
+            redirectAttributes, "Group", "group.not-found", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
 }

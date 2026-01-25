@@ -48,7 +48,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type UsersController.
+ * The group edit members controller.
  *
  * @author Christian Bremer
  */
@@ -61,6 +61,15 @@ public class GroupEditMembersController extends UiController implements Pageable
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new group edit members controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
   public GroupEditMembersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -82,6 +91,14 @@ public class GroupEditMembersController extends UiController implements Pageable
     return "group-edit-members";
   }
 
+  /**
+   * Modify member.
+   *
+   * @param groupName the group name
+   * @param member the member
+   * @param add the add
+   * @return the http response
+   */
   @PostMapping(path = "/management/group-edit-members")
   public ResponseEntity<Void> modifyMember(
       @RequestParam(value = "name") String groupName,
@@ -99,6 +116,24 @@ public class GroupEditMembersController extends UiController implements Pageable
     return ResponseEntity.ok().build();
   }
 
+  /**
+   * Display group edit members view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param withPrimaryMembers the with primary members
+   * @param typeComputer the type computer
+   * @param typeGroup the type group
+   * @param typeUser the type user
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/group-edit-members")
   public String displayGroupEditMembers(
       @RequestParam(value = "name", required = false) String groupName,
@@ -107,7 +142,8 @@ public class GroupEditMembersController extends UiController implements Pageable
 
       @RequestParam(name = "member-" + PAGE, defaultValue = PAGE_DEFAULT) int page,
       @RequestParam(name = "member-" + SIZE, defaultValue = "10") int size,
-      @SortOrderRequestParam(name = "member-" + SORT, defaultSort = "displayName") SortOrder sort,
+      @SortOrderRequestParam(name = "member-" + SORT, defaultSort = "member,desc;displayName")
+      SortOrder sort,
       @RequestParam(name = "member-" + QUERY, defaultValue = "") String query,
       @RequestParam(name = "member-primary", defaultValue = "true") boolean withPrimaryMembers,
       @RequestParam(name = "member-type-computer", defaultValue = "true") boolean typeComputer,
@@ -146,8 +182,9 @@ public class GroupEditMembersController extends UiController implements Pageable
           model.addAttribute("memberPage", memberPage);
           return "management/group-edit-members";
         })
-        .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
+        .orElseGet(
+            () -> entityNotFoundRedirect(redirectAttributes, "Group", "group.not-found", groupName,
+                PAGE_AND_OU_PARAMS, GROUPS));
   }
 
   private Set<DomainGroupMemberType> getMemberTypes(

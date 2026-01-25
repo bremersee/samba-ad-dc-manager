@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.LocaleResolver;
 
 /**
- * The type UsersController.
+ * The group list controller.
  *
  * @author Christian Bremer
  */
@@ -51,6 +51,15 @@ public class GroupsController extends UiController
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new group list controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
   public GroupsController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -77,6 +86,18 @@ public class GroupsController extends UiController
     return "groups";
   }
 
+  /**
+   * Display groups view.
+   *
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/groups")
   public String displayGroups(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,

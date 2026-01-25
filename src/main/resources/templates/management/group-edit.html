@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Edit group</title>
+  <title th:text="#{group-edit.title}">Edit group</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -71,7 +71,7 @@
       <div class="col">
         <div class="container">
           <div class="d-flex justify-content-center">
-            <h3 class="small">Edit group</h3>
+            <h3 class="small" th:text="#{group-edit.header}">Edit group</h3>
           </div>
           <div class="d-flex justify-content-center">
             <h3 th:text="${group.name}">Domain Users</h3>
@@ -90,7 +90,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="group-edit-members.html"
+        <a class="nav-link" href="group-edit-members.html" th:title="#{group-edit-members.title}"
            th:href="@{group-edit-members(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
           <span class="fa fa-people-group" aria-hidden="true">
             <span style="display: none;">Members</span>
@@ -130,7 +130,7 @@
       <input type="hidden" name="name" th:value="${group.samAccountName}"/>
 
       <div class="mb-3">
-        <label for="newOu" class="form-label">Organizational Unit</label>
+        <label for="newOu" class="form-label" th:text="#{common.ou.label}">Organizational Unit</label>
         <select id="newOu" class="form-select" aria-label="Organizational Unit"
                 aria-describedby="newOuValidation"
                 th:classappend="${#fields.hasErrors('newOu')} ? 'is-invalid' : ''"
@@ -145,7 +145,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="samAccountName" class="form-label">Group name</label>
+        <label for="samAccountName" class="form-label" th:text="#{group.name.label}">
+          Group name
+        </label>
         <input type="text" class="form-control" id="samAccountName" name="samAccountName"
                aria-describedby="samAccountNameValidation" required th:field="*{samAccountName}"
                th:classappend="${#fields.hasErrors('samAccountName')} ? 'is-invalid' : ''"/>
@@ -156,28 +158,28 @@
 
       <div class="row mb-3" th:if="${group.groupType.scope != null}">
         <div class="col">
-          <label for="groupScope" class="form-label">Group scope</label>
+          <label for="groupScope" class="form-label" th:text="#{group.scope.label}">Group scope</label>
           <input type="text" class="form-control" id="groupScope" disabled
                  th:value="#{${group.groupType.scope.i18nCode}}" />
         </div>
         <div class="col">
-          <label for="groupPurpose" class="form-label">Group purpose</label>
+          <label for="groupPurpose" class="form-label" th:text="#{group.purpose.label}">Group purpose</label>
           <input type="text" class="form-control" id="groupPurpose" disabled
                  th:value="#{${group.groupType.purpose.i18nCode}}" />
         </div>
       </div>
 
       <div class="mb-3" th:if="${group.groupType.scope == null}">
-        <label for="groupType" class="form-label">Group type</label>
+        <label for="groupType" class="form-label" th:text="#{group.type.label}">Group type</label>
         <input type="number" class="form-control" id="groupType" name="groupType" disabled
                value="1234" th:value="${group.groupType.value}" />
-        <div class="small text-secondary mt-2">
+        <div class="small text-secondary mt-2" th:text="#{group.type.unknown}">
           Group type is unknown.
         </div>
       </div>
 
       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
+        <label for="email" class="form-label" th:text="#{common.email.label}">Email</label>
         <input type="email" class="form-control" id="email" name="email"
                aria-describedby="emailValidation" th:field="*{email}"
                th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"/>
@@ -187,14 +189,14 @@
       </div>
 
       <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label" th:text="#{common.description.label}">Description</label>
         <input type="text" class="form-control" id="description" name="description"
                th:field="*{description}" />
       </div>
 
       <div th:if="${rfc2307Enabled}">
         <div class="mb-3">
-          <label for="gidNumber" class="form-label">
+          <label for="gidNumber" class="form-label" th:text="#{group.gid-number.label}">
             Group's Unix/RFC2307 GID number
           </label>
           <input type="number" class="form-control" id="gidNumber" name="gidNumber"
@@ -206,7 +208,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="nisDomain" class="form-label">
+          <label for="nisDomain" class="form-label" th:text="#{group.nis-domain.label}">
             Group's Unix/RFC2307 NIS domain
           </label>
           <input type="text" class="form-control" id="nisDomain"
@@ -214,11 +216,11 @@
         </div>
       </div> <!-- end of rfc2307Enabled -->
 
-      <button type="submit" class="btn btn-primary mt-3">
+      <button type="submit" class="btn btn-primary mt-3 mb-5" th:text="#{common.save}">
         Update
       </button>
       <a href="groups.html" th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-         class="btn btn-secondary ml-3 mt-3">
+         class="btn btn-secondary ml-3 mt-3 mb-5" th:text="#{common.cancel}">
         Cancel
       </a>
     </form>

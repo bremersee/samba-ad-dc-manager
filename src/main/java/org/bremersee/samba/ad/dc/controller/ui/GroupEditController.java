@@ -63,6 +63,15 @@ public class GroupEditController extends UiController implements PageableCompone
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new group edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
   public GroupEditController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -79,11 +88,26 @@ public class GroupEditController extends UiController implements PageableCompone
     return GROUP_SORT;
   }
 
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
     return getDomainService().isRfc2307Enabled();
   }
 
+  /**
+   * Display group edit view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/group-edit")
   public String displayGroupEdit(
       @RequestParam(value = "name", required = false) String groupName,
@@ -103,12 +127,24 @@ public class GroupEditController extends UiController implements PageableCompone
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Group",
-            "todo",
+            "group.not-found",
             groupName,
             PAGE_AND_OU_PARAMS,
             GROUPS));
   }
 
+  /**
+   * Update group.
+   *
+   * @param oldSamAccountName the old sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/group-edit")
   public String updateGroup(
       @RequestParam(value = "name", required = false) String oldSamAccountName,
@@ -129,7 +165,7 @@ public class GroupEditController extends UiController implements PageableCompone
         .orElseGet(() -> entityNotFoundRedirect(
             redirectAttributes,
             "Group",
-            "todo",
+            "group.not-found",
             oldSamAccountName,
             PAGE_AND_OU_PARAMS,
             GROUPS));
@@ -154,7 +190,7 @@ public class GroupEditController extends UiController implements PageableCompone
       model.clear();
       String msg = String.format("Group '%s' was successfully updated.", updatedGroup.getName());
       RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,
-          "i18n.group.edited", updatedGroup.getName());
+          "group-edit.success", updatedGroup.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
       Map<String, Object> parameters = getParamterMap(updatedGroup.getDn().getParent());
@@ -186,42 +222,42 @@ public class GroupEditController extends UiController implements PageableCompone
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.required",
             "Group name is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.illegal",
             "Group name contains illegal characters.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
-            "Group name already exists.");
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.already-exists",
+            "Group already exists.");
         break;
       }
       case EC_GID_NUMBER_ALREADY_EXISTS: {
-        bindingResult.rejectValue("gidNumber", "code",
+        bindingResult.rejectValue("gidNumber", "group.gid-number.already-exists",
             "Unix GID number already exists.");
         break;
       }
       case EC_DN_ALREADY_EXISTS: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.already-exists",
             "Distinguished name already exists.");
         break;
       }
       case EC_EMAIL_INVALID: {
-        bindingResult.rejectValue("email", "code",
+        bindingResult.rejectValue("email", "common.email.invalid",
             "Email is invalid.");
         break;
       }
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "common.ou.required",
             "Organizational unit is empty.");
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "common.ou.not-found",
             "Organizational unit was not found.");
         break;
       }

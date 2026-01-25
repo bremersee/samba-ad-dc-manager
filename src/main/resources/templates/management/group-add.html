@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <title>Users</title>
+  <title th:text="#{group-add.title}">Add group</title>
   <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
         th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
   <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
@@ -58,7 +58,7 @@
       </a>
     </div>
     <div class="col d-flex justify-content-center">
-      <h3>Add group</h3>
+      <h3 th:text="#{group-add.header}">Add group</h3>
     </div>
     <div class="col-1"></div>
   </div>
@@ -73,7 +73,9 @@
       <input type="hidden" name="scope" th:value="${scope}"/>
 
       <div class="mb-3">
-        <label for="newOu" class="form-label">Organizational Unit</label>
+        <label for="newOu" class="form-label" th:text="#{common.ou.label}">
+          Organizational Unit
+        </label>
         <select id="newOu" class="form-select" aria-label="Organizational Unit"
                 aria-describedby="newOuValidation"
                 th:classappend="${#fields.hasErrors('newOu')} ? 'is-invalid' : ''"
@@ -88,7 +90,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="samAccountName" class="form-label">Group name</label>
+        <label for="samAccountName" class="form-label" th:text="#{group.name.label}">
+          Group name
+        </label>
         <input type="text" class="form-control" id="samAccountName" name="samAccountName"
                aria-describedby="samAccountNameValidation" required
                th:field="*{samAccountName}"
@@ -99,7 +103,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="groupScope" class="form-label">Group Scope</label>
+        <label for="groupScope" class="form-label" th:text="#{group.scope.label}">
+          Group Scope
+        </label>
         <select id="groupScope" class="form-select" aria-label="Group Scope"
                 aria-describedby="groupScopeValidation"
                 th:classappend="${#fields.hasErrors('groupScope')} ? 'is-invalid' : ''"
@@ -114,7 +120,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="groupType" class="form-label">Group Type</label>
+        <label for="groupType" class="form-label" th:text="#{group.purpose.label}">
+          Group Type
+        </label>
         <select id="groupType" class="form-select" aria-label="Group Type"
                 aria-describedby="groupTypeValidation"
                 th:classappend="${#fields.hasErrors('groupPurpose')} ? 'is-invalid' : ''"
@@ -129,7 +137,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
+        <label for="email" class="form-label" th:text="#{common.email.label}">Email</label>
         <input type="email" class="form-control" id="email" name="email"
                aria-describedby="emailValidation" th:field="*{email}"
                th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"/>
@@ -139,14 +147,14 @@
       </div>
 
       <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label" th:text="#{common.description.label}">Description</label>
         <input type="text" class="form-control" id="description" name="description"
                th:field="*{description}" />
       </div>
 
       <div th:if="${rfc2307Enabled}">
         <div class="mb-3">
-          <label for="gidNumber" class="form-label">
+          <label for="gidNumber" class="form-label" th:text="#{group.gid-number.label}">
             Group's Unix/RFC2307 GID number
           </label>
           <input type="number" class="form-control" id="gidNumber" name="gidNumber"
@@ -158,7 +166,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="nisDomain" class="form-label">
+          <label for="nisDomain" class="form-label" th:text="#{group.nis-domain.label}">
             Group's Unix/RFC2307 NIS domain
           </label>
           <input type="text" class="form-control" id="nisDomain"
@@ -166,11 +174,11 @@
         </div>
       </div> <!-- end of rfc2307Enabled -->
 
-      <button type="submit" class="btn btn-primary mt-3">
+      <button type="submit" class="btn btn-primary mt-3 mb-5" th:text="#{common.add}">
         Add
       </button>
       <a href="groups.html" th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}"
-         class="btn btn-secondary ml-3 mt-3">
+         class="btn btn-secondary ml-3 mt-3 mb-5" th:text="#{common.cancel}">
         Cancel
       </a>
     </form>

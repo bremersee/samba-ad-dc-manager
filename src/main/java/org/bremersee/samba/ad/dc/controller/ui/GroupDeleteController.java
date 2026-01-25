@@ -40,7 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * The type GroupsController.
+ * The group delete controller.
  *
  * @author Christian Bremer
  */
@@ -50,6 +50,14 @@ public class GroupDeleteController extends UiController implements PageableCompo
 
   private final DomainGroupService domainGroupService;
 
+  /**
+   * Instantiates a new group delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   */
   public GroupDeleteController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -64,6 +72,16 @@ public class GroupDeleteController extends UiController implements PageableCompo
     return GROUP_SORT;
   }
 
+  /**
+   * Display group delete view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @GetMapping(path = "/management/group-delete")
   public String displayGroupDelete(
       @RequestParam(value = "name", required = false) String groupName,
@@ -80,9 +98,20 @@ public class GroupDeleteController extends UiController implements PageableCompo
           return "management/group-delete";
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", groupName, PAGE_AND_OU_PARAMS, GROUPS));
+            redirectAttributes, "Group", "group.not-found", groupName, PAGE_AND_OU_PARAMS, GROUPS));
   }
 
+  /**
+   * Delete group.
+   *
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param deleteRequest the delete request
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/group-delete")
   public String deleteGroup(
       @RequestParam(value = OU, required = false) Dn ou,
@@ -97,14 +126,15 @@ public class GroupDeleteController extends UiController implements PageableCompo
         .flatMap(name -> domainGroupService.getGroup(name, ou, searchScope))
         .map(group -> {
           if (!group.getSamAccountName().equalsIgnoreCase(deleteRequest.getVerificationName())) {
-            bindingResult.rejectValue("verificationName", "todo", "The name doesn't match.");
+            bindingResult.rejectValue("verificationName", "group-delete.name-does-not-match",
+                "The name doesn't match.");
             model.addAttribute("group", group);
             return "management/group-delete";
           }
           return deleteGroup(group, model, redirectAttributes);
         })
         .orElseGet(() -> entityNotFoundRedirect(
-            redirectAttributes, "Group", "todo", deleteRequest.getSamAccountName(),
+            redirectAttributes, "Group", "group.not-found", deleteRequest.getSamAccountName(),
             PAGE_AND_OU_PARAMS, GROUPS));
   }
 
@@ -119,11 +149,11 @@ public class GroupDeleteController extends UiController implements PageableCompo
     if (result) {
       rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
           String.format("Group '%s' was successfully deleted.", group.getName()),
-          "todo", group.getName());
+          "group-delete.success", group.getName());
     } else {
       rmsg = getRedirectMessage(RedirectMessageType.WARNING,
-          String.format("Somehow the computer '%s' was not deleted.", group.getName()),
-          "todo", group.getName());
+          String.format("Somehow the group '%s' was not deleted.", group.getName()),
+          "group-delete.failure", group.getName());
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 

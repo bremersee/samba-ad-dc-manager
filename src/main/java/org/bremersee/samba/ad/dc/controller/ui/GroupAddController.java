@@ -55,15 +55,24 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Christian Bremer
  */
 @Controller
-public class GroupAddController extends UiController implements PageableComponent,
-    RedirectComponent, DomainGroupTypesComponent, OrganizationalUnitComponent,
-    OrganisationalUnitsComponent {
+public class GroupAddController extends UiController
+    implements PageableComponent, RedirectComponent, DomainGroupTypesComponent,
+    OrganizationalUnitComponent, OrganisationalUnitsComponent {
 
   private final DomainGroupService domainGroupService;
 
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new group add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
   public GroupAddController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -80,11 +89,23 @@ public class GroupAddController extends UiController implements PageableComponen
     return GROUP_SORT;
   }
 
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
   @ModelAttribute("rfc2307Enabled")
   public boolean isRfc2307Enabled() {
     return getDomainService().isRfc2307Enabled();
   }
 
+  /**
+   * Display group add view.
+   *
+   * @param ou the ou
+   * @param model the model
+   * @return the view
+   */
   @GetMapping(path = "/management/group-add")
   public String displayGroupAdd(
       @RequestParam(name = OU, required = false) Dn ou,
@@ -100,6 +121,15 @@ public class GroupAddController extends UiController implements PageableComponen
     return "management/group-add";
   }
 
+  /**
+   * Add group.
+   *
+   * @param addModel the add model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
   @PostMapping(path = "/management/group-add")
   public String addGroup(
       @ModelAttribute(name = "addModel") GroupAddModel addModel,
@@ -119,7 +149,7 @@ public class GroupAddController extends UiController implements PageableComponen
     model.clear();
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,
         String.format("Group '%s' was successfully added.", addedGroup.getSamAccountName()),
-        "i18n.group.added", addedGroup.getSamAccountName());
+        "group-add.success", addedGroup.getSamAccountName());
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
     Map<String, Object> parameters = getParamterMap(addedGroup.getDn().getParent());
@@ -154,37 +184,37 @@ public class GroupAddController extends UiController implements PageableComponen
     String errorCode = requireNonNullElse(serviceException.getErrorCode(), "");
     switch (errorCode) {
       case EC_SAM_ACCOUNT_NAME_REQUIRED: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.required",
             "Group name is required.");
         break;
       }
       case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.illegal",
             "Group name contains illegal characters.");
         break;
       }
       case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
-        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "code",
+        bindingResult.rejectValue(SAM_ACCOUNT_NAME, "group.name.already-exists",
             "Group name already exists.");
         break;
       }
       case EC_GID_NUMBER_ALREADY_EXISTS: {
-        bindingResult.rejectValue("gidNumber", "code",
+        bindingResult.rejectValue("gidNumber", "group.gid-number.already-exists",
             "Unix GID number already exists.");
         break;
       }
       case EC_EMAIL_INVALID: {
-        bindingResult.rejectValue("email", "code",
+        bindingResult.rejectValue("email", "common.email.invalid",
             "Email is invalid.");
         break;
       }
       case EC_EMPTY_OU_RDN: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "common.ou.required",
             "Organizational unit is empty.");
         break;
       }
       case EC_OU_NOT_FOUND: {
-        bindingResult.rejectValue("newOu", "code",
+        bindingResult.rejectValue("newOu", "common.ou.not-found",
             "Organizational unit was not found.");
         break;
       }
