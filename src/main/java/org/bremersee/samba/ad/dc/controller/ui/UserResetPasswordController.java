@@ -198,7 +198,7 @@ public class UserResetPasswordController extends UiController
     RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,
         "user-reset-password.success");
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
     String redirect = getRedirectUri("user-reset-password?user={{userName}}",
         PAGE_AND_OU_PARAMS, putToParameterMap(parameters, "userName", user.getSamAccountName()));
     logRedirectTo(defaultMsg, redirect);

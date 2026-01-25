@@ -36,33 +36,54 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * The interface RedirectComponent.
+ * The redirect component.
  *
  * @author Christian Bremer
  */
 public interface RedirectComponent extends LoggerProvider {
 
+  /**
+   * The constant PAGE_PARAMS.
+   */
   String PAGE_PARAMS = AbstractController.PAGE + "={{" + AbstractController.PAGE + "}}"
       + "&" + AbstractController.SIZE + "={{" + AbstractController.SIZE + "}}"
       + "&" + AbstractController.SORT + "={{" + AbstractController.SORT + "}}"
       + "&" + AbstractController.QUERY + "={{" + AbstractController.QUERY + "}}";
 
+  /**
+   * The constant PAGE_AND_OU_PARAMS.
+   */
   String PAGE_AND_OU_PARAMS = PAGE_PARAMS
       + "&" + AbstractController.OU + "={{" + AbstractController.OU + "}}"
       + "&" + AbstractController.SCOPE + "={{" + AbstractController.SCOPE + "}}";
 
+  /**
+   * The constant PAGE_AND_ZONE_TYPE_PARAMS.
+   */
   String PAGE_AND_ZONE_TYPE_PARAMS = PAGE_PARAMS
       + "&" + AbstractController.ZONE_TYPE + "={{" + AbstractController.ZONE_TYPE + "}}";
 
+  /**
+   * The constant PAGE_AND_ZONE_NAME_PARAMS.
+   */
   String PAGE_AND_ZONE_NAME_PARAMS = PAGE_AND_ZONE_TYPE_PARAMS
       + "&" + AbstractController.ZONE_NAME + "={{" + AbstractController.ZONE_NAME + "}}";
 
+  /**
+   * The constant PAGE_AND_DNS_ENTRY_PARAMS.
+   */
   String PAGE_AND_DNS_ENTRY_PARAMS = PAGE_AND_ZONE_NAME_PARAMS
       + "&name={{name}}"
       + "&type={{type}}"
       + "&value={{value}}";
 
-  default Map<String, Object> getParamterMap(Dn ou) {
+  /**
+   * Gets parameter map.
+   *
+   * @param ou the organization unit
+   * @return the parameter map
+   */
+  default Map<String, Object> getParameterMap(Dn ou) {
     return Map.of(
         AbstractController.PAGE, findPageParameterValue(),
         AbstractController.SIZE, findSizeParameterValue(),
@@ -82,16 +103,34 @@ public interface RedirectComponent extends LoggerProvider {
     );
   }
 
-  default Map<String, Object> getParamterMap() {
-    return getParamterMap(null);
+  /**
+   * Gets parameter map.
+   *
+   * @return the parameter map
+   */
+  default Map<String, Object> getParameterMap() {
+    return getParameterMap(null);
   }
 
+  /**
+   * Put to parameter map.
+   *
+   * @param map the map
+   * @param key the key
+   * @param value the value
+   * @return the map
+   */
   default Map<String, Object> putToParameterMap(Map<String, Object> map, String key, Object value) {
     Map<String, Object> result = new HashMap<>(map);
     result.put(key, value);
     return result;
   }
 
+  /**
+   * Find http servlet request.
+   *
+   * @return the optional http servlet request
+   */
   default Optional<HttpServletRequest> findHttpServletRequest() {
     return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
         .filter(ServletRequestAttributes.class::isInstance)
@@ -99,11 +138,22 @@ public interface RedirectComponent extends LoggerProvider {
         .map(ServletRequestAttributes::getRequest);
   }
 
+  /**
+   * Find parameter value.
+   *
+   * @param parameterName the parameter name
+   * @return the optional parameter value
+   */
   default Optional<String> findParameterValue(String parameterName) {
     return findHttpServletRequest()
         .map(req -> req.getParameter(parameterName));
   }
 
+  /**
+   * Find page number parameter value.
+   *
+   * @return the page number value
+   */
   default int findPageParameterValue() {
     return findParameterValue(AbstractController.PAGE)
         .map(value -> {
@@ -117,6 +167,11 @@ public interface RedirectComponent extends LoggerProvider {
         .orElse(AbstractController.PAGE_DEFAULT_INT);
   }
 
+  /**
+   * Find page size parameter value.
+   *
+   * @return the page size value
+   */
   default int findSizeParameterValue() {
     return findParameterValue(AbstractController.SIZE)
         .map(value -> {
@@ -130,20 +185,43 @@ public interface RedirectComponent extends LoggerProvider {
         .orElse(AbstractController.SIZE_DEFAULT_INT);
   }
 
+  /**
+   * Find organizational unit parameter value.
+   *
+   * @return the optional distinguished name of the organizational unit
+   */
   default Optional<Dn> findOuParameterValue() {
     return findParameterValue(AbstractController.OU)
         .map(dn -> new StringToDnConverter().convert(dn));
   }
 
+  /**
+   * Find search scope parameter value.
+   *
+   * @return the optional search scope parameter value
+   */
   default Optional<TreeSearchScope> findScopeParameterValue() {
     return findParameterValue(AbstractController.SCOPE)
         .map(TreeSearchScope::fromValue);
   }
 
+  /**
+   * Find zone type parameter value.
+   *
+   * @return the optional zone type parameter value
+   */
   default Optional<String> findZoneTypeParameterValue() {
     return findParameterValue(AbstractController.ZONE_TYPE);
   }
 
+  /**
+   * Gets redirect uri.
+   *
+   * @param path the path
+   * @param mustacheTemplate the mustache template
+   * @param parameters the parameters
+   * @return the redirect uri
+   */
   default String getRedirectUri(
       @NotEmpty String path,
       @Nullable String mustacheTemplate,

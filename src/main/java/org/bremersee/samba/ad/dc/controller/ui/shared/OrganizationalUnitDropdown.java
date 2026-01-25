@@ -27,7 +27,7 @@ import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 
 /**
- * The type OrganizationalUnitSelector.
+ * The organizational unit selector.
  *
  * @author Christian Bremer
  */
@@ -37,20 +37,46 @@ public class OrganizationalUnitDropdown implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The selected organizational unit.
+   */
   private OrganizationalUnit selectedOu;
 
+  /**
+   * The selectable organizational units.
+   */
   private List<OrganizationalUnit> selectableOus;
 
+  /**
+   * Specifies whether the search scope is selectable or not.
+   */
   private boolean scopeSelectable = true;
 
+  /**
+   * The selected search scope.
+   */
   private TreeSearchScope selectedScope;
 
+  /**
+   * The display value of the selected search scope.
+   */
   private String selectedScopeDisplayValue;
 
+  /**
+   * The selected search scope.
+   */
   private TreeSearchScope selectableScope;
 
+  /**
+   * The display value of the selectable search scope.
+   */
   private String selectableScopeDisplayValue;
 
+  /**
+   * Gets selectable organizational units.
+   *
+   * @return the selectable organizational units
+   */
   public List<OrganizationalUnit> getSelectableOus() {
     if (isNull(selectableOus)) {
       selectableOus = new ArrayList<>();

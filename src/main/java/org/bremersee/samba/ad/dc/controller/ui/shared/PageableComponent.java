@@ -31,6 +31,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 public interface PageableComponent {
 
+  /**
+   * Add page number to model.
+   *
+   * @param page the page
+   * @return the page number
+   */
   @ModelAttribute(AbstractController.PAGE)
   default int addPage(
       @RequestParam(name = AbstractController.PAGE, defaultValue = AbstractController.PAGE_DEFAULT)
@@ -38,6 +44,12 @@ public interface PageableComponent {
     return page;
   }
 
+  /**
+   * Add page size to model.
+   *
+   * @param size the size
+   * @return the page size
+   */
   @ModelAttribute(AbstractController.SIZE)
   default int addSize(
       @RequestParam(name = AbstractController.SIZE, defaultValue = AbstractController.SIZE_DEFAULT)
@@ -45,10 +57,26 @@ public interface PageableComponent {
     return size;
   }
 
+  /**
+   * Gets sort mapper.
+   *
+   * @return the sort mapper
+   */
   SortMapper getSortMapper();
 
+  /**
+   * Gets default sort.
+   *
+   * @return the default sort
+   */
   String getDefaultSort();
 
+  /**
+   * Add sort to model.
+   *
+   * @param sort the sort
+   * @return the text representation of the sort
+   */
   @ModelAttribute(AbstractController.SORT)
   default String addSort(@SortOrderRequestParam SortOrder sort) {
     return Optional.ofNullable(sort)
@@ -58,6 +86,12 @@ public interface PageableComponent {
         .orElse(getDefaultSort());
   }
 
+  /**
+   * Add query to model.
+   *
+   * @param q the query
+   * @return the query
+   */
   @ModelAttribute(AbstractController.QUERY)
   default String addQuery(
       @RequestParam(name = AbstractController.QUERY,

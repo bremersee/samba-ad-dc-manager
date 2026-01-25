@@ -27,21 +27,44 @@ import org.ldaptive.dn.Dn;
 import org.springframework.ui.ModelMap;
 
 /**
- * The interface OrganizationalUnitSelector.
+ * The organizational unit selector.
  *
  * @author Christian Bremer
  */
 public interface OrganizationalUnitNavigationComponent extends DnToolProvider,
     CurrentPageNameProvider, PageableComponent, MessageProvider {
 
+  /**
+   * Gets organizational unit service.
+   *
+   * @return the organizational unit service
+   */
   OrganizationalUnitService getOrganizationalUnitService();
 
+  /**
+   * Gets default search scope.
+   *
+   * @return the default search scope
+   */
   TreeSearchScope getDefaultSearchScope();
 
+  /**
+   * Add organizational unit dropdown to model.
+   *
+   * @param model the model
+   * @param selector the selector
+   */
   default void addOrganizationalUnitDropdown(ModelMap model, OrganizationalUnitDropdown selector) {
     model.addAttribute("ouDropdown", selector);
   }
 
+  /**
+   * Gets organizational unit dropdown.
+   *
+   * @param ou the ou
+   * @param scope the scope
+   * @return the organizational unit dropdown
+   */
   default OrganizationalUnitDropdown getOrganizationalUnitDropdown(
       Dn ou,
       TreeSearchScope scope) {
@@ -83,10 +106,22 @@ public interface OrganizationalUnitNavigationComponent extends DnToolProvider,
     return ouDropdown;
   }
 
+  /**
+   * Determines whether the given organization unit is the base.
+   *
+   * @param ou the organization unit
+   * @return {@code true} if the organizational unit is the base, otherwise {@code false}
+   */
   default boolean isBaseOu(OrganizationalUnit ou) {
     return DnTool.isSameDn(getDnTool().getBaseDn(), new Dn(ou.getDistinguishedName()));
   }
 
+  /**
+   * Gets the display value of the given search scope.
+   *
+   * @param scope the search scope
+   * @return the display value
+   */
   default String getDisplayValue(TreeSearchScope scope) {
     return getMessage(scope.getDefaultDisplayName(), scope.getI18nCode());
   }

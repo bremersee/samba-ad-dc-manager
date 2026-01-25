@@ -175,7 +175,7 @@ public class ComputerDeleteController extends UiController implements PageableCo
     String redirect = getRedirectUri(
         COMPUTERS,
         PAGE_AND_OU_PARAMS,
-        getParamterMap());
+        getParameterMap());
     logRedirectTo("Computer deletion message.", redirect);
     return redirect;
   }

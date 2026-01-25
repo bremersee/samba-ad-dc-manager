@@ -121,7 +121,7 @@ public abstract class UiController extends AbstractController implements LoggerP
     RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,
         i18nCode, String.valueOf(entityName));
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
-    String redirectUri = getRedirectUri(redirect, parameterTemplate, getParamterMap());
+    String redirectUri = getRedirectUri(redirect, parameterTemplate, getParameterMap());
     logRedirectTo(msg, redirectUri);
     return redirectUri;
   }

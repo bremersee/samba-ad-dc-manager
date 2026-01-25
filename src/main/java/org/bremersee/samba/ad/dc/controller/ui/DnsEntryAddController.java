@@ -119,7 +119,7 @@ public class DnsEntryAddController extends UiController
     DnsEntry dnsEntry = addModel.toDnsEntry(zoneName);
 
     model.clear();
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
 
     try {
       dnsService.addDnsEntry(dnsEntry);

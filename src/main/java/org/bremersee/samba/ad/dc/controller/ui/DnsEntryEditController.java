@@ -103,7 +103,7 @@ public class DnsEntryEditController extends UiController
             .build())
         .map(entry -> {
           if (entry.isConflict()) {
-            Map<String, Object> parameters = getParamterMap();
+            Map<String, Object> parameters = getParameterMap();
             parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, name);
             parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, type);
             parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, value);
@@ -163,7 +163,7 @@ public class DnsEntryEditController extends UiController
         zoneName, name, type, value, editModel);
 
     model.clear();
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
 
     try {
       DnsEntry dnsEntry = DnsEntry.builder()

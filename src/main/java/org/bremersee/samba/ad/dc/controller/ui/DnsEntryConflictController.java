@@ -106,7 +106,7 @@ public class DnsEntryConflictController extends UiController
             .build())
         .map(entry -> {
           if (!entry.isConflict()) {
-            Map<String, Object> parameters = getParamterMap();
+            Map<String, Object> parameters = getParameterMap();
             parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, name);
             parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, type);
             parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, value);
@@ -189,7 +189,7 @@ public class DnsEntryConflictController extends UiController
             redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
           }
 
-          Map<String, Object> parameters = getParamterMap();
+          Map<String, Object> parameters = getParameterMap();
           parameters = putToParameterMap(parameters, ZONE_NAME, zoneName);
           String redirect = getRedirectUri("dns-zone-entries?zone-name={{zone-name}}",
               PAGE_AND_ZONE_TYPE_PARAMS, parameters);

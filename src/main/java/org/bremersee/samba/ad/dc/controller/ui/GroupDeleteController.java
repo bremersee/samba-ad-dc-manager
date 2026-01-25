@@ -157,7 +157,7 @@ public class GroupDeleteController extends UiController implements PageableCompo
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
     String redirect = getRedirectUri("groups", PAGE_AND_OU_PARAMS, parameters);
     logRedirectTo("Group deletion message.", redirect);
     return redirect;

@@ -35,22 +35,48 @@ public class PaginationHelper {
     return (int) Math.ceil(a.doubleValue() / b.doubleValue());
   }
 
+  /**
+   * Gets total pages.
+   *
+   * @param page the page
+   * @return the total pages
+   */
   public int getTotalPages(AbstractPageDto<?> page) {
     Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     return ceil(page.getTotalElements(), page.getSize());
   }
 
+  /**
+   * Gets total pages.
+   *
+   * @param page the page
+   * @return the total pages
+   */
   public int getTotalPages(Page<?> page) {
     Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     return ceil(page.getTotalElements(), page.getSize());
   }
 
+  /**
+   * Determines whether the given page number is valid or not.
+   *
+   * @param page the page
+   * @param number the page number
+   * @return {@code true} if the page number is valid, otherwise {@code false}
+   */
   public boolean isValidPageNumber(AbstractPageDto<?> page, int number) {
     Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     int totalPages = getTotalPages(page);
     return 0 <= number && number < totalPages;
   }
 
+  /**
+   * Determines whether the given page number is valid or not.
+   *
+   * @param page the page
+   * @param number the page number
+   * @return {@code true} if the page number is valid, otherwise {@code false}
+   */
   public boolean isValidPageNumber(Page<?> page, int number) {
     Assert.notNull(page, PAGE_MUST_NOT_BE_NULL);
     int totalPages = getTotalPages(page);

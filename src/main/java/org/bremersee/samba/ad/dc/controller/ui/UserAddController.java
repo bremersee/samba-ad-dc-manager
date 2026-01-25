@@ -207,7 +207,7 @@ public class UserAddController extends UiController
         "user-add.success", addedUser.getName());
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-    Map<String, Object> parameters = getParamterMap(addedUser.getDn().getParent());
+    Map<String, Object> parameters = getParameterMap(addedUser.getDn().getParent());
     String redirect = getRedirectUri("user-edit?user={{user.samAccountName}}",
         PAGE_AND_OU_PARAMS, putToParameterMap(parameters, "user", addedUser));
     logRedirectTo("User successfully added.", redirect);

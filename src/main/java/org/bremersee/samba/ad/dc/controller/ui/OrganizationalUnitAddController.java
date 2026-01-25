@@ -143,7 +143,7 @@ public class OrganizationalUnitAddController extends UiController
         "organization-unit-add.success", name);
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
     String redirect = getRedirectUri(
         "organizational-unit-edit?name={{name}}",
         PAGE_AND_OU_PARAMS,

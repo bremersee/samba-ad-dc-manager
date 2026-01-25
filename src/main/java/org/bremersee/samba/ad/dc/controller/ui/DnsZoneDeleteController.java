@@ -139,7 +139,7 @@ public class DnsZoneDeleteController extends UiController
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);
     }
 
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
     String redirect = getRedirectUri("dns-zones",
         PAGE_AND_ZONE_TYPE_PARAMS, parameters);
     logRedirectTo("Dns zone deletion redirect.", redirect);

@@ -171,7 +171,7 @@ public class DnsEntryDeleteController extends UiController
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
     }
 
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
     String redirect = getRedirectUri("dns-zone-entries",
         PAGE_AND_ZONE_NAME_PARAMS, parameters);
     logRedirectTo("Dns deletion redirect.", redirect);

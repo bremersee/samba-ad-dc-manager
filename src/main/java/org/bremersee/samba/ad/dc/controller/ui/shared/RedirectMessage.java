@@ -42,8 +42,14 @@ public class RedirectMessage implements Serializable {
    */
   public static final String ATTRIBUTE_NAME = "rmsg";
 
+  /**
+   * The message type.
+   */
   private final RedirectMessageType msgType;
 
+  /**
+   * The message.
+   */
   private final String msg;
 
   /**

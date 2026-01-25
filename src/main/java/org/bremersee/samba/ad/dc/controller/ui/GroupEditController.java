@@ -193,7 +193,7 @@ public class GroupEditController extends UiController implements PageableCompone
           "group-edit.success", updatedGroup.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-      Map<String, Object> parameters = getParamterMap(updatedGroup.getDn().getParent());
+      Map<String, Object> parameters = getParameterMap(updatedGroup.getDn().getParent());
       String redirect = getRedirectUri("group-edit?name={{group.samAccountName}}",
           PAGE_AND_OU_PARAMS,
           putToParameterMap(parameters, GROUP, updatedGroup));

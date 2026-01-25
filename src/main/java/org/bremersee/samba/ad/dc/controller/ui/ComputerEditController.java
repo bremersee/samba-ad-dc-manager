@@ -193,7 +193,7 @@ public class ComputerEditController extends UiController implements PageableComp
           updatedComputer.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-      Map<String, Object> parameters = getParamterMap(updatedComputer.getDn().getParent());
+      Map<String, Object> parameters = getParameterMap(updatedComputer.getDn().getParent());
       String redirect = getRedirectUri("computer-edit?name={{computer.samAccountName}}",
           PAGE_AND_OU_PARAMS,
           putToParameterMap(

@@ -158,7 +158,7 @@ public class UserDeleteController extends UiController
     }
     redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-    Map<String, Object> parameters = getParamterMap();
+    Map<String, Object> parameters = getParameterMap();
     String redirect = getRedirectUri(USERS, PAGE_AND_OU_PARAMS, parameters);
     logRedirectTo("User deletion message.", redirect);
     return redirect;

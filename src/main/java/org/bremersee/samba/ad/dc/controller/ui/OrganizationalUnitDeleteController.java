@@ -162,7 +162,7 @@ public class OrganizationalUnitDeleteController extends UiController
           }
           redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-          Map<String, Object> parameters = getParamterMap();
+          Map<String, Object> parameters = getParameterMap();
           String redirect = getRedirectUri(ORGANIZATIONAL_UNITS, PAGE_AND_OU_PARAMS, parameters);
           logRedirectTo("Organizational unit successfully deleted.", redirect);
           return redirect;

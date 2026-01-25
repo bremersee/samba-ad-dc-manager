@@ -227,7 +227,7 @@ public class UserEditController extends UiController implements PageableComponen
           "user-edit.success", updatedUser.getName());
       redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);
 
-      Map<String, Object> parameters = getParamterMap(updatedUser.getDn().getParent());
+      Map<String, Object> parameters = getParameterMap(updatedUser.getDn().getParent());
       String redirect = getRedirectUri("user-edit?user={{user.samAccountName}}",
           PAGE_AND_OU_PARAMS, putToParameterMap(parameters, "user", updatedUser));
       logRedirectTo("User successfully updated.", redirect);

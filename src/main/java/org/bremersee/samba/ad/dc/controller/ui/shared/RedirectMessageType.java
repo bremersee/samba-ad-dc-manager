@@ -19,18 +19,55 @@ package org.bremersee.samba.ad.dc.controller.ui.shared;
 import lombok.Getter;
 
 /**
+ * The redirect message type.
+ *
  * @author Christian Bremer
  */
 public enum RedirectMessageType {
+
+  /**
+   * The Primary.
+   */
   PRIMARY("alert alert-primary"),
+
+  /**
+   * The Secondary.
+   */
   SECONDARY("alert alert-secondary"),
+
+  /**
+   * The Success.
+   */
   SUCCESS("alert alert-success"),
+
+  /**
+   * The Danger.
+   */
   DANGER("alert alert-danger"),
+
+  /**
+   * The Warning.
+   */
   WARNING("alert alert-warning"),
+
+  /**
+   * The Info.
+   */
   INFO("alert alert-info"),
+
+  /**
+   * The Light.
+   */
   LIGHT("alert alert-light"),
+
+  /**
+   * The Dark.
+   */
   DARK("alert alert-dark");
 
+  /**
+   * The css class.
+   */
   @Getter
   private final String cssClass;
 
