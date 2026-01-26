@@ -5,10 +5,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -66,13 +66,14 @@ class SambaStore {
 
   private final LdapNode root;
 
+  @Getter(AccessLevel.PACKAGE)
   private final Map<DnsZone, List<DnsEntry>> dns;
 
   SambaStore(ApplicationProperties properties, Jackson2ObjectMapperBuilder objectMapperBuilder) {
     this.objectMapper = objectMapperBuilder.build();
     this.dnTool = new DefaultDnTool(properties);
     this.root = new LdapNode(properties.getBaseDn());
-    this.dns = new HashMap<>();
+    this.dns = new ConcurrentHashMap<>();
     AdConstants.OBJECT_CLASS.setValues(root, List.of(
         "domain", "domainDNS", "top"
     ));

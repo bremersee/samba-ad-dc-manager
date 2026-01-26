@@ -1,16 +1,28 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 
 @Slf4j
 class SambaStoreInit {
+
+  private static final String ZONE_NAME = "samdom.example.org";
+
+  private static final String REVERSE_ZONE = "1.168.192.in-addr.arpa";
+
+  private static final String DNS_ZONE_UPDATE_SECURE = "DNS_ZONE_UPDATE_SECURE";
 
   private final SambaStore store;
 
@@ -46,6 +58,8 @@ class SambaStoreInit {
     store.add(createGroupDnsAdmins());
     store.add(createGroupDnsUpdateProxy());
     store.add(createComputerData());
+    store.getDns().put(createSamdomDnsZone(), createSamdomDnsEntries());
+    store.getDns().put(createSamdomReverseDnsZone(), createSamdomReverseDnsEntries());
   }
 
   private Dn getComputersDn() {
@@ -397,5 +411,176 @@ class SambaStoreInit {
     return node;
   }
 
+  private DnsZone createSamdomDnsZone() {
+    OffsetDateTime now = OffsetDateTime.now();
+    return DnsZone.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .name(ZONE_NAME)
+        .zoneType(DnsZoneType.PRIMARY.name())
+        .reverseZone(false)
+        .fqdn("DomainDnsZones." + ZONE_NAME)
+        .allowUpdate(DNS_ZONE_UPDATE_SECURE)
+        .paused(Boolean.FALSE)
+        .shutdown(Boolean.FALSE)
+        .autoCreated(Boolean.FALSE)
+        .useDatabase(Boolean.TRUE)
+        .dataFile("None")
+        .useWins(Boolean.FALSE)
+        .useNbstat(Boolean.FALSE)
+        .aging(Boolean.FALSE)
+        .queuedForBackgroundLoad(Boolean.FALSE)
+        .backgroundLoadInProgress(Boolean.FALSE)
+        .readOnlyZone(Boolean.FALSE)
+        .build();
+  }
+
+  private List<DnsEntry> createSamdomDnsEntries() {
+    OffsetDateTime now = OffsetDateTime.now();
+    List<DnsEntry> entries = new CopyOnWriteArrayList<>();
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("@")
+        .type(DnsEntryType.A)
+        .value("192.168.1.2")
+        .serial(100)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("@")
+        .type(DnsEntryType.NS)
+        .value("dc1." + ZONE_NAME + ".")
+        .serial(101)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("@")
+        .type(DnsEntryType.SOA)
+        .value("serial=102, refresh=900, retry=600, expire=86400, minttl=3600, "
+            + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.")
+        .serial(102)
+        .ttlSeconds(3600)
+        .flags("600000f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("gateway")
+        .type(DnsEntryType.A)
+        .value("192.168.1.1")
+        .serial(102)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("dc1")
+        .type(DnsEntryType.A)
+        .value("192.168.1.2")
+        .serial(103)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    return entries;
+  }
+
+  private DnsZone createSamdomReverseDnsZone() {
+    OffsetDateTime now = OffsetDateTime.now();
+    return DnsZone.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .name(REVERSE_ZONE)
+        .zoneType(DnsZoneType.PRIMARY.name())
+        .reverseZone(true)
+        .fqdn("DomainDnsZones." + ZONE_NAME)
+        .allowUpdate(DNS_ZONE_UPDATE_SECURE)
+        .paused(Boolean.FALSE)
+        .shutdown(Boolean.FALSE)
+        .autoCreated(Boolean.FALSE)
+        .useDatabase(Boolean.TRUE)
+        .dataFile("None")
+        .useWins(Boolean.FALSE)
+        .useNbstat(Boolean.FALSE)
+        .aging(Boolean.FALSE)
+        .queuedForBackgroundLoad(Boolean.FALSE)
+        .backgroundLoadInProgress(Boolean.FALSE)
+        .readOnlyZone(Boolean.FALSE)
+        .build();
+  }
+
+  private List<DnsEntry> createSamdomReverseDnsEntries() {
+    OffsetDateTime now = OffsetDateTime.now();
+    List<DnsEntry> entries = new CopyOnWriteArrayList<>();
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("@")
+        .type(DnsEntryType.NS)
+        .value("dc1." + ZONE_NAME + ".")
+        .serial(200)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("@")
+        .type(DnsEntryType.SOA)
+        .value("serial=201, refresh=900, retry=600, expire=86400, minttl=3600, "
+            + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.")
+        .serial(201)
+        .ttlSeconds(3600)
+        .flags("600000f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("1")
+        .type(DnsEntryType.PTR)
+        .value("gateway." + ZONE_NAME)
+        .serial(202)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("2")
+        .type(DnsEntryType.PTR)
+        .value("dc1." + ZONE_NAME)
+        .serial(203)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    return entries;
+  }
 
 }
