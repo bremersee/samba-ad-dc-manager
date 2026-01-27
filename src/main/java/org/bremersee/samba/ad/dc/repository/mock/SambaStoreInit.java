@@ -21,9 +21,18 @@ class SambaStoreInit {
 
   private static final String ZONE_NAME = "samdom.example.org";
 
+  private static final String ZONE_FQDN = "DomainDnsZones." + ZONE_NAME;
+
+  private static final String MSDCS_ZONE_NAME = "_msdcs." + ZONE_NAME;
+
   private static final String REVERSE_ZONE = "1.168.192.in-addr.arpa";
 
   private static final String DNS_ZONE_UPDATE_SECURE = "DNS_ZONE_UPDATE_SECURE";
+
+  private static final String SOA_VALUE = ", refresh=900, retry=600, expire=86400, minttl=3600, "
+      + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.";
+
+  private static final String SOA_FLAGS = "600000f0";
 
   private final SambaStore store;
 
@@ -422,7 +431,7 @@ class SambaStoreInit {
         .name(ZONE_NAME)
         .zoneType(DnsZoneType.PRIMARY.name())
         .reverseZone(false)
-        .fqdn("DomainDnsZones." + ZONE_NAME)
+        .fqdn(ZONE_FQDN)
         .allowUpdate(DNS_ZONE_UPDATE_SECURE)
         .paused(Boolean.FALSE)
         .shutdown(Boolean.FALSE)
@@ -472,11 +481,10 @@ class SambaStoreInit {
         .zoneName(ZONE_NAME)
         .name("@")
         .type(DnsEntryType.SOA)
-        .value("serial=102, refresh=900, retry=600, expire=86400, minttl=3600, "
-            + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.")
+        .value("serial=102" + SOA_VALUE)
         .serial(102)
         .ttlSeconds(3600)
-        .flags("600000f0")
+        .flags(SOA_FLAGS)
         .build());
     entries.add(DnsEntry.builder()
         .distinguishedName("")
@@ -550,7 +558,7 @@ class SambaStoreInit {
         .name(REVERSE_ZONE)
         .zoneType(DnsZoneType.PRIMARY.name())
         .reverseZone(true)
-        .fqdn("DomainDnsZones." + ZONE_NAME)
+        .fqdn(ZONE_FQDN)
         .allowUpdate(DNS_ZONE_UPDATE_SECURE)
         .paused(Boolean.FALSE)
         .shutdown(Boolean.FALSE)
@@ -588,11 +596,10 @@ class SambaStoreInit {
         .zoneName(REVERSE_ZONE)
         .name("@")
         .type(DnsEntryType.SOA)
-        .value("serial=201, refresh=900, retry=600, expire=86400, minttl=3600, "
-            + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.")
+        .value("serial=201" + SOA_VALUE)
         .serial(201)
         .ttlSeconds(3600)
-        .flags("600000f0")
+        .flags(SOA_FLAGS)
         .build());
     entries.add(DnsEntry.builder()
         .distinguishedName("")
@@ -663,10 +670,10 @@ class SambaStoreInit {
         .distinguishedName("")
         .created(now)
         .modified(now)
-        .name("_msdcs." + ZONE_NAME)
+        .name(MSDCS_ZONE_NAME)
         .zoneType(DnsZoneType.PRIMARY.name())
         .reverseZone(false)
-        .fqdn("DomainDnsZones." + ZONE_NAME)
+        .fqdn(ZONE_FQDN)
         .allowUpdate(DNS_ZONE_UPDATE_SECURE)
         .paused(Boolean.FALSE)
         .shutdown(Boolean.FALSE)
@@ -689,7 +696,7 @@ class SambaStoreInit {
         .distinguishedName("")
         .created(now)
         .modified(now)
-        .zoneName("_msdcs." + ZONE_NAME)
+        .zoneName(MSDCS_ZONE_NAME)
         .name("@")
         .type(DnsEntryType.NS)
         .value("dc1." + ZONE_NAME + ".")
@@ -701,20 +708,19 @@ class SambaStoreInit {
         .distinguishedName("")
         .created(now)
         .modified(now)
-        .zoneName("_msdcs." + ZONE_NAME)
+        .zoneName(MSDCS_ZONE_NAME)
         .name("@")
         .type(DnsEntryType.SOA)
-        .value("serial=301, refresh=900, retry=600, expire=86400, minttl=3600, "
-            + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.")
+        .value("serial=301" + SOA_VALUE)
         .serial(301)
         .ttlSeconds(3600)
-        .flags("600000f0")
+        .flags(SOA_FLAGS)
         .build());
     entries.add(DnsEntry.builder()
         .distinguishedName("")
         .created(now)
         .modified(now)
-        .zoneName("_msdcs." + ZONE_NAME)
+        .zoneName(MSDCS_ZONE_NAME)
         .name("gateway")
         .type(DnsEntryType.A)
         .value("192.168.1.1")
@@ -726,7 +732,7 @@ class SambaStoreInit {
         .distinguishedName("")
         .created(now)
         .modified(now)
-        .zoneName("_msdcs." + ZONE_NAME)
+        .zoneName(MSDCS_ZONE_NAME)
         .name(UUID.randomUUID().toString())
         .type(DnsEntryType.CNAME)
         .value("dc1." + ZONE_NAME + ".")
