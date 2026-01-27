@@ -2,6 +2,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
@@ -60,6 +61,7 @@ class SambaStoreInit {
     store.add(createComputerData());
     store.getDns().put(createSamdomDnsZone(), createSamdomDnsEntries());
     store.getDns().put(createSamdomReverseDnsZone(), createSamdomReverseDnsEntries());
+    store.getDns().put(createMsdcsDnsZone(), createMsdcsDnsEntries());
   }
 
   private Dn getComputersDn() {
@@ -500,6 +502,42 @@ class SambaStoreInit {
         .ttlSeconds(3600)
         .flags("f0")
         .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("nas")
+        .type(DnsEntryType.A)
+        .value("192.168.1.3")
+        .serial(104)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("Mercury")
+        .type(DnsEntryType.A)
+        .value("192.168.1.101")
+        .serial(105)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(ZONE_NAME)
+        .name("Saturn")
+        .type(DnsEntryType.A)
+        .value("192.168.1.102")
+        .serial(106)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
     return entries;
   }
 
@@ -577,6 +615,122 @@ class SambaStoreInit {
         .type(DnsEntryType.PTR)
         .value("dc1." + ZONE_NAME)
         .serial(203)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("3")
+        .type(DnsEntryType.PTR)
+        .value("nas." + ZONE_NAME)
+        .serial(204)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("101")
+        .type(DnsEntryType.PTR)
+        .value("Mercury." + ZONE_NAME)
+        .serial(205)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName(REVERSE_ZONE)
+        .name("102")
+        .type(DnsEntryType.PTR)
+        .value("Saturn." + ZONE_NAME)
+        .serial(206)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    return entries;
+  }
+
+  private DnsZone createMsdcsDnsZone() {
+    OffsetDateTime now = OffsetDateTime.now();
+    return DnsZone.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .name("_msdcs." + ZONE_NAME)
+        .zoneType(DnsZoneType.PRIMARY.name())
+        .reverseZone(false)
+        .fqdn("DomainDnsZones." + ZONE_NAME)
+        .allowUpdate(DNS_ZONE_UPDATE_SECURE)
+        .paused(Boolean.FALSE)
+        .shutdown(Boolean.FALSE)
+        .autoCreated(Boolean.FALSE)
+        .useDatabase(Boolean.TRUE)
+        .dataFile("None")
+        .useWins(Boolean.FALSE)
+        .useNbstat(Boolean.FALSE)
+        .aging(Boolean.FALSE)
+        .queuedForBackgroundLoad(Boolean.FALSE)
+        .backgroundLoadInProgress(Boolean.FALSE)
+        .readOnlyZone(Boolean.FALSE)
+        .build();
+  }
+
+  private List<DnsEntry> createMsdcsDnsEntries() {
+    OffsetDateTime now = OffsetDateTime.now();
+    List<DnsEntry> entries = new CopyOnWriteArrayList<>();
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName("_msdcs." + ZONE_NAME)
+        .name("@")
+        .type(DnsEntryType.NS)
+        .value("dc1." + ZONE_NAME + ".")
+        .serial(300)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName("_msdcs." + ZONE_NAME)
+        .name("@")
+        .type(DnsEntryType.SOA)
+        .value("serial=301, refresh=900, retry=600, expire=86400, minttl=3600, "
+            + "ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.")
+        .serial(301)
+        .ttlSeconds(3600)
+        .flags("600000f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName("_msdcs." + ZONE_NAME)
+        .name("gateway")
+        .type(DnsEntryType.A)
+        .value("192.168.1.1")
+        .serial(302)
+        .ttlSeconds(3600)
+        .flags("f0")
+        .build());
+    entries.add(DnsEntry.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .zoneName("_msdcs." + ZONE_NAME)
+        .name(UUID.randomUUID().toString())
+        .type(DnsEntryType.CNAME)
+        .value("dc1." + ZONE_NAME + ".")
+        .serial(303)
         .ttlSeconds(3600)
         .flags("f0")
         .build());
