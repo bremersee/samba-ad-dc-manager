@@ -18,6 +18,8 @@ package org.bremersee.samba.ad.dc.config;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.LinkedHashMap;
+import lombok.extern.slf4j.Slf4j;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveRememberMeServices;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -37,9 +39,14 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.RequestMatcherDelegatingAccessDeniedHandler;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -53,6 +60,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
     OAuth2ResourceServerProperties.class
 })
 @Configuration
+@Slf4j
 public class WebSecurityConfiguration {
 
   private final Environment env;
@@ -79,13 +87,20 @@ public class WebSecurityConfiguration {
     this.rememberMeServices = rememberMeServices.getIfAvailable();
   }
 
+  private AccessDeniedHandler getAccessDeniedHandler() {
+    LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers = new LinkedHashMap<>(1);
+    handlers.put(new AntPathRequestMatcher("/api/**"), new AccessDeniedHandlerImpl());
+    AccessDeniedHandlerImpl defaultHandler = new AccessDeniedHandlerImpl();
+    defaultHandler.setErrorPage("/forbidden");
+    return new RequestMatcherDelegatingAccessDeniedHandler(handlers, defaultHandler);
+  }
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     String appName = env.getProperty("spring.application.name", "samba-ad-dc-manager");
     http
         .exceptionHandling(customizer -> customizer
-            // .accessDeniedHandler(new AccessDeniedHandlerImpl())
-            .accessDeniedPage("/forbidden"))
+            .accessDeniedHandler(getAccessDeniedHandler()))
 
         .authorizeHttpRequests(customizer -> customizer
             .requestMatchers(HttpMethod.OPTIONS, "/**")
@@ -186,7 +201,9 @@ public class WebSecurityConfiguration {
     if (!isEmpty(resourceServerProperties.getJwt().getJwkSetUri())) {
       http
           .oauth2ResourceServer(configurer -> configurer
+              .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
               .jwt(jwtConfigurer -> jwtConfigurer
+
                   .jwtAuthenticationConverter(jwtAuthenticationConverter)
                   .jwkSetUri(resourceServerProperties.getJwt().getJwkSetUri())));
     }

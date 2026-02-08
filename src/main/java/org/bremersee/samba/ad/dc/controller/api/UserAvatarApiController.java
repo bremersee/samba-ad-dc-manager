@@ -1,65 +1,35 @@
 package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.bremersee.samba.ad.dc.model.DomainUser;
-import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import java.util.Optional;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Profile("api")
+@Profile("!api")
 @RestController
-@RequestMapping(path = "/api/users")
-public class UserApiController extends UserAvatarApiController {
+public class UserAvatarApiController extends ApiController {
 
-  public UserApiController(DomainUserService domainUserService) {
-    super(domainUserService);
+  protected final DomainUserService domainUserService;
+
+  public UserAvatarApiController(DomainUserService domainUserService) {
+    this.domainUserService = domainUserService;
   }
 
-  @Operation(
-      description = "Get user.",
-      security = {@SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
-  )
-  @ApiResponses(
-      value = {
-          @ApiResponse(responseCode = "200", description = "OK."),
-          @ApiResponse(responseCode = "401", description = "Unauthorized."),
-          @ApiResponse(responseCode = "403", description = "Forbidden."),
-          @ApiResponse(responseCode = "404", description = "Not found.")
-      }
-  )
-  @GetMapping(path = "/{name}")
-  public ResponseEntity<DomainUser> getUser(
-      @Parameter(name = "name", description = "The name of the user.")
-      @PathVariable("name") String samAccountName,
-
-      @Parameter(name = OU,
-          description = "The search base (organizational unit) like 'CN=Users'.",
-          schema = @Schema(type = "string"))
-      @RequestParam(name = OU, required = false)
-      Dn ou,
-
-      @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
-      @RequestParam(name = SCOPE, required = false)
-      TreeSearchScope scope) {
-
-    return ResponseEntity.of(domainUserService.getUser(samAccountName, ou, scope));
-  }
-
-  /*
   @Operation(description = "Get user avatar.")
   @ApiResponses(
       value = {
@@ -68,7 +38,7 @@ public class UserApiController extends UserAvatarApiController {
       }
   )
   @GetMapping(
-      value = "/{name}/avatar",
+      value = "/api/users/{name}/avatar",
       produces = {MediaType.IMAGE_JPEG_VALUE})
   public ResponseEntity<byte[]> getUserAvatar(
       @PathVariable(name = "name") String samAccountName,
@@ -89,6 +59,5 @@ public class UserApiController extends UserAvatarApiController {
             .body(avatar))
         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
   }
-  */
 
 }

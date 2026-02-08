@@ -115,6 +115,12 @@ bremersee:
       argument-separator: ","
       chain-separator: ";"
 
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 eureka:
   client:
     enabled: false
@@ -271,12 +277,31 @@ bremersee:
 spring:
   config:
     activate:
+      on-profile: api
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+---
+
+spring:
+  config:
+    activate:
       on-profile: jwt
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/certs
+      client:
+        provider:
+          swagger-ui:
+            authorization-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/auth
+            token-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/token
+
 bremersee:
   authentication:
     jwt-converter:
@@ -300,13 +325,18 @@ bremersee:
         - source: "samba-admins"
           target: "ROLE_ADMIN"
 
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: samba-ad-dc-manager-pkce
+      use-pkce-with-authorization-code-grant: true
+
 ---
 
 spring:
   config:
     activate:
       on-profile: debian
-
 logging:
   file:
     name: /var/log/samba-ad-dc-manager/samba-ad-dc-manager.log

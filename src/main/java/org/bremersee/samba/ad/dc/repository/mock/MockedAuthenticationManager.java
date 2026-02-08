@@ -18,7 +18,9 @@ import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.OrFilter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,7 +31,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("mock")
 @Slf4j
-class MockedAuthenticationManager implements AuthenticationManager {
+class MockedAuthenticationManager implements AuthenticationManager, AuthenticationProvider {
 
   private final SambaStore store;
 
@@ -38,7 +40,15 @@ class MockedAuthenticationManager implements AuthenticationManager {
   }
 
   @Override
+  public boolean supports(Class<?> authentication) {
+    return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+  }
+
+  @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    if (!supports(authentication.getClass())) {
+      return null;
+    }
     String username = authentication.getName();
     String password = String.valueOf(authentication.getCredentials());
     SearchRequest request = SearchRequest.builder()

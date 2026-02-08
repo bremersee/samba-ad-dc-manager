@@ -2,16 +2,19 @@ package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainGroupService;
 import org.ldaptive.dn.Dn;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Profile("api")
 @RestController
 @RequestMapping(path = "/api/groups")
 public class GroupApiController extends ApiController {
@@ -36,14 +40,26 @@ public class GroupApiController extends ApiController {
   @PageableAsQueryParam
   @Operation(
       description = "Get group page.",
-      security = {@SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basicAuth")}
+      security = {
+          @SecurityRequirement(name = "bearer-jwt"),
+          @SecurityRequirement(name = "basic-auth")
+      }
   )
   @ApiResponses(
       value = {
-          @ApiResponse(responseCode = "200", description = "OK."),
-          @ApiResponse(responseCode = "401", description = "Unauthorized."),
-          @ApiResponse(responseCode = "403", description = "Forbidden.")
+          @ApiResponse(responseCode = "200", description = "OK"),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
       }
   )
   @GetMapping
@@ -75,7 +91,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Get group.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basicAuth")}
+          @SecurityRequirement(name = "basic-auth")}
   )
   @ApiResponses(
       value = {

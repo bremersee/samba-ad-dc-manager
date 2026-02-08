@@ -12,6 +12,7 @@ import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.service.DomainComputerService;
 import org.ldaptive.dn.Dn;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Profile("api")
 @RestController
 @RequestMapping(path = "/api/computers")
 public class ComputerApiController extends ApiController {
@@ -37,7 +39,7 @@ public class ComputerApiController extends ApiController {
   @Operation(
       description = "Get computer page.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basicAuth")}
+          @SecurityRequirement(name = "basic-auth")}
   )
   @ApiResponses(
       value = {
@@ -75,7 +77,7 @@ public class ComputerApiController extends ApiController {
   @Operation(
       description = "Get computer.",
       security = {@SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basicAuth")}
+          @SecurityRequirement(name = "basic-auth")}
   )
   @ApiResponses(
       value = {
