@@ -49,7 +49,6 @@ public interface DnsService {
 
   void deleteDnsZone(@NotEmpty String zoneName);
 
-
   Page<DnsEntry> getDnsEntries(
       @NotEmpty String zoneName,
       @NotNull Pageable pageable,

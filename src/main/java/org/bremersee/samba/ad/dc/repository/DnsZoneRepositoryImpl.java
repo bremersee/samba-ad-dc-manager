@@ -72,11 +72,12 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
     log.debug("findDnsZone {}", zoneName);
     return doFindDnsZone(zoneName)
         .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
-            "DnsZone", zoneName, ErrorCode.EC_DNS_ZONE_NOT_FOUND));
+            DnsZone.class.getSimpleName(), zoneName, ErrorCode.EC_DNS_ZONE_NOT_FOUND));
   }
 
   private Optional<DnsZone> doFindDnsZone(String zoneName) {
-    return dnsTool.findDnsZone(getHostName(), zoneName)
+    return Optional.ofNullable(zoneName)
+        .flatMap(name -> dnsTool.findDnsZone(getHostName(), name))
         .map(zone -> findLdapEntryOfDnsZone(zone.getDistinguishedName())
             .map(ldapEntry -> DnsZone.builder()
                 .from(zone)

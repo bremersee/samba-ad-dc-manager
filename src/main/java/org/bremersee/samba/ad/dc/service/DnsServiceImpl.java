@@ -42,8 +42,6 @@ import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.repository.DhcpRepository;
 import org.bremersee.samba.ad.dc.repository.DnsEntryRepository;
 import org.bremersee.samba.ad.dc.repository.DnsZoneRepository;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -70,19 +68,15 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
 
   private final DhcpRepository dhcpRepository;
 
-  private final CacheManager cacheManager;
-
   public DnsServiceImpl(
       SortMapper sortMapper,
       DnsZoneRepository dnsZoneRepository,
       DnsEntryRepository dnsEntryRepository,
-      DhcpRepository dhcpRepository,
-      CacheManager cacheManager) {
+      DhcpRepository dhcpRepository) {
     this.sortMapper = sortMapper;
     this.dnsZoneRepository = dnsZoneRepository;
     this.dnsEntryRepository = dnsEntryRepository;
     this.dhcpRepository = dhcpRepository;
-    this.cacheManager = cacheManager;
   }
 
   @Override
@@ -139,12 +133,6 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
       Pageable pageable,
       String query) {
 
-    /*
-    if (isEmpty(query) && pageable.getPageNumber() == 0) {
-      Optional.ofNullable(cacheManager.getCache("dnsEntryListCache"))
-          .ifPresent(Cache::invalidate);
-    }
-    */
     return new PageBuilder<DnsEntry, DnsEntry>()
         .sourceEntries(dnsEntryRepository.getDnsEntries(zoneName))
         .sourceFilter(dnsEntry -> isQueryResult(dnsEntry, query))
@@ -224,7 +212,7 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
     String query = "";
     return getDnsZoneNames(DnsZoneType.PRIMARY).stream()
         .map(this::getDnsZone)
-        .filter(zone -> !zone.getReverseZone())
+        .filter(zone -> Boolean.FALSE.equals(zone.getReverseZone()))
         .flatMap(zone -> getDnsEntries(zone.getName(), pageRequest, query).stream())
         .filter(dnsEntry -> dnsEntry.getValue().equalsIgnoreCase(ipAddress)
             && (DnsEntryType.A.equals(dnsEntry.getType())
@@ -354,13 +342,6 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
   }
 
   public Page<DhcpLease> getDhcpLeases(Pageable pageable, String query) {
-
-    /*
-    if (isEmpty(query) && pageable.getPageNumber() == 0) {
-      Optional.ofNullable(cacheManager.getCache("dhcpLeasesCache"))
-          .ifPresent(Cache::invalidate);
-    }
-    */
     return new PageBuilder<DhcpLease, DhcpLease>()
         .sourceEntries(dhcpRepository.findActive())
         .sourceFilter(dhcpLease -> isQueryResult(dhcpLease, query))

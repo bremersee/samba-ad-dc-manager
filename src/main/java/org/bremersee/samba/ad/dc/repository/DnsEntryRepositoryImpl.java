@@ -25,6 +25,7 @@ import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
@@ -67,6 +68,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   @Override
   public List<DnsEntry> getDnsEntries(String zoneName) {
     log.debug("findDnsEntries({})", zoneName);
+    validateExistence(zoneName);
     return dnsTool.getDnsEntries(getHostName(), zoneName);
   }
 
@@ -88,6 +90,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   @Override
   public void addDnsEntry(DnsEntry entry) {
     log.debug("addDnsEntry({})", entry);
+    validateDnsZoneName(entry);
     if (isEmpty(entry.getType()) || !entry.getType().isAddable()) {
       throw getDnsTypeNotSupportedException(entry);
     }
@@ -98,6 +101,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   @Override
   public void updateDnsEntry(DnsEntry entry, String newValue) {
     log.debug("updateDnsEntry {}, {}", entry, newValue);
+    validateDnsZoneName(entry);
     if (isEmpty(entry.getType()) || !entry.getType().isUpdatable()) {
       throw getDnsTypeNotSupportedException(entry);
     }
@@ -107,6 +111,7 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
   @CacheEvict(value = "dnsEntryListCache", allEntries = true)
   @Override
   public void deleteDnsEntry(DnsEntry entry) {
+    validateDnsZoneName(entry);
     if (entry.isConflict()) {
       deleteDnsEntryConflict(entry);
       return;
@@ -129,6 +134,23 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
 
   private String getHostName() {
     return domainRepository.getHostName();
+  }
+
+  private void validateDnsZoneName(DnsEntry dnsEntry) {
+    if (isEmpty(dnsEntry.getZoneName())) {
+      throw ServiceException
+          .badRequest("DNS zone name is required.", ErrorCode.EC_DNS_ZONE_REQUIRED);
+    }
+    validateExistence(dnsEntry.getZoneName());
+  }
+
+  private void validateExistence(String zoneName) {
+    if (dnsTool.findDnsZone(getHostName(), zoneName).isEmpty()) {
+      throw ServiceException.notFoundWithErrorCode(
+          DnsZone.class.getSimpleName(),
+          zoneName,
+          ErrorCode.EC_DNS_ZONE_NOT_FOUND);
+    }
   }
 
   private ServiceException getDnsTypeNotSupportedException(DnsEntry entry) {

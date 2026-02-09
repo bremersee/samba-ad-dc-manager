@@ -64,6 +64,13 @@ public interface DnsEntry extends AdEntry {
   @Nullable
   String getZoneName();
 
+  default DnsEntry withZoneName(String zoneName) {
+    return builder()
+        .from(this)
+        .zoneName(zoneName)
+        .build();
+  }
+
   @Schema(description = "The name of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "name", required = true)
   String getName();

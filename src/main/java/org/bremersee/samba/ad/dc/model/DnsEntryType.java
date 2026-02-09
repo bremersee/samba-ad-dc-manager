@@ -18,6 +18,9 @@ package org.bremersee.samba.ad.dc.model;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,12 +34,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.ErrorCode;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The dns record type.
  *
  * @author Christian Bremer
  */
+@Schema(name = "DnsEntryType", description = "The type of a DNS record.", enumAsRef = true)
 @Getter
 public enum DnsEntryType {
 
@@ -498,28 +503,49 @@ public enum DnsEntryType {
     this.toSambaToolValueTransformer = toSambaToolValueTransformer;
   }
 
-  /**
-   * Find dns record type by integer.
-   *
-   * @param value the value
-   * @return the dns record type
-   */
-  public static DnsEntryType fromValue(int value) {
-    return VALUE_TYPE_MAP.getOrDefault(value, ALL);
+  @JsonValue
+  @Override
+  public String toString() {
+    return name();
   }
 
   /**
-   * Find dns record type by string.
+   * Find dns record type by name.
    *
-   * @param value the value
+   * @param value the name
+   * @return the dns record type
+   */
+  @JsonCreator
+  @Nullable
+  public static DnsEntryType fromValue(@Nullable String value) {
+    return fromValue(value, null);
+  }
+
+  /**
+   * Find dns record type by name.
+   *
+   * @param value the name
    * @param defaultType the default type
    * @return the dns record type
    */
-  public static DnsEntryType fromValue(String value, DnsEntryType defaultType) {
+  @Nullable
+  public static DnsEntryType fromValue(@Nullable String value, @Nullable DnsEntryType defaultType) {
     if (value == null) {
       return defaultType;
     }
     return STRING_TYPE_MAP.getOrDefault(value.toUpperCase(), defaultType);
+  }
+
+  /**
+   * Find dns record type by numeric value.
+   *
+   * @param value the numeric value
+   * @param defaultType the default type
+   * @return the dns record type
+   */
+  @Nullable
+  public static DnsEntryType fromValue(int value, @Nullable DnsEntryType defaultType) {
+    return VALUE_TYPE_MAP.getOrDefault(value, defaultType);
   }
 
   public static List<DnsEntryType> getSupportedAddOrDeleteTypes() {

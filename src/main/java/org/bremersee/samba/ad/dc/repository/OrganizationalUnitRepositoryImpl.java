@@ -29,7 +29,6 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.DeleteRequest;
-import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
@@ -42,7 +41,7 @@ import org.ldaptive.filter.OrFilter;
 import org.springframework.stereotype.Component;
 
 /**
- * The OrganizationalUnitRepositoryImpl.
+ * The organizational unit repository implementation.
  *
  * @author Christian Bremer
  */

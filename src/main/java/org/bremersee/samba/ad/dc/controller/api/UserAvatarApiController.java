@@ -61,7 +61,7 @@ public class UserAvatarApiController extends ApiController {
       value = "/{name}/avatar",
       produces = {MediaType.IMAGE_JPEG_VALUE})
   public ResponseEntity<byte[]> getUserAvatar(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable(name = "name") String samAccountName,
 
       @Parameter(

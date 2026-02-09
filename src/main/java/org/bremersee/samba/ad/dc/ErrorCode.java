@@ -101,6 +101,8 @@ public interface ErrorCode {
 
   String EC_ADDING_DNS_ENTRY_FAILED = EC_PREFIX + "72ca0002-caf1-4bc8-aac6-eb04d0b558f4";
 
+  String EC_DNS_ZONE_REQUIRED = EC_PREFIX + "145df73a-c3df-4a39-a85f-db36d2728909";
+
   String EC_DNS_ZONE_NOT_FOUND = EC_PREFIX + "32135869-aa6c-42a6-ad3b-fdc78f68b48b";
 
   String EC_DNS_ENTRY_NOT_FOUND = EC_PREFIX + "89e502bb-2303-4524-8378-327d601b5727";

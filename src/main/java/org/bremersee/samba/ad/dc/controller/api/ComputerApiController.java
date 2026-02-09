@@ -124,7 +124,7 @@ public class ComputerApiController extends ApiController {
   @GetMapping(path = "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainComputer> getComputer(
 
-      @Parameter(name = "name", description = "The name of the computer.")
+      @Parameter(name = "name", description = "The name of the computer.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,
@@ -177,7 +177,7 @@ public class ComputerApiController extends ApiController {
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainComputer> updateComputer(
 
-      @Parameter(name = "name", description = "The name of the computer.")
+      @Parameter(name = "name", description = "The name of the computer.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(name = "move-to",
@@ -222,7 +222,7 @@ public class ComputerApiController extends ApiController {
   @DeleteMapping(path = "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Boolean> deleteComputer(
 
-      @Parameter(name = "name", description = "The name of the computer.")
+      @Parameter(name = "name", description = "The name of the computer.", required = true)
       @PathVariable("name") String samAccountName) {
 
     return ResponseEntity.ok(domainComputerService.deleteComputer(samAccountName));

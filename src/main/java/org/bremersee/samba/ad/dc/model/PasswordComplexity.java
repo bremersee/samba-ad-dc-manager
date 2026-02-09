@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
@@ -25,6 +26,10 @@ import lombok.Getter;
  *
  * @author Christian Bremer
  */
+@Schema(
+    name = "PasswordComplexity",
+    description = "Specifies the complexity of a password.",
+    enumAsRef = true)
 public enum PasswordComplexity {
 
   /**

@@ -31,6 +31,6 @@ public class DnsEntryTypeConverter implements Converter<String, DnsEntryType> {
 
   @Override
   public DnsEntryType convert(@NonNull String source) {
-    return DnsEntryType.fromValue(source, null);
+    return DnsEntryType.fromValue(source);
   }
 }

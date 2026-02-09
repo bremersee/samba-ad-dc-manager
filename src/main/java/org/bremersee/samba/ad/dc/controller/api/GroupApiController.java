@@ -179,7 +179,10 @@ public class GroupApiController extends ApiController {
   )
   @GetMapping(path = "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainGroup> getGroup(
-      @Parameter(name = "name", description = "The name of the group or the group ID.")
+      @Parameter(
+          name = "name",
+          description = "The name of the group or the group ID.",
+          required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(
@@ -251,7 +254,7 @@ public class GroupApiController extends ApiController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainGroup> updateGroup(
-      @Parameter(name = "name", description = "The name of the group.")
+      @Parameter(name = "name", description = "The name of the group.", required = true)
       @PathVariable("name") String samAccountName,
 
       @RequestBody DomainGroup group,
@@ -290,7 +293,7 @@ public class GroupApiController extends ApiController {
   )
   @DeleteMapping(path = "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Boolean> deleteGroup(
-      @Parameter(name = "name", description = "The name of the group.")
+      @Parameter(name = "name", description = "The name of the group.", required = true)
       @PathVariable("name") String samAccountName) {
 
     return ResponseEntity.ok(domainGroupService.deleteGroup(samAccountName));
@@ -326,7 +329,7 @@ public class GroupApiController extends ApiController {
   )
   @GetMapping(path = "/{name}/memberships", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<DomainGroup>> getMemberships(
-      @Parameter(name = "name", description = "The name of the group or the group ID.")
+      @Parameter(name = "name", description = "The name of the group.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(
@@ -393,7 +396,7 @@ public class GroupApiController extends ApiController {
   )
   @GetMapping(path = "/{name}/members", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainGroupMemberPage> getMemberSelection(
-      @Parameter(name = "name", description = "The name of the group or the group ID.")
+      @Parameter(name = "name", description = "The name of the group.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,
@@ -466,7 +469,7 @@ public class GroupApiController extends ApiController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainGroup> modifyMembers(
-      @Parameter(name = "name", description = "The name of the group or the group ID.")
+      @Parameter(name = "name", description = "The name of the group.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,

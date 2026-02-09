@@ -16,8 +16,10 @@
 
 package org.bremersee.samba.ad.dc.model;
 
-import static java.util.Objects.isNull;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Arrays;
 import lombok.Getter;
 
 /**
@@ -25,7 +27,7 @@ import lombok.Getter;
  *
  * @author Christian Bremer
  */
-@Getter
+@Schema(name = "DnsZoneType", description = "The type of a DNS zone.", enumAsRef = true)
 public enum DnsZoneType {
 
   /**
@@ -70,8 +72,10 @@ public enum DnsZoneType {
 
   private final String parameterValue;
 
+  @Getter
   private final String defaultDisplayName;
 
+  @Getter
   private final String i18nCode;
 
   DnsZoneType(String parameterValue, String defaultDisplayName, String i18nCode) {
@@ -80,18 +84,17 @@ public enum DnsZoneType {
     this.i18nCode = i18nCode;
   }
 
+  @JsonValue
+  public String getParameterValue() {
+    return parameterValue;
+  }
+
+  @JsonCreator
   public static DnsZoneType fromValue(String value) {
-    if (isNull(value)) {
-      return PRIMARY;
-    }
-    for (DnsZoneType type : DnsZoneType.values()) {
-      if (type.parameterValue.equalsIgnoreCase(value)) {
-        return type;
-      }
-      if (type.name().equalsIgnoreCase(value)) {
-        return type;
-      }
-    }
-    return PRIMARY;
+    return Arrays.stream(values())
+        .filter(type -> type.getParameterValue().equalsIgnoreCase(value)
+            || type.name().equalsIgnoreCase(value))
+        .findFirst()
+        .orElse(PRIMARY);
   }
 }

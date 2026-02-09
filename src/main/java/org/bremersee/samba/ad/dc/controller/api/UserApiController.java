@@ -213,7 +213,7 @@ public class UserApiController extends UserAvatarApiController {
   )
   @GetMapping(path = "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainUser> getUser(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,
@@ -264,7 +264,7 @@ public class UserApiController extends UserAvatarApiController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainUser> updateUser(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
 
       @RequestBody DomainUser user,
@@ -303,7 +303,7 @@ public class UserApiController extends UserAvatarApiController {
   )
   @DeleteMapping(path = "/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Boolean> deleteUser(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName) {
 
     return ResponseEntity.ok(domainUserService.deleteUser(samAccountName));
@@ -340,7 +340,7 @@ public class UserApiController extends UserAvatarApiController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.TEXT_PLAIN_VALUE)
   public ResponseEntity<Void> updateUserPassword(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Schema(
@@ -417,7 +417,7 @@ public class UserApiController extends UserAvatarApiController {
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.IMAGE_JPEG_VALUE)
   public ResponseEntity<Void> updateUserAvatar(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Schema(description = "The avatar as jpeg.", type = "string", format = "binary")
@@ -460,7 +460,7 @@ public class UserApiController extends UserAvatarApiController {
   )
   @DeleteMapping(path = "/{name}/avatar", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Void> removeUserAvatar(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName) {
 
     domainUserService.removeUserAvatar(samAccountName);
@@ -495,7 +495,7 @@ public class UserApiController extends UserAvatarApiController {
   )
   @GetMapping(path = "/{name}/avatar/ad", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Boolean> existsAvatarInActiveDirectory(
-      @Parameter(name = "name", description = "The name of the user.")
+      @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
 
       @Parameter(name = OU,

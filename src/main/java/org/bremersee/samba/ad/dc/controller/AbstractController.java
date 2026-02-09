@@ -68,6 +68,7 @@ public abstract class AbstractController implements SortMapperAware {
     this.sortMapper = SortMapper.defaultSortMapper();
   }
 
+  @Override
   public void setSortMapper(SortMapper sortMapper) {
     if (!isEmpty(sortMapper)) {
       this.sortMapper = sortMapper;
