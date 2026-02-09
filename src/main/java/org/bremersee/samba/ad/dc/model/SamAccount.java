@@ -37,6 +37,12 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
   @Nullable
   Sid getSid();
 
+  /**
+   * With sid.
+   *
+   * @param sid the sid
+   * @return the sam account
+   */
   SamAccount withSid(Sid sid);
 
   /**
@@ -53,6 +59,12 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
     return false;
   }
 
+  /**
+   * With critical system object.
+   *
+   * @param criticalSystemObject the critical system object
+   * @return the sam account
+   */
   SamAccount withCriticalSystemObject(boolean criticalSystemObject);
 
   /**
@@ -63,6 +75,12 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
   @Nullable
   Integer getPrimaryGroupId();
 
+  /**
+   * With primary group id.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the sam account
+   */
   SamAccount withPrimaryGroupId(Integer primaryGroupId);
 
   /**
@@ -75,6 +93,12 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
     return List.of();
   }
 
+  /**
+   * With memberships.
+   *
+   * @param memberships the memberships
+   * @return the sam account
+   */
   SamAccount withMemberships(Iterable<String> memberships);
 
   @Hidden
