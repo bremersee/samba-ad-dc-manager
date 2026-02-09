@@ -19,6 +19,8 @@ package org.bremersee.samba.ad.dc.repository;
 import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -141,7 +143,8 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         .flatMap(sid -> {
           Filter filter = new AndFilter(
               objectClassFilter(),
-              new EqualityFilter(AdConstants.OBJECT_SID.getName(), SecurityIdentifier.toBytes(sid)));
+              new EqualityFilter(AdConstants.OBJECT_SID.getName(),
+                  SecurityIdentifier.toBytes(sid)));
           // SecurityIdentifier.toBytes(sid)
           SearchRequest searchRequest = SearchRequest.builder()
               .dn(getProperties().getBaseDn())
@@ -198,7 +201,15 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   }
 
   @Override
-  public DomainGroup add(DomainGroup group, Dn ou) {
+  public DomainGroup add(DomainGroup domainGroup, Dn ou) {
+    DomainGroup group = domainGroup
+        .withDistinguishedName("")
+        .withCreated(null)
+        .withModified(null)
+        .withSid(null)
+        .withCriticalSystemObject(false)
+        .withMemberships(List.of())
+        .withMembers(List.of());
     validateSamAccountName(group);
     if (samAccountExists(group)) {
       throw ServiceException.alreadyExistsWithErrorCode(
@@ -219,21 +230,30 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   }
 
   @Override
-  public DomainGroup update(String name, DomainGroup group, Dn newOu) {
-    log.debug("update({}, {}, {})", name, group.getSamAccountName(), newOu);
-    validateSamAccountName(group);
-    if (!name.equalsIgnoreCase(group.getSamAccountName())
-        && samAccountNameExists(group.getSamAccountName())) {
+  public DomainGroup update(String name, DomainGroup domainGroup, Dn newOu) {
+    log.debug("update({}, {}, {})", name, domainGroup.getSamAccountName(), newOu);
+    validateSamAccountName(domainGroup);
+    if (!name.equalsIgnoreCase(domainGroup.getSamAccountName())
+        && samAccountNameExists(domainGroup.getSamAccountName())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainGroup.class.getSimpleName(),
-          group.getSamAccountName(),
+          domainGroup.getSamAccountName(),
           EC_SAM_ACCOUNT_ALREADY_EXISTS);
     }
     DomainGroup existingGroup = findOne(name, null, null)
         .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
             DomainGroup.class.getSimpleName(),
-            group.getSamAccountName(),
+            domainGroup.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
+    DomainGroup group = domainGroup
+        .withDistinguishedName(existingGroup.getDistinguishedName())
+        .withCreated(existingGroup.getCreated())
+        .withModified(OffsetDateTime.now())
+        .withSid(existingGroup.getSid())
+        .withCriticalSystemObject(existingGroup.isCriticalSystemObject())
+        .withGroupType(existingGroup.getGroupType())
+        .withMemberships(existingGroup.getMemberships())
+        .withMembers(existingGroup.getMembers());
     if (!isEmpty(group.getGidNumber())
         && !Objects.equals(group.getGidNumber(), existingGroup.getGidNumber())
         && existsByGidNumber(group.getGidNumber())) {

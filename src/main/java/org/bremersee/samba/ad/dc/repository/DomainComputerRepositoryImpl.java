@@ -2,6 +2,7 @@ package org.bremersee.samba.ad.dc.repository;
 
 import static java.util.Objects.isNull;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -115,13 +116,19 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
   @Override
   public DomainComputer update(DomainComputer domainComputer, Dn newOu) {
     log.debug("update({}, {})", domainComputer.getSamAccountName(), newOu);
-    DomainComputer existingDomainComputer = findOne(
+    DomainComputer existingComputer = findOne(
         domainComputer.getSamAccountName(), null, null)
         .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
             DomainComputer.class.getSimpleName(),
             domainComputer.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
-    Dn oldDn = new Dn(existingDomainComputer.getDistinguishedName());
+    DomainComputer computer = domainComputer
+        .withDistinguishedName(existingComputer.getDistinguishedName())
+        .withCreated(existingComputer.getCreated())
+        .withModified(OffsetDateTime.now())
+        .withSid(existingComputer.getSid())
+        .withCriticalSystemObject(existingComputer.isCriticalSystemObject());
+    Dn oldDn = new Dn(existingComputer.getDistinguishedName());
     Dn newDn = new Dn(oldDn.getRDn());
     newDn.add(validateParentDn(newOu, oldDn::getParent));
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
@@ -133,7 +140,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
     moveAndRename(oldDn, newDn);
     String newDnStr = DnTool.toString(newDn);
     return getLdapOperations()
-        .save(domainComputer.withDistinguishedName(newDnStr), domainComputerLdapMapper);
+        .save(computer.withDistinguishedName(newDnStr), domainComputerLdapMapper);
   }
 
   @Override

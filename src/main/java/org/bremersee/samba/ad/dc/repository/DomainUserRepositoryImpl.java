@@ -20,6 +20,8 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -287,13 +289,22 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
 
   @Override
   public DomainUser add(
-      DomainUser user,
+      DomainUser domainUser,
       String clearPassword,
       Dn ou,
       Boolean useUsernameAsCn) {
 
-    log.debug("add({}, {}, {}, {})", user.getSamAccountName(),
+    log.debug("add({}, {}, {}, {})", domainUser.getSamAccountName(),
         isEmpty(clearPassword) ? "null" : "****", ou, useUsernameAsCn);
+
+    DomainUser user = domainUser
+        .withDistinguishedName("")
+        .withCreated(null)
+        .withModified(null)
+        .withSid(null)
+        .withCriticalSystemObject(false)
+        .withPrimaryGroupId(null)
+        .withMemberships(List.of());
 
     validateNewSamAccountName(user);
     validateEmail(user.getEmail());
@@ -361,33 +372,40 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
             DomainUser.class.getSimpleName(),
             domainUser.getSamAccountName(),
             EC_SAM_ACCOUNT_NOT_FOUND));
-    if (!isEmpty(domainUser.getUserPrincipalName())
-        && !domainUser.getUserPrincipalName()
+    DomainUser user = domainUser
+        .withDistinguishedName(existingDomainUser.getDistinguishedName())
+        .withCreated(existingDomainUser.getCreated())
+        .withModified(OffsetDateTime.now())
+        .withSid(existingDomainUser.getSid())
+        .withCriticalSystemObject(existingDomainUser.isCriticalSystemObject())
+        .withMemberships(existingDomainUser.getMemberships());
+    if (!isEmpty(user.getUserPrincipalName())
+        && !user.getUserPrincipalName()
         .equalsIgnoreCase(existingDomainUser.getUserPrincipalName())
-        && existsByPrincipalName(domainUser.getUserPrincipalName())) {
+        && existsByPrincipalName(user.getUserPrincipalName())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName() + ".userPrincipalName",
-          domainUser.getUserPrincipalName(),
+          user.getUserPrincipalName(),
           EC_PRINCIPAL_ALREADY_EXISTS);
     }
-    if (!isEmpty(domainUser.getUid())
-        && !domainUser.getUid().equalsIgnoreCase(existingDomainUser.getUid())
-        && existsByUid(domainUser.getUid())) {
+    if (!isEmpty(user.getUid())
+        && !user.getUid().equalsIgnoreCase(existingDomainUser.getUid())
+        && existsByUid(user.getUid())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName() + ".uid",
-          domainUser.getUid(),
+          user.getUid(),
           EC_UID_ALREADY_EXISTS);
     }
-    if (!isEmpty(domainUser.getUidNumber())
-        && !Objects.equals(domainUser.getUidNumber(), existingDomainUser.getUidNumber())
-        && existsByUidNumber(domainUser.getUidNumber())) {
+    if (!isEmpty(user.getUidNumber())
+        && !Objects.equals(user.getUidNumber(), existingDomainUser.getUidNumber())
+        && existsByUidNumber(user.getUidNumber())) {
       throw ServiceException.alreadyExistsWithErrorCode(
           DomainUser.class.getSimpleName() + ".uidNumber",
-          domainUser.getUidNumber(),
+          user.getUidNumber(),
           EC_UID_NUMBER_ALREADY_EXISTS);
     }
     Dn oldDn = new Dn(existingDomainUser.getDistinguishedName());
-    Dn newDn = new Dn(getRdn(existingDomainUser, domainUser));
+    Dn newDn = new Dn(getRdn(existingDomainUser, user));
     newDn.add(validateParentDn(newOu, oldDn::getParent));
     if (!oldDn.isSame(newDn) && dnExistsWithAnyObjectClass(newDn.format())) {
       throw ServiceException.alreadyExistsWithErrorCode(
@@ -398,7 +416,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     moveAndRename(oldDn, newDn);
     String newDnStr = DnTool.toString(newDn);
     return getLdapOperations()
-        .save(domainUser.withDistinguishedName(newDnStr), domainUserLdapMapper);
+        .save(user.withDistinguishedName(newDnStr), domainUserLdapMapper);
   }
 
   @Override

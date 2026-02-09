@@ -1,6 +1,7 @@
 package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,8 +61,26 @@ public class UserAvatarApiController extends ApiController {
       value = "/{name}/avatar",
       produces = {MediaType.IMAGE_JPEG_VALUE})
   public ResponseEntity<byte[]> getUserAvatar(
+      @Parameter(name = "name", description = "The name of the user.")
       @PathVariable(name = "name") String samAccountName,
-      @RequestParam(name = "d", defaultValue = "NOT_FOUND") AvatarDefault avatarDefault,
+
+      @Parameter(
+          name = "d",
+          description = "Specifies the default avatar.",
+          schema = @Schema(
+              implementation = AvatarDefault.class,
+              defaultValue = "404",
+              example = "mp"))
+      @RequestParam(name = "d", defaultValue = "404") AvatarDefault avatarDefault,
+
+      @Parameter(
+          name = "s",
+          description = "Specifies the size of the avatar.",
+          schema = @Schema(
+              type = "integer",
+              format = "int32",
+              defaultValue = "80",
+              example = "120"))
       @RequestParam(name = "s", defaultValue = "80") Integer size) {
 
     String filename = Optional.of(samAccountName)

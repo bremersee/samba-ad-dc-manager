@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import org.bremersee.comparator.ComparatorBuilder;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
-import org.bremersee.samba.ad.dc.controller.api.mapper.GroupPatchMapper;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberModifications;
@@ -39,7 +38,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -150,14 +148,7 @@ public class GroupApiController extends ApiController {
       @RequestParam(name = OU, required = false)
       Dn ou) {
 
-    DomainGroup groupToAdd = group
-        .withDistinguishedName("")
-        .withSid(null)
-        .withCriticalSystemObject(false)
-        .withPrimaryGroupId(null)
-        .withMemberships(List.of())
-        .withMembers(List.of());
-    return ResponseEntity.ok(domainGroupService.addGroup(groupToAdd, ou));
+    return ResponseEntity.ok(domainGroupService.addGroup(group, ou));
   }
 
   @Operation(
@@ -255,24 +246,13 @@ public class GroupApiController extends ApiController {
           })
       }
   )
-  @PatchMapping(
+  @PutMapping(
       path = "/{name}",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DomainGroup> updateGroup(
       @Parameter(name = "name", description = "The name of the group.")
       @PathVariable("name") String samAccountName,
-
-      @Parameter(name = OU,
-          description = "The search base (organizational unit) like 'CN=Groups'.",
-          schema = @Schema(type = "string"))
-      @RequestParam(name = OU, required = false)
-      Dn ou,
-
-      @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
-      @RequestParam(name = SCOPE, required = false)
-      TreeSearchScope scope,
 
       @RequestBody DomainGroup group,
 
@@ -282,10 +262,7 @@ public class GroupApiController extends ApiController {
       @RequestParam(name = "move-to", required = false)
       Dn newOu) {
 
-    Optional<DomainGroup> updated = domainGroupService.getGroup(samAccountName, ou, scope)
-        .map(existing -> GroupPatchMapper.INSTANCE.patch(group, existing))
-        .map(patched -> domainGroupService.updateGroup(samAccountName, patched, newOu));
-    return ResponseEntity.of(updated);
+    return ResponseEntity.ok(domainGroupService.updateGroup(samAccountName, group, newOu));
   }
 
   @Operation(
@@ -484,7 +461,7 @@ public class GroupApiController extends ApiController {
           })
       }
   )
-  @PatchMapping(
+  @PutMapping(
       path = "/{name}/members",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)

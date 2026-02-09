@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.Optional;
+import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
-import org.bremersee.samba.ad.dc.controller.api.mapper.ComputerPatchMapper;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.DomainComputerPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
@@ -24,8 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -171,7 +171,7 @@ public class ComputerApiController extends ApiController {
           })
       }
   )
-  @PatchMapping(
+  @PutMapping(
       path = "/{name}",
       produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -180,29 +180,19 @@ public class ComputerApiController extends ApiController {
       @Parameter(name = "name", description = "The name of the computer.")
       @PathVariable("name") String samAccountName,
 
-      @Parameter(name = OU,
-          description = "The search base (organizational unit) like 'CN=Computers'.",
-          schema = @Schema(type = "string"))
-      @RequestParam(name = OU, required = false)
-      Dn ou,
-
-      @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
-      @RequestParam(name = SCOPE, required = false)
-      TreeSearchScope scope,
-
       @Parameter(name = "move-to",
-          description = "The new organizational unit like 'CN=Servers'.",
+          description = "The new organizational unit of the computer like 'CN=Servers'.",
           schema = @Schema(type = "string"))
       @RequestParam(name = "move-to", required = false)
       Dn newOu,
 
       @RequestBody DomainComputer computer) {
 
-    Optional<DomainComputer> updated = domainComputerService.getComputer(samAccountName, ou, scope)
-        .map(existing -> ComputerPatchMapper.INSTANCE.patch(computer, existing))
-        .map(patched -> domainComputerService.updateComputer(patched, newOu));
-    return ResponseEntity.of(updated);
+    if (!DnTool.isValidDn(samAccountName)
+        && !samAccountName.equalsIgnoreCase(computer.getSamAccountName())) {
+      throw ServiceException.badRequest("Renaming of a computer is not supported.");
+    }
+    return ResponseEntity.ok(domainComputerService.updateComputer(computer, newOu));
   }
 
   @Operation(

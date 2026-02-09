@@ -16,11 +16,19 @@
 
 package org.bremersee.samba.ad.dc.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * The avatar default.
  *
  * @author Christian Bremer
  */
+@Schema(
+    name = "AvatarDefault",
+    description = "Specifies the default avatar or 'not found'.",
+    enumAsRef = true)
 public enum AvatarDefault {
 
   /**
@@ -71,13 +79,25 @@ public enum AvatarDefault {
     this.value = value;
   }
 
+  @JsonValue
   @Override
   public String toString() {
     return value;
   }
 
   /**
-   * From value avatar default.
+   * From value.
+   *
+   * @param value the value
+   * @return the avatar default
+   */
+  @JsonCreator
+  public static AvatarDefault fromValue(String value) {
+    return fromValue(value, AvatarDefault.NOT_FOUND);
+  }
+
+  /**
+   * From value.
    *
    * @param value the value
    * @param defaultAvatarDefault the default avatar default
