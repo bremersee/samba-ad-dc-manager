@@ -154,6 +154,7 @@ public class GroupApiController extends ApiController {
         .withDistinguishedName("")
         .withSid(null)
         .withCriticalSystemObject(false)
+        .withPrimaryGroupId(null)
         .withMemberships(List.of())
         .withMembers(List.of());
     return ResponseEntity.ok(domainGroupService.addGroup(groupToAdd, ou));

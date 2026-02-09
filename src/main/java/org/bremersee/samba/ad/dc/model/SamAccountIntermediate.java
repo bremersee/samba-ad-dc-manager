@@ -54,6 +54,14 @@ public interface SamAccountIntermediate extends SamAccount {
   }
 
   @Override
+  default SamAccountIntermediate withPrimaryGroupId(Integer primaryGroupId) {
+    return builder()
+        .from(this)
+        .primaryGroupId(primaryGroupId)
+        .build();
+  }
+
+  @Override
   default SamAccountIntermediate withMemberships(Iterable<String> memberships) {
     return builder()
         .from(this)

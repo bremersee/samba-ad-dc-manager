@@ -21,6 +21,7 @@ public abstract class ComputerPatchMapper {
         .withDistinguishedName(existing.getDistinguishedName())
         .withSid(existing.getSid())
         .withCriticalSystemObject(existing.isCriticalSystemObject())
+        .withPrimaryGroupId(existing.getPrimaryGroupId())
         .withMemberships(existing.getMemberships())
         .withName(existing.getName());
     return patchInternal(source, DomainComputer.builder().from(existing));

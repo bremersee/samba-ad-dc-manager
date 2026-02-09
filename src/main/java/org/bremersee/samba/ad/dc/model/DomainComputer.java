@@ -62,6 +62,14 @@ public interface DomainComputer extends SamAccount {
         .build();
   }
 
+  @Override
+  default DomainComputer withPrimaryGroupId(Integer primaryGroupId) {
+    return builder()
+        .from(this)
+        .primaryGroupId(primaryGroupId)
+        .build();
+  }
+
   @Schema(description = "The name of the computer.")
   @JsonProperty(value = "name")
   @Nullable

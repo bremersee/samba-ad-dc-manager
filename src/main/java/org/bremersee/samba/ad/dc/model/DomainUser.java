@@ -67,6 +67,14 @@ public interface DomainUser extends SamAccount, NisDomainMember {
   }
 
   @Override
+  default DomainUser withPrimaryGroupId(Integer primaryGroupId) {
+    return builder()
+        .from(this)
+        .primaryGroupId(primaryGroupId)
+        .build();
+  }
+
+  @Override
   default DomainUser withMemberships(Iterable<String> memberships) {
     return builder()
         .from(this)

@@ -58,6 +58,11 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
   }
 
   @Override
+  default DomainGroup withPrimaryGroupId(Integer primaryGroupId) {
+    return this;
+  }
+
+  @Override
   default DomainGroup withMemberships(Iterable<String> memberships) {
     return builder()
         .from(this)

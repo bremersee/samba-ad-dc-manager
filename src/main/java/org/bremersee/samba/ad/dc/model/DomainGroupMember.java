@@ -54,6 +54,14 @@ public interface DomainGroupMember extends SamAccount {
   }
 
   @Override
+  default DomainGroupMember withPrimaryGroupId(Integer primaryGroupId) {
+    return builder()
+        .from(this)
+        .primaryGroupId(primaryGroupId)
+        .build();
+  }
+
+  @Override
   default DomainGroupMember withMemberships(Iterable<String> memberships) {
     return builder()
         .from(this)

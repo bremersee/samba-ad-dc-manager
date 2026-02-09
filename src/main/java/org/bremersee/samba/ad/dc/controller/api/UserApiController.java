@@ -165,6 +165,7 @@ public class UserApiController extends UserAvatarApiController {
     DomainUser userToAdd = user.withDistinguishedName("")
         .withSid(null)
         .withCriticalSystemObject(false)
+        .withPrimaryGroupId(null)
         .withMemberships(List.of());
     if (sendInvitationEmail && isEmpty(userToAdd.getEmail())) {
       throw ServiceException
