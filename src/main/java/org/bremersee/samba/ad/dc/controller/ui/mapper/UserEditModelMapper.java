@@ -17,12 +17,19 @@ import org.mapstruct.factory.Mappers;
  * The user edit model mapper.
  */
 @Mapper
-public interface UserEditModelMapper {
+public abstract class UserEditModelMapper {
 
   /**
    * The constant INSTANCE.
    */
-  UserEditModelMapper INSTANCE = Mappers.getMapper(UserEditModelMapper.class);
+  public static final UserEditModelMapper INSTANCE = Mappers.getMapper(UserEditModelMapper.class);
+
+  /**
+   * Instantiates a new user edit model mapper.
+   */
+  protected UserEditModelMapper() {
+    super();
+  }
 
   /**
    * Map user edit model.
@@ -40,7 +47,7 @@ public interface UserEditModelMapper {
   @Mapping(target = "removeAvatar", ignore = true)
   @Mapping(target = "renameNamesAutomatically", ignore = true)
   @Mapping(target = "accountExpiresIso", ignore = true)
-  UserEditModel map(DomainUser source);
+  public abstract UserEditModel map(DomainUser source);
 
   /**
    * Map no expiry internal.
@@ -49,7 +56,7 @@ public interface UserEditModelMapper {
    * @return the boolean
    */
   @Named("mapNoExpiry")
-  default boolean mapNoExpiryInternal(DomainUser source) {
+  boolean mapNoExpiryInternal(DomainUser source) {
     return isNull(source.getAccountExpires());
   }
 
@@ -60,7 +67,7 @@ public interface UserEditModelMapper {
    * @param existingDomainUser the existing domain user
    * @return the domain user
    */
-  default DomainUser merge(UserEditModel source, DomainUser existingDomainUser) {
+  public DomainUser merge(UserEditModel source, DomainUser existingDomainUser) {
     return mergeInternal(source, DomainUser.builder().from(existingDomainUser));
   }
 
@@ -85,7 +92,7 @@ public interface UserEditModelMapper {
   @Mapping(target = "lastLogon", ignore = true)
   @Mapping(target = "logonCount", ignore = true)
   @Mapping(target = "passwordLastSet", ignore = true)
-  DomainUser mergeInternal(
+  abstract DomainUser mergeInternal(
       UserEditModel source,
       @MappingTarget ImmutableDomainUser.Builder target);
 
@@ -96,7 +103,7 @@ public interface UserEditModelMapper {
    * @return the offset date time
    */
   @Named("mergeAccountExpiresInternal")
-  default OffsetDateTime mergeAccountExpiresInternal(UserEditModel source) {
+  OffsetDateTime mergeAccountExpiresInternal(UserEditModel source) {
     if (source.isNoExpiry()) {
       return null;
     }
@@ -110,7 +117,7 @@ public interface UserEditModelMapper {
    * @return the domain user account control
    */
   @Named("mergeAccountControl")
-  default DomainUserAccountControl mergeAccountControlInternal(UserEditModel source) {
+  DomainUserAccountControl mergeAccountControlInternal(UserEditModel source) {
     if (isNull(source)) {
       return null;
     }

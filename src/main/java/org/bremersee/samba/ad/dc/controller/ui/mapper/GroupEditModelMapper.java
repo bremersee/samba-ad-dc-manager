@@ -12,12 +12,20 @@ import org.mapstruct.factory.Mappers;
  * The group edit model mapper.
  */
 @Mapper
-public interface GroupEditModelMapper {
+public abstract class GroupEditModelMapper {
 
   /**
    * The constant INSTANCE.
    */
-  GroupEditModelMapper INSTANCE = Mappers.getMapper(GroupEditModelMapper.class);
+  public static final GroupEditModelMapper INSTANCE = Mappers
+      .getMapper(GroupEditModelMapper.class);
+
+  /**
+   * Instantiates a new group edit model mapper.
+   */
+  protected GroupEditModelMapper() {
+    super();
+  }
 
   /**
    * Map group edit model.
@@ -26,7 +34,7 @@ public interface GroupEditModelMapper {
    * @return the group edit model
    */
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
-  GroupEditModel map(DomainGroup source);
+  public abstract GroupEditModel map(DomainGroup source);
 
   /**
    * Merge domain group.
@@ -35,7 +43,7 @@ public interface GroupEditModelMapper {
    * @param existing the existing
    * @return the domain group
    */
-  default DomainGroup merge(GroupEditModel source, DomainGroup existing) {
+  public DomainGroup merge(GroupEditModel source, DomainGroup existing) {
     return mergeInternal(source, DomainGroup.builder().from(existing));
   }
 
@@ -54,7 +62,7 @@ public interface GroupEditModelMapper {
   @Mapping(target = "memberships", ignore = true)
   @Mapping(target = "groupType", ignore = true)
   @Mapping(target = "members", ignore = true)
-  DomainGroup mergeInternal(
+  abstract DomainGroup mergeInternal(
       GroupEditModel source,
       @MappingTarget ImmutableDomainGroup.Builder target);
 

@@ -12,7 +12,20 @@ import org.mapstruct.factory.Mappers;
  * The organizational unit edit model mapper.
  */
 @Mapper
-public interface OrganizationalUnitEditModelMapper {
+public abstract class OrganizationalUnitEditModelMapper {
+
+  /**
+   * The constant INSTANCE.
+   */
+  public static final OrganizationalUnitEditModelMapper INSTANCE = Mappers
+      .getMapper(OrganizationalUnitEditModelMapper.class);
+
+  /**
+   * Instantiates a new organizational unit edit model mapper.
+   */
+  protected OrganizationalUnitEditModelMapper() {
+    super();
+  }
 
   /**
    * Map organizational unit edit model.
@@ -23,13 +36,7 @@ public interface OrganizationalUnitEditModelMapper {
   @Mapping(target = "ou", source = "distinguishedName")
   @Mapping(target = "parentOu", source = "parentDistinguishedName")
   @Mapping(target = "newName", source = "name")
-  OrganizationalUnitEditModel map(OrganizationalUnit source);
-
-  /**
-   * The constant INSTANCE.
-   */
-  OrganizationalUnitEditModelMapper INSTANCE = Mappers
-      .getMapper(OrganizationalUnitEditModelMapper.class);
+  public abstract OrganizationalUnitEditModel map(OrganizationalUnit source);
 
   /**
    * Merge organizational unit.
@@ -38,7 +45,7 @@ public interface OrganizationalUnitEditModelMapper {
    * @param existing the existing
    * @return the organizational unit
    */
-  default OrganizationalUnit merge(OrganizationalUnitEditModel source,
+  public OrganizationalUnit merge(OrganizationalUnitEditModel source,
       OrganizationalUnit existing) {
     return mergeInternal(source, OrganizationalUnit.builder().from(existing));
   }
@@ -55,7 +62,7 @@ public interface OrganizationalUnitEditModelMapper {
   @Mapping(target = "modified", ignore = true)
   @Mapping(target = "systemOu", ignore = true)
   @Mapping(target = "name", source = "newName")
-  OrganizationalUnit mergeInternal(
+  abstract OrganizationalUnit mergeInternal(
       OrganizationalUnitEditModel source,
       @MappingTarget ImmutableOrganizationalUnit.Builder target);
 }

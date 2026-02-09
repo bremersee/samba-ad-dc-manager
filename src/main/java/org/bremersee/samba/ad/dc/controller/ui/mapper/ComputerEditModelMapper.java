@@ -12,12 +12,20 @@ import org.mapstruct.factory.Mappers;
  * The computer edit model mapper.
  */
 @Mapper
-public interface ComputerEditModelMapper {
+public abstract class ComputerEditModelMapper {
 
   /**
    * The constant INSTANCE.
    */
-  ComputerEditModelMapper INSTANCE = Mappers.getMapper(ComputerEditModelMapper.class);
+  public static final ComputerEditModelMapper INSTANCE = Mappers
+      .getMapper(ComputerEditModelMapper.class);
+
+  /**
+   * Instantiates a new computer edit model mapper.
+   */
+  protected ComputerEditModelMapper() {
+    super();
+  }
 
   /**
    * Map computer edit model.
@@ -26,7 +34,7 @@ public interface ComputerEditModelMapper {
    * @return the computer edit model
    */
   @Mapping(target = "newOu", source = "parentDistinguishedNameNormalized")
-  ComputerEditModel map(DomainComputer source);
+  public abstract ComputerEditModel map(DomainComputer source);
 
   /**
    * Merge domain computer.
@@ -35,7 +43,7 @@ public interface ComputerEditModelMapper {
    * @param existing the existing
    * @return the domain computer
    */
-  default DomainComputer merge(ComputerEditModel source, DomainComputer existing) {
+  public DomainComputer merge(ComputerEditModel source, DomainComputer existing) {
     return mergeInternal(source, DomainComputer.builder().from(existing));
   }
 
@@ -60,7 +68,7 @@ public interface ComputerEditModelMapper {
   @Mapping(target = "operatingSystem", ignore = true)
   @Mapping(target = "operatingSystemVersion", ignore = true)
   @Mapping(target = "servicePrincipalNames", ignore = true)
-  DomainComputer mergeInternal(
+  abstract DomainComputer mergeInternal(
       ComputerEditModel source,
       @MappingTarget ImmutableDomainComputer.Builder target);
 
