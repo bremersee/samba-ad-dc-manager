@@ -5,6 +5,8 @@ import static java.util.Objects.requireNonNullElse;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import java.util.Objects;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 
@@ -32,6 +34,30 @@ public interface SamAccountIntermediate extends SamAccount {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default SamAccountIntermediate withSid(Sid sid) {
+    return builder()
+        .from(this)
+        .sid(sid)
+        .build();
+  }
+
+  @Override
+  default SamAccountIntermediate withCriticalSystemObject(boolean criticalSystemObject) {
+    return builder()
+        .from(this)
+        .criticalSystemObject(criticalSystemObject)
+        .build();
+  }
+
+  @Override
+  default SamAccountIntermediate withMemberships(Iterable<String> memberships) {
+    return builder()
+        .from(this)
+        .memberships(Objects.requireNonNullElseGet(memberships, List::of))
         .build();
   }
 

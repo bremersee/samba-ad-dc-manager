@@ -19,6 +19,9 @@ public abstract class GroupPatchMapper {
   public DomainGroup patch(DomainGroup patch, DomainGroup existing) {
     DomainGroup source = patch
         .withDistinguishedName(existing.getDistinguishedName())
+        .withSid(existing.getSid())
+        .withCriticalSystemObject(existing.isCriticalSystemObject())
+        .withMemberships(existing.getMemberships())
         .withGroupType(existing.getGroupType())
         .withMembers(existing.getMembers());
     return patchInternal(source, DomainGroup.builder().from(existing));

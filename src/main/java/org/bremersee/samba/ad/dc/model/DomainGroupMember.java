@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Objects;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
@@ -32,6 +34,30 @@ public interface DomainGroupMember extends SamAccount {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default DomainGroupMember withSid(Sid sid) {
+    return builder()
+        .from(this)
+        .sid(sid)
+        .build();
+  }
+
+  @Override
+  default DomainGroupMember withCriticalSystemObject(boolean criticalSystemObject) {
+    return builder()
+        .from(this)
+        .criticalSystemObject(criticalSystemObject)
+        .build();
+  }
+
+  @Override
+  default DomainGroupMember withMemberships(Iterable<String> memberships) {
+    return builder()
+        .from(this)
+        .memberships(Objects.requireNonNullElseGet(memberships, List::of))
         .build();
   }
 

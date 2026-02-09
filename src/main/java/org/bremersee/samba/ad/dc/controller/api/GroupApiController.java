@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bremersee.comparator.ComparatorBuilder;
-import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.mapper.GroupPatchMapper;
@@ -55,13 +54,8 @@ public class GroupApiController extends ApiController {
 
   private final DomainGroupService domainGroupService;
 
-  private final SortMapper sortMapper;
-
-  public GroupApiController(
-      DomainGroupService domainGroupService,
-      SortMapper sortMapper) {
+  public GroupApiController(DomainGroupService domainGroupService) {
     this.domainGroupService = domainGroupService;
-    this.sortMapper = sortMapper;
   }
 
   @PageableAsQueryParam
@@ -158,6 +152,9 @@ public class GroupApiController extends ApiController {
 
     DomainGroup groupToAdd = group
         .withDistinguishedName("")
+        .withSid(null)
+        .withCriticalSystemObject(false)
+        .withMemberships(List.of())
         .withMembers(List.of());
     return ResponseEntity.ok(domainGroupService.addGroup(groupToAdd, ou));
   }
@@ -382,7 +379,7 @@ public class GroupApiController extends ApiController {
     }
     List<DomainGroup> groups = groupStream
         .sorted(ComparatorBuilder.newInstance()
-            .addAll(sortMapper.fromSort(sort))
+            .addAll(getSortMapper().fromSort(sort))
             .build())
         .toList();
     return ResponseEntity.ok(groups);

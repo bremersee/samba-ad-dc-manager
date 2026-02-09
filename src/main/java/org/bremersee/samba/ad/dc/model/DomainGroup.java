@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -37,6 +38,30 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default DomainGroup withSid(Sid sid) {
+    return builder()
+        .from(this)
+        .sid(sid)
+        .build();
+  }
+
+  @Override
+  default DomainGroup withCriticalSystemObject(boolean criticalSystemObject) {
+    return builder()
+        .from(this)
+        .criticalSystemObject(criticalSystemObject)
+        .build();
+  }
+
+  @Override
+  default DomainGroup withMemberships(Iterable<String> memberships) {
+    return builder()
+        .from(this)
+        .memberships(Objects.requireNonNullElseGet(memberships, List::of))
         .build();
   }
 

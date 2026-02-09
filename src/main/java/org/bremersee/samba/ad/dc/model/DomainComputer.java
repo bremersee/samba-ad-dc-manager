@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import java.util.Objects;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
@@ -34,6 +35,30 @@ public interface DomainComputer extends SamAccount {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default DomainComputer withSid(Sid sid) {
+    return builder()
+        .from(this)
+        .sid(sid)
+        .build();
+  }
+
+  @Override
+  default DomainComputer withMemberships(Iterable<String> memberships) {
+    return builder()
+        .from(this)
+        .memberships(Objects.requireNonNullElseGet(memberships, List::of))
+        .build();
+  }
+
+  @Override
+  default DomainComputer withCriticalSystemObject(boolean criticalSystemObject) {
+    return builder()
+        .from(this)
+        .criticalSystemObject(criticalSystemObject)
         .build();
   }
 

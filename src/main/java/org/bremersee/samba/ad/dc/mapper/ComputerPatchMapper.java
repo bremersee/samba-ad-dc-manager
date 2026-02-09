@@ -19,6 +19,9 @@ public abstract class ComputerPatchMapper {
   public DomainComputer patch(DomainComputer patch, DomainComputer existing) {
     DomainComputer source = patch
         .withDistinguishedName(existing.getDistinguishedName())
+        .withSid(existing.getSid())
+        .withCriticalSystemObject(existing.isCriticalSystemObject())
+        .withMemberships(existing.getMemberships())
         .withName(existing.getName());
     return patchInternal(source, DomainComputer.builder().from(existing));
   }

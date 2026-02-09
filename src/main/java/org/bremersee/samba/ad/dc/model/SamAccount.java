@@ -37,6 +37,8 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
   @Nullable
   Sid getSid();
 
+  SamAccount withSid(Sid sid);
+
   /**
    * Determines whether this sam account is a critical system object or not.
    *
@@ -50,6 +52,8 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
   default boolean isCriticalSystemObject() {
     return false;
   }
+
+  SamAccount withCriticalSystemObject(boolean criticalSystemObject);
 
   /**
    * Gets primary group id.
@@ -68,6 +72,8 @@ public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount
   default List<String> getMemberships() {
     return List.of();
   }
+
+  SamAccount withMemberships(Iterable<String> memberships);
 
   @Hidden
   @JsonIgnore
