@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.immutables.value.Value;
@@ -18,6 +19,15 @@ import org.springframework.lang.Nullable;
  */
 @Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
 public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {
+
+  @Override
+  SamAccount withDistinguishedName(String distinguishedName);
+
+  @Override
+  SamAccount withCreated(OffsetDateTime created);
+
+  @Override
+  SamAccount withModified(OffsetDateTime modified);
 
   /**
    * Gets sam account name.

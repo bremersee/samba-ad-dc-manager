@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNullElse;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 
@@ -32,6 +33,22 @@ public interface AdEntryIntermediate extends AdEntry {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default AdEntryIntermediate withCreated(OffsetDateTime created) {
+    return builder()
+        .from(this)
+        .created(created)
+        .build();
+  }
+
+  @Override
+  default AdEntryIntermediate withModified(OffsetDateTime modified) {
+    return builder()
+        .from(this)
+        .modified(modified)
         .build();
   }
 

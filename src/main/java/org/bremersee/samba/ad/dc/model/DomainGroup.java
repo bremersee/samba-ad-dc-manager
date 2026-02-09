@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +39,22 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default DomainGroup withCreated(OffsetDateTime created) {
+    return builder()
+        .from(this)
+        .created(created)
+        .build();
+  }
+
+  @Override
+  default DomainGroup withModified(OffsetDateTime modified) {
+    return builder()
+        .from(this)
+        .modified(modified)
         .build();
   }
 

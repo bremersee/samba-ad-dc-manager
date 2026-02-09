@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -40,6 +41,22 @@ public interface DnsEntry extends AdEntry {
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default DnsEntry withCreated(OffsetDateTime created) {
+    return builder()
+        .from(this)
+        .created(created)
+        .build();
+  }
+
+  @Override
+  default DnsEntry withModified(OffsetDateTime modified) {
+    return builder()
+        .from(this)
+        .modified(modified)
         .build();
   }
 

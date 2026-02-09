@@ -51,6 +51,22 @@ public interface DomainUser extends SamAccount, NisDomainMember {
   }
 
   @Override
+  default DomainUser withCreated(OffsetDateTime created) {
+    return builder()
+        .from(this)
+        .created(created)
+        .build();
+  }
+
+  @Override
+  default DomainUser withModified(OffsetDateTime modified) {
+    return builder()
+        .from(this)
+        .modified(modified)
+        .build();
+  }
+
+  @Override
   default DomainUser withSid(Sid sid) {
     return builder()
         .from(this)

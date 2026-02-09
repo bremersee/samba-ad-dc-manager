@@ -113,6 +113,14 @@ public interface AdEntry extends Serializable, DistinguishedNameProvider {
   OffsetDateTime getCreated();
 
   /**
+   * With created.
+   *
+   * @param created the created
+   * @return the ad entry
+   */
+  AdEntry withCreated(OffsetDateTime created);
+
+  /**
    * The last modification date.
    *
    * @return the last modification date
@@ -120,6 +128,14 @@ public interface AdEntry extends Serializable, DistinguishedNameProvider {
   @Schema(description = "The last modification date.")
   @Nullable
   OffsetDateTime getModified();
+
+  /**
+   * With modified.
+   *
+   * @param modified the modified
+   * @return the ad entry
+   */
+  AdEntry withModified(OffsetDateTime modified);
 
   /**
    * Gets dn.

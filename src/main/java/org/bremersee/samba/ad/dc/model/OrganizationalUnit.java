@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
@@ -39,6 +40,22 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
     return builder()
         .from(this)
         .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Override
+  default OrganizationalUnit withCreated(OffsetDateTime created) {
+    return builder()
+        .from(this)
+        .created(created)
+        .build();
+  }
+
+  @Override
+  default OrganizationalUnit withModified(OffsetDateTime modified) {
+    return builder()
+        .from(this)
+        .modified(modified)
         .build();
   }
 
