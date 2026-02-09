@@ -1,4 +1,4 @@
-package org.bremersee.samba.ad.dc.mapper;
+package org.bremersee.samba.ad.dc.controller.api.mapper;
 
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.ImmutableDomainGroup;

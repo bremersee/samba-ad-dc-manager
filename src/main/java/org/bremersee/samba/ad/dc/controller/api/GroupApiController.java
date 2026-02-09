@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import org.bremersee.comparator.ComparatorBuilder;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
-import org.bremersee.samba.ad.dc.mapper.GroupPatchMapper;
+import org.bremersee.samba.ad.dc.controller.api.mapper.GroupPatchMapper;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberModifications;

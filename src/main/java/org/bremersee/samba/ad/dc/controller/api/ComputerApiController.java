@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Optional;
 import org.bremersee.exception.model.RestApiException;
-import org.bremersee.samba.ad.dc.mapper.ComputerPatchMapper;
+import org.bremersee.samba.ad.dc.controller.api.mapper.ComputerPatchMapper;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.DomainComputerPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
