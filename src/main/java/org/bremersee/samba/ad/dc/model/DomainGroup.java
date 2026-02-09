@@ -1,6 +1,7 @@
 package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
+import static java.util.Objects.requireNonNullElseGet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -70,6 +71,13 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
     return DomainGroupType.defaultGroupType();
   }
 
+  default DomainGroup withGroupType(DomainGroupType groupType) {
+    return builder()
+        .from(this)
+        .groupType(requireNonNullElseGet(groupType, DomainGroupType::defaultGroupType))
+        .build();
+  }
+
   /**
    * The members of the domain group.
    */
@@ -77,6 +85,13 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
   @Value.Default
   default List<String> getMembers() {
     return List.of();
+  }
+
+  default DomainGroup withMembers(Iterable<String> members) {
+    return builder()
+        .from(this)
+        .members(requireNonNullElseGet(members, List::of))
+        .build();
   }
 
   /**

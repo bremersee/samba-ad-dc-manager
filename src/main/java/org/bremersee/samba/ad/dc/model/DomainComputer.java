@@ -43,6 +43,13 @@ public interface DomainComputer extends SamAccount {
   @Override
   String getName();
 
+  default DomainComputer withName(String name) {
+    return builder()
+        .from(this)
+        .name(name)
+        .build();
+  }
+
   @Schema(description = "The primary group ID of the computer.")
   @JsonProperty(value = "primaryGroupId")
   @Nullable

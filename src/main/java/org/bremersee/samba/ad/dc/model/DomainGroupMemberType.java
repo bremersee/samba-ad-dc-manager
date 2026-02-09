@@ -16,8 +16,11 @@
 
 package org.bremersee.samba.ad.dc.model;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -28,6 +31,7 @@ import lombok.Getter;
  *
  * @author Christian Bremer
  */
+@Schema(description = "The type of o group member.", enumAsRef = true)
 @Getter
 public enum DomainGroupMemberType {
 
@@ -78,7 +82,7 @@ public enum DomainGroupMemberType {
 
   @JsonCreator
   public static DomainGroupMemberType fromString(String type) {
-    if (Objects.isNull(type)) {
+    if (isNull(type)) {
       return null;
     }
     try {

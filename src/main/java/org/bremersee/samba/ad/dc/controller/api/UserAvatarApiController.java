@@ -1,9 +1,12 @@
 package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.Optional;
+import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
@@ -17,11 +20,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Profile("!api")
 @RestController
+@RequestMapping(path = "/api/users")
 public class UserAvatarApiController extends ApiController {
 
   protected final DomainUserService domainUserService;
@@ -33,12 +38,26 @@ public class UserAvatarApiController extends ApiController {
   @Operation(description = "Get user avatar.")
   @ApiResponses(
       value = {
-          @ApiResponse(responseCode = "200", description = "OK."),
-          @ApiResponse(responseCode = "404", description = "Not found.")
+          @ApiResponse(responseCode = "200", description = "OK"),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "404", description = "Not found", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
       }
   )
   @GetMapping(
-      value = "/api/users/{name}/avatar",
+      value = "/{name}/avatar",
       produces = {MediaType.IMAGE_JPEG_VALUE})
   public ResponseEntity<byte[]> getUserAvatar(
       @PathVariable(name = "name") String samAccountName,

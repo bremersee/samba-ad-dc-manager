@@ -55,8 +55,8 @@ public class DomainGroupServiceImpl implements DomainGroupService {
    * @param domainGroupRepository the domain group repository
    */
   public DomainGroupServiceImpl(
-      final SortMapper sortMapper,
-      final DomainGroupRepository domainGroupRepository,
+      SortMapper sortMapper,
+      DomainGroupRepository domainGroupRepository,
       DomainGroupMemberRepository domainGroupMemberRepository) {
     this.sortMapper = sortMapper;
     this.domainGroupRepository = domainGroupRepository;
