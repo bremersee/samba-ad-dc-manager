@@ -172,6 +172,7 @@ public abstract class AdRepository implements ErrorCode {
     Dn dn = getDnTool().addBaseDn(validatedDn);
     return getLdapOperations().findOne(SearchRequest.builder()
             .dn(dn.format())
+            .filter(new PresenceFilter(AdConstants.OBJECT_CLASS.getName()))
             .scope(SearchScope.OBJECT)
             .returnAttributes(AdConstants.DN.getName())
             .sizeLimit(1)
