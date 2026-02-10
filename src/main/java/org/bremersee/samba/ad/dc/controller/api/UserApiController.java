@@ -92,7 +92,10 @@ public class UserApiController extends UserAvatarApiController {
   public ResponseEntity<DomainUserPage> getUsers(
 
       @Parameter(hidden = true)
-      @PageableDefault(size = SIZE_DEFAULT_INT, sort = GROUP_SORT) Pageable pageable,
+      @PageableDefault(
+          size = SIZE_DEFAULT_INT,
+          sort = {USER_SORT_LAST_NAME, USER_SORT_FIRST_NAME, USER_SORT_USERNAME})
+      Pageable pageable,
 
       @Parameter(name = QUERY, description = "A search term.")
       @RequestParam(name = QUERY, required = false)

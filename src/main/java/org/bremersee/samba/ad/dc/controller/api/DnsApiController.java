@@ -71,13 +71,13 @@ public class DnsApiController extends ApiController {
   @GetMapping(path = "/zones", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<String>> getDnsZoneNames(
       @Parameter(
-          name = "zone-type",
+          name = ZONE_TYPE,
           description = "Specifies the zone type.",
           schema = @Schema(
               implementation = DnsZoneType.class,
               defaultValue = "primary",
               example = "reverse"))
-      @RequestParam(name = "zone-type", defaultValue = "primary") DnsZoneType zoneType) {
+      @RequestParam(name = ZONE_TYPE, defaultValue = "primary") DnsZoneType zoneType) {
 
     return ResponseEntity.ok(dnsService.getDnsZoneNames(zoneType));
   }
@@ -108,8 +108,8 @@ public class DnsApiController extends ApiController {
   )
   @PutMapping(path = "/zones", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<DnsZone> addDnsZone(
-      @Parameter(name = "zone-name", description = "The zone name.", required = true)
-      @RequestParam(name = "zone-name") String zoneName) {
+      @Parameter(name = ZONE_NAME, description = "The zone name.", required = true)
+      @RequestParam(name = ZONE_NAME) String zoneName) {
 
     return ResponseEntity.ok(dnsService.createDnsZone(zoneName));
   }
@@ -216,7 +216,10 @@ public class DnsApiController extends ApiController {
       @PathVariable("zone") String zoneName,
 
       @Parameter(hidden = true)
-      @PageableDefault(size = SIZE_DEFAULT_INT, sort = {"name", "type", "value"}) Pageable pageable,
+      @PageableDefault(
+          size = SIZE_DEFAULT_INT,
+          sort = {DNS_ENTRY_NAME, DNS_ENTRY_TYPE, DNS_ENTRY_VALUE})
+      Pageable pageable,
 
       @Parameter(name = QUERY, description = "A search term.")
       @RequestParam(name = QUERY, required = false)

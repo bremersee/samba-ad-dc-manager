@@ -33,13 +33,19 @@ public abstract class AbstractController implements SortMapperAware {
 
   public static final String DHCP_LEASE_SORT = "ip";
 
-  public static final String DNS_ENTRY_SORT = "name;type;value";
-
   public static final String GROUP_SORT = "samAccountName";
 
   public static final String OU_SORT = "nameTree";
 
-  public static final String USER_SORT = "lastName;firstName;samAccountName";
+  public static final String USER_SORT_LAST_NAME = "lastName";
+
+  public static final String USER_SORT_FIRST_NAME = "firstName";
+
+  public static final String USER_SORT_USERNAME = "samAccountName";
+
+  public static final String USER_SORT = USER_SORT_LAST_NAME
+      + ";" + USER_SORT_FIRST_NAME
+      + ";" + USER_SORT_USERNAME;
 
   public static final String QUERY = "q";
 
@@ -60,6 +66,10 @@ public abstract class AbstractController implements SortMapperAware {
   public static final String DNS_ENTRY_TYPE = "type";
 
   public static final String DNS_ENTRY_VALUE = "value";
+
+  public static final String DNS_ENTRY_SORT = DNS_ENTRY_NAME
+      + ";" + DNS_ENTRY_TYPE
+      + ";" + DNS_ENTRY_VALUE;
 
   @Getter
   private SortMapper sortMapper;
