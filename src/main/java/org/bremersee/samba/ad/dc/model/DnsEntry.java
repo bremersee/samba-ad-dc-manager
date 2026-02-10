@@ -83,6 +83,13 @@ public interface DnsEntry extends AdEntry {
   @JsonProperty(value = "value", required = true)
   String getValue();
 
+  default DnsEntry withValue(String value) {
+    return builder()
+        .from(this)
+        .value(value)
+        .build();
+  }
+
   @Schema(description = "The flags of this dns entry.")
   @Nullable
   String getFlags();

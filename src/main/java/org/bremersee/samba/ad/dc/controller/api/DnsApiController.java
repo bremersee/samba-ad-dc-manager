@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.bremersee.exception.model.RestApiException;
+import org.bremersee.samba.ad.dc.model.DhcpLease;
+import org.bremersee.samba.ad.dc.model.DhcpLeasePage;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryPage;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
@@ -17,6 +19,7 @@ import org.bremersee.samba.ad.dc.model.DnsZoneType;
 import org.bremersee.samba.ad.dc.service.DnsService;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -265,7 +268,7 @@ public class DnsApiController extends ApiController {
   }
 
   @Operation(
-      description = "Get DNS entry to a zone.",
+      description = "Get DNS entry of a zone.",
       security = {
           @SecurityRequirement(name = "bearer-jwt"),
           @SecurityRequirement(name = "basic-auth")
@@ -305,6 +308,123 @@ public class DnsApiController extends ApiController {
       @PathVariable("type") DnsEntryType entryType,
 
       @Parameter(name = "value", description = "The value of the entry.", required = true)
+      @PathVariable("value") String entryValue,
+
+      @Parameter(
+          name = "reverse",
+          description = "Get reverse entry.",
+          schema = @Schema(type = "boolean", defaultValue = "false", example = "false"))
+      @RequestParam(name = "reverse", defaultValue = "false") boolean reverseEntry) {
+
+    DnsEntry entry = DnsEntry.builder()
+        .zoneName(zoneName)
+        .name(entryName)
+        .type(entryType)
+        .value(entryValue)
+        .build();
+    if (reverseEntry) {
+      return ResponseEntity.of(dnsService.findReverseDnsEntry(entry));
+    }
+    return ResponseEntity.of(dnsService.findDnsEntry(entry));
+  }
+
+  @Operation(
+      description = "Update DNS entry of a zone.",
+      security = {
+          @SecurityRequirement(name = "bearer-jwt"),
+          @SecurityRequirement(name = "basic-auth")
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "200", description = "OK"),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "404", description = "Not found", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      path = "/zones/{zone}/entries/{name}/{type}/{value}",
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity<DnsEntry> updateDnsEntry(
+      @Parameter(name = "zone", description = "The name of the zone.", required = true)
+      @PathVariable("zone") String zoneName,
+
+      @Parameter(name = "name", description = "The name of the entry.", required = true)
+      @PathVariable("name") String entryName,
+
+      @Parameter(name = "type", description = "The type of the entry.", required = true)
+      @PathVariable("type") DnsEntryType entryType,
+
+      @Parameter(name = "value", description = "The value of the entry.", required = true)
+      @PathVariable("value") String entryValue,
+
+      @RequestBody String newValue) {
+
+    DnsEntry entry = DnsEntry.builder()
+        .zoneName(zoneName)
+        .name(entryName)
+        .type(entryType)
+        .value(entryValue)
+        .build();
+    dnsService.updateDnsEntry(entry, newValue);
+    return ResponseEntity.of(dnsService.findDnsEntry(entry.withValue(newValue)));
+  }
+
+  @Operation(
+      description = "Delete DNS entry of a zone.",
+      security = {
+          @SecurityRequirement(name = "bearer-jwt"),
+          @SecurityRequirement(name = "basic-auth")
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "200", description = "OK"),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "404", description = "Not found", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @DeleteMapping(
+      path = "/zones/{zone}/entries/{name}/{type}/{value}",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Void> deleteDnsEntry(
+      @Parameter(name = "zone", description = "The name of the zone.", required = true)
+      @PathVariable("zone") String zoneName,
+
+      @Parameter(name = "name", description = "The name of the entry.", required = true)
+      @PathVariable("name") String entryName,
+
+      @Parameter(name = "type", description = "The type of the entry.", required = true)
+      @PathVariable("type") DnsEntryType entryType,
+
+      @Parameter(name = "value", description = "The value of the entry.", required = true)
       @PathVariable("value") String entryValue) {
 
     DnsEntry entry = DnsEntry.builder()
@@ -313,7 +433,49 @@ public class DnsApiController extends ApiController {
         .type(entryType)
         .value(entryValue)
         .build();
-    return ResponseEntity.of(dnsService.findDnsEntry(entry));
+    dnsService.deleteDnsEntry(entry);
+    return ResponseEntity.ok().build();
+  }
+
+  @PageableAsQueryParam
+  @Operation(
+      description = "Get dhcp leases.",
+      security = {
+          @SecurityRequirement(name = "bearer-jwt"),
+          @SecurityRequirement(name = "basic-auth")
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "200", description = "OK"),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "404", description = "Not found", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = "/dhcp/leases", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<DhcpLeasePage> getDhcpLeases(
+      @Parameter(hidden = true)
+      @PageableDefault(size = SIZE_DEFAULT_INT, sort = DHCP_LEASE_SORT) Pageable pageable,
+
+      @Parameter(name = QUERY, description = "A search term.")
+      @RequestParam(name = QUERY, required = false)
+      String query) {
+
+    Page<DhcpLease> page = dnsService.getDhcpLeases(pageable, query);
+    return ResponseEntity.ok(new DhcpLeasePage(page));
   }
 
 }

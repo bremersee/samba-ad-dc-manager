@@ -493,7 +493,7 @@ public class UserApiController extends UserAvatarApiController {
           })
       }
   )
-  @GetMapping(path = "/{name}/avatar/ad", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(path = "/{name}/avatar/existence", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Boolean> existsAvatarInActiveDirectory(
       @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
