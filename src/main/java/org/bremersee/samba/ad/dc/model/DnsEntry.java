@@ -17,14 +17,17 @@ import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
 import org.springframework.lang.Nullable;
 
-@Schema(description = "DNS entry.")
+@Schema(name = "DnsEntry", description = "DNS entry.", implementation = DnsEntry.class)
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+    passAnnotations = {
+        Schema.class
+    })
 @Value.Immutable
 @Value.Modifiable
 @Serial.Version(1L)

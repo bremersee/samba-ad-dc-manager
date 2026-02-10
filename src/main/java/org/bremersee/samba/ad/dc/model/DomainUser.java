@@ -22,14 +22,17 @@ import org.springframework.lang.Nullable;
 /**
  * The interface Domain user.
  */
-@Schema(description = "The domain user.")
+@Schema(name = "DomainUser", description = "The domain user.", implementation = DomainUser.class)
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+    passAnnotations = {
+        Schema.class
+    })
 @Value.Immutable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainUser.class)

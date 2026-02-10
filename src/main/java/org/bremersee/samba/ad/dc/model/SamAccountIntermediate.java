@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNullElse;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +15,6 @@ import org.immutables.value.Value;
  *
  * @author Christian Bremer
  */
-@Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,

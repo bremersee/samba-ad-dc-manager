@@ -21,14 +21,20 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-@Schema(description = "The organizational unit in an active directory.")
+@Schema(
+    name = "OrganizationalUnit",
+    description = "The organizational unit in an active directory.",
+    implementation = OrganizationalUnit.class)
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+    passAnnotations = {
+        Schema.class
+    })
 @Value.Immutable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableOrganizationalUnit.class)

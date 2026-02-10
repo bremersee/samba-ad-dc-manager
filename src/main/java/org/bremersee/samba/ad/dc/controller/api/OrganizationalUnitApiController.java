@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnitPage;
 import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
@@ -275,6 +277,45 @@ public class OrganizationalUnitApiController extends ApiController {
     OrganizationalUnit unit = organizationUnit
         .withDistinguishedName(DnTool.toString(ou));
     return ResponseEntity.ok(service.update(unit, parentOu));
+  }
+
+  @Operation(
+      description = "Get children of an organizational unit.",
+      security = {
+          @SecurityRequirement(name = "bearer-jwt"),
+          @SecurityRequirement(name = "basic-auth")
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "200", description = "OK"),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "404", description = "Not found", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = "/{dn}/children", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<List<AdEntry>> getOrganizationalUnitChildren(
+
+      @Parameter(name = "dn",
+          description = "The distinguished name of the organizational unit.",
+          required = true,
+          schema = @Schema(type = "string", example = "CN=Users"))
+      @PathVariable(name = "dn") Dn ou) {
+
+    return ResponseEntity.ok(List.of());
   }
 
 }

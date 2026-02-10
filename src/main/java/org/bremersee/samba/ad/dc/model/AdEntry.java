@@ -1,7 +1,11 @@
 package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -19,7 +23,40 @@ import org.springframework.lang.Nullable;
  *
  * @author Christian Bremer
  */
-@Schema(description = "Active directory base entry.")
+@Schema(
+    name = "AdEntry",
+    description = "Active directory base entry.",
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+    discriminatorMapping = {
+        @DiscriminatorMapping(value = ModelConstants.DNS_ENTRY, schema = ImmutableDnsEntry.class),
+        @DiscriminatorMapping(value = ModelConstants.DNS_ZONE, schema = ImmutableDnsZone.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.COMPUTER,
+            schema = ImmutableDomainComputer.class),
+        @DiscriminatorMapping(value = ModelConstants.GROUP, schema = ImmutableDomainGroup.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP_MEMBER,
+            schema = ImmutableDomainGroupMember.class),
+        @DiscriminatorMapping(value = ModelConstants.USER, schema = ImmutableDomainUser.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.ORGANIZATIONAL_UNIT,
+            schema = ImmutableOrganizationalUnit.class)
+    })
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
+    @JsonSubTypes.Type(value = ImmutableDnsZone.class, name = ModelConstants.DNS_ZONE),
+    @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
+    @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
+    @JsonSubTypes.Type(
+        value = ImmutableDomainGroupMember.class,
+        name = ModelConstants.GROUP_MEMBER),
+    @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER),
+    @JsonSubTypes.Type(
+        value = ImmutableOrganizationalUnit.class,
+        name = ModelConstants.ORGANIZATIONAL_UNIT)
+})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {
 
   /**

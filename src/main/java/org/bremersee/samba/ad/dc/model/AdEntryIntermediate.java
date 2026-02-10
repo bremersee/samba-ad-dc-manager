@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNullElse;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
@@ -14,7 +13,6 @@ import org.immutables.value.Value;
  *
  * @author Christian Bremer
  */
-@Schema(description = "Active directory base entry.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,

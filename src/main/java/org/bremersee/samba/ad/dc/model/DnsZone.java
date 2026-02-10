@@ -12,14 +12,17 @@ import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.Nullable;
 
-@Schema(description = "DNS zone.")
+@Schema(name = "DnsZone", description = "DNS zone.", implementation = DnsZone.class)
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+    passAnnotations = {
+        Schema.class
+    })
 @Value.Immutable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDnsZone.class)

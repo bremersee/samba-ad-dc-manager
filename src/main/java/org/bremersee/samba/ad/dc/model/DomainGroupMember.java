@@ -16,14 +16,20 @@ import org.immutables.value.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-@Schema(description = "The domain group.")
+@Schema(
+    name = "DomainGroupMember",
+    description = "The domain group.",
+    implementation = DomainGroupMember.class)
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+    passAnnotations = {
+        Schema.class
+    })
 @Value.Immutable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableDomainGroupMember.class)
