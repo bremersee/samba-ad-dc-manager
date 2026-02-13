@@ -23,6 +23,8 @@ public abstract class AdConstants {
 
   public static final String OBJECT_CLASS_GROUP = "group";
 
+  public static final String OBJECT_CLASS_CONTAINER = "container";
+
   public static final String OBJECT_CLASS_OU = "organizationalUnit";
 
   public static final String OBJECT_CLASS_USER = "user";

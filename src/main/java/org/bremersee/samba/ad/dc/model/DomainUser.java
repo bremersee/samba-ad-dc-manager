@@ -39,6 +39,14 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainUser.class)
 public interface DomainUser extends SamAccount, NisDomainMember {
 
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.USER;
+  }
+
   /**
    * With distinguished name domain user.
    *

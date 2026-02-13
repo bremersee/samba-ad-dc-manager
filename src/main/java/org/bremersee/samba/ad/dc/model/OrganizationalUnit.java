@@ -41,6 +41,14 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableOrganizationalUnit.class)
 public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<OrganizationalUnit> {
 
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.ORGANIZATIONAL_UNIT;
+  }
+
   @Override
   default OrganizationalUnit withDistinguishedName(String distinguishedName) {
     return builder()

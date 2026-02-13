@@ -14,9 +14,12 @@ import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<DomainComputer> {
+@Component
+public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<DomainComputer>
+    implements AdEntryLdapMapperDelegate<DomainComputer> {
 
   private final SamAccountLdapMapper samAccountLdapMapper;
 
@@ -118,5 +121,14 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
         .setValue(destination, source.getDescription())
         .ifPresent(modifications::add);
     return modifications.toArray(new AttributeModification[0]);
+  }
+
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+    if (isEmpty(ldapEntry)) {
+      return false;
+    }
+    return AdConstants.OBJECT_CLASS.getValues(ldapEntry)
+        .anyMatch(AdConstants.OBJECT_CLASS_COMPUTER::equalsIgnoreCase);
   }
 }

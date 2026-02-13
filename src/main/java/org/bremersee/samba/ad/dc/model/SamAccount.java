@@ -20,6 +20,14 @@ import org.springframework.lang.Nullable;
 @Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
 public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {
 
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.SAM_ACCOUNT;
+  }
+
   @Override
   SamAccount withDistinguishedName(String distinguishedName);
 

@@ -313,6 +313,58 @@
 
   <profiles>
     <profile>
+      <id>openapi</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <jvmArguments>-Dspring.application.admin.enabled=true -Dspring.profiles.active=mock,api</jvmArguments>
+              <excludes>
+                <exclude>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                </exclude>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>start</goal>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- mvn verify downloads openapi.yaml -->
+          <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <apiDocsUrl>http://localhost:8080/v3/api-docs.yaml</apiDocsUrl>
+              <outputFileName>openapi.yaml</outputFileName>
+              <!-- <outputDir>home/springdoc/maven-output</outputDir> -->
+              <skip>false</skip>
+              <failOnError>true</failOnError>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>debian</id>
       <activation>
         <activeByDefault>false</activeByDefault>

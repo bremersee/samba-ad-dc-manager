@@ -115,21 +115,11 @@ bremersee:
       argument-separator: ","
       chain-separator: ";"
 
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
-
-eureka:
-  client:
-    enabled: false
-
 spring:
-  profiles:
-    default: mock
   application:
     name: samba-ad-dc-manager
+  profiles:
+    default: mock
   messages:
     use-code-as-default-message: true
     fallback-to-system-locale: false
@@ -148,7 +138,6 @@ spring:
         max-interval: 4000
         max-attempts: 8
         multiplier: 1.1
-
 
 management:
   endpoints:
@@ -176,6 +165,16 @@ logging:
     com.netflix.discovery.shared.resolver: warn
     org.bremersee: debug
     org.springframework.cloud.configclient: warn
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+eureka:
+  client:
+    enabled: false
 
 ---
 

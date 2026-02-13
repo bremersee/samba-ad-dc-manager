@@ -37,6 +37,14 @@ import org.springframework.lang.Nullable;
 @JsonDeserialize(as = ImmutableDomainComputer.class)
 public interface DomainComputer extends SamAccount {
 
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.COMPUTER;
+  }
+
   @Override
   default DomainComputer withDistinguishedName(String distinguishedName) {
     return builder()

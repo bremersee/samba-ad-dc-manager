@@ -3,10 +3,12 @@ package org.bremersee.samba.ad.dc.model;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNullElse;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -38,6 +40,14 @@ public interface DnsEntry extends AdEntry {
   String CONFLICT_IDENTIFIER = "CNF";
 
   String CONFLICT_NAME_PART = "\\0A" + CONFLICT_IDENTIFIER + ':';
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.DNS_ENTRY;
+  }
 
   @Override
   default DnsEntry withDistinguishedName(String distinguishedName) {

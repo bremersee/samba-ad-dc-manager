@@ -17,7 +17,8 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.bremersee.ldaptive.LdaptiveEntryMapper.getAttributeValue;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 import java.time.Month;
 import java.time.OffsetDateTime;
@@ -25,15 +26,13 @@ import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
-import org.ldaptive.transcode.IntegerValueTranscoder;
-import org.ldaptive.transcode.StringValueTranscoder;
 
 /**
  * The domain user ldap mapper test.
@@ -51,7 +50,11 @@ class DomainUserLdapMapperTest {
    */
   @BeforeAll
   static void init() {
-    mapper = new DomainUserLdapMapper(() -> true);
+    DomainRepository domainRepository = mock(DomainRepository.class);
+    lenient()
+        .doReturn(true)
+        .when(domainRepository.isRfc2307Enabled());
+    mapper = new DomainUserLdapMapper(domainRepository);
   }
 
   /**

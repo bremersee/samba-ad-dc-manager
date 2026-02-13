@@ -2,9 +2,11 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +37,14 @@ import org.springframework.lang.Nullable;
 @JsonSerialize(as = ImmutableDomainGroupMember.class)
 @JsonDeserialize(as = ImmutableDomainGroupMember.class)
 public interface DomainGroupMember extends SamAccount {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.GROUP_MEMBER;
+  }
 
   @Override
   default DomainGroupMember withDistinguishedName(String distinguishedName) {

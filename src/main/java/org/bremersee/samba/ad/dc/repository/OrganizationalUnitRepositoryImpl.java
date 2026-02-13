@@ -27,7 +27,9 @@ import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.repository.mapper.GenericLdapMapper;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
@@ -36,8 +38,8 @@ import org.ldaptive.dn.NameValue;
 import org.ldaptive.dn.RDn;
 import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.Filter;
-import org.ldaptive.filter.NotFilter;
 import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.PresenceFilter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -52,12 +54,16 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
   private final LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper;
 
+  private final GenericLdapMapper genericLdapMapper;
+
   OrganizationalUnitRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
-      LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper) {
+      LdaptiveEntryMapper<OrganizationalUnit> ouLdapMapper,
+      GenericLdapMapper genericLdapMapper) {
     super(properties, ldapOperations);
     this.ouLdapMapper = ouLdapMapper;
+    this.genericLdapMapper = genericLdapMapper;
   }
 
   Dn getDefaultOu() {
@@ -140,9 +146,7 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
   @Override
   public boolean hasChildren(Dn ou) {
-    if (isEmpty(ou) || ou.isEmpty()) {
-      return false;
-    }
+    /*
     RDn rdn = ou.getRDn();
     Filter filter = new NotFilter(new EqualityFilter(
         rdn.getNameValue().getName(),
@@ -153,7 +157,46 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
         .scope(SearchScope.SUBTREE)
         .returnAttributes(AdConstants.DN.getName())
         .build();
+
+     */
+    Dn dn;
+    if (isEmpty(ou) || ou.isEmpty() || ou.isAncestor(getDnTool().getBaseDn())) {
+      dn = getDnTool().getBaseDn();
+    } else {
+      dn = getDnTool().addBaseDn(ou);
+    }
+    if (!getDnTool().isValidDnWithBaseDn(dn)) {
+      return false;
+    }
+    SearchRequest searchRequest = SearchRequest.builder()
+        .dn(dn.format())
+        .filter(new PresenceFilter(AdConstants.OBJECT_CLASS.getName()))
+        .scope(SearchScope.ONELEVEL)
+        .returnAttributes(AdConstants.DN.getName())
+        .build();
     return !getLdapOperations().findAll(searchRequest).isEmpty();
+  }
+
+  @Override
+  public Stream<AdEntry> getChildren(Dn ou) {
+    Dn dn;
+    if (isEmpty(ou) || ou.isEmpty() || ou.isAncestor(getDnTool().getBaseDn())) {
+      dn = getDnTool().getBaseDn();
+    } else {
+      dn = getDnTool().addBaseDn(ou);
+    }
+    if (!getDnTool().isValidDnWithBaseDn(dn)) {
+      return Stream.empty();
+    }
+    SearchRequest searchRequest = SearchRequest.builder()
+        .dn(dn.format())
+        .filter(new PresenceFilter(AdConstants.OBJECT_CLASS.getName()))
+        .scope(SearchScope.ONELEVEL)
+        .returnAttributes(genericLdapMapper.getMappedAttributeNames())
+        .binaryAttributes(genericLdapMapper.getBinaryAttributeNames())
+        .build();
+    return getLdapOperations().findAll(searchRequest).stream()
+        .flatMap(ldapEntry -> genericLdapMapper.map(ldapEntry).stream());
   }
 
   @Override

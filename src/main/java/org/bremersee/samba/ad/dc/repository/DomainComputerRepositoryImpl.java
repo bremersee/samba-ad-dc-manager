@@ -14,7 +14,6 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.mapper.DomainComputerLdapMapper;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
@@ -34,9 +33,10 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
 
   DomainComputerRepositoryImpl(
       ApplicationProperties properties,
-      LdaptiveOperations ldapOperations) {
+      LdaptiveOperations ldapOperations,
+      LdaptiveEntryMapper<DomainComputer> domainComputerLdapMapper) {
     super(properties, ldapOperations);
-    this.domainComputerLdapMapper = new DomainComputerLdapMapper();
+    this.domainComputerLdapMapper = domainComputerLdapMapper;
   }
 
   @Override

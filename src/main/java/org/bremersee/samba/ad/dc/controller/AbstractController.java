@@ -29,6 +29,8 @@ public abstract class AbstractController implements SortMapperAware {
 
   public static final String SORT = "sort";
 
+  public static final String DN_SORT = "distinguishedName";
+
   public static final String COMPUTER_SORT = "name";
 
   public static final String DHCP_LEASE_SORT = "ip";

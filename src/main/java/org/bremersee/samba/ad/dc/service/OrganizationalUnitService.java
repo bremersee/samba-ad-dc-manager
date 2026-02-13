@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.service;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
@@ -50,7 +51,9 @@ public interface OrganizationalUnitService {
 
   boolean organisationUnitExists(@Nullable Dn ou);
 
-  boolean hasChildren(@NotNull Dn ou);
+  boolean hasChildren(@Nullable Dn ou);
+
+  Page<AdEntry> getChildren(@Nullable Dn ou, @NotNull Pageable pageable);
 
   @NotNull
   OrganizationalUnit add(@NotNull OrganizationalUnit organizationalUnit, @Nullable Dn parentOu);

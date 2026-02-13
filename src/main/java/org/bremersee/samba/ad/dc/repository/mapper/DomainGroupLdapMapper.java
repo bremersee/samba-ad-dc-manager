@@ -33,9 +33,11 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupType;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
@@ -43,8 +45,10 @@ import org.springframework.util.Assert;
  *
  * @author Christian Bremer
  */
+@Component
 @Slf4j
-public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGroup> {
+public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGroup>
+    implements AdEntryLdapMapperDelegate<DomainGroup> {
 
   private final SamAccountLdapMapper samAccountLdapMapper;
 
@@ -53,9 +57,9 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
   @Getter(AccessLevel.PROTECTED)
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
-  public DomainGroupLdapMapper(Supplier<Boolean> rfc2307EnabledSupplier) {
+  public DomainGroupLdapMapper(DomainRepository domainRepository) {
     samAccountLdapMapper = new SamAccountLdapMapper();
-    this.rfc2307EnabledSupplier = rfc2307EnabledSupplier;
+    rfc2307EnabledSupplier = domainRepository::isRfc2307Enabled;
     mappedAttributes = initMappedAttributesOfDomainGroup();
   }
 
@@ -98,6 +102,15 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
     Assert.hasText(domainObject.getDistinguishedName(),
         "Distinguished name of domain group is required.");
     return domainObject.getDistinguishedName();
+  }
+
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+    if (isEmpty(ldapEntry)) {
+      return false;
+    }
+    return AdConstants.OBJECT_CLASS.getValues(ldapEntry)
+        .anyMatch(AdConstants.OBJECT_CLASS_GROUP::equalsIgnoreCase);
   }
 
   @Override

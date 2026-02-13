@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
@@ -34,8 +35,10 @@ import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
@@ -43,8 +46,10 @@ import org.springframework.util.Assert;
  *
  * @author Christian Bremer
  */
+@Component
 @Slf4j
-public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUser> {
+public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUser> implements
+    AdEntryLdapMapperDelegate<DomainUser> {
 
   // Will be encoded as '0'.
   private static final OffsetDateTime NEVER_EXPIRES = OffsetDateTime.parse("1601-01-01T00:00:00Z");
@@ -59,9 +64,8 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
   @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
-  public DomainUserLdapMapper(
-      Supplier<Boolean> rfc2307EnabledSupplier) {
-    this.rfc2307EnabledSupplier = rfc2307EnabledSupplier;
+  public DomainUserLdapMapper(DomainRepository domainRepository) {
+    rfc2307EnabledSupplier = domainRepository::isRfc2307Enabled;
     samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainUser();
   }
@@ -355,4 +359,16 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
     return modifications.toArray(new AttributeModification[0]);
   }
 
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+    if (isEmpty(ldapEntry)) {
+      return false;
+    }
+    Set<String> objectClasses = AdConstants.OBJECT_CLASS
+        .getValues(ldapEntry)
+        .map(String::toLowerCase)
+        .collect(Collectors.toSet());
+    return objectClasses.contains(AdConstants.OBJECT_CLASS_USER.toLowerCase())
+        && !objectClasses.contains(AdConstants.OBJECT_CLASS_COMPUTER.toLowerCase());
+  }
 }

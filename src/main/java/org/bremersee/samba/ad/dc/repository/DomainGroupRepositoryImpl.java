@@ -26,13 +26,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupLdapMapper;
 import org.ldaptive.DeleteRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
@@ -57,9 +57,9 @@ import org.springframework.stereotype.Component;
 public class DomainGroupRepositoryImpl extends SamAccountRepository
     implements DomainGroupRepository {
 
-  private final DomainGroupLdapMapper domainGroupLdapMapper;
-
   private final DomainRepository domainRepository;
+
+  private final LdaptiveEntryMapper<DomainGroup> domainGroupLdapMapper;
 
   /**
    * Instantiates a new domain group repository.
@@ -70,10 +70,11 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   public DomainGroupRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
-      DomainRepository domainRepository) {
+      DomainRepository domainRepository,
+      LdaptiveEntryMapper<DomainGroup> domainGroupLdapMapper) {
     super(properties, ldapOperations);
     this.domainRepository = domainRepository;
-    this.domainGroupLdapMapper = new DomainGroupLdapMapper(this.domainRepository::isRfc2307Enabled);
+    this.domainGroupLdapMapper = domainGroupLdapMapper;
   }
 
   @Override

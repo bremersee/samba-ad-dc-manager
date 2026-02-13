@@ -17,8 +17,10 @@
 package org.bremersee.samba.ad.dc.repository;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.ldaptive.dn.Dn;
 import org.springframework.lang.Nullable;
@@ -40,7 +42,9 @@ public interface OrganizationalUnitRepository {
 
   boolean exists(@NotNull Dn ou);
 
-  boolean hasChildren(@NotNull Dn ou);
+  boolean hasChildren(@Nullable Dn ou);
+
+  Stream<AdEntry> getChildren(@Nullable Dn ou);
 
   OrganizationalUnit add(@NotNull OrganizationalUnit organizationalUnit, @Nullable Dn parentOu);
 

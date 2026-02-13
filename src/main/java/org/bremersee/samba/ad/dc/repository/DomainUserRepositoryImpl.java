@@ -37,7 +37,6 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
-import org.bremersee.samba.ad.dc.repository.mapper.DomainUserLdapMapper;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModification.Type;
 import org.ldaptive.DeleteRequest;
@@ -68,9 +67,9 @@ import org.springframework.stereotype.Component;
 public class DomainUserRepositoryImpl extends SamAccountRepository
     implements DomainUserRepository {
 
-  private final LdaptiveEntryMapper<DomainUser> domainUserLdapMapper;
-
   private final DomainRepository domainRepository;
+
+  private final LdaptiveEntryMapper<DomainUser> domainUserLdapMapper;
 
   /**
    * Instantiates a new domain user repository.
@@ -82,10 +81,11 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
   public DomainUserRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
-      DomainRepository domainRepository) {
+      DomainRepository domainRepository,
+      LdaptiveEntryMapper<DomainUser> domainUserLdapMapper) {
     super(properties, ldapOperations);
     this.domainRepository = domainRepository;
-    this.domainUserLdapMapper = new DomainUserLdapMapper(this.domainRepository::isRfc2307Enabled);
+    this.domainUserLdapMapper = domainUserLdapMapper;
   }
 
   @Override

@@ -2,9 +2,11 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
@@ -28,6 +30,14 @@ import org.springframework.lang.Nullable;
 @JsonSerialize(as = ImmutableDnsZone.class)
 @JsonDeserialize(as = ImmutableDnsZone.class)
 public interface DnsZone extends AdEntry {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.DNS_ZONE;
+  }
 
   @Override
   default DnsZone withDistinguishedName(String distinguishedName) {

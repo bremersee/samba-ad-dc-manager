@@ -24,11 +24,15 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.comparator.ValueComparator;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.AdEntry.AdEntryTypeComparator;
+import org.bremersee.samba.ad.dc.model.ModelConstants;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.repository.OrganizationalUnitRepository;
 import org.ldaptive.dn.Dn;
@@ -142,6 +146,20 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
   @Override
   public boolean hasChildren(Dn ou) {
     return repository.hasChildren(ou);
+  }
+
+  @Override
+  public Page<AdEntry> getChildren(Dn ou, Pageable pageable) {
+    return new PageBuilder<AdEntry, AdEntry>()
+        .sourceEntries(repository.getChildren(ou))
+        .pageable(sortMapper.applyDefaults(pageable, null, true, null))
+        .targetSortFn(sortOrder -> {
+          if (ModelConstants.DISCRIMINATOR.equalsIgnoreCase(sortOrder.getField())) {
+            return new AdEntryTypeComparator();
+          }
+          return new ValueComparator(sortOrder);
+        })
+        .build();
   }
 
   @Override

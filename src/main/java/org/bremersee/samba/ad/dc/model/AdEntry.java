@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,6 +59,13 @@ import org.springframework.lang.Nullable;
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.AD_ENTRY;
+  }
 
   /**
    * The distinguished name in the active directory.
@@ -186,6 +194,14 @@ public interface AdEntry extends Serializable, DistinguishedNameProvider {
     return Optional.ofNullable(getDistinguishedName())
         .map(Dn::new)
         .orElseGet(() -> new Dn(""));
+  }
+
+  class AdEntryTypeComparator implements Comparator<AdEntry> {
+
+    @Override
+    public int compare(AdEntry o1, AdEntry o2) {
+      return Integer.compare(o1.getAdEntryType().getSortOrder(), o2.getAdEntryType().getSortOrder());
+    }
   }
 
 }

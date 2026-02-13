@@ -26,6 +26,9 @@ import java.util.Set;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.AttributeModification;
@@ -39,14 +42,18 @@ import org.springframework.util.Assert;
  * @author Christian Bremer
  */
 @Component
-public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<OrganizationalUnit> {
+public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<OrganizationalUnit>
+    implements AdEntryLdapMapperDelegate<OrganizationalUnit> {
+
+  private final DnTool dnTool;
 
   private final AdEntryLdapMapper adEntryLdapMapper;
 
   @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
-  public OrganizationalUnitLdapMapper() {
+  public OrganizationalUnitLdapMapper(ApplicationProperties properties) {
+    this.dnTool = new DefaultDnTool(properties);
     adEntryLdapMapper = new AdEntryLdapMapper();
     mappedAttributes = initMappedAttributesOfOrganizationalUnit();
   }
@@ -125,6 +132,38 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
         .setValue(destination, source.getName(), (e, n) -> isNull(e))
         .ifPresent(modifications::add);
     return modifications.toArray(AttributeModification[]::new);
+  }
+
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+    if (isEmpty(ldapEntry)) {
+      return false;
+    }
+    return isOrganizationalUnit(ldapEntry)
+        || isUsersContainer(ldapEntry)
+        || isComputersContainer(ldapEntry);
+  }
+
+  private boolean isComputersContainer(LdapEntry ldapEntry) {
+    return isContainer(ldapEntry)
+        && DnTool.isSameDn(dnTool.addBaseDn(AdConstants.BASE_DN_COMPUTERS), ldapEntry.getDn());
+  }
+
+  private boolean isUsersContainer(LdapEntry ldapEntry) {
+    return isContainer(ldapEntry)
+        && DnTool.isSameDn(dnTool.addBaseDn(AdConstants.BASE_DN_USERS), ldapEntry.getDn());
+  }
+
+  private boolean isContainer(LdapEntry ldapEntry) {
+    return AdConstants.OBJECT_CLASS
+        .getValues(ldapEntry)
+        .anyMatch(AdConstants.OBJECT_CLASS_CONTAINER::equalsIgnoreCase);
+  }
+
+  private boolean isOrganizationalUnit(LdapEntry ldapEntry) {
+    return AdConstants.OBJECT_CLASS
+        .getValues(ldapEntry)
+        .anyMatch(AdConstants.OBJECT_CLASS_OU::equalsIgnoreCase);
   }
 
 }
