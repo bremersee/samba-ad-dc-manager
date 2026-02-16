@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,7 @@ import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
  *
  * @author Christian Bremer
  */
-public interface DnsZoneParser extends CommandExecutorResponseParser<DnsZone> {
+public interface DnsZoneParser extends CommandExecutorResponseParser<Optional<DnsZone>> {
 
   /**
    * Returns the default dns zone parser.
@@ -87,7 +88,7 @@ public interface DnsZoneParser extends CommandExecutorResponseParser<DnsZone> {
    */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @Slf4j
-  class Default extends AbstractCommandExecutorResponseParser<DnsZone>
+  class Default extends AbstractCommandExecutorResponseParser<Optional<DnsZone>>
       implements DnsZoneParser {
 
     private static final String ZONE_NAME = "pszZoneName";
@@ -139,11 +140,11 @@ public interface DnsZoneParser extends CommandExecutorResponseParser<DnsZone> {
     }
 
     @Override
-    protected DnsZone getDefaultValue() {
-      return null;
+    protected Optional<DnsZone> getDefaultValue() {
+      return Optional.empty();
     }
 
-    protected DnsZone doParse(BufferedReader reader) throws IOException {
+    protected Optional<DnsZone> doParse(BufferedReader reader) throws IOException {
       DnsZone.Builder zone = DnsZone.builder();
       String line;
       while ((line = reader.readLine()) != null) {
@@ -168,7 +169,7 @@ public interface DnsZoneParser extends CommandExecutorResponseParser<DnsZone> {
         parseBackgroundLoadInProgress(line, zone, index);
         parseReadOnlyZone(line, zone, index);
       }
-      return zone.build();
+      return Optional.of(zone.build());
     }
 
     private void parseZoneName(String line, DnsZone.Builder zone, int index) {

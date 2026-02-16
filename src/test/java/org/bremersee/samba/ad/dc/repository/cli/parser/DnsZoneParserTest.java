@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.junit.jupiter.api.Test;
@@ -95,9 +96,9 @@ class DnsZoneParserTest {
         .backgroundLoadInProgress(false)
         .readOnlyZone(false)
         .build();
-    DnsZone actual = target.parse(response);
+    Optional<DnsZone> actual = target.parse(response);
     assertThat(actual)
-        .isEqualTo(expected);
+        .hasValue(expected);
   }
 
   /**
@@ -106,8 +107,8 @@ class DnsZoneParserTest {
   @Test
   void getDefaultValue() {
     CommandExecutorResponse response = new CommandExecutorResponse(null, "ERROR");
-    DnsZone actual = target.parse(response);
+    Optional<DnsZone> actual = target.parse(response);
     assertThat(actual)
-        .isNull();
+        .isEmpty();
   }
 }

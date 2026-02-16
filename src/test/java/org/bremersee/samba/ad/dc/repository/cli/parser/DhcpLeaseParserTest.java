@@ -106,7 +106,6 @@ class DhcpLeaseParserTest {
                         "2019-08-18 11:55:48",
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                     ZoneOffset.UTC))
-                //.manufacturer("Super Micro Computer, Inc.")
                 .build());
   }
 

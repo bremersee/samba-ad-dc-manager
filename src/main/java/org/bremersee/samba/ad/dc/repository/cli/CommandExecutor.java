@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.cli;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -21,6 +37,11 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 
+/**
+ * The command executor.
+ *
+ * @author Christian Bremer
+ */
 @Slf4j
 public class CommandExecutor {
 
@@ -30,23 +51,23 @@ public class CommandExecutor {
   @Getter(AccessLevel.PROTECTED)
   private final DnTool dnTool;
 
+  /**
+   * Instantiates a new command executor.
+   *
+   * @param properties the properties
+   */
   public CommandExecutor(ApplicationProperties properties) {
     this.properties = properties;
     this.dnTool = new DefaultDnTool(this.properties);
   }
 
+  /**
+   * Execute command.
+   *
+   * @param commands the commands
+   * @return the command executor response
+   */
   public CommandExecutorResponse execute(List<String> commands) {
-    return executeAndGet(commands, response -> response);
-  }
-
-  public void execute(List<String> commands,
-      CommandExecutorResponseValidator responseValidator) {
-    executeAndGet(commands, (CommandExecutorResponseParser<?>) responseValidator);
-  }
-
-  public <T> T executeAndGet(List<String> commands,
-      CommandExecutorResponseParser<T> responseParser) {
-
     List<String> extendedCommands = new ArrayList<>();
     if (getProperties().getCli().getSsh().isUsingSsh()) {
       extendedCommands.add(properties.getCli().getSsh().getSshCommand());
@@ -77,7 +98,7 @@ public class CommandExecutor {
         log.trace("Program output:\n{}", output);
         log.trace("Program error output:\n{}", error);
       }
-      return responseParser.parse(new CommandExecutorResponse(output, error));
+      return new CommandExecutorResponse(output, error);
 
     } catch (IOException | InterruptedException e) {
       ServiceException se = ServiceException.internalServerError(
@@ -90,6 +111,30 @@ public class CommandExecutor {
       }
       throw se;
     }
+  }
+
+  /**
+   * Execute.
+   *
+   * @param commands the commands
+   * @param responseValidator the response validator
+   */
+  public void execute(List<String> commands,
+      CommandExecutorResponseValidator responseValidator) {
+    executeAndGet(commands, (CommandExecutorResponseParser<?>) responseValidator);
+  }
+
+  /**
+   * Execute and get parsed response.
+   *
+   * @param <T> the type parameter
+   * @param commands the commands
+   * @param responseParser the response parser
+   * @return the parsed response
+   */
+  public <T> T executeAndGet(List<String> commands,
+      CommandExecutorResponseParser<T> responseParser) {
+    return responseParser.parse(execute(commands));
   }
 
   private static List<String> parseCommands(List<String> commands) {
@@ -108,6 +153,12 @@ public class CommandExecutor {
         .toList();
   }
 
+  /**
+   * Quote string.
+   *
+   * @param value the value
+   * @return the string
+   */
   public static String quote(String value) {
     if (isEmpty(value)) {
       return "\"\"";
