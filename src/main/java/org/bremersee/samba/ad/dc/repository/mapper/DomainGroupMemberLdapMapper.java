@@ -38,7 +38,14 @@ public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<Do
 
   private final SamAccountLdapMapper samAccountLdapMapper;
 
+  /**
+   * --- GETTER ---
+   * Gets the unmodifiable set of mapped attributes.
+   *
+   * @return the unmodifiable set of mapped attributes
+   */
   @Getter
+  @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public DomainGroupMemberLdapMapper() {

@@ -40,7 +40,14 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
 
   private final SamAccountLdapMapper samAccountLdapMapper;
 
+  /**
+   * --- GETTER ---
+   * Gets the unmodifiable set of mapped attributes.
+   *
+   * @return the unmodifiable set of mapped attributes
+   */
   @Getter
+  @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public DomainComputerLdapMapper() {
