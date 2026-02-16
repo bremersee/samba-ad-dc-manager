@@ -34,6 +34,11 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
+/**
+ * The domain group member ldap mapper.
+ *
+ * @author Christian Bremer
+ */
 public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<DomainGroupMember> {
 
   private final SamAccountLdapMapper samAccountLdapMapper;
@@ -48,6 +53,9 @@ public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<Do
   @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new domain group member ldap mapper.
+   */
   public DomainGroupMemberLdapMapper() {
     samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainGroupMember();
@@ -55,7 +63,6 @@ public class DomainGroupMemberLdapMapper extends LdaptiveEntryImmutableMapper<Do
 
   private Set<LdaptiveAttribute<?>> initMappedAttributesOfDomainGroupMember() {
     var attributeNames = new LinkedHashSet<>(samAccountLdapMapper.getMappedAttributes());
-    attributeNames.add(AdConstants.OBJECT_CLASS);
     attributeNames.add(AdConstants.USER_GIVEN_NAME);
     attributeNames.add(AdConstants.USER_SN);
     attributeNames.add(AdConstants.USER_DISPLAY_NAME);
