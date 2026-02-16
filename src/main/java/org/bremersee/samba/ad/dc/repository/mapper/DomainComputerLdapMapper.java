@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 import lombok.Getter;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
@@ -34,6 +35,11 @@ import org.ldaptive.LdapEntry;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+/**
+ * The domain computer ldap mapper.
+ *
+ * @author Christian Bremer
+ */
 @Component
 public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<DomainComputer>
     implements AdEntryLdapMapperDelegate<DomainComputer> {
@@ -41,8 +47,7 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
   private final SamAccountLdapMapper samAccountLdapMapper;
 
   /**
-   * --- GETTER ---
-   * Gets the unmodifiable set of mapped attributes.
+   * --- GETTER --- Gets the unmodifiable set of mapped attributes.
    *
    * @return the unmodifiable set of mapped attributes
    */
@@ -50,6 +55,9 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
   @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new domain computer ldap mapper.
+   */
   public DomainComputerLdapMapper() {
     samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainComputer();
@@ -149,10 +157,8 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
 
   @Override
   public boolean canMap(LdapEntry ldapEntry) {
-    if (isEmpty(ldapEntry)) {
-      return false;
-    }
-    return AdConstants.OBJECT_CLASS.getValues(ldapEntry)
+    return Stream.ofNullable(ldapEntry)
+        .flatMap(entry -> AdConstants.OBJECT_CLASS.getValues(ldapEntry))
         .anyMatch(AdConstants.OBJECT_CLASS_COMPUTER::equalsIgnoreCase);
   }
 }

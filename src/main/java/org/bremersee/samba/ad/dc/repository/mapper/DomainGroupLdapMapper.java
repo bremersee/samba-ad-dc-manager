@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
-import lombok.AccessLevel;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
@@ -56,8 +56,7 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
   /**
-   * --- GETTER ---
-   * Gets the unmodifiable set of mapped attributes.
+   * --- GETTER --- Gets the unmodifiable set of mapped attributes.
    *
    * @return the unmodifiable set of mapped attributes
    */
@@ -114,10 +113,8 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
 
   @Override
   public boolean canMap(LdapEntry ldapEntry) {
-    if (isEmpty(ldapEntry)) {
-      return false;
-    }
-    return AdConstants.OBJECT_CLASS.getValues(ldapEntry)
+    return Stream.ofNullable(ldapEntry)
+        .flatMap(entry -> AdConstants.OBJECT_CLASS.getValues(ldapEntry))
         .anyMatch(AdConstants.OBJECT_CLASS_GROUP::equalsIgnoreCase);
   }
 
