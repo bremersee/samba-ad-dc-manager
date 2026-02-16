@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -63,7 +64,7 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
     attributeNames.add(AdConstants.DESCRIPTION);
     attributeNames.add(AdConstants.IS_CRITICAL_SYSTEM_OBJECT);
     attributeNames.add(AdConstants.NAME);
-    return attributeNames;
+    return Collections.unmodifiableSet(attributeNames);
   }
 
   @Override

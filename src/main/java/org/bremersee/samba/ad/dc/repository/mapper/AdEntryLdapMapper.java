@@ -30,7 +30,7 @@ import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;
 
 /**
- * The abstract ldap mapper.
+ * The base active directory ldap entry mapper.
  *
  * @author Christian Bremer
  */
@@ -39,6 +39,9 @@ public class AdEntryLdapMapper extends LdaptiveEntryImmutableMapper<AdEntry> {
   @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new base active directory ldap entry mapper.
+   */
   public AdEntryLdapMapper() {
     mappedAttributes = Set.of(
         AdConstants.DN,

@@ -22,6 +22,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -103,7 +104,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
     attributeNames.add(AdConstants.USER_UNIX_HOME_DIRECTORY);
     attributeNames.add(AdConstants.USER_PRINCIPAL_NAME);
     attributeNames.add(AdConstants.USER_USER_ACCOUNT_CONTROL);
-    return attributeNames;
+    return Collections.unmodifiableSet(attributeNames);
   }
 
   @Override

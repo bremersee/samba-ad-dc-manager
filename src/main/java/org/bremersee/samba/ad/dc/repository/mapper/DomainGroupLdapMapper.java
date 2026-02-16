@@ -21,6 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -71,7 +72,7 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
     attributeNames.add(AdConstants.MAIL);
     attributeNames.add(AdConstants.GROUP_MEMBER);
     attributeNames.add(AdConstants.NIS_DOMAIN);
-    return attributeNames;
+    return Collections.unmodifiableSet(attributeNames);
   }
 
   @Override
