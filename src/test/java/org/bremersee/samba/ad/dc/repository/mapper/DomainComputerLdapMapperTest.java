@@ -144,7 +144,7 @@ class DomainComputerLdapMapperTest {
         .description("NAS")
         .build();
 
-    AdEntry actual = target.map(source);
+    DomainComputer actual = target.map(source);
 
     assertThat(actual)
         .isEqualTo(expected);

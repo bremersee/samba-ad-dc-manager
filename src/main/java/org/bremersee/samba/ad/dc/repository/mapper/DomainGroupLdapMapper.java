@@ -56,7 +56,8 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
   /**
-   * --- GETTER --- Gets the unmodifiable set of mapped attributes.
+   * --- GETTER ---
+   * Gets the unmodifiable set of mapped attributes.
    *
    * @return the unmodifiable set of mapped attributes
    */
@@ -64,6 +65,11 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
   @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new domain group ldap mapper.
+   *
+   * @param domainRepository the domain repository
+   */
   public DomainGroupLdapMapper(DomainRepository domainRepository) {
     samAccountLdapMapper = new SamAccountLdapMapper();
     rfc2307EnabledSupplier = domainRepository::isRfc2307Enabled;

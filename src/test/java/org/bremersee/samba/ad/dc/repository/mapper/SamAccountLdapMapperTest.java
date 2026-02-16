@@ -131,7 +131,7 @@ class SamAccountLdapMapperTest {
         .addMembership("CN=Domain Users,CN=Users,DC=samdom,DC=example,DC=org")
         .build();
 
-    AdEntry actual = target.map(source);
+    SamAccount actual = target.map(source);
 
     assertThat(actual)
         .isEqualTo(expected);

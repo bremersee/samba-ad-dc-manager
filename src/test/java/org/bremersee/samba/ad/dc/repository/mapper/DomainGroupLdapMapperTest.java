@@ -17,47 +17,49 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 
-import java.time.Month;
 import java.time.OffsetDateTime;
-import java.util.List;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.AdEntryIntermediate;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupType;
+import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.bremersee.samba.ad.dc.model.SamAccountIntermediate;
+import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.samba.ad.dc.repository.DomainRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.ldaptive.AttributeModification;
-import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
-import org.mockito.Mockito;
+import org.ldaptive.dn.Dn;
 
 /**
  * The domain group ldap mapper test.
  *
  * @author Christian Bremer
  */
-@Disabled
-@ExtendWith(SoftAssertionsExtension.class)
 class DomainGroupLdapMapperTest {
 
-  private static DomainGroupLdapMapper mapper;
+  private DomainRepository domainRepository;
+
+  private DomainGroupLdapMapper target;
 
   /**
-   * Init.
+   * Sets up.
    */
-  @BeforeAll
-  static void init() {
-    DomainRepository domainRepository = mock(DomainRepository.class);
+  @BeforeEach
+  void setUp() {
+    domainRepository = mock(DomainRepository.class);
     lenient()
         .doReturn(true)
-        .when(domainRepository.isRfc2307Enabled());
-    mapper = new DomainGroupLdapMapper(domainRepository);
+        .when(domainRepository)
+        .isRfc2307Enabled();
+    target = new DomainGroupLdapMapper(domainRepository);
   }
 
   /**
@@ -65,127 +67,284 @@ class DomainGroupLdapMapperTest {
    */
   @Test
   void getObjectClasses() {
-    assertThat(mapper.getObjectClasses())
-        .isEmpty();
+    String[] actual = target.getObjectClasses();
+    assertThat(actual)
+        .containsExactlyInAnyOrder(
+            AdConstants.OBJECT_CLASS_GROUP,
+            "top"
+        );
   }
 
   /**
-   * Map ldap entry.
-   *
-   * @param softly the soft assertions
+   * Gets mapped attribute names.
    */
   @Test
-  void map(SoftAssertions softly) {
-    softly.assertThat(mapper.map(null)).isNull();
+  void getMappedAttributeNames() {
+    String[] actual = target.getMappedAttributeNames();
+    assertThat(actual)
+        .containsExactlyInAnyOrder(
+            AdConstants.DN.getName(),
+            AdConstants.WHEN_CREATED.getName(),
+            AdConstants.WHEN_CHANGED.getName(),
+            AdConstants.SAM_ACCOUNT_NAME.getName(),
+            AdConstants.OBJECT_SID.getName(),
+            AdConstants.IS_CRITICAL_SYSTEM_OBJECT.getName(),
+            AdConstants.PRIMARY_GROUP_ID.getName(),
+            AdConstants.MEMBER_OF_GROUP.getName(),
+            AdConstants.GROUP_TYPE.getName(),
+            AdConstants.DESCRIPTION.getName(),
+            AdConstants.GID_NUMBER.getName(),
+            AdConstants.MAIL.getName(),
+            AdConstants.GROUP_MEMBER.getName(),
+            AdConstants.NIS_DOMAIN.getName()
+        );
+  }
 
-    DomainGroup destination = DomainGroup.builder().build();
-    mapper.map(null, destination);
-    //softly.assertThat(destination)
-    //    .isEqualTo(DomainGroup.builder().build());
+  /**
+   * Gets binary attribute names.
+   */
+  @Test
+  void getBinaryAttributeNames() {
+    String[] actual = target.getBinaryAttributeNames();
+    assertThat(actual)
+        .containsExactlyInAnyOrder(
+            AdConstants.OBJECT_SID.getName()
+        );
+  }
 
+  /**
+   * Map dn.
+   */
+  @Test
+  void mapDn() {
+    String expected = "DC=samdom,DC=example,DC=org";
+    DomainGroup entry = DomainGroup.builder()
+        .distinguishedName(expected)
+        .samAccountName("contacts")
+        .build();
+    String actual = target.mapDn(entry);
+    assertThat(actual)
+        .isEqualTo(expected);
+  }
+
+  /**
+   * Map.
+   */
+  @Test
+  void map() {
     LdapEntry source = new LdapEntry();
-    source.setDn("cn=somename,cn=users,dc=example,dc=org");
-    source.addAttributes(
-        new LdapAttribute(AdConstants.WHEN_CREATED.getName(), "20170520150034.000Z"),
-        new LdapAttribute(AdConstants.WHEN_CHANGED.getName(), "20180621160135.000Z"),
-        new LdapAttribute(AdConstants.SAM_ACCOUNT_NAME.getName(), "somename"),
-        new LdapAttribute(
-            "member",
-            "cn=member1,cn=users,dc=example,dc=org", "cn=member2,cn=users,dc=example,dc=org")
-    );
+    source.setDn("CN=Contacts,CN=Users,DC=samdom,DC=example,DC=org");
+    OffsetDateTime dateTime = OffsetDateTime.parse("2026-02-15T22:51:45Z");
+    AdConstants.WHEN_CREATED.setValue(source, dateTime.minusMinutes(1L));
+    AdConstants.WHEN_CHANGED.setValue(source, dateTime);
+    AdConstants.SAM_ACCOUNT_NAME.setValue(source, "Contacts");
+    AdConstants.OBJECT_SID.setValue(source, Sid.builder()
+        .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+        .build());
+    AdConstants.GROUP_TYPE.setValue(source, DomainGroupType.defaultGroupType().getValue());
+    AdConstants.DESCRIPTION.setValue(source, "Private");
+    AdConstants.GID_NUMBER.setValue(source, 20000);
+    AdConstants.MAIL.setValue(source, "contacts@example.org");
+    AdConstants.GROUP_MEMBER
+        .setValue(source, new Dn("CN=junit,CN=Users,DC=samdom,DC=example,DC=org"));
+    AdConstants.NIS_DOMAIN.setValue(source, "samdom");
 
-    destination = mapper.map(source);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getDistinguishedName)
-        .isEqualTo("cn=somename,cn=users,dc=example,dc=org");
+    AdEntry adEntry = AdEntryIntermediate.builder()
+        .distinguishedName(source.getDn())
+        .created(dateTime.minusMinutes(1L))
+        .modified(dateTime)
+        .build();
+    SamAccount samAccount = SamAccountIntermediate.builder()
+        .from(adEntry)
+        .samAccountName("Contacts")
+        .sid(Sid.builder()
+            .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+            .build())
+        .build();
+    DomainGroup expected = DomainGroup.builder()
+        .from(samAccount)
+        .groupType(DomainGroupType.defaultGroupType())
+        .description("Private")
+        .gidNumber(20000)
+        .email("contacts@example.org")
+        .addMember("CN=junit,CN=Users,DC=samdom,DC=example,DC=org")
+        .nisDomain("samdom")
+        .build();
 
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getCreated)
-        .extracting(OffsetDateTime::getYear)
-        .isEqualTo(2017);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getCreated)
-        .extracting(OffsetDateTime::getMonth)
-        .isEqualTo(Month.MAY);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getCreated)
-        .extracting(OffsetDateTime::getDayOfMonth)
-        .isEqualTo(20);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getCreated)
-        .extracting(OffsetDateTime::getHour)
-        .isEqualTo(15);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getCreated)
-        .extracting(OffsetDateTime::getMinute)
-        .isEqualTo(0);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getCreated)
-        .extracting(OffsetDateTime::getSecond)
-        .isEqualTo(34);
+    DomainGroup actual = target.map(source);
 
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getModified)
-        .extracting(OffsetDateTime::getYear)
-        .isEqualTo(2018);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getModified)
-        .extracting(OffsetDateTime::getMonth)
-        .isEqualTo(Month.JUNE);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getModified)
-        .extracting(OffsetDateTime::getDayOfMonth)
-        .isEqualTo(21);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getModified)
-        .extracting(OffsetDateTime::getHour)
-        .isEqualTo(16);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getModified)
-        .extracting(OffsetDateTime::getMinute)
-        .isEqualTo(1);
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getModified)
-        .extracting(OffsetDateTime::getSecond)
-        .isEqualTo(35);
+    assertThat(actual)
+        .isEqualTo(expected);
+  }
 
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getSamAccountName)
-        .isEqualTo("somename");
-    softly.assertThat(destination)
-        .extracting(DomainGroup::getMembers)
-        .isEqualTo(List.of("member1", "member2"));
+  /**
+   * Map null.
+   */
+  @Test
+  void mapNull() {
+    assertThat(target.map(null))
+        .isNull();
   }
 
   /**
    * Map and compute modifications.
-   *
-   * @param softly the soft assertions
    */
   @Test
-  void mapAndComputeModifications(SoftAssertions softly) {
+  void mapAndComputeModifications() {
+    LdapEntry destination = new LdapEntry();
+    destination.setDn("CN=Contacts,CN=Users,DC=samdom,DC=example,DC=org");
+    OffsetDateTime dateTime = OffsetDateTime.parse("2026-02-15T22:51:45Z");
+    AdConstants.WHEN_CREATED.setValue(destination, dateTime.minusMinutes(1L));
+    AdConstants.WHEN_CHANGED.setValue(destination, dateTime);
+    AdConstants.SAM_ACCOUNT_NAME.setValue(destination, "Contacts");
+    AdConstants.OBJECT_SID.setValue(destination, Sid.builder()
+        .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+        .build());
+    AdConstants.GROUP_TYPE.setValue(destination, DomainGroupType.defaultGroupType().getValue());
+    AdConstants.DESCRIPTION.setValue(destination, "Private");
+    AdConstants.GID_NUMBER.setValue(destination, 20000);
+    AdConstants.MAIL.setValue(destination, "contacts@example.org");
+    AdConstants.GROUP_MEMBER
+        .setValue(destination, new Dn("CN=junit,CN=Users,DC=samdom,DC=example,DC=org"));
+    AdConstants.NIS_DOMAIN.setValue(destination, "samdom");
+
+    AdEntry adEntry = AdEntryIntermediate.builder()
+        .distinguishedName(destination.getDn())
+        .created(dateTime.minusMinutes(1L))
+        .modified(dateTime)
+        .build();
+    SamAccount samAccount = SamAccountIntermediate.builder()
+        .from(adEntry)
+        .samAccountName("Contacts")
+        .sid(Sid.builder()
+            .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+            .build())
+        .primaryGroupId(200)
+        .build();
     DomainGroup source = DomainGroup.builder()
-        .samAccountName("somename")
-        .addMembers("member1", "member2")
+        .from(samAccount)
+        .groupType(DomainGroupType.defaultGroupType())
+        .description("Private and business")
+        .gidNumber(20000)
+        .email("contacts@example.org")
+        .addMember("CN=junit,CN=Users,DC=samdom,DC=example,DC=org")
+        .addMember("CN=chef,CN=Users,DC=samdom,DC=example,DC=org")
+        .nisDomain("samdom")
         .build();
 
-    LdapEntry destination = new LdapEntry();
-    AttributeModification[] modifications = mapper.mapAndComputeModifications(source, destination);
-    softly.assertThat(modifications)
-        .hasSize(3); // plus 'sAMAccountName'
-    softly.assertThat(destination.getAttribute("name").getStringValue())
-        .isEqualTo("somename");
-    softly.assertThat(destination.getAttribute("sAMAccountName").getStringValue())
-        .isEqualTo("somename");
-    softly.assertThat(destination.getAttribute("member").getStringValues())
-        .containsExactlyInAnyOrder(
-            "cn=member1,cn=users,dc=example,dc=org",
-            "cn=member2,cn=users,dc=example,dc=org");
-
-    source.getMembers().remove(0);
-    mapper.mapAndComputeModifications(source, destination);
-    softly.assertThat(destination.getAttribute("member").getStringValues())
-        .containsExactlyInAnyOrder(
-            "cn=member2,cn=users,dc=example,dc=org");
+    AttributeModification[] actual = target.mapAndComputeModifications(source, destination);
+    assertThat(actual)
+        .hasSize(3); // nis name is set to samAccount
   }
+
+  /**
+   * Map and compute modifications with no rfc 2307.
+   */
+  @Test
+  void mapAndComputeModificationsWithNoRfc2307() {
+    reset(domainRepository);
+    doReturn(false)
+        .when(domainRepository)
+        .isRfc2307Enabled();
+    LdapEntry destination = new LdapEntry();
+    destination.setDn("CN=Contacts,CN=Users,DC=samdom,DC=example,DC=org");
+    OffsetDateTime dateTime = OffsetDateTime.parse("2026-02-15T22:51:45Z");
+    AdConstants.WHEN_CREATED.setValue(destination, dateTime.minusMinutes(1L));
+    AdConstants.WHEN_CHANGED.setValue(destination, dateTime);
+    AdConstants.SAM_ACCOUNT_NAME.setValue(destination, "Contacts");
+    AdConstants.OBJECT_SID.setValue(destination, Sid.builder()
+        .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+        .build());
+    AdConstants.GROUP_TYPE.setValue(destination, DomainGroupType.defaultGroupType().getValue());
+    AdConstants.DESCRIPTION.setValue(destination, "Private");
+    AdConstants.MAIL.setValue(destination, "contacts@example.org");
+    AdConstants.GROUP_MEMBER
+        .setValue(destination, new Dn("CN=junit,CN=Users,DC=samdom,DC=example,DC=org"));
+
+    AdEntry adEntry = AdEntryIntermediate.builder()
+        .distinguishedName(destination.getDn())
+        .created(dateTime.minusMinutes(1L))
+        .modified(dateTime)
+        .build();
+    SamAccount samAccount = SamAccountIntermediate.builder()
+        .from(adEntry)
+        .samAccountName("Contacts")
+        .sid(Sid.builder()
+            .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+            .build())
+        .primaryGroupId(200)
+        .build();
+    DomainGroup source = DomainGroup.builder()
+        .from(samAccount)
+        .groupType(DomainGroupType.defaultGroupType())
+        .description("Private and business")
+        .gidNumber(20000)
+        .email("contacts@example.org")
+        .addMember("CN=junit,CN=Users,DC=samdom,DC=example,DC=org")
+        .addMember("CN=chef,CN=Users,DC=samdom,DC=example,DC=org")
+        .nisDomain("samdom")
+        .build();
+
+    AttributeModification[] actual = target.mapAndComputeModifications(source, destination);
+    assertThat(actual)
+        .hasSize(2);
+  }
+
+  /**
+   * Map and compute modifications with no source.
+   */
+  @Test
+  void mapAndComputeModificationsWithNoSource() {
+    AttributeModification[] actual = target.mapAndComputeModifications(null, new LdapEntry());
+    assertThat(actual)
+        .isEmpty();
+  }
+
+  /**
+   * Map and compute modifications with no destination.
+   */
+  @Test
+  void mapAndComputeModificationsWithNoDestination() {
+    AttributeModification[] actual = target.mapAndComputeModifications(mock(DomainGroup.class),
+        null);
+    assertThat(actual)
+        .isEmpty();
+  }
+
+  /**
+   * Can map.
+   */
+  @Test
+  void canMap() {
+    LdapEntry entry = new LdapEntry();
+    AdConstants.OBJECT_CLASS.setValue(entry, AdConstants.OBJECT_CLASS_GROUP);
+
+    boolean actual = target.canMap(entry);
+    assertThat(actual)
+        .isTrue();
+  }
+
+  /**
+   * Can not map.
+   */
+  @Test
+  void canNotMap() {
+    LdapEntry entry = new LdapEntry();
+    AdConstants.OBJECT_CLASS.setValue(entry, AdConstants.OBJECT_CLASS_USER);
+
+    boolean actual = target.canMap(entry);
+    assertThat(actual)
+        .isFalse();
+  }
+
+  /**
+   * Can not map null.
+   */
+  @Test
+  void canNotMapNull() {
+    boolean actual = target.canMap(null);
+    assertThat(actual)
+        .isFalse();
+  }
+
 }
