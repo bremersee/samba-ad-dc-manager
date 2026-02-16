@@ -51,6 +51,7 @@ public class AdEntryLdapMapper extends LdaptiveEntryImmutableMapper<AdEntry> {
    */
   public AdEntryLdapMapper() {
     mappedAttributes = Set.of(
+        AdConstants.OBJECT_CLASS,
         AdConstants.DN,
         AdConstants.WHEN_CREATED,
         AdConstants.WHEN_CHANGED

@@ -17,7 +17,6 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static java.util.Objects.isNull;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +110,7 @@ public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<Domai
 
   @Override
   public DomainComputer map(LdapEntry source) {
-    if (isEmpty(source)) {
+    if (!canMap(source)) {
       return null;
     }
     var builder = DomainComputer.builder()

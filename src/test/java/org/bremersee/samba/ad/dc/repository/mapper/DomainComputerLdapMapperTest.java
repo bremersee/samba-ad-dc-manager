@@ -64,6 +64,7 @@ class DomainComputerLdapMapperTest {
     String[] actual = target.getMappedAttributeNames();
     assertThat(actual)
         .containsExactlyInAnyOrder(
+            AdConstants.OBJECT_CLASS.getName(),
             AdConstants.DN.getName(),
             AdConstants.WHEN_CREATED.getName(),
             AdConstants.WHEN_CHANGED.getName(),
@@ -116,6 +117,7 @@ class DomainComputerLdapMapperTest {
   void map() {
     LdapEntry source = new LdapEntry();
     source.setDn("CN=data,CN=Computers,DC=samdom,DC=example,DC=org");
+    AdConstants.OBJECT_CLASS.setValue(source, AdConstants.OBJECT_CLASS_COMPUTER);
     OffsetDateTime dateTime = OffsetDateTime.parse("2026-02-15T22:51:45Z");
     AdConstants.WHEN_CREATED.setValue(source, dateTime.minusMinutes(1L));
     AdConstants.WHEN_CHANGED.setValue(source, dateTime);

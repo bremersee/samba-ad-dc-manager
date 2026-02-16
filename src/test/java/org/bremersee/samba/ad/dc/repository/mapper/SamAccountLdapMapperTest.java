@@ -58,6 +58,7 @@ class SamAccountLdapMapperTest {
     String[] actual = target.getMappedAttributeNames();
     assertThat(actual)
         .containsExactlyInAnyOrder(
+            AdConstants.OBJECT_CLASS.getName(),
             AdConstants.DN.getName(),
             AdConstants.WHEN_CREATED.getName(),
             AdConstants.WHEN_CHANGED.getName(),

@@ -106,7 +106,7 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
 
   @Override
   public OrganizationalUnit map(LdapEntry source) {
-    if (isEmpty(source)) {
+    if (!canMap(source)) {
       return null;
     }
     var builder = OrganizationalUnit.builder()

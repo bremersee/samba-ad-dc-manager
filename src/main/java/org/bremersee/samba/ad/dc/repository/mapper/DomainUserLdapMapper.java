@@ -148,7 +148,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
 
   @Override
   public DomainUser map(LdapEntry source) {
-    if (isEmpty(source)) {
+    if (!canMap(source)) {
       return null;
     }
     var builder = DomainUser.builder()
