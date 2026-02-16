@@ -20,20 +20,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 /**
  * The abstract command executor response parser.
  *
+ * @param <T> the type parameter
  * @author Christian Bremer
  */
 @Slf4j
 public abstract class AbstractCommandExecutorResponseParser<T>
     implements CommandExecutorResponseParser<T> {
 
+  /**
+   * Gets default value.
+   *
+   * @return the default value
+   */
   protected abstract T getDefaultValue();
 
   @Override
   public T parse(CommandExecutorResponse response) {
+    Assert.notNull(response, "Command executor response is required.");
     if (response.stdoutHasNoText()) {
       if (response.stderrHasText()) {
         log.warn("Command did not produce output. Error is:\n{}\n",
@@ -53,5 +61,12 @@ public abstract class AbstractCommandExecutorResponseParser<T>
     }
   }
 
+  /**
+   * Do parse.
+   *
+   * @param reader the reader
+   * @return the parsed response
+   * @throws IOException the io exception
+   */
   protected abstract T doParse(BufferedReader reader) throws IOException;
 }

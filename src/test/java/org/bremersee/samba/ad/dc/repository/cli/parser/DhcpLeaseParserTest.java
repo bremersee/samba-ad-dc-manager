@@ -30,12 +30,12 @@ import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
 import org.junit.jupiter.api.Test;
 
 /**
- * The dhcp lease list parser test.
+ * The dhcp lease parser test.
  *
  * @author Christian Bremer
  */
 @Slf4j
-class DhcpLeaseListParserTest {
+class DhcpLeaseParserTest {
 
   /**
    * Parse empty dhcp lease list.
@@ -69,7 +69,7 @@ class DhcpLeaseListParserTest {
         + "HOSTNAME -NA- "
         + "BEGIN 2019-08-18 11:25:48 "
         + "END 2019-08-18 11:55:48 "
-        + "MANUFACTURER Super Micro Computer, Inc."
+        + "MANUFACTURER"
         + "\n";
     log.info("Test parsing dhcp leases response:\n{}{}", line0, line1);
     CommandExecutorResponse response = new CommandExecutorResponse(line0 + line1, null);
@@ -106,7 +106,7 @@ class DhcpLeaseListParserTest {
                         "2019-08-18 11:55:48",
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                     ZoneOffset.UTC))
-                .manufacturer("Super Micro Computer, Inc.")
+                //.manufacturer("Super Micro Computer, Inc.")
                 .build());
   }
 

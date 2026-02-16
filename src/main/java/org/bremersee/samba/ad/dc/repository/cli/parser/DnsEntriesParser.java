@@ -32,7 +32,26 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The dns entries parser.
+ * The dns entries parser parses the response of the linux command line tool
+ * {@code samba-tool dns query <server> <zone> <name> <A|AAAA|PTR|CNAME|MX|NS|SOA|SRV|TXT|ALL>
+ * [options]}*, for example {@code samba-tool dns query dc1 samdom.example.org @ ALL}.
+ *
+ * <p>A response of this command looks like this:
+ * <pre>
+ *   Name=, Records=3, Children=0
+ *     SOA: serial=449810, refresh=900, retry=600, expire=86400, minttl=3600, ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org. (flags=600000f0, serial=449809, ttl=3600)
+ *     NS: dc1.samdom.example.org. (flags=600000f0, serial=449809, ttl=900)
+ *     A: 192.168.1.3 (flags=600000f0, serial=449809, ttl=900)
+ *   Name=_sites, Records=0, Children=1
+ *   Name=_tcp, Records=0, Children=4
+ *   Name=_udp, Records=0, Children=2
+ *   Name=data, Records=1, Children=0
+ *     A: 192.168.1.4 (flags=f0, serial=428109, ttl=3600)
+ *   Name=ha, Records=1, Children=0
+ *     A: 192.168.1.5 (flags=f0, serial=428110, ttl=3600)
+ *   Name=proxy, Records=1, Children=0
+ *     CNAME: ha.samdom.example.org. (flags=f0, serial=446881, ttl=900)
+ * </pre>
  *
  * @author Christian Bremer
  */
@@ -52,6 +71,8 @@ public interface DnsEntriesParser
 
   /**
    * The default dns entries parser.
+   *
+   * @author Christian Bremer
    */
   @Slf4j
   class Default extends AbstractCommandExecutorResponseParser<Stream<DnsEntry>>

@@ -18,14 +18,13 @@ package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.PasswordComplexity;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
@@ -50,7 +49,8 @@ public interface PasswordInformationParser
    */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @Slf4j
-  class Default implements PasswordInformationParser {
+  class Default extends AbstractCommandExecutorResponseParser<PasswordInformation>
+      implements PasswordInformationParser {
 
     /**
      * The Password complexity.
@@ -112,24 +112,13 @@ public interface PasswordInformationParser
     }
 
     @Override
-    public PasswordInformation parse(final CommandExecutorResponse response) {
-      if (response.stdoutHasNoText()) {
-        log.warn("Password information command did not produce output. Error is [{}].",
-            response.getStderr());
-        return PasswordInformation.builder().build();
-      }
-      final String output = response.getStdout();
-      try (final BufferedReader reader = new BufferedReader(new StringReader(output))) {
-        return parse(reader);
-
-      } catch (IOException e) {
-        log.error("Parsing password information failed:\n{}\n", output, e);
-        return PasswordInformation.builder().build();
-      }
+    protected PasswordInformation getDefaultValue() {
+      return PasswordInformation.builder().build();
     }
 
-    private PasswordInformation parse(final BufferedReader reader) throws IOException {
-      final PasswordInformation.Builder info = PasswordInformation.builder();
+    @Override
+    protected PasswordInformation doParse(BufferedReader reader) throws IOException {
+      PasswordInformation.Builder info = PasswordInformation.builder();
       String line;
       while ((line = reader.readLine()) != null) {
         line = line.trim();
@@ -163,10 +152,10 @@ public interface PasswordInformationParser
       return info.build();
     }
 
-    private Optional<String> findValue(final String line, final String label) {
-      final int index = line.indexOf(label);
+    private Optional<String> findValue(String line, String label) {
+      int index = line.indexOf(label);
       if (index > -1) {
-        final String value = line.substring(index + label.length()).trim();
+        String value = line.substring(index + label.length()).trim();
         if (!value.isEmpty()) {
           return Optional.of(value);
         }
@@ -174,7 +163,7 @@ public interface PasswordInformationParser
       return Optional.empty();
     }
 
-    private Optional<Boolean> parseBoolean(final String value) {
+    private Optional<Boolean> parseBoolean(String value) {
       try {
         return Optional.of(Boolean.parseBoolean(value));
       } catch (Exception ignored) {

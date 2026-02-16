@@ -26,7 +26,48 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The dns zone list parser.
+ * The dns zone list parser parses linux command line tool
+ * {@code samba-tool dns zoneinfo <server> <zone> [options]}, for example
+ * {@code samba-tool dns zoneinfo dc1 samdom.example.org}.
+ *
+ * <p>A response of this command looks like this:
+ * <pre>
+ *   pszZoneName                 : samdom.example.org
+ *   dwZoneType                  : DNS_ZONE_TYPE_PRIMARY
+ *   fReverse                    : FALSE
+ *   fAllowUpdate                : DNS_ZONE_UPDATE_SECURE
+ *   fPaused                     : FALSE
+ *   fShutdown                   : FALSE
+ *   fAutoCreated                : FALSE
+ *   fUseDatabase                : TRUE
+ *   pszDataFile                 : None
+ *   aipMasters                  : []
+ *   fSecureSecondaries          : DNS_ZONE_SECSECURE_NO_XFER
+ *   fNotifyLevel                : DNS_ZONE_NOTIFY_LIST_ONLY
+ *   aipSecondaries              : []
+ *   aipNotify                   : []
+ *   fUseWins                    : FALSE
+ *   fUseNbstat                  : FALSE
+ *   fAging                      : FALSE
+ *   dwNoRefreshInterval         : 168
+ *   dwRefreshInterval           : 168
+ *   dwAvailForScavengeTime      : 0
+ *   aipScavengeServers          : []
+ *   dwRpcStructureVersion       : 0x2
+ *   dwForwarderTimeout          : 0
+ *   fForwarderSlave             : 0
+ *   aipLocalMasters             : []
+ *   dwDpFlags                   : DNS_DP_AUTOCREATED DNS_DP_DOMAIN_DEFAULT DNS_DP_ENLISTED
+ *   pszDpFqdn                   : DomainDnsZones.samdom.example.org
+ *   pwszZoneDn                  : DC=samdom.example.org,CN=MicrosoftDNS,DC=DomainDnsZones,DC=samdom,DC=example,DC=org
+ *   dwLastSuccessfulSoaCheck    : 0
+ *   dwLastSuccessfulXfr         : 0
+ *   fQueuedForBackgroundLoad    : FALSE
+ *   fBackgroundLoadInProgress   : FALSE
+ *   fReadOnlyZone               : FALSE
+ *   dwLastXfrAttempt            : 0
+ *   dwLastXfrResult             : 0
+ * </pre>
  *
  * @author Christian Bremer
  */

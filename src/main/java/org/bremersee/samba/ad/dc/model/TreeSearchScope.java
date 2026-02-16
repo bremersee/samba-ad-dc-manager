@@ -30,9 +30,9 @@ import lombok.Getter;
 @Getter
 public enum TreeSearchScope implements Translatable {
 
-  ONELEVEL("one-level", "search-scope.one-level.label", "One Level"), // Eine Ebene
+  ONELEVEL("one-level", "search-scope.one-level.label", "One Level"),
 
-  SUBTREE("subtree", "search-scope.subtree.label", "Subtree"); // Teilbaum
+  SUBTREE("subtree", "search-scope.subtree.label", "Subtree");
 
   private final String parameterValue;
 

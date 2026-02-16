@@ -5,6 +5,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.repository.HostNameSupplier;
 import org.bremersee.samba.ad.dc.repository.cli.parser.HostNameParser;
@@ -29,7 +31,10 @@ public class HostNameSupplierCli extends CommandExecutor implements HostNameSupp
     if (!isEmpty(getProperties().getCli().getHostnameOptions())) {
       commands.add(getProperties().getCli().getHostnameOptions());
     }
-    return executeAndGet(commands, HostNameParser.defaultParser());
+    return executeAndGet(commands, HostNameParser.defaultParser())
+        .orElseThrow(() -> ServiceException.internalServerError(
+            "Getting hostname failed.",
+            ErrorCode.EC_GETTING_HOSTNAME_FAILED));
   }
 
 }

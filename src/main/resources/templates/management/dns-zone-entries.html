@@ -140,6 +140,7 @@
         <div class="col col-auto mt-sm-2 mt-md-0">
           <a id="addDnsEntry" href="dns-entry-add.html" title="Add dns entry"
              class="btn btn-outline-primary"
+             th:title="#{dns-entry-add.title}"
              th:href="@{dns-entry-add(zone-type=${zoneType},zone-name=${zoneName},page=${page},size=${size},sort=${sort},q=${q})}">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
           </a>

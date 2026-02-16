@@ -46,7 +46,7 @@ class PasswordInformationParserTest {
    */
   @Test
   void parseEmptyPasswordInformation() {
-    CommandExecutorResponse response = new CommandExecutorResponse(null, null);
+    CommandExecutorResponse response = new CommandExecutorResponse(null, "ERROR");
     PasswordInformation expected = PasswordInformation.builder().build();
     PasswordInformation actual = parser.parse(response);
     assertThat(actual)
@@ -58,16 +58,7 @@ class PasswordInformationParserTest {
    */
   @Test
   void parsePasswordInformation() {
-    String stdout = PASSWORD_COMPLEXITY + " on\n"
-        + STORE_PLAINTEXT_PASSWORD + " false\n"
-        + PASSWORD_HISTORY_LENGTH + " 1234\n"
-        + MINIMUM_PASSWORD_LENGTH + " 5678\n"
-        + MINIMUM_PASSWORD_AGE + " 9012\n"
-        + MAXIMUM_PASSWORD_AGE + " 3456\n"
-        + ACCOUNT_LOCKOUT_DURATION + " 7890\n"
-        + ACCOUNT_LOCKOUT_THRESHOLD + " 12345\n"
-        + RESET_ACCOUNT_LOCKOUT_AFTER + " 67890\n";
-    CommandExecutorResponse response = new CommandExecutorResponse(stdout, null);
+    CommandExecutorResponse response = getCommandExecutorResponse();
     PasswordInformation expected = PasswordInformation.builder()
         .passwordComplexity(PasswordComplexity.ON)
         .storePlaintextPasswords(false)
@@ -82,5 +73,18 @@ class PasswordInformationParserTest {
     PasswordInformation actual = parser.parse(response);
     assertThat(actual)
         .isEqualTo(expected);
+  }
+
+  private static CommandExecutorResponse getCommandExecutorResponse() {
+    String stdout = PASSWORD_COMPLEXITY + " on\n"
+        + STORE_PLAINTEXT_PASSWORD + " false\n"
+        + PASSWORD_HISTORY_LENGTH + " 1234\n"
+        + MINIMUM_PASSWORD_LENGTH + " 5678\n"
+        + MINIMUM_PASSWORD_AGE + " 9012\n"
+        + MAXIMUM_PASSWORD_AGE + " 3456\n"
+        + ACCOUNT_LOCKOUT_DURATION + " 7890\n"
+        + ACCOUNT_LOCKOUT_THRESHOLD + " 12345\n"
+        + RESET_ACCOUNT_LOCKOUT_AFTER + " 67890\n";
+    return new CommandExecutorResponse(stdout, null);
   }
 }

@@ -28,7 +28,28 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The dns zone list parser.
+ * The dns zone list parser parses linux command line tool
+ * {@code samba-tool dns zonelist <server> [options]}, for example
+ * {@code samba-tool dns zonelist dc1 --primary}.
+ *
+ * <p>A response of this command looks like this:
+ * <pre>
+ *   2 zone(s) found
+ *
+ *   pszZoneName                 : 1.168.192.in-addr.arpa
+ *   Flags                       : DNS_RPC_ZONE_DSINTEGRATED DNS_RPC_ZONE_UPDATE_SECURE
+ *   ZoneType                    : DNS_ZONE_TYPE_PRIMARY
+ *   Version                     : 50
+ *   dwDpFlags                   : DNS_DP_AUTOCREATED DNS_DP_DOMAIN_DEFAULT DNS_DP_ENLISTED
+ *   pszDpFqdn                   : DomainDnsZones.samdom.example.org
+ *
+ *   pszZoneName                 : samdom.example.org
+ *   Flags                       : DNS_RPC_ZONE_DSINTEGRATED DNS_RPC_ZONE_UPDATE_SECURE
+ *   ZoneType                    : DNS_ZONE_TYPE_PRIMARY
+ *   Version                     : 50
+ *   dwDpFlags                   : DNS_DP_AUTOCREATED DNS_DP_DOMAIN_DEFAULT DNS_DP_ENLISTED
+ *   pszDpFqdn                   : DomainDnsZones.samdom.example.org
+ * </pre>
  *
  * @author Christian Bremer
  */

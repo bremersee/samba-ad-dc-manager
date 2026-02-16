@@ -20,22 +20,19 @@ import static java.util.Objects.requireNonNullElseGet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 import org.springframework.util.StringUtils;
 
@@ -46,7 +43,7 @@ import org.springframework.util.StringUtils;
  * <p>A response of {@code dhcp-lease-list} looks like this:
  * <pre>
  * MAC b8:xx:xx:xx:xx:xx IP 192.168.1.109 HOSTNAME ukelei BEGIN 2019-08-18 11:20:33 END 2019-08-18 11:50:33 MANUFACTURER Apple, Inc.
- * MAC ac:xx:xx:xx:xx:yy IP 192.168.1.188 HOSTNAME -NA- BEGIN 2019-08-18 11:25:48 END 2019-08-18 11:55:48 MANUFACTURER Super Micro Computer, Inc.
+ * MAC ac:xx:xx:xx:xx:yy IP 192.168.1.188 HOSTNAME -NA- BEGIN 2019-08-18 11:25:48 END 2019-08-18 11:55:48 MANUFACTURER
  * </pre>
  *
  * @author Christian Bremer
@@ -116,10 +113,10 @@ public interface DhcpLeaseParser extends CommandExecutorResponseParser<List<Dhcp
    * The default parser.
    */
   @Slf4j
-  @SuppressWarnings("ClassCanBeRecord")
-  class Default implements DhcpLeaseParser {
+  class Default extends AbstractCommandExecutorResponseParser<List<DhcpLease>>
+      implements DhcpLeaseParser {
 
-    private final BiFunction<String, String, String> unknownHostConverter;
+    private final BinaryOperator<String> unknownHostConverter;
 
     /**
      * Instantiates a new default parser.
@@ -143,36 +140,25 @@ public interface DhcpLeaseParser extends CommandExecutorResponseParser<List<Dhcp
     }
 
     @Override
-    public List<DhcpLease> parse(final CommandExecutorResponse response) {
-      if (response.stdoutHasNoText()) {
-        log.warn("Dhcp lease list command did not produce output. Error is [{}].",
-            response.getStderr());
-        return Collections.emptyList();
-      }
-      final String output = response.getStdout();
-      try (final BufferedReader reader = new BufferedReader(new StringReader(output))) {
-        return parseDhcpLeaseList(reader);
-
-      } catch (IOException e) {
-        log.error("Parsing dhcp lease list failed:\n{}\n", output, e);
-        return Collections.emptyList();
-      }
+    protected List<DhcpLease> getDefaultValue() {
+      return List.of();
     }
 
-    private List<DhcpLease> parseDhcpLeaseList(final BufferedReader reader) throws IOException {
-      final List<DhcpLease> leases = new ArrayList<>();
+    @Override
+    protected List<DhcpLease> doParse(BufferedReader reader) throws IOException {
+      List<DhcpLease> leases = new ArrayList<>();
       String line;
       while ((line = reader.readLine()) != null) {
         line = line.trim();
-        final String mac = findDhcpLeasePart(line, MAC, IP);
-        final String ip = findDhcpLeasePart(line, IP, HOSTNAME);
+        String mac = findDhcpLeasePart(line, MAC, IP);
+        String ip = findDhcpLeasePart(line, IP, HOSTNAME);
         String hostname = findDhcpLeasePart(line, HOSTNAME, BEGIN);
         if (HOSTNAME_UNKNOWN.equalsIgnoreCase(hostname) && ip != null) {
           hostname = unknownHostConverter.apply(mac, ip);
         }
-        final String begin = findDhcpLeasePart(line, BEGIN, END);
-        final String end = findDhcpLeasePart(line, END, MANUFACTURER);
-        final String manufacturer = findDhcpLeasePart(line, MANUFACTURER, null);
+        String begin = findDhcpLeasePart(line, BEGIN, END);
+        String end = findDhcpLeasePart(line, END, MANUFACTURER);
+        String manufacturer = findDhcpLeasePart(line, MANUFACTURER, null);
         if (mac != null && ip != null && hostname != null && begin != null && end != null) {
           leases.add(DhcpLease.builder()
               .mac(mac.replace("-", ":").trim().toLowerCase())
@@ -206,22 +192,30 @@ public interface DhcpLeaseParser extends CommandExecutorResponseParser<List<Dhcp
     }
 
     private OffsetDateTime parseDhcpLeaseTime(String time) {
-      if (!StringUtils.hasText(time)) {
-        return null;
-      }
-      final LocalDateTime localDateTime = LocalDateTime.parse(
-          time,
-          DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-      // As of https://linux.die.net/man/5/dhcpd.leases the time zone is always UTC
-      return OffsetDateTime.of(localDateTime, ZoneOffset.UTC);
+      return Optional.ofNullable(time)
+          .filter(Predicate.not(String::isBlank))
+          .map(timeStr -> LocalDateTime
+              .parse(timeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+          // As of https://linux.die.net/man/5/dhcpd.leases the time zone is always UTC
+          .map(localDateTime -> OffsetDateTime.of(localDateTime, ZoneOffset.UTC))
+          .orElse(null);
     }
   }
 
-  @NoArgsConstructor(access = AccessLevel.PACKAGE)
+  /**
+   * The default unknown host converter.
+   */
   class DefaultUnknownHostConverter implements BinaryOperator<String> {
 
     private static final Pattern IPV4_PATTERN = Pattern.compile(
         "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+
+    /**
+     * Instantiates a new default unknown host converter.
+     */
+    DefaultUnknownHostConverter() {
+      super();
+    }
 
     @Override
     public String apply(String mac, String ip) {

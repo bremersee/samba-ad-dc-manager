@@ -18,22 +18,34 @@ package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
-import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponse;
+import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The domain info parser.
+ * The domain info parser parses linux command line tool
+ * {@code samba-tool domain info <ip_address> [options]}, for example
+ * {@code samba-tool domain info dc1}.
+ *
+ * <p>A response of this command looks like this:
+ * <pre>
+ *   Forest           : samdom.example.org
+ *   Domain           : samdom.example.org
+ *   Netbios domain   : SAMDOM
+ *   DC name          : dc1.samdom.example.org
+ *   DC netbios name  : DC1
+ *   Server site      : Default-First-Site-Name
+ *   Client site      : Default-First-Site-Name
+ * </pre>
  *
  * @author Christian Bremer
  */
 public interface DomainInfoParser
-    extends CommandExecutorResponseParser<DomainInfo> {
+    extends CommandExecutorResponseParser<Optional<DomainInfo>> {
 
   /**
    * Return default domain info parser.
@@ -49,7 +61,8 @@ public interface DomainInfoParser
    */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @Slf4j
-  class Default implements DomainInfoParser {
+  class Default extends AbstractCommandExecutorResponseParser<Optional<DomainInfo>>
+      implements DomainInfoParser {
 
     /**
      * The Forest.
@@ -101,24 +114,13 @@ public interface DomainInfoParser
     }
 
     @Override
-    public DomainInfo parse(final CommandExecutorResponse response) {
-      if (response.stdoutHasNoText()) {
-        log.warn("Domain info command did not produce output. Error is [{}].",
-            response.getStderr());
-        return DomainInfo.builder().build();
-      }
-      final String output = response.getStdout();
-      try (final BufferedReader reader = new BufferedReader(new StringReader(output))) {
-        return parse(reader);
-
-      } catch (IOException e) {
-        log.error("Parsing domain info failed:\n{}\n", output, e);
-        return DomainInfo.builder().build();
-      }
+    protected Optional<DomainInfo> getDefaultValue() {
+      return Optional.empty();
     }
 
-    private DomainInfo parse(final BufferedReader reader) throws IOException {
-      final DomainInfo.Builder info = DomainInfo.builder();
+    @Override
+    protected Optional<DomainInfo> doParse(BufferedReader reader) throws IOException {
+      DomainInfo.Builder info = DomainInfo.builder();
       String line;
       while ((line = reader.readLine()) != null) {
         line = line.trim();
@@ -137,13 +139,13 @@ public interface DomainInfoParser
         findValue(line, CLIENT_SITE)
             .ifPresent(info::clientSite);
       }
-      return info.build();
+      return Optional.of(info.build());
     }
 
-    private Optional<String> findValue(final String line, final String label) {
-      final int index = line.indexOf(":", label.length());
+    private Optional<String> findValue(String line, String label) {
+      int index = line.indexOf(":", label.length());
       if (line.trim().startsWith(label) && index > -1) {
-        final String value = line.substring(index + 1).trim();
+        String value = line.substring(index + 1).trim();
         if (!value.isEmpty()) {
           return Optional.of(value);
         }

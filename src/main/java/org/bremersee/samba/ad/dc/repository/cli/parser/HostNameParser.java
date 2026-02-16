@@ -16,10 +16,10 @@
 
 package org.bremersee.samba.ad.dc.repository.cli.parser;
 
-import static java.util.Objects.nonNull;
-
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
@@ -30,7 +30,7 @@ import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
  *
  * @author Christian Bremer
  */
-public interface HostNameParser extends CommandExecutorResponseParser<String> {
+public interface HostNameParser extends CommandExecutorResponseParser<Optional<String>> {
 
   /**
    * Returns the default host name parser.
@@ -42,10 +42,10 @@ public interface HostNameParser extends CommandExecutorResponseParser<String> {
   }
 
   /**
-   * The efault host name parser.
+   * The default host name parser.
    */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  class Default extends AbstractCommandExecutorResponseParser<String>
+  class Default extends AbstractCommandExecutorResponseParser<Optional<String>>
       implements HostNameParser {
 
     private static HostNameParser instance;
@@ -63,17 +63,15 @@ public interface HostNameParser extends CommandExecutorResponseParser<String> {
     }
 
     @Override
-    protected String getDefaultValue() {
-      return "";
+    protected Optional<String> getDefaultValue() {
+      return Optional.empty();
     }
 
     @Override
-    protected String doParse(BufferedReader reader) throws IOException {
-      String hostName = reader.readLine();
-      if (nonNull(hostName)) {
-        return hostName.trim();
-      }
-      return null;
+    protected Optional<String> doParse(BufferedReader reader) throws IOException {
+      return Optional.ofNullable(reader.readLine())
+          .map(String::trim)
+          .filter(Predicate.not(String::isEmpty));
     }
   }
 

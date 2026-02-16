@@ -2,6 +2,8 @@ package org.bremersee.samba.ad.dc.repository.cli;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
@@ -30,9 +32,11 @@ public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain 
     List<String> commands = getCommands();
     commands.add("info");
     commands.add(quote(ipOrHostname));
-    return executeAndGet(
-        commands,
-        DomainInfoParser.defaultParser());
+    return executeAndGet(commands, DomainInfoParser.defaultParser())
+        .orElseThrow(() -> ServiceException.notFoundWithErrorCode(
+            DomainInfo.class.getSimpleName(),
+            ipOrHostname,
+            ErrorCode.EC_DOMAIN_INFO_NOT_FOUND));
   }
 
   @Cacheable(value = "passwordInformationCache")
