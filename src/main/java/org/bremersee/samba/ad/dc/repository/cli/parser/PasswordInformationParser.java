@@ -28,7 +28,23 @@ import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseP
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The password information parser.
+ * The password information parser parses linux command line tool
+ * {@code samba-tool domain passwordsettings show}.
+ *
+ * <p>A response of this command looks like this:
+ * <pre>
+ *   Password information for domain 'DC=samdom,DC=example,DC=org'
+ *
+ *   Password complexity: on
+ *   Store plaintext passwords: off
+ *   Password history length: 24
+ *   Minimum password length: 7
+ *   Minimum password age (days): 1
+ *   Maximum password age (days): 42
+ *   Account lockout duration (mins): 30
+ *   Account lockout threshold (attempts): 0
+ *   Reset account lockout after (mins): 30
+ * </pre>
  *
  * @author Christian Bremer
  */
