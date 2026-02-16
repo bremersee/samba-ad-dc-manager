@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +37,11 @@ import org.bremersee.samba.ad.dc.repository.cli.parser.DnsZoneParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * The samba tool dns cli test.
+ *
+ * @author Christian Bremer
+ */
 class SambaToolDnsCliTest {
 
   private static final DnsZoneListParser zoneListParser = DnsZoneListParser.defaultParser();
@@ -32,6 +53,9 @@ class SambaToolDnsCliTest {
 
   private SambaToolDnsCli target;
 
+  /**
+   * Sets up.
+   */
   @BeforeEach
   void setUp() {
     ApplicationProperties properties = new ApplicationProperties();
@@ -41,18 +65,27 @@ class SambaToolDnsCliTest {
     target.setZoneParser(zoneParser);
   }
 
+  /**
+   * Gets sub command.
+   */
   @Test
   void getSubCommand() {
     assertThat(target.getSubCommand())
         .isEqualTo("dns");
   }
 
+  /**
+   * Needs samba tool credentials.
+   */
   @Test
   void needsSambaToolCredentials() {
     assertThat(target.needsSambaToolCredentials())
         .isTrue();
   }
 
+  /**
+   * Gets dns zone names.
+   */
   @Test
   void getDnsZoneNames() {
     CommandExecutorResponse response = getZoneListResponse();
@@ -65,6 +98,9 @@ class SambaToolDnsCliTest {
         .containsExactlyElementsOf(expected);
   }
 
+  /**
+   * Find dns zone.
+   */
   @Test
   void findDnsZone() {
     CommandExecutorResponse response = getZoneResponse();
@@ -79,6 +115,9 @@ class SambaToolDnsCliTest {
         .hasValue(expected);
   }
 
+  /**
+   * Create dns zone.
+   */
   @Test
   void createDnsZone() {
     CommandExecutorResponse response = new CommandExecutorResponse(
@@ -90,6 +129,9 @@ class SambaToolDnsCliTest {
         .isThrownBy(() -> target.createDnsZone("dc1", "intranet"));
   }
 
+  /**
+   * Delete dns zone.
+   */
   @Test
   void deleteDnsZone() {
     CommandExecutorResponse response = new CommandExecutorResponse(
@@ -101,6 +143,9 @@ class SambaToolDnsCliTest {
         .isThrownBy(() -> target.deleteDnsZone("dc1", "intranet"));
   }
 
+  /**
+   * Gets dns entries.
+   */
   @Test
   void getDnsEntries() {
     CommandExecutorResponse response = getDnsEntriesResponse();
@@ -115,6 +160,9 @@ class SambaToolDnsCliTest {
         .containsExactlyElementsOf(expected);
   }
 
+  /**
+   * Add dns entry.
+   */
   @Test
   void addDnsEntry() {
     CommandExecutorResponse response = new CommandExecutorResponse(
@@ -132,6 +180,9 @@ class SambaToolDnsCliTest {
         .isThrownBy(() -> target.addDnsEntry("dc1", dnsEntry));
   }
 
+  /**
+   * Update dns entry.
+   */
   @Test
   void updateDnsEntry() {
     CommandExecutorResponse response = new CommandExecutorResponse(
@@ -149,6 +200,9 @@ class SambaToolDnsCliTest {
         .isThrownBy(() -> target.updateDnsEntry("dc1", dnsEntry, "192.168.1.8"));
   }
 
+  /**
+   * Delete dns entry.
+   */
   @Test
   void deleteDnsEntry() {
     CommandExecutorResponse response = new CommandExecutorResponse(

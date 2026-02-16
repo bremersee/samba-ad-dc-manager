@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,6 +31,11 @@ import org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * The samba tool domain cli test.
+ *
+ * @author Christian Bremer
+ */
 class SambaToolDomainCliTest {
 
   private static final DomainInfoParser infoParser = DomainInfoParser.defaultParser();
@@ -24,6 +45,9 @@ class SambaToolDomainCliTest {
 
   private SambaToolDomainCli target;
 
+  /**
+   * Sets up.
+   */
   @BeforeEach
   void setUp() {
     ApplicationProperties properties = new ApplicationProperties();
@@ -32,6 +56,9 @@ class SambaToolDomainCliTest {
     target.setPasswordInformationParser(passwordParser);
   }
 
+  /**
+   * Gets sub command.
+   */
   @Test
   void getSubCommand() {
     String actual = target.getSubCommand();
@@ -39,12 +66,18 @@ class SambaToolDomainCliTest {
         .isEqualTo("domain");
   }
 
+  /**
+   * Needs samba tool credentials.
+   */
   @Test
   void needsSambaToolCredentials() {
     assertThat(target.needsSambaToolCredentials())
         .isFalse();
   }
 
+  /**
+   * Gets domain info.
+   */
   @Test
   void getDomainInfo() {
     CommandExecutorResponse response = getDomainInfoResponse();
@@ -59,6 +92,9 @@ class SambaToolDomainCliTest {
         .isEqualTo(expected);
   }
 
+  /**
+   * Gets domain info not found.
+   */
   @Test
   void getDomainInfoNotFound() {
     CommandExecutorResponse response = new CommandExecutorResponse(null, "Host not found.");
@@ -69,6 +105,9 @@ class SambaToolDomainCliTest {
         .isThrownBy(() -> target.getDomainInfo("dc2"));
   }
 
+  /**
+   * Gets password information.
+   */
   @Test
   void getPasswordInformation() {
     CommandExecutorResponse response = getPasswordInfoResponse();
