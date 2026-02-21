@@ -9,7 +9,6 @@ import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveAuthenticationToken;
-import org.bremersee.spring.security.ldaptive.userdetails.LdaptiveUser;
 import org.bremersee.spring.security.ldaptive.userdetails.LdaptiveUserDetails;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
@@ -86,18 +85,21 @@ class MockedAuthenticationManager implements AuthenticationManager, Authenticati
         .ifPresentOrElse(
             counter -> AdConstants.USER_LOGON_COUNT.setValue(entry, counter + 1),
             () -> AdConstants.USER_LOGON_COUNT.setValue(entry, 1));
-    return new LdaptiveUser(
-        entry,
-        AdConstants.SAM_ACCOUNT_NAME.getValue(entry).orElse(null),
-        AdConstants.USER_GIVEN_NAME.getValue(entry).orElse(null),
-        AdConstants.USER_SN.getValue(entry).orElse(null),
-        AdConstants.MAIL.getValue(entry).orElse(null),
-        getAuthorities(entry),
-        null,
-        true,
-        true,
-        true,
-        control.isEnabled() || isAdmin(entry));
+    var userDetailsBuilder = LdaptiveUserDetails.builder()
+        .dn(entry.getDn())
+        .username(AdConstants.SAM_ACCOUNT_NAME.getValue(entry).orElse(""))
+        .accountNonExpired(true)
+        .accountNonLocked(true)
+        .credentialsNonExpired(true)
+        .enabled(control.isEnabled() || isAdmin(entry))
+        .authorities(getAuthorities(entry));
+    AdConstants.USER_GIVEN_NAME.getValue(entry)
+        .ifPresent(userDetailsBuilder::firstName);
+    AdConstants.USER_SN.getValue(entry)
+        .ifPresent(userDetailsBuilder::lastName);
+    AdConstants.MAIL.getValue(entry)
+        .ifPresent(userDetailsBuilder::email);
+    return userDetailsBuilder.build();
   }
 
   private List<GrantedAuthority> getAuthorities(LdapEntry entry) {
