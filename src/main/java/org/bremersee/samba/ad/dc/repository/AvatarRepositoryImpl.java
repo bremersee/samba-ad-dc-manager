@@ -42,7 +42,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
 
   private final ImageTool imageTool;
 
-  AvatarRepositoryImpl(
+  public AvatarRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
       List<AvatarProvider> avatarProviders,
@@ -79,8 +79,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
   public boolean existsAvatarInActiveDirectory(String user, Dn ou, TreeSearchScope searchScope) {
     log.debug("existsAvatarInActiveDirectory({}, {}, {})", user, ou, searchScope);
     return findLdapEntryForAvatar(user, ou, searchScope)
-        .map(ldapEntry -> ldapEntry.getAttribute(AdConstants.USER_JPEG_PHOTO.getName()))
-        .map(LdapAttribute::getBinaryValue)
+        .flatMap(AdConstants.USER_JPEG_PHOTO::getValue)
         .map(this::isAvatarNotEmpty)
         .orElse(false);
   }
@@ -92,7 +91,7 @@ public class AvatarRepositoryImpl extends SamAccountRepository
     log.debug("findAvatar({}, {}, {})", userNameOrEmail, avatarDefault, size);
     int avatarSize = getAvatarSize(size);
     return findLdapEntryForAvatar(userNameOrEmail, ou, searchScope)
-        .flatMap(ldapEntry -> findAvatar(ldapEntry)
+        .flatMap(ldapEntry -> AdConstants.USER_JPEG_PHOTO.getValue(ldapEntry)
             .filter(this::isAvatarNotEmpty)
             .map(avatar -> scaleAvatarForDisplaying(avatar, avatarSize))
             .filter(this::isAvatarNotEmpty)
@@ -105,12 +104,11 @@ public class AvatarRepositoryImpl extends SamAccountRepository
             .findFirst());
   }
 
-  private Optional<byte[]> findAvatar(LdapEntry ldapEntry) {
-    return AdConstants.USER_JPEG_PHOTO.getValue(ldapEntry);
-  }
-
-  private Stream<byte[]> findAvatarsOfProviders(String user, AvatarDefault avatarDefault,
+  private Stream<byte[]> findAvatarsOfProviders(
+      String user,
+      AvatarDefault avatarDefault,
       Integer size) {
+
     log.debug("findAvatarsOfProviders({}, {}, {})", user, avatarDefault, size);
     return avatarProviders.stream()
         .flatMap(provider -> provider.findAvatar(user, avatarDefault, size).stream())

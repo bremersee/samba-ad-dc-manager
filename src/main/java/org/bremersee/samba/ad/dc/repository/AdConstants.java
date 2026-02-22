@@ -15,6 +15,7 @@ import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
 public abstract class AdConstants {
 
   private AdConstants() {
+    super();
   }
 
   public static final LdaptiveAttribute<String> OBJECT_CLASS = define("objectClass");
