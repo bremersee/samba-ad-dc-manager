@@ -17,67 +17,59 @@
 package org.bremersee.samba.ad.dc.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doReturn;
 
+import java.time.OffsetDateTime;
 import java.util.List;
-import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.bremersee.samba.ad.dc.repository.cli.parser.DhcpLeaseParser;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * The dhcp repository impl test.
  *
  * @author Christian Bremer
  */
-@Disabled
+@ExtendWith({MockitoExtension.class})
 class DhcpRepositoryImplTest {
 
-  private static DhcpRepository repository;
+  @Mock
+  private DhcpLeaseListTool dhcpTool;
+
+  @InjectMocks
+  private DhcpRepositoryImpl repository;
 
   /**
-   * Sets up.
-   */
-  @BeforeAll
-  static void setUp() {
-    String line0 = "MAC b8:xx:xx:xx:xx:xx "
-        + "IP 192.168.1.109 "
-        + "HOSTNAME ukelei "
-        + "BEGIN 2019-08-18 11:20:33 "
-        + "END 2019-08-18 11:50:33 "
-        + "MANUFACTURER Apple, Inc."
-        + "\n";
-    String line1 = "MAC ac:xx:xx:xx:xx:yy "
-        + "IP 192.168.1.188 "
-        + "HOSTNAME -NA- "
-        + "BEGIN 2019-08-18 11:25:48 "
-        + "END 2019-08-18 11:55:48 "
-        + "MANUFACTURER Super Micro Computer, Inc."
-        + "\n";
-    String lines = line0 + line1;
-    DhcpLeaseParser parser = DhcpLeaseParser.defaultParser();
-    ApplicationProperties properties = new ApplicationProperties();
-    DhcpRepositoryImpl repo = new DhcpRepositoryImpl(null);
-    /*
-    repo.setParser(parser);
-    repo = spy(repo);
-    when(repo.find(anyBoolean()))
-        .thenReturn(parser.parse(new CommandExecutorResponse(lines, null)));
-
-     */
-    repository = repo;
-  }
-
-  /**
-   * Find all.
+   * Find active.
    */
   @Test
   void findActive() {
+    List<DhcpLease> expected = List.of(
+        DhcpLease.builder()
+            .hostname("ukelei")
+            .ip("192.168.1.201")
+            .mac("b8:xx:xx:xx:xx:xx")
+            .begin(OffsetDateTime.parse("2019-08-18T11:20:33Z"))
+            .end(OffsetDateTime.parse("2019-08-18T11:23:33Z"))
+            .manufacturer("Apple, Inc.")
+            .build(),
+        DhcpLease.builder()
+            .hostname("forelle")
+            .ip("192.168.1.202")
+            .mac("b7:xx:xx:xx:xx:xx")
+            .begin(OffsetDateTime.parse("2019-08-18T11:12:33Z"))
+            .end(OffsetDateTime.parse("2019-08-18T11:15:33Z"))
+            .build()
+    );
+    doReturn(expected)
+        .when(dhcpTool)
+        .findActive();
     List<DhcpLease> actual = repository.findActive();
     assertThat(actual)
-        .anyMatch(lease -> lease.getIp().equals("192.168.1.188"));
+        .containsExactlyInAnyOrderElementsOf(expected);
   }
 
 }

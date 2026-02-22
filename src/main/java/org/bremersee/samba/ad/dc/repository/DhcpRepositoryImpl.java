@@ -17,7 +17,6 @@
 package org.bremersee.samba.ad.dc.repository;
 
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Component;
  * @author Christian Bremer
  */
 @Component("dhcpRepository")
-@Slf4j
 public class DhcpRepositoryImpl implements DhcpRepository {
 
   private final DhcpLeaseListTool dhcpTool;
