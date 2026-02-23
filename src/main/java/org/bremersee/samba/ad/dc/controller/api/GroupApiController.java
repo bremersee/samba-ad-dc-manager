@@ -191,6 +191,12 @@ public class GroupApiController extends ApiController {
           schema = @Schema(type = "boolean", defaultValue = "false"))
       @RequestParam(value = "by-group-id", defaultValue = "false") boolean nameIsGroupId,
 
+      @Parameter(
+          name = "by-unix-group-id",
+          description = "The given name is the unix group ID.",
+          schema = @Schema(type = "boolean", defaultValue = "false"))
+      @RequestParam(value = "by-unix-group-id", defaultValue = "false") boolean nameIsUnixGroupId,
+
       @Parameter(name = OU,
           description = "The search base (organizational unit) like 'CN=Groups'.",
           schema = @Schema(type = "string"))
@@ -205,6 +211,8 @@ public class GroupApiController extends ApiController {
     Optional<DomainGroup> domainGroup;
     if (nameIsGroupId) {
       domainGroup = domainGroupService.getGroupByPrimaryGroupId(getGroupId(samAccountName));
+    } else if (nameIsUnixGroupId) {
+      domainGroup = domainGroupService.getGroupByUnixGroupId(getGroupId(samAccountName));
     } else {
       domainGroup = domainGroupService.getGroup(samAccountName, ou, scope);
     }

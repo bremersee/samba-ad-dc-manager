@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,21 +62,6 @@ public interface AvatarRepository {
    */
   default boolean isAvatarNotEmpty(byte[] bytes) {
     return bytes != null && bytes.length > 0;
-  }
-
-  /**
-   * Exists avatar.
-   *
-   * @param user the user
-   * @return the boolean
-   */
-  default boolean existsAvatar(
-      @NotEmpty String user,
-      @Nullable Dn ou,
-      @Nullable TreeSearchScope searchScope) {
-
-    return findAvatar(user, ou, searchScope, AvatarDefault.NOT_FOUND, DEFAULT_AVATAR_SIZE)
-        .isPresent();
   }
 
   boolean existsAvatarInActiveDirectory(

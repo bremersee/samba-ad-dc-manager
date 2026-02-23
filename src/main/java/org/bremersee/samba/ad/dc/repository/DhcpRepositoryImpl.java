@@ -31,6 +31,11 @@ public class DhcpRepositoryImpl implements DhcpRepository {
 
   private final DhcpLeaseListTool dhcpTool;
 
+  /**
+   * Instantiates a new dhcp repository.
+   *
+   * @param dhcpTool the dhcp tool
+   */
   public DhcpRepositoryImpl(DhcpLeaseListTool dhcpTool) {
     this.dhcpTool = dhcpTool;
   }

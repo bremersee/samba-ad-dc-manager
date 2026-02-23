@@ -27,7 +27,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The domain group repository interface.
+ * The domain group repository.
  *
  * @author Christian Bremer
  */
@@ -38,6 +38,8 @@ public interface DomainGroupRepository {
    * Find all groups.
    *
    * @param query the query
+   * @param ou the ou
+   * @param searchScope the search scope
    * @return the groups
    */
   Stream<DomainGroup> findAll(
@@ -49,6 +51,8 @@ public interface DomainGroupRepository {
    * Find group by name.
    *
    * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
    * @return the group
    */
   Optional<DomainGroup> findOne(
@@ -56,16 +60,39 @@ public interface DomainGroupRepository {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Find one by primary group id.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the optional
+   */
   Optional<DomainGroup> findOneByPrimaryGroupId(@NotNull Integer primaryGroupId);
+
+  /**
+   * Find one by unix gid number.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the optional
+   */
+  Optional<DomainGroup> findOneByGidNumber(@NotNull Integer primaryGroupId);
 
   /**
    * Add domain group.
    *
    * @param domainGroup the domain group
+   * @param ou the ou
    * @return the domain group
    */
   DomainGroup add(@NotNull DomainGroup domainGroup, @Nullable Dn ou);
 
+  /**
+   * Update domain group.
+   *
+   * @param groupName the group name
+   * @param domainGroup the domain group
+   * @param newOu the new ou
+   * @return the domain group
+   */
   @NotNull
   DomainGroup update(@NotEmpty String groupName, @NotNull DomainGroup domainGroup,
       @Nullable Dn newOu);
@@ -78,6 +105,12 @@ public interface DomainGroupRepository {
    */
   boolean delete(@NotEmpty String groupName);
 
+  /**
+   * Save domain group.
+   *
+   * @param domainGroup the domain group
+   * @return the domain group
+   */
   @NotNull
   DomainGroup save(@NotNull DomainGroup domainGroup);
 

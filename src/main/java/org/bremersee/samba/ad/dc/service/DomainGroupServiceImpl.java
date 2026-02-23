@@ -16,6 +16,7 @@
 
 package org.bremersee.samba.ad.dc.service;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -122,6 +123,11 @@ public class DomainGroupServiceImpl implements DomainGroupService {
   @Override
   public Optional<DomainGroup> getGroupByPrimaryGroupId(Integer primaryGroupId) {
     return domainGroupRepository.findOneByPrimaryGroupId(primaryGroupId);
+  }
+
+  @Override
+  public Optional<DomainGroup> getGroupByUnixGroupId(Integer unixGroupId) {
+    return domainGroupRepository.findOneByGidNumber(unixGroupId);
   }
 
   @Override

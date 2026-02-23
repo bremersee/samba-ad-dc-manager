@@ -35,16 +35,43 @@ import org.springframework.lang.Nullable;
  */
 public interface DomainGroupMemberRepository {
 
+  /**
+   * Resolve memberships.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the stream
+   */
   Stream<DomainGroup> resolveMemberships(
       @NotEmpty String samAccountName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Gets memberships.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the memberships
+   */
   Stream<DomainGroup> getMemberships(
       @NotEmpty String samAccountName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Gets member selection.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param query the query
+   * @param memberTypes the member types
+   * @param withPrimaryMembers the with primary members
+   * @return the member selection
+   */
   Stream<DomainGroupMember> getMemberSelection(
       String groupName,
       Dn ou,
@@ -53,6 +80,16 @@ public interface DomainGroupMemberRepository {
       Collection<DomainGroupMemberType> memberTypes,
       boolean withPrimaryMembers);
 
+  /**
+   * Modify members domain group.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param membersToAdd the members to add
+   * @param membersToRemove the members to remove
+   * @return the domain group
+   */
   @NotNull
   DomainGroup modifyMembers(
       @NotEmpty String groupName,

@@ -44,8 +44,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.RequestMatcherDelegatingAccessDeniedHandler;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -88,8 +88,10 @@ public class WebSecurityConfiguration {
   }
 
   private AccessDeniedHandler getAccessDeniedHandler() {
-    LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers = new LinkedHashMap<>(1);
-    handlers.put(new AntPathRequestMatcher("/api/**"), new AccessDeniedHandlerImpl());
+    LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers = LinkedHashMap
+        .newLinkedHashMap(1);
+    handlers.put(PathPatternRequestMatcher.withDefaults().matcher("/api/**"),
+        new AccessDeniedHandlerImpl());
     AccessDeniedHandlerImpl defaultHandler = new AccessDeniedHandlerImpl();
     defaultHandler.setErrorPage("/forbidden");
     return new RequestMatcherDelegatingAccessDeniedHandler(handlers, defaultHandler);
@@ -113,13 +115,14 @@ public class WebSecurityConfiguration {
 
             .requestMatchers(new AndRequestMatcher(
                 EndpointRequest.toAnyEndpoint(),
-                new AntPathRequestMatcher("/**", "GET")))
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/**")))
             .hasAnyAuthority("ROLE_ACTUATOR", "ROLE_ACTUATOR_ADMIN", "ROLE_ADMIN")
 
             .requestMatchers(EndpointRequest.toAnyEndpoint())
             .hasAnyAuthority("ROLE_ACTUATOR_ADMIN", "ROLE_ADMIN")
 
-            .requestMatchers(new AntPathRequestMatcher("/api/users/*/avatar", "GET"))
+            .requestMatchers(PathPatternRequestMatcher.withDefaults()
+                .matcher(HttpMethod.GET, "/api/users/*/avatar"))
             .permitAll()
 
             .requestMatchers("/api/**", "/management/**")
@@ -152,7 +155,7 @@ public class WebSecurityConfiguration {
         .csrf(customizer -> customizer
             .ignoringRequestMatchers(RequestMatchers.anyOf(
                 EndpointRequest.toAnyEndpoint(),
-                new AntPathRequestMatcher("/api/**"))))
+                PathPatternRequestMatcher.withDefaults().matcher("/api/**"))))
 
         .cors(customizer -> customizer
             .configurationSource(corsConfigurationSource))

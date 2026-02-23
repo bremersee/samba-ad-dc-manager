@@ -102,6 +102,8 @@ public interface DomainGroupService {
 
   Optional<DomainGroup> getGroupByPrimaryGroupId(@NotNull Integer primaryGroupId);
 
+  Optional<DomainGroup> getGroupByUnixGroupId(@NotNull Integer unixGroupId);
+
   @NotNull
   DomainGroup updateGroup(
       @NotEmpty String groupName,

@@ -160,6 +160,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         });
   }
 
+  @Override
   public Optional<DomainGroup> findOneByGidNumber(Integer gidNumber) {
     log.debug("findByGidNumber({})", gidNumber);
     return Optional.ofNullable(gidNumber)
@@ -180,7 +181,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         });
   }
 
-  public boolean existsByGidNumber(Integer gidNumber) {
+  boolean existsByGidNumber(Integer gidNumber) {
     log.debug("existsByGidNumber({})", gidNumber);
     return Optional.ofNullable(gidNumber)
         .map(gid -> {

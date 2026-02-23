@@ -33,7 +33,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 /**
- * The type DnsRepositoryImpl.
+ * The dns zone repository implementation.
  *
  * @author Christian Bremer
  */
@@ -49,6 +49,13 @@ public class DnsZoneRepositoryImpl implements DnsZoneRepository {
 
   private final SambaToolDns dnsTool;
 
+  /**
+   * Instantiates a new dns zone repository.
+   *
+   * @param ldapOperations the ldap operations
+   * @param domainRepository the domain repository
+   * @param dnsTool the dns tool
+   */
   public DnsZoneRepositoryImpl(
       LdaptiveOperations ldapOperations,
       DomainRepository domainRepository,

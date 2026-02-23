@@ -35,7 +35,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 /**
- * The type DnsRepositoryImpl.
+ * The dns entry repository implementation.
  *
  * @author Christian Bremer
  */
@@ -51,6 +51,15 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
 
   private final SambaToolDns dnsTool;
 
+  /**
+   * Instantiates a new dns entry repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param domainRepository the domain repository
+   * @param dnsZoneRepository the dns zone repository
+   * @param dnsTool the dns tool
+   */
   public DnsEntryRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
@@ -81,7 +90,8 @@ public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepo
         .objectScopeSearchRequest(dn.format(), returnAttributes);
     return getLdapOperations().findOne(searchRequest)
         .map(ldapEntry -> DnsEntry.builder()
-            .from(entry).from(adEntryMapper.map(ldapEntry))
+            .from(entry)
+            .from(adEntryMapper.map(ldapEntry))
             .build())
         .orElse(entry);
   }

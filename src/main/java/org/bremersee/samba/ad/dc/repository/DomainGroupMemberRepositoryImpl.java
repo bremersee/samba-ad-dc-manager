@@ -71,10 +71,11 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
   private final DomainGroupMemberLdapMapper domainGroupMemberLdapMapper;
 
   /**
-   * Instantiates a new domain group repository.
+   * Instantiates a new domain group member repository.
    *
    * @param properties the properties
    * @param ldapOperations the ldap operations
+   * @param domainGroupRepository the domain group repository
    */
   public DomainGroupMemberRepositoryImpl(
       ApplicationProperties properties,
@@ -123,8 +124,16 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
         groups);
   }
 
+  /**
+   * Find sam account optional.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the optional
+   */
   Optional<SamAccount> findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
-    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
+    String[] returnAttributes = getReturnAttributes();
     SearchRequest searchRequest;
     if (getDnTool().isValidDnWithBaseDn(samAccountName)) {
       searchRequest = SearchRequest.objectScopeSearchRequest(samAccountName, returnAttributes);
@@ -142,9 +151,9 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
       Filter filter = new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName);
       searchRequest = searchOneRequest(samAccountName, ouDn, filter, scope, returnAttributes);
     }
-    return getLdapOperations().findOne(searchRequest)
-        .filter(getIgnoredEntryFilter(ou, TreeSearchScopeConverter.toSearchScope(searchScope)))
-        .map(domainGroupMemberLdapMapper::map);
+    return getLdapOperations().findOne(searchRequest, domainGroupMemberLdapMapper)
+        .filter(getIgnoredObjectFilter())
+        .map(SamAccount.class::cast);
   }
 
   @Override
@@ -196,7 +205,7 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     Set<DomainGroupMemberType> types = isEmpty(memberTypes)
         ? Set.of(DomainGroupMemberType.values())
         : Set.copyOf(memberTypes);
-    String[] returnAttributes = domainGroupMemberLdapMapper.getMappedAttributeNames();
+    String[] returnAttributes = getReturnAttributes();
     Filter findAllMembersFilter;
     Filter objectClassFilter = getObjectClassFilter(types);
     if (isEmpty(query) || query.length() <= 2) {
@@ -213,10 +222,8 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     }
     SearchRequest searchRequest = searchAllRequest(getDnTool().getBaseDn(),
         findAllMembersFilter, SearchScope.SUBTREE, returnAttributes);
-    return getLdapOperations().findAll(searchRequest)
-        .stream()
-        .filter(getIgnoredEntryFilter())
-        .map(domainGroupMemberLdapMapper::map)
+    return getLdapOperations().findAll(searchRequest, domainGroupMemberLdapMapper)
+        .filter(getIgnoredObjectFilter())
         .filter(member -> !member.getSamAccountName().equals(group.getSamAccountName()))
         .map(member -> member.withMember(isMember(member, memberDns, group.getGroupId())))
         .map(member -> member.withPrimaryMember(isPrimaryMember(member, group.getGroupId())))
@@ -251,12 +258,12 @@ public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
     return orFilter;
   }
 
-  boolean isMember(DomainGroupMember member, Set<String> memberDns, Integer groupId) {
+  private boolean isMember(DomainGroupMember member, Set<String> memberDns, Integer groupId) {
     return memberDns.contains(member.getDistinguishedNameNormalized())
         || (!isEmpty(groupId) && groupId.equals(member.getPrimaryGroupId()));
   }
 
-  boolean isPrimaryMember(DomainGroupMember member, Integer groupId) {
+  private boolean isPrimaryMember(DomainGroupMember member, Integer groupId) {
     return !isEmpty(groupId) && groupId.equals(member.getPrimaryGroupId());
   }
 
