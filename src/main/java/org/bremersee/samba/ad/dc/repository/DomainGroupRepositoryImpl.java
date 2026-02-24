@@ -97,7 +97,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
     return domainGroupLdapMapper.getMappedAttributeNames();
   }
 
-  Filter getFindAllFilter(String query) {
+  private Filter getFindAllFilter(String query) {
     Filter objectClassFilter = new EqualityFilter(
         AdConstants.OBJECT_CLASS.getName(),
         getObjectClassValue());

@@ -83,6 +83,7 @@ public interface DomainGroupRepository {
    * @param ou the ou
    * @return the domain group
    */
+  @NotNull
   DomainGroup add(@NotNull DomainGroup domainGroup, @Nullable Dn ou);
 
   /**
