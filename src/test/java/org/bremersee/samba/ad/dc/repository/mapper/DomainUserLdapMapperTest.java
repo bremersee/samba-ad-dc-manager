@@ -17,21 +17,25 @@
 package org.bremersee.samba.ad.dc.repository.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 
-import java.time.Month;
 import java.time.OffsetDateTime;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.AdEntryIntermediate;
 import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
+import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.bremersee.samba.ad.dc.model.SamAccountIntermediate;
+import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.samba.ad.dc.repository.DomainRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.ldaptive.LdapAttribute;
+import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 
 /**
@@ -39,22 +43,25 @@ import org.ldaptive.LdapEntry;
  *
  * @author Christian Bremer
  */
-@Disabled
-@ExtendWith(SoftAssertionsExtension.class)
 class DomainUserLdapMapperTest {
 
-  private static DomainUserLdapMapper mapper;
+  private static final OffsetDateTime DATE_TIME = OffsetDateTime.parse("2026-02-15T22:51:45Z");
+
+  private DomainRepository domainRepository;
+
+  private DomainUserLdapMapper target;
 
   /**
-   * Init.
+   * Sets up.
    */
-  @BeforeAll
-  static void init() {
-    DomainRepository domainRepository = mock(DomainRepository.class);
+  @BeforeEach
+  void setUp() {
+    domainRepository = mock(DomainRepository.class);
     lenient()
         .doReturn(true)
-        .when(domainRepository.isRfc2307Enabled());
-    mapper = new DomainUserLdapMapper(domainRepository);
+        .when(domainRepository)
+        .isRfc2307Enabled();
+    target = new DomainUserLdapMapper(domainRepository);
   }
 
   /**
@@ -62,159 +69,277 @@ class DomainUserLdapMapperTest {
    */
   @Test
   void getObjectClasses() {
-    assertThat(mapper.getObjectClasses())
-        .isEmpty();
+    String[] actual = target.getObjectClasses();
+    assertThat(actual)
+        .containsExactlyInAnyOrder(
+            "organizationalPerson",
+            "person",
+            "top",
+            AdConstants.OBJECT_CLASS_USER
+        );
   }
 
   /**
-   * Map ldap entry.
-   *
-   * @param softly the soft assertions
+   * Gets mapped attribute names.
    */
   @Test
-  void map(SoftAssertions softly) {
-    softly.assertThat(mapper.map(null)).isNull();
+  void getMappedAttributeNames() {
+    String[] actual = target.getMappedAttributeNames();
+    assertThat(actual)
+        .containsExactlyInAnyOrder(
+            AdConstants.OBJECT_CLASS.getName(),
+            AdConstants.DN.getName(),
+            AdConstants.WHEN_CREATED.getName(),
+            AdConstants.WHEN_CHANGED.getName(),
+            AdConstants.SAM_ACCOUNT_NAME.getName(),
+            AdConstants.OBJECT_SID.getName(),
+            AdConstants.IS_CRITICAL_SYSTEM_OBJECT.getName(),
+            AdConstants.PRIMARY_GROUP_ID.getName(),
+            AdConstants.MEMBER_OF_GROUP.getName(),
+            AdConstants.USER_ACCOUNT_EXPIRES.getName(),
+            AdConstants.USER_COMPANY.getName(),
+            AdConstants.USER_DEPARTMENT.getName(),
+            AdConstants.DESCRIPTION.getName(),
+            AdConstants.USER_DISPLAY_NAME.getName(),
+            AdConstants.USER_GECOS.getName(),
+            AdConstants.GID_NUMBER.getName(),
+            AdConstants.USER_GIVEN_NAME.getName(),
+            AdConstants.USER_HOME_DIRECTORY.getName(),
+            AdConstants.USER_HOME_DRIVE.getName(),
+            AdConstants.USER_INITIALS.getName(),
+            AdConstants.USER_LAST_LOGON.getName(),
+            AdConstants.USER_LOGIN_SHELL.getName(),
+            AdConstants.USER_LOGON_COUNT.getName(),
+            AdConstants.MAIL.getName(),
+            AdConstants.USER_MOBILE.getName(),
+            AdConstants.NIS_DOMAIN.getName(),
+            AdConstants.USER_OFFICE_NAME.getName(),
+            AdConstants.USER_PREFERRED_LANGUAGE.getName(),
+            AdConstants.USER_PROFILE_PATH.getName(),
+            AdConstants.USER_PWD_LAST_SET.getName(),
+            AdConstants.USER_SCRIPT_PATH.getName(),
+            AdConstants.USER_SN.getName(),
+            AdConstants.USER_TELEPHONE_NUMBER.getName(),
+            AdConstants.USER_TITLE.getName(),
+            AdConstants.USER_UID.getName(),
+            AdConstants.USER_UID_NUMBER.getName(),
+            AdConstants.NIS_NAME.getName(),
+            AdConstants.USER_UNIX_HOME_DIRECTORY.getName(),
+            AdConstants.USER_PRINCIPAL_NAME.getName(),
+            AdConstants.USER_USER_ACCOUNT_CONTROL.getName()
+        );
+  }
 
-    DomainUser destination = DomainUser.builder().build();
-    mapper.map(null, destination);
-    //softly.assertThat(destination)
-    //    .isEqualTo(DomainUser.builder().build());
+  /**
+   * Gets binary attribute names.
+   */
+  @Test
+  void getBinaryAttributeNames() {
+    String[] actual = target.getBinaryAttributeNames();
+    assertThat(actual)
+        .containsExactlyInAnyOrder(
+            AdConstants.OBJECT_SID.getName()
+        );
+  }
 
-    LdapEntry source = new LdapEntry();
-    source.setDn("cn=somename,cn=Users,dc=example,dc=org");
-    source.addAttributes(
-        new LdapAttribute(AdConstants.WHEN_CREATED.getName(), "20170520150034.000Z"),
-        new LdapAttribute(AdConstants.WHEN_CHANGED.getName(), "20180621160135.000Z")
-    );
+  /**
+   * Map dn.
+   */
+  @Test
+  void mapDn() {
+    String expected = "DC=samdom,DC=example,DC=org";
+    DomainUser entry = DomainUser.builder()
+        .distinguishedName(expected)
+        .samAccountName("user")
+        .build();
+    String actual = target.mapDn(entry);
+    assertThat(actual)
+        .isEqualTo(expected);
+  }
 
-    destination = mapper.map(source);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getDistinguishedName)
-        .isEqualTo("cn=somename,cn=Users,dc=example,dc=org");
-    softly.assertThat(destination)
-        .extracting(DomainUser::getCreated)
-        .extracting(OffsetDateTime::getYear)
-        .isEqualTo(2017);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getCreated)
-        .extracting(OffsetDateTime::getMonth)
-        .isEqualTo(Month.MAY);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getCreated)
-        .extracting(OffsetDateTime::getDayOfMonth)
-        .isEqualTo(20);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getCreated)
-        .extracting(OffsetDateTime::getHour)
-        .isEqualTo(15);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getCreated)
-        .extracting(OffsetDateTime::getMinute)
-        .isEqualTo(0);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getCreated)
-        .extracting(OffsetDateTime::getSecond)
-        .isEqualTo(34);
+  /**
+   * Map.
+   */
+  @Test
+  void map() {
+    LdapEntry source = createLdapEntry();
+    DomainUser expected = createDomainUser();
+    DomainUser actual = target.map(source);
+    assertThat(actual)
+        .isEqualTo(expected);
+  }
 
-    softly.assertThat(destination)
-        .extracting(DomainUser::getModified)
-        .extracting(OffsetDateTime::getYear)
-        .isEqualTo(2018);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getModified)
-        .extracting(OffsetDateTime::getMonth)
-        .isEqualTo(Month.JUNE);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getModified)
-        .extracting(OffsetDateTime::getDayOfMonth)
-        .isEqualTo(21);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getModified)
-        .extracting(OffsetDateTime::getHour)
-        .isEqualTo(16);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getModified)
-        .extracting(OffsetDateTime::getMinute)
-        .isEqualTo(1);
-    softly.assertThat(destination)
-        .extracting(DomainUser::getModified)
-        .extracting(OffsetDateTime::getSecond)
-        .isEqualTo(35);
+  /**
+   * Map null.
+   */
+  @Test
+  void mapNull() {
+    assertThat(target.map(null))
+        .isNull();
   }
 
   /**
    * Map and compute modifications.
-   *
-   * @param softly the soft assertions
    */
   @Test
-  void mapAndComputeModifications(SoftAssertions softly) {
-    /*
-    DomainUser source = new DomainUser();
-    source.setCreated(OffsetDateTime.now());
-    source.setDisplayName("Anna Livia Plurabelle");
-    source.setEmail("anna@example.org");
-    source.getAccountControl().setEnabled(true);
-    source.setFirstName("Anna Livia");
-    //source.setGroups(Collections.singletonList("joyce"));
-    source.setHomeDirectory("\\\\data\\users\\anna");
-    source.setLastName("Plurabelle");
-    source.setLoginShell("/bin/bash");
-    source.setMobile("0123456789");
-    source.setTelephoneNumber("00123456789");
-    source.setUnixHomeDirectory("/home/anna");
-    source.setSamAccountName("anna");
-
-    LdapEntry destination = new LdapEntry();
-
-    mapper.mapAndComputeModifications(source, destination);
-
-    StringValueTranscoder svt = new StringValueTranscoder();
-    softly.assertThat(getAttributeValue(destination, "displayName", svt, null))
-        .isEqualTo(source.getDisplayName());
-    softly.assertThat(getAttributeValue(destination, "gecos", svt, null))
-        .isEqualTo(source.getDisplayName());
-    softly.assertThat(getAttributeValue(destination, "mail", svt, null))
-        .isEqualTo(source.getEmail());
-    softly.assertThat(getAttributeValue(destination, "givenName", svt, null))
-        .isEqualTo(source.getFirstName());
-    softly.assertThat(getAttributeValue(destination, "homeDirectory", svt, null))
-        .isEqualTo(source.getHomeDirectory());
-    softly.assertThat(getAttributeValue(destination, "sn", svt, null))
-        .isEqualTo(source.getLastName());
-    softly.assertThat(getAttributeValue(destination, "loginShell", svt, null))
-        .isEqualTo(source.getLoginShell());
-    softly.assertThat(getAttributeValue(destination, "mobile", svt, null))
-        .isEqualTo(source.getMobile());
-    softly.assertThat(getAttributeValue(destination, "telephoneNumber", svt, null))
-        .isEqualTo(source.getTelephoneNumber());
-    softly.assertThat(getAttributeValue(destination, "unixHomeDirectory", svt, null))
-        .isEqualTo(source.getUnixHomeDirectory());
-    softly.assertThat(getAttributeValue(destination, "name", svt, null))
-        .isEqualTo(source.getSamAccountName());
-    softly.assertThat(getAttributeValue(destination, "uid", svt, null))
-        .isEqualTo(source.getSamAccountName());
-    softly.assertThat(getAttributeValue(destination, "sAMAccountName", svt, null))
-        .isEqualTo(source.getSamAccountName());
-
-    // Groups must be set in group entity.
-    // List<String> groupDns = getAttributeValuesAsList(destination, "memberOf", svt);
-    // assertEquals(1, groupDns.size());
-    // assertEquals("cn=joyce,cn=Users,dc=example,dc=org", groupDns.get(0));
-
-    IntegerValueTranscoder ivt = new IntegerValueTranscoder();
-    softly.assertThat(getAttributeValue(destination, "userAccountControl", ivt, null))
-        .isEqualTo(66048);
-
-    source.getAccountControl().setEnabled(false);
-    //source.setGroups(new ArrayList<>());
-
-    AttributeModification[] modifications = mapper.mapAndComputeModifications(source, destination);
-    softly.assertThat(modifications)
-        .hasSize(1);
-    softly.assertThat(getAttributeValue(destination, "userAccountControl", ivt, null))
-        .isEqualTo(66050);
-
-     */
+  void mapAndComputeModifications() {
+    LdapEntry destination = createLdapEntry();
+    DomainUser source = DomainUser.builder()
+        .from(createDomainUser())
+        .description("New description")
+        .uid("unix")
+        .build();
+    AttributeModification[] actual = target.mapAndComputeModifications(source, destination);
+    assertThat(actual)
+        .hasSize(3); // nis name is set to uid
   }
+
+  /**
+   * Map and compute modifications with no rfc 2307.
+   */
+  @Test
+  void mapAndComputeModificationsWithNoRfc2307() {
+    reset(domainRepository);
+    doReturn(false)
+        .when(domainRepository)
+        .isRfc2307Enabled();
+    LdapEntry destination = createLdapEntry();
+    DomainUser source = DomainUser.builder()
+        .from(createDomainUser())
+        .description("New description")
+        .uid("unix")
+        .build();
+    AttributeModification[] actual = target.mapAndComputeModifications(source, destination);
+    assertThat(actual)
+        .hasSize(1);
+  }
+
+  /**
+   * Map and compute modifications with no source.
+   */
+  @Test
+  void mapAndComputeModificationsWithNoSource() {
+    AttributeModification[] actual = target.mapAndComputeModifications(null, new LdapEntry());
+    assertThat(actual)
+        .isEmpty();
+  }
+
+  /**
+   * Can map.
+   */
+  @Test
+  void canMap() {
+    LdapEntry entry = new LdapEntry();
+    AdConstants.OBJECT_CLASS.setValue(entry, AdConstants.OBJECT_CLASS_USER);
+
+    boolean actual = target.canMap(entry);
+    assertThat(actual)
+        .isTrue();
+  }
+
+  /**
+   * Can not map.
+   */
+  @Test
+  void canNotMap() {
+    LdapEntry entry = new LdapEntry();
+    AdConstants.OBJECT_CLASS.setValue(entry, AdConstants.OBJECT_CLASS_GROUP);
+
+    boolean actual = target.canMap(entry);
+    assertThat(actual)
+        .isFalse();
+  }
+
+  private static LdapEntry createLdapEntry() {
+    LdapEntry entry = new LdapEntry();
+    entry.setDn("CN=User,CN=Users,DC=samdom,DC=example,DC=org");
+    AdConstants.OBJECT_CLASS.setValue(entry, AdConstants.OBJECT_CLASS_USER);
+    AdConstants.WHEN_CREATED.setValue(entry, DATE_TIME.minusMinutes(1L));
+    AdConstants.WHEN_CHANGED.setValue(entry, DATE_TIME);
+    AdConstants.SAM_ACCOUNT_NAME.setValue(entry, "user");
+    AdConstants.OBJECT_SID.setValue(entry, Sid.builder()
+        .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+        .build());
+
+    AdConstants.USER_ACCOUNT_EXPIRES.setValue(entry, DATE_TIME.plusDays(1L));
+    AdConstants.USER_COMPANY.setValue(entry, "company");
+    AdConstants.USER_DEPARTMENT.setValue(entry, "department");
+    AdConstants.DESCRIPTION.setValue(entry, "Private");
+    AdConstants.USER_DISPLAY_NAME.setValue(entry, "JUnit User");
+    AdConstants.USER_GECOS.setValue(entry, "gecos");
+    AdConstants.GID_NUMBER.setValue(entry, 20000);
+    AdConstants.USER_GIVEN_NAME.setValue(entry, "JUnit");
+    AdConstants.USER_HOME_DIRECTORY.setValue(entry, "homeDirectory");
+    AdConstants.USER_HOME_DRIVE.setValue(entry, "H");
+    AdConstants.USER_INITIALS.setValue(entry, "initials");
+    AdConstants.USER_LAST_LOGON.setValue(entry, DATE_TIME.minusMinutes(1L));
+    AdConstants.USER_LOGIN_SHELL.setValue(entry, "/bin/bash");
+    AdConstants.USER_LOGON_COUNT.setValue(entry, 2);
+    AdConstants.MAIL.setValue(entry, "user@example.org");
+    AdConstants.USER_MOBILE.setValue(entry, "mobile");
+    AdConstants.NIS_DOMAIN.setValue(entry, "samdom");
+    AdConstants.USER_OFFICE_NAME.setValue(entry, "officeName");
+    AdConstants.USER_PREFERRED_LANGUAGE.setValue(entry, "en");
+    AdConstants.USER_PROFILE_PATH.setValue(entry, "profilePath");
+    AdConstants.USER_PWD_LAST_SET.setValue(entry, DATE_TIME.minusMinutes(2L));
+    AdConstants.USER_SCRIPT_PATH.setValue(entry, "scriptPath");
+    AdConstants.USER_SN.setValue(entry, "User");
+    AdConstants.USER_TELEPHONE_NUMBER.setValue(entry, "telephoneNumber");
+    AdConstants.USER_TITLE.setValue(entry, "title");
+    AdConstants.USER_UID.setValue(entry, "uid");
+    AdConstants.USER_UID_NUMBER.setValue(entry, 123);
+    AdConstants.USER_UNIX_HOME_DIRECTORY.setValue(entry, "homeDirectory");
+    AdConstants.USER_PRINCIPAL_NAME.setValue(entry, "userPrincipalName");
+    AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(entry, new UserAccountControl());
+    return entry;
+  }
+
+  private static DomainUser createDomainUser() {
+    AdEntry adEntry = AdEntryIntermediate.builder()
+        .distinguishedName("CN=User,CN=Users,DC=samdom,DC=example,DC=org")
+        .created(DATE_TIME.minusMinutes(1L))
+        .modified(DATE_TIME)
+        .build();
+    SamAccount samAccount = SamAccountIntermediate.builder()
+        .from(adEntry)
+        .samAccountName("user")
+        .sid(Sid.builder()
+            .value("S-1-5-21-1111111111-111111111-1111111111-1080")
+            .build())
+        .build();
+    return DomainUser.builder()
+        .from(samAccount)
+        .accountExpires(DATE_TIME.plusDays(1L))
+        .company("company")
+        .department("department")
+        .description("Private")
+        .displayName("JUnit User")
+        .gecos("gecos")
+        .gidNumber(20000)
+        .firstName("JUnit")
+        .homeDirectory("homeDirectory")
+        .homeDrive("H")
+        .initials("initials")
+        .lastLogon(DATE_TIME.minusMinutes(1L))
+        .loginShell("/bin/bash")
+        .logonCount(2)
+        .email("user@example.org")
+        .mobile("mobile")
+        .nisDomain("samdom")
+        .physicalDeliveryOfficeName("officeName")
+        .preferredLanguage("en")
+        .profilePath("profilePath")
+        .passwordLastSet(DATE_TIME.minusMinutes(2L))
+        .scriptPath("scriptPath")
+        .lastName("User")
+        .telephoneNumber("telephoneNumber")
+        .title("title")
+        .uid("uid")
+        .uidNumber(123)
+        .unixHomeDirectory("homeDirectory")
+        .userPrincipalName("userPrincipalName")
+        .accountControl(DomainUserAccountControl.defaultAccountControl())
+        .build();
+  }
+
 }
