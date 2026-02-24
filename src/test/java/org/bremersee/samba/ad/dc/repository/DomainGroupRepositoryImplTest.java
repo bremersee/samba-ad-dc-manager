@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +45,11 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.dn.Dn;
 
+/**
+ * The domain group repository implementation test.
+ *
+ * @author Christian Bremer
+ */
 @ExtendWith(SoftAssertionsExtension.class)
 class DomainGroupRepositoryImplTest {
 
@@ -62,6 +83,9 @@ class DomainGroupRepositoryImplTest {
         domainGroupLdapMapper));
   }
 
+  /**
+   * Gets default ou.
+   */
   @Test
   void getDefaultOu() {
     Dn expected = new Dn("CN=Users");
@@ -70,24 +94,38 @@ class DomainGroupRepositoryImplTest {
         .isEqualTo(expected);
   }
 
+  /**
+   * Gets object class value.
+   */
   @Test
   void getObjectClassValue() {
     assertThat(target.getObjectClassValue())
         .isEqualTo(AdConstants.OBJECT_CLASS_GROUP);
   }
 
+  /**
+   * Gets binary attributes.
+   */
   @Test
   void getBinaryAttributes() {
     assertThat(target.getBinaryAttributes())
         .containsExactlyInAnyOrder(domainGroupLdapMapper.getBinaryAttributeNames());
   }
 
+  /**
+   * Gets return attributes.
+   */
   @Test
   void getReturnAttributes() {
     assertThat(target.getReturnAttributes())
         .containsExactlyInAnyOrder(domainGroupLdapMapper.getMappedAttributeNames());
   }
 
+  /**
+   * Find all.
+   *
+   * @param softly the softly
+   */
   @Test
   void findAll(SoftAssertions softly) {
     List<DomainGroup> expected = List.of(DomainGroup.builder()
@@ -108,6 +146,11 @@ class DomainGroupRepositoryImplTest {
         .containsExactlyInAnyOrderElementsOf(expected);
   }
 
+  /**
+   * Find one.
+   *
+   * @param softly the softly
+   */
   @Test
   void findOne(SoftAssertions softly) {
     DomainGroup expected = DomainGroup.builder()
@@ -127,6 +170,9 @@ class DomainGroupRepositoryImplTest {
         .hasValue(expected);
   }
 
+  /**
+   * Find one by primary group id.
+   */
   @Test
   void findOneByPrimaryGroupId() {
     String domainSid = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
@@ -149,6 +195,9 @@ class DomainGroupRepositoryImplTest {
     target.findOne("group", new Dn("CN=Users"), TreeSearchScope.ONELEVEL);
   }
 
+  /**
+   * Find one by gid number.
+   */
   @Test
   void findOneByGidNumber() {
     DomainGroup expected = DomainGroup.builder()
@@ -164,6 +213,9 @@ class DomainGroupRepositoryImplTest {
         .hasValue(expected);
   }
 
+  /**
+   * Exists by gid number.
+   */
   @Test
   void existsByGidNumber() {
     LdapEntry ldapEntry = new LdapEntry();
@@ -178,6 +230,9 @@ class DomainGroupRepositoryImplTest {
         .isTrue();
   }
 
+  /**
+   * Add.
+   */
   @Test
   void add() {
     DomainGroup domainGroup = DomainGroup.builder()
@@ -209,6 +264,9 @@ class DomainGroupRepositoryImplTest {
         .isEqualTo(expected);
   }
 
+  /**
+   * Add with invalid parent dn.
+   */
   @Test
   void addWithInvalidParentDn() {
     DomainGroup domainGroup = DomainGroup.builder()
@@ -223,6 +281,9 @@ class DomainGroupRepositoryImplTest {
         .isThrownBy(() -> target.add(domainGroup, ou));
   }
 
+  /**
+   * Add with existing sam account name.
+   */
   @Test
   void addWithExistingSamAccountName() {
     DomainGroup domainGroup = DomainGroup.builder()
@@ -241,6 +302,9 @@ class DomainGroupRepositoryImplTest {
         .isThrownBy(() -> target.add(domainGroup, ou));
   }
 
+  /**
+   * Add with existing gid number.
+   */
   @Test
   void addWithExistingGidNumber() {
     DomainGroup domainGroup = DomainGroup.builder()
@@ -269,6 +333,9 @@ class DomainGroupRepositoryImplTest {
         .isThrownBy(() -> target.add(domainGroup, ou));
   }
 
+  /**
+   * Update.
+   */
   @Test
   void update() {
     DomainGroup existing = DomainGroup.builder()
@@ -316,6 +383,9 @@ class DomainGroupRepositoryImplTest {
         .isEqualTo(expected);
   }
 
+  /**
+   * Delete.
+   */
   @Test
   void delete() {
     DomainGroup existing = DomainGroup.builder()
@@ -334,6 +404,9 @@ class DomainGroupRepositoryImplTest {
         .delete(any());
   }
 
+  /**
+   * Save.
+   */
   @Test
   void save() {
     DomainGroup expected = DomainGroup.builder()
