@@ -52,6 +52,10 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
    * Instantiates a new domain repository.
    *
    * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param hostNameSupplier the host name supplier
+   * @param domainTool the domain tool
+   * @param passwordGenerator the password generator
    */
   public DomainRepositoryImpl(
       ApplicationProperties properties,

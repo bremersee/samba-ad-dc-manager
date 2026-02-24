@@ -23,7 +23,7 @@ import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The domain repository interface.
+ * The domain repository.
  *
  * @author Christian Bremer
  */
@@ -52,6 +52,11 @@ public interface DomainRepository {
    */
   boolean isRfc2307Enabled();
 
+  /**
+   * Gets domain info.
+   *
+   * @return the domain info
+   */
   DomainInfo getDomainInfo();
 
   /**
@@ -70,6 +75,11 @@ public interface DomainRepository {
    */
   PasswordInformation getPasswordInformation();
 
+  /**
+   * Create random password.
+   *
+   * @return the random password
+   */
   String createRandomPassword();
 
 }
