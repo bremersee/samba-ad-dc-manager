@@ -25,9 +25,8 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.PasswordGenerator;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.ldaptive.LdapAttribute;
+import org.bremersee.samba.ad.dc.model.Sid;
 import org.ldaptive.SearchRequest;
-import org.ldaptive.ad.SecurityIdentifier;
 import org.ldaptive.dn.Dn;
 import org.springframework.stereotype.Component;
 
@@ -88,9 +87,8 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     };
     return getLdapOperations()
         .findOne(SearchRequest.objectScopeSearchRequest(baseDn, returnAttributes))
-        .map(ldapEntry -> ldapEntry.getAttribute(attrName))
-        .map(LdapAttribute::getBinaryValue)
-        .map(SecurityIdentifier::toString)
+        .flatMap(AdConstants.OBJECT_SID::getValue)
+        .map(Sid::getValue)
         .orElseThrow(() -> ServiceException.notFound(baseDn, attrName));
   }
 
