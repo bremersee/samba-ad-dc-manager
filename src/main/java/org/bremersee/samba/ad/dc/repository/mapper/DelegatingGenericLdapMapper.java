@@ -47,7 +47,7 @@ public class DelegatingGenericLdapMapper implements GenericLdapMapper {
   public DelegatingGenericLdapMapper(List<AdEntryLdapMapperDelegate<?>> delegates) {
     this.delegates = requireNonNullElseGet(delegates, List::of);
     this.mappedAttributeNames = this.delegates.stream()
-        .flatMap(delegate -> Arrays.stream(delegate.getBinaryAttributeNames()))
+        .flatMap(delegate -> Arrays.stream(delegate.getMappedAttributeNames()))
         .distinct()
         .toArray(String[]::new);
     this.binaryAttributeNames = this.delegates.stream()
