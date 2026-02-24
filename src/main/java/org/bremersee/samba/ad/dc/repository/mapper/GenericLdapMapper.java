@@ -16,44 +16,37 @@
 
 package org.bremersee.samba.ad.dc.repository.mapper;
 
-import static java.util.Objects.requireNonNullElseGet;
-
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-import lombok.Getter;
 import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.ldaptive.LdapEntry;
-import org.springframework.stereotype.Component;
 
-@Component
-public class GenericLdapMapper {
+/**
+ * The generic ldap mapper.
+ *
+ * @author Christian Bremer
+ */
+public interface GenericLdapMapper {
 
-  private final List<AdEntryLdapMapperDelegate<?>> delegates;
+  /**
+   * Get mapped attribute names.
+   *
+   * @return the mapped attribute names
+   */
+  String[] getMappedAttributeNames();
 
-  @Getter
-  private final String[] mappedAttributeNames;
+  /**
+   * Get binary attribute names.
+   *
+   * @return the binary attribute names
+   */
+  String[] getBinaryAttributeNames();
 
-  @Getter
-  private final String[] binaryAttributeNames;
-
-  public GenericLdapMapper(List<AdEntryLdapMapperDelegate<?>> delegates) {
-    this.delegates = requireNonNullElseGet(delegates, List::of);
-    this.mappedAttributeNames = this.delegates.stream()
-        .flatMap(delegate -> Arrays.stream(delegate.getBinaryAttributeNames()))
-        .distinct()
-        .toArray(String[]::new);
-    this.binaryAttributeNames = this.delegates.stream()
-        .flatMap(delegate -> Arrays.stream(delegate.getBinaryAttributeNames()))
-        .distinct()
-        .toArray(String[]::new);
-  }
-
-  public Optional<AdEntry> map(LdapEntry ldapEntry) {
-    return delegates.stream()
-        .filter(delegate -> delegate.canMap(ldapEntry))
-        .findFirst()
-        .map(delegate -> delegate.map(ldapEntry));
-  }
+  /**
+   * Map ldap entry.
+   *
+   * @param ldapEntry the ldap entry
+   * @return the active directory entry
+   */
+  Optional<AdEntry> map(LdapEntry ldapEntry);
 
 }
