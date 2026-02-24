@@ -61,7 +61,7 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public OrganizationalUnitLdapMapper(ApplicationProperties properties) {
-    this.dnTool = new DefaultDnTool(properties);
+    dnTool = new DefaultDnTool(properties);
     adEntryLdapMapper = new AdEntryLdapMapper();
     mappedAttributes = initMappedAttributesOfOrganizationalUnit();
   }
