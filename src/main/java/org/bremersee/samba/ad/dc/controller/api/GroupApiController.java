@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +34,7 @@ import org.bremersee.comparator.ComparatorBuilder;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupIdentifier;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberModifications;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberPage;
@@ -186,16 +203,13 @@ public class GroupApiController extends ApiController {
       @PathVariable("name") String samAccountName,
 
       @Parameter(
-          name = "by-group-id",
-          description = "The given name is the group ID.",
-          schema = @Schema(type = "boolean", defaultValue = "false"))
-      @RequestParam(value = "by-group-id", defaultValue = "false") boolean nameIsGroupId,
-
-      @Parameter(
-          name = "by-unix-group-id",
-          description = "The given name is the unix group ID.",
-          schema = @Schema(type = "boolean", defaultValue = "false"))
-      @RequestParam(value = "by-unix-group-id", defaultValue = "false") boolean nameIsUnixGroupId,
+          name = "id-type",
+          description = "The type of the given name (name|group-id|unix-group-id).",
+          schema = @Schema(
+              implementation = DomainGroupIdentifier.class,
+              defaultValue = "name",
+              example = "name"))
+      @RequestParam(value = "id-type", defaultValue = "name") DomainGroupIdentifier identifier,
 
       @Parameter(name = OU,
           description = "The search base (organizational unit) like 'CN=Groups'.",
@@ -208,14 +222,13 @@ public class GroupApiController extends ApiController {
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
-    Optional<DomainGroup> domainGroup;
-    if (nameIsGroupId) {
-      domainGroup = domainGroupService.getGroupByPrimaryGroupId(getGroupId(samAccountName));
-    } else if (nameIsUnixGroupId) {
-      domainGroup = domainGroupService.getGroupByUnixGroupId(getGroupId(samAccountName));
-    } else {
-      domainGroup = domainGroupService.getGroup(samAccountName, ou, scope);
-    }
+    Optional<DomainGroup> domainGroup = switch (identifier) {
+      case PRIMARY_GROUP_ID -> domainGroupService
+          .getGroupByPrimaryGroupId(getGroupId(samAccountName));
+      case UNIX_GROUP_ID -> domainGroupService
+          .getGroupByUnixGroupId(getGroupId(samAccountName));
+      default -> domainGroupService.getGroup(samAccountName, ou, scope);
+    };
     return ResponseEntity.of(domainGroup);
   }
 
@@ -224,7 +237,7 @@ public class GroupApiController extends ApiController {
       return Integer.parseInt(name);
     } catch (RuntimeException ignored) {
       throw ServiceException
-          .badRequest(String.format("Value '%s' is not a valid group ID.", name));
+          .badRequest(String.format("Value '%s' is not a number.", name));
     }
   }
 
