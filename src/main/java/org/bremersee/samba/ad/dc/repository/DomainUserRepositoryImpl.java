@@ -178,6 +178,18 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .filter(getIgnoredObjectFilter(ou, scope));
   }
 
+  @Override
+  public Optional<DomainUser> findOneByPrincipalName(String principalName) {
+    log.debug("findOneByPrincipalName({})", principalName);
+    if (isEmpty(principalName)) {
+      return Optional.empty();
+    }
+    return findOneByFilter(
+        new EqualityFilter(AdConstants.USER_PRINCIPAL_NAME.getName(),
+            principalName));
+  }
+
+  @Override
   public Optional<DomainUser> findOneByUid(String uid) {
     log.debug("findOneByUid({})", uid);
     if (isEmpty(uid)) {
@@ -189,6 +201,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     return findOneByFilter(filter);
   }
 
+  @Override
   public Optional<DomainUser> findOneByUidNumber(Integer uidNumber) {
     log.debug("findOneByUidNumber({})", uidNumber);
     if (isEmpty(uidNumber)) {
@@ -196,16 +209,6 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     }
     return findOneByFilter(
         new EqualityFilter(AdConstants.USER_UID_NUMBER.getName(), uidNumber.toString()));
-  }
-
-  public Optional<DomainUser> findOneByPrincipalName(String principalName) {
-    log.debug("findOneByPrincipalName({})", principalName);
-    if (isEmpty(principalName)) {
-      return Optional.empty();
-    }
-    return findOneByFilter(
-        new EqualityFilter(AdConstants.USER_PRINCIPAL_NAME.getName(),
-            principalName));
   }
 
   private Optional<DomainUser> findOneByFilter(Filter filter) {
@@ -219,6 +222,16 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     return getLdapOperations()
         .findOne(searchRequest, domainUserLdapMapper)
         .filter(getIgnoredObjectFilter());
+  }
+
+  public boolean existsByPrincipalName(String principalName) {
+    log.debug("existsByPrincipalName({})", principalName);
+    if (isEmpty(principalName)) {
+      return false;
+    }
+    return existsByFilter(
+        new EqualityFilter(AdConstants.USER_PRINCIPAL_NAME.getName(),
+            principalName));
   }
 
   public boolean existsByUid(String uid) {
@@ -239,16 +252,6 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     }
     return existsByFilter(
         new EqualityFilter(AdConstants.USER_UID_NUMBER.getName(), uidNumber.toString()));
-  }
-
-  public boolean existsByPrincipalName(String principalName) {
-    log.debug("existsByPrincipalName({})", principalName);
-    if (isEmpty(principalName)) {
-      return false;
-    }
-    return existsByFilter(
-        new EqualityFilter(AdConstants.USER_PRINCIPAL_NAME.getName(),
-            principalName));
   }
 
   private boolean existsByFilter(Filter filter) {

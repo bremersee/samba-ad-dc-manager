@@ -16,6 +16,8 @@
 
 package org.bremersee.samba.ad.dc.service;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.InputStream;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +89,21 @@ public class DomainUserServiceImpl implements DomainUserService {
   @Override
   public Optional<DomainUser> getUser(String userName, Dn ou, TreeSearchScope searchScope) {
     return domainUserRepository.findOne(userName, ou, searchScope);
+  }
+
+  @Override
+  public Optional<DomainUser> getUserByPrincipalName(String principalName) {
+    return domainUserRepository.findOneByPrincipalName(principalName);
+  }
+
+  @Override
+  public Optional<DomainUser> getUserByUid(String uid) {
+    return domainUserRepository.findOneByUid(uid);
+  }
+
+  @Override
+  public Optional<DomainUser> getUserByUidNumber(Integer uidNumber) {
+    return domainUserRepository.findOneByUidNumber(uidNumber);
   }
 
   @Override

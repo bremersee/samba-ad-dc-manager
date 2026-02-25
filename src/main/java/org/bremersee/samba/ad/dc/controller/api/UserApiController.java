@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.DomainUserIdentifier;
 import org.bremersee.samba.ad.dc.model.DomainUserPage;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
 import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
@@ -219,6 +221,15 @@ public class UserApiController extends UserAvatarApiController {
       @Parameter(name = "name", description = "The name of the user.", required = true)
       @PathVariable("name") String samAccountName,
 
+      @Parameter(
+          name = "id-type",
+          description = "The type of the given name (name|principal|uid|uid-number).",
+          schema = @Schema(
+              implementation = DomainUserIdentifier.class,
+              defaultValue = "name",
+              example = "name"))
+      @RequestParam(value = "id-type", defaultValue = "name") DomainUserIdentifier identifier,
+
       @Parameter(name = OU,
           description = "The search base (organizational unit) like 'CN=Users'.",
           schema = @Schema(type = "string"))
@@ -230,7 +241,13 @@ public class UserApiController extends UserAvatarApiController {
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
-    return ResponseEntity.of(domainUserService.getUser(samAccountName, ou, scope));
+    Optional<DomainUser> domainUser = switch (identifier) {
+      case PRINCIPAL -> domainUserService.getUserByPrincipalName(samAccountName);
+      case UID -> domainUserService.getUserByUid(samAccountName);
+      case UID_NUMBER -> domainUserService.getUserByUidNumber(getAsNumber(samAccountName));
+      default -> domainUserService.getUser(samAccountName, ou, scope);
+    };
+    return ResponseEntity.of(domainUser);
   }
 
   @Operation(

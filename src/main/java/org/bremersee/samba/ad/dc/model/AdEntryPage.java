@@ -25,7 +25,7 @@ import org.springframework.data.domain.Page;
  *
  * @author Christian Bremer
  */
-public class AdEntryPage extends JsonPageDto<AdEntry> {
+public class  AdEntryPage extends JsonPageDto<AdEntry> {
 
   @Serial
   private static final long serialVersionUID = 1;

@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bremersee.comparator.ComparatorBuilder;
-import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupIdentifier;
@@ -225,21 +224,12 @@ public class GroupApiController extends ApiController {
 
     Optional<DomainGroup> domainGroup = switch (identifier) {
       case PRIMARY_GROUP_ID -> domainGroupService
-          .getGroupByPrimaryGroupId(getGroupId(samAccountName));
+          .getGroupByPrimaryGroupId(getAsNumber(samAccountName));
       case UNIX_GROUP_ID -> domainGroupService
-          .getGroupByUnixGroupId(getGroupId(samAccountName));
+          .getGroupByUnixGroupId(getAsNumber(samAccountName));
       default -> domainGroupService.getGroup(samAccountName, ou, scope);
     };
     return ResponseEntity.of(domainGroup);
-  }
-
-  private int getGroupId(String name) {
-    try {
-      return Integer.parseInt(name);
-    } catch (RuntimeException ignored) {
-      throw ServiceException
-          .badRequest(String.format("Value '%s' is not a number.", name));
-    }
   }
 
   @Operation(

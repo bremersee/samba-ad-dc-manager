@@ -60,6 +60,12 @@ public interface DomainUserRepository {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  Optional<DomainUser> findOneByPrincipalName(@NotEmpty String principalName);
+
+  Optional<DomainUser> findOneByUid(@NotEmpty String uid);
+
+  Optional<DomainUser> findOneByUidNumber(@NotNull Integer uidNumber);
+
   /**
    * Add domain user.
    *

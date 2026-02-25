@@ -79,6 +79,12 @@ public interface DomainUserService {
   Optional<DomainUser> getUser(@NotEmpty String userName, @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  Optional<DomainUser> getUserByPrincipalName(@NotEmpty String principalName);
+
+  Optional<DomainUser> getUserByUid(@NotEmpty String uid);
+
+  Optional<DomainUser> getUserByUidNumber(@NotNull Integer uidNumber);
+
   /**
    * Gets user avatar.
    *
