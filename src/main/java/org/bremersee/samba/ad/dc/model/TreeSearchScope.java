@@ -20,6 +20,7 @@ import static java.util.Objects.isNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
@@ -27,6 +28,7 @@ import lombok.Getter;
  *
  * @author Christian Bremer
  */
+@Schema(enumAsRef = true)
 @Getter
 public enum TreeSearchScope implements Translatable {
 

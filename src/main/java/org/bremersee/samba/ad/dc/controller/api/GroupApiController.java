@@ -115,7 +115,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
@@ -218,7 +218,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
@@ -366,7 +366,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope,
 
@@ -427,7 +427,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope,
 
@@ -500,7 +500,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(type = "string"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope,
 
