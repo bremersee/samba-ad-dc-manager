@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -115,7 +116,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
@@ -218,7 +219,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
@@ -366,7 +367,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope,
 
@@ -427,11 +428,14 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope,
 
-      @Parameter(name = "member-type", description = "The type of a group member.")
+      @Parameter(
+          name = "member-type",
+          description = "The type of a group member.",
+          array = @ArraySchema(schema = @Schema(implementation = DomainGroupMemberType.class)))
       @RequestParam(name = "member-type", required = false)
       List<DomainGroupMemberType> memberTypes,
 
@@ -500,7 +504,7 @@ public class GroupApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope,
 

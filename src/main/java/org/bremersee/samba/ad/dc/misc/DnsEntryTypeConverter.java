@@ -22,7 +22,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
- * The type DnsEntryTypeConverter.
+ * The dns entry type converter.
  *
  * @author Christian Bremer
  */

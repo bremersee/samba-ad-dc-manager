@@ -85,7 +85,7 @@ public class ComputerApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
@@ -134,7 +134,7 @@ public class ComputerApiController extends ApiController {
       Dn ou,
 
       @Parameter(name = SCOPE, description = "The search scope (one-level|subtree).",
-          schema = @Schema(implementation = TreeSearchScope.class, example = "one-level"))
+          schema = @Schema(implementation = TreeSearchScope.class, example = "subtree"))
       @RequestParam(name = SCOPE, required = false)
       TreeSearchScope scope) {
 
