@@ -1,0 +1,16 @@
+Package: samba-ad-dc-manager
+Version: 3.0.0~SNAPSHOT
+Architecture: all
+Maintainer: bremersee@googlemail.com
+Installed-Size: 88907
+Depends: sudo, openjdk-21-jre-headless | openjdk-21-jre | openjdk-25-jre-headless | openjdk-25-jre
+Filename: pool/main/samba-ad-dc-manager_3.0.0-SNAPSHOT-20260614095110+8c91e05_all.deb
+Size: 81749568
+MD5sum: c05438ad029d1cdf98b6a38f0a1af641
+SHA1: 54fa95d5ae31567fcb9639128fe696fd59c65db9
+SHA256: 5b1ff12fff4ac75079340b4e140c4a4901dc2fe76aaf3e1bfc6fa96ddd6ca4bd
+Section: net
+Priority: optional
+Homepage: https://github.com/bremersee/samba-ad-dc-manager
+Description: Management application for Samba AD DC
+

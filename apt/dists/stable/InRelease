@@ -1,0 +1,36 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Date: Sun, 14 Jun 2026 10:12:10 +0000
+MD5Sum:
+ 731431cc34c3513933b5d7227157408b               38 Release
+ 940ec27653188b29ce2101d2f133b6d1              635 main/binary-all/Packages
+ d2e04df46b9a6618fe9cbd3b3268becd              426 main/binary-all/Packages.gz
+SHA1:
+ 2a599d0d8532bd4e907d81999048650b5a424fd4               38 Release
+ 3c3ca57f473a54359ea2ee64dc61f30ebbced099              635 main/binary-all/Packages
+ ecc7612a14f2b9caf63af5e58ff58f945ea92c44              426 main/binary-all/Packages.gz
+SHA256:
+ d355a94b1feb3bc7136d62e11d1f4cfd45b49ce0d315c085e9f5cecb96565919               38 Release
+ 50f98c4bb415f5e0754a71a15309e922f8ef9938a5d2f914e21d81dc687a300f              635 main/binary-all/Packages
+ 119c9ccf7e31c12ce0ebf9c134631dd9585e2c26e40e0b5706e62b0b54266479              426 main/binary-all/Packages.gz
+SHA512:
+ 753fc1c31184b0b8c9d3c2fa9b489dc649005d437b287cf01bcc98dfe124061f03eaed2892e020e447da00b0f31abf630ec765fa7e3f3288701f2d2dbd62451c               38 Release
+ 10d1bbb4ce6a7612bf4617f648a859d58a23d9957c6d89818d182315fb560270ef6e18d1e2ea428a818a6b9a724b92da52d92b07653a15207dd9c4429ec223b9              635 main/binary-all/Packages
+ 9e48c5a2ebdb79c98b5916bbd0114a65c2453de9ef17d6472ff2f84d838092c02fb30fd7feb16000afc0f856402023efab22bf977ffec809802433f3a3c2401e              426 main/binary-all/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEz4dDfe71e5ZRPmfLFyR5O1Z6+RkFAmougcMACgkQFyR5O1Z6
++RlQMhAAqqMKODAGkZKg15Wg5WVbpe054EKIL9RnfqIKzLGsQ776v7X3F4lPyCcv
+FBrxPoFrpaQhiJ3BsnttdHTXfLJHvXhJMahQ4so3spdF3Pr4OKoC2myJ77QYwfbK
+iI7wWRII0T4bIz9VtQX1pH/RkhT/F6WZG+wPjsNoK6hU8lsBXldzNDtJ7wuSF4Ce
++VA9zm8NqVfPBKfKioFho+HEh+pigHr4ob4PBWTq1+L8YgPOfI1ZlHKOZQbs/G+X
+ZBqT+xyu8Sed6XAaH/7b5k5lDXDSl1QC8yIbTLwtlJZ1bNwB3eBVjxbaHHM7Lonf
+kDphaI2dyAoYB8eUKa+Qg+R0XJcxQ68KQwOjw0+aH198BZaxGAHbih/vn52cltwI
+6Y8LQciq8pL9H6tX7B5iCy1l+CCWwKDEKrKxt2ge9nBgoGrwNeTHrSwdTejHWe09
+mJ8v4jQs2D73eMA3g3cUFcmGIVnWEyDdoe0VxRcGVOGBDFo/pwTf0mw0q0w8vhCE
+AeXkjhaHnjLg1HAkK8xsQSGmr72ljdbJHYY7av146bApmbK+Nyw9SuDUT+4Zo1Ma
+yp2/bhX7JuL4r2JEmQgNvViBd8doNnGZXnX7Sh5RIg3az6Tl5d8SLHEP8CL15xMv
+XwC/Gk+c0RfWxsJieki+wg0APD6toqgfE6PoRBxGrqwueZITHLc=
+=YTTz
+-----END PGP SIGNATURE-----
