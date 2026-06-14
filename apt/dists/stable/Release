@@ -3,7 +3,7 @@ Label: Bremersee
 Suite: stable
 Codename: stable
 Version: 1.0
-Architectures: all
+Architectures: amd64 arm64 arm7
 Components: main
 Description: The bremersee debian software repository
 Date: Sun, 14 Jun 2026 10:12:10 +0000
