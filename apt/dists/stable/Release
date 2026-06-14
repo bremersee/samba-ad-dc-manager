@@ -1,3 +1,11 @@
+Origin: Bremersee Debian Apt Repository
+Label: Bremersee
+Suite: stable
+Codename: stable
+Version: 1.0
+Architectures: amd64 arm64 arm7
+Components: main
+Description: The bremersee debian software repository
 Date: Sun, 14 Jun 2026 10:12:10 +0000
 MD5Sum:
  731431cc34c3513933b5d7227157408b               38 Release
