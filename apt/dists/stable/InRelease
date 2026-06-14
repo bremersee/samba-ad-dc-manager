@@ -6,7 +6,7 @@ Label: Bremersee
 Suite: stable
 Codename: stable
 Version: 1.0
-Architectures: amd64 arm64 arm7
+Architectures: amd64 arm64 arm7 all
 Components: main
 Description: The bremersee debian software repository
 Date: Sun, 14 Jun 2026 10:12:10 +0000
@@ -28,17 +28,17 @@ SHA512:
  9e48c5a2ebdb79c98b5916bbd0114a65c2453de9ef17d6472ff2f84d838092c02fb30fd7feb16000afc0f856402023efab22bf977ffec809802433f3a3c2401e              426 main/binary-all/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEELi0qCOxQP3ZOU1Y4KupyW2V1pMMFAmouvY4ACgkQKupyW2V1
-pMMBAA//Z6/0MVrfcMylVRfGcSfGPejUCJJ/68sjz+GK+7GDurIzJDroAEwELQRg
-P8bnlLu82CytQmaLWVaF+oXajRyGSt8zocO8NE5WM+VLuCtUuaZVMy8xzvjR+P1O
-GdHPCAZ8hRLs4eT3zI0/xyHuAkGyhCRX0V3om5NjgfU2Jp3k5U8lfzqVlkEBcDY4
-ijd2R5j8AHZsLQjKjNMK4mncfkmkgtH4OwXco/7+SNxam+eaBbUdZxbONSi1Zm5q
-ogiJe1lGjMbpokRl9fvn6HyWZqtpcbJWRilANHgxCM8roXLOIGtmJEOd21gZ/J2M
-bZ69aOYQ5Ml0W2wRDYcjpXSJmkOGsyyrp9HaM9QeNxnwIiCPCHssl4qJDiVNYi3u
-haMaaVW6eXCoGeeHCP910AzFa31tM+5HB7EFwRNKKMspjbbISCSlG7JQB6INww+V
-QcYjk3te/Phy2DwYPST3b3qV37T2+M57Xl2b2YwIWgkpGVQDEmkaPSv8LRYnALqT
-nsOHBS4jsE3rPRkkYbe97FiepP6jT7s1neZuxNohfYs/y/+PZfoCqe7tm1VwbFqu
-bQ60e7Oz4QO2zxB2L1QVzHqQFBTMP1VHk84ADWVMlfG3K63BZRDUcc8QZv5TaueP
-0EDlIBYtQYiM22RW1V7xvjoA991T4h7cQGGOrnuJDLhdU8uEWJc=
-=WnCt
+iQIzBAEBCAAdFiEELi0qCOxQP3ZOU1Y4KupyW2V1pMMFAmouvwoACgkQKupyW2V1
+pMNDrQ/+O5ehV4qM7JCwpwv4y7Ph+po5iTANnp6BATLCWYjuMaFHiwNLIkaqOlIF
+CK++wHVreyuQKtSV7JxLld4v6zRHIc5/N1/7mcOJW280p89cS+32Lbg4CnFb9/hx
+S5H28pNZ8rhdelV8n17uqJnQyQ4s3sdHkVcQvTggrLgSs1Kq0CZJeuzrd0HdB36k
+Z48BovZiuId9S7A4jjt8lK2UPsE3ZORrhotE02aYvwcp0+AF7/rZkNJD4DZB16Yj
+cgvubk1Ize6k1hfJ1uv9DRaeuxGDWQyhHLRFGDUdKPqkIdV/fUjluIWTSFt37yvU
+ZNS6TBxcjhV8kezQgQ6Q4GlA/TCloqY1yeaGswwZdXHRgemKsRNjRSJan69fBdHc
+eIBmsLoQ4vvujVoD6FvfRppqAXKb5cFWOLAFcnDcXNb3FDh7ciyEqCK6qq2CMM/j
+ypcW1I9KJqjahkuzCuqU50ciWn/PEuun5XYX+oYfkt0yEZVU7ON5cJzVt/UcWkTm
+I+RPVJNbLyEjawH2KzfQ6yLA42cWjc8ARFGYTw2wfRpOP2U6gQ3MvTtORlfbjKZE
+Xg+/YZ0jVVP0WgssZ1+X61YaE3pnIHJbwZDZCpXua+uVPTbki5vOwxYD0lvdoiOc
+ZygbfqbtpoyLzalU3N+M0YI4z98Vjt0PaTi7vmKOHV06OcDcEQI=
+=lkW3
 -----END PGP SIGNATURE-----
