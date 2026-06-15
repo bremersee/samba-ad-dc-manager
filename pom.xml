@@ -214,14 +214,6 @@
       <artifactId>spring-retry</artifactId>
     </dependency>
 
-    <!-- Sleuth and Zipkin -->
-    <!--
-    <dependency>
-      <groupId>io.zipkin.reporter2</groupId>
-      <artifactId>zipkin-reporter-brave</artifactId>
-    </dependency>
-    -->
-
     <!-- Eureka client -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -235,12 +227,6 @@
       <version>2.8.9</version>
     </dependency>
 
-    <!--
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-mustache</artifactId>
-    </dependency>
-    -->
     <dependency>
       <groupId>com.samskivert</groupId>
       <artifactId>jmustache</artifactId>
@@ -316,58 +302,6 @@
   </build>
 
   <profiles>
-    <!--
-    <profile>
-      <id>openapi</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-              <jvmArguments>-Dspring.application.admin.enabled=true -Dspring.profiles.active=mock,api</jvmArguments>
-              <excludes>
-                <exclude>
-                  <groupId>org.projectlombok</groupId>
-                  <artifactId>lombok</artifactId>
-                </exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>start</goal>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-maven-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>integration-test</id>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <apiDocsUrl>http://localhost:8080/v3/api-docs.yaml</apiDocsUrl>
-              <outputFileName>openapi.yaml</outputFileName>
-              <skip>false</skip>
-              <failOnError>true</failOnError>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    -->
     <profile>
       <id>debian</id>
       <activation>

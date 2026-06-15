@@ -5,4 +5,4 @@ Priority: optional
 Architecture: all
 Description: [[description]]
 Maintainer: bremersee@googlemail.com
-Depends: sudo, openjdk-21-jre-headless | openjdk-21-jre | openjdk-17-jre-headless | openjdk-17-jre
+Depends: sudo, openjdk-21-jre-headless | openjdk-21-jre | openjdk-25-jre-headless | openjdk-25-jre
