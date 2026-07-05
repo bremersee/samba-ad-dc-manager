@@ -170,27 +170,30 @@ class LdapNode extends LdapEntry {
     if (isEmpty(filter)) {
       return true;
     }
-    if (filter instanceof AndFilter af) {
-      return af.getComponents().stream().allMatch(this::matches);
+    switch (filter) {
+      case AndFilter af -> {
+        return af.getComponents().stream().allMatch(this::matches);
+      }
+      case OrFilter or -> {
+        return or.getComponents().stream().anyMatch(this::matches);
+      }
+      case NotFilter nf -> {
+        return !matches(nf.getComponent());
+      }
+      case PresenceFilter pf -> {
+        String attrName = pf.getAttributeDesc();
+        return !isEmpty(getAttribute(attrName));
+      }
+      case EqualityFilter ef -> {
+        return matches(ef);
+      }
+      case SubstringFilter sf -> {
+        return matches(sf);
+      }
+      default -> {
+        return false;
+      }
     }
-    if (filter instanceof OrFilter or) {
-      return or.getComponents().stream().anyMatch(this::matches);
-    }
-    if (filter instanceof NotFilter nf) {
-      return !matches(nf.getComponent());
-    }
-    if (filter instanceof PresenceFilter pf) {
-      String attrName = pf.getAttributeDesc();
-      return !isEmpty(getAttribute(attrName));
-    }
-    if (filter instanceof EqualityFilter ef) {
-      return matches(ef);
-    }
-    if (filter instanceof SubstringFilter sf) {
-      return matches(sf);
-    }
-    // and so on, what we need
-    return false;
   }
 
   private boolean matches(EqualityFilter ef) {
