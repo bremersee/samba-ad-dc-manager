@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -378,7 +379,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     DomainUser user = domainUser
         .withDistinguishedName(existingDomainUser.getDistinguishedName())
         .withCreated(existingDomainUser.getCreated())
-        .withModified(OffsetDateTime.now())
+        .withModified(OffsetDateTime.now(ZoneOffset.UTC))
         .withSid(existingDomainUser.getSid())
         .withCriticalSystemObject(existingDomainUser.isCriticalSystemObject())
         .withMemberships(existingDomainUser.getMemberships());

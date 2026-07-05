@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +46,7 @@ class LdapNode extends LdapEntry {
   private final List<LdapNode> children = new ArrayList<>();
 
   private LdapNode() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     AdConstants.WHEN_CREATED.setValue(this, now);
     AdConstants.WHEN_CHANGED.setValue(this, now);
   }

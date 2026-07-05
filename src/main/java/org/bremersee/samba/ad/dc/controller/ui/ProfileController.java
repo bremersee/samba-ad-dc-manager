@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.bremersee.exception.ServiceException;
@@ -224,7 +225,7 @@ public class ProfileController extends UiController {
     }
     OffsetDateTime until = change.getRequestDateTime()
         .plus(getProperties().getUser().getChangeEmailRequestLifetime());
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     if (until.isBefore(now)) {
       return Optional.empty();
     }

@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
@@ -103,7 +104,7 @@ class MockedLdapOperations implements LdaptiveOperations {
     if (Type.ADD.equals(type) || Type.REPLACE.equals(type)) {
       addAttribute(entry, attr);
       if (AdConstants.USER_UNICODE_PWD.getName().equalsIgnoreCase(attr.getName())) {
-        AdConstants.USER_PWD_LAST_SET.setValue(entry, OffsetDateTime.now());
+        AdConstants.USER_PWD_LAST_SET.setValue(entry, OffsetDateTime.now(ZoneOffset.UTC));
       }
     } else if (Type.DELETE.equals(type)) {
       removeAttribute(entry, attr);
@@ -145,7 +146,7 @@ class MockedLdapOperations implements LdaptiveOperations {
       return store.findByDn(dn)
           .map(node -> {
             entryMapper.map(domainObject, node);
-            AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now());
+            AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now(ZoneOffset.UTC));
             return entryMapper.map(node);
           })
           .orElseGet(() -> {

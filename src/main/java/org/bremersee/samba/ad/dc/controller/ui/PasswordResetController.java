@@ -21,6 +21,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -305,7 +306,7 @@ public class PasswordResetController extends UiController {
       requestLifetime = getProperties().getUser().getPasswordResetRequestLifetime();
     }
     OffsetDateTime until = passwordReset.getRequestDateTime().plus(requestLifetime);
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     if (until.isBefore(now)) {
       getLogger().debug("Password reset request has expired.");
       return Optional.empty();

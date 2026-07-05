@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static java.util.Objects.nonNull;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -56,7 +57,7 @@ class MockedSambaToolDns implements SambaToolDns {
 
   @Override
   public void createDnsZone(String hostName, String zoneName) {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     DnsZone dnsZone = DnsZone.builder()
         .distinguishedName("")
         .created(now)
@@ -88,7 +89,7 @@ class MockedSambaToolDns implements SambaToolDns {
 
   @Override
   public void addDnsEntry(String hostName, DnsEntry entry) {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     DnsEntry dnsEntry = DnsEntry.builder()
         .from(entry)
         .distinguishedName("")

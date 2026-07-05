@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.service;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -67,8 +68,8 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
     this.repository = repository;
     this.base = OrganizationalUnit.builder()
         .distinguishedName(properties.getBaseDn())
-        .created(OffsetDateTime.now())
-        .modified(OffsetDateTime.now())
+        .created(OffsetDateTime.now(ZoneOffset.UTC))
+        .modified(OffsetDateTime.now(ZoneOffset.UTC))
         .name("Base")
         .description("Base of Active Directory")
         .systemOu(true)

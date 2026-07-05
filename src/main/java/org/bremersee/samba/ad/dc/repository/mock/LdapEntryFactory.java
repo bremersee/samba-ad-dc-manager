@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNullElseGet;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ class LdapEntryFactory {
         .collect(Collectors.toSet());
     Assert.notEmpty(objectClasses, "Object classes have to be present.");
     AdConstants.DN.setValue(entry, dn);
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     AdConstants.WHEN_CREATED.setValue(entry, now);
     AdConstants.WHEN_CHANGED.setValue(entry, now);
     AdConstants.NAME.setValue(entry, dn.getRDn().getNameValue().getStringValue());
@@ -57,7 +58,7 @@ class LdapEntryFactory {
     LdapEntry entry = new LdapEntry();
     entry.setDn(dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));
     AdConstants.DN.setValue(entry, dn);
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     AdConstants.WHEN_CREATED.setValue(entry, now);
     AdConstants.WHEN_CHANGED.setValue(entry, now);
     return entry;
@@ -94,7 +95,7 @@ class LdapEntryFactory {
       Dn parentDn,
       Integer primaryGroupId,
       Sid sid) {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     LdapEntry entry = newEntry("CN=" + samAccountName, parentDn);
     AdConstants.OBJECT_CLASS.setValues(entry, List.of(
         "organizationalPerson", "person", "top", "user"

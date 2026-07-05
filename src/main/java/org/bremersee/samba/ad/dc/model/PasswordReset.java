@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 
@@ -27,7 +28,7 @@ public interface PasswordReset extends Serializable {
   @JsonProperty(value = "requested", required = true)
   @Value.Default
   default OffsetDateTime getRequestDateTime() {
-    return OffsetDateTime.now();
+    return OffsetDateTime.now(ZoneOffset.UTC);
   }
 
   @JsonProperty(value = "pwdLastSet", required = true)
