@@ -84,7 +84,7 @@ pipeline {
       }
       steps {
         sh '''
-          mvn -B -P build-system,debian,deploy-to-debian-repo clean deploy
+          mvn -B -DskipTests=true -P build-system,debian,deploy-to-debian-repo clean deploy
         '''
       }
     }

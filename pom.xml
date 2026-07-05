@@ -49,7 +49,7 @@
       <organization>bremersee.org</organization>
       <organizationUrl>https://bremersee.org</organizationUrl>
       <email>christian@bremersee.org</email>
-      <timezone>+1</timezone>
+      <timezone>Europe/Berlin</timezone>
       <roles>
         <role>Developer</role>
       </roles>
