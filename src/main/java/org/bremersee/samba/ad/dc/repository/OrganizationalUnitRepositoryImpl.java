@@ -146,19 +146,6 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
   @Override
   public boolean hasChildren(Dn ou) {
-    /*
-    RDn rdn = ou.getRDn();
-    Filter filter = new NotFilter(new EqualityFilter(
-        rdn.getNameValue().getName(),
-        rdn.getNameValue().getStringValue()));
-    SearchRequest searchRequest = SearchRequest.builder()
-        .dn(ou.format())
-        .filter(filter)
-        .scope(SearchScope.SUBTREE)
-        .returnAttributes(AdConstants.DN.getName())
-        .build();
-
-     */
     Dn dn;
     if (isEmpty(ou) || ou.isEmpty() || ou.isAncestor(getDnTool().getBaseDn())) {
       dn = getDnTool().getBaseDn();

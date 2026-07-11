@@ -18,11 +18,11 @@ package org.bremersee.samba.ad.dc.misc.ehcache;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import org.ehcache.event.CacheEvent;
 import org.ehcache.event.EventType;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 /**
  * The cache event logger test.
@@ -34,7 +34,7 @@ class CacheEventLoggerTest {
    */
   @Test
   void onEvent() {
-    CacheEvent<?, ?> event = Mockito.mock(CacheEvent.class);
+    CacheEvent<?, ?> event = mock(CacheEvent.class);
     doReturn(EventType.CREATED)
         .when(event)
         .getType();

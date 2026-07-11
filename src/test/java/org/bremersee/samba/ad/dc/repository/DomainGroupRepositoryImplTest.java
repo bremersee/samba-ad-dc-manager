@@ -140,6 +140,7 @@ class DomainGroupRepositoryImplTest {
     softly
         .assertThat(actual)
         .containsExactlyInAnyOrderElementsOf(expected);
+
     actual = target.findAll("", null, null).toList();
     softly
         .assertThat(actual)
@@ -164,7 +165,8 @@ class DomainGroupRepositoryImplTest {
     softly
         .assertThat(actual)
         .hasValue(expected);
-    target.findOne("group", new Dn("CN=Users"), TreeSearchScope.ONELEVEL);
+
+    actual = target.findOne("group", new Dn("CN=Users"), TreeSearchScope.ONELEVEL);
     softly
         .assertThat(actual)
         .hasValue(expected);
@@ -192,7 +194,6 @@ class DomainGroupRepositoryImplTest {
     Optional<DomainGroup> actual = target.findOneByPrimaryGroupId(1001);
     assertThat(actual)
         .hasValue(expected);
-    target.findOne("group", new Dn("CN=Users"), TreeSearchScope.ONELEVEL);
   }
 
   /**
