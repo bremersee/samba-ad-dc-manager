@@ -40,7 +40,8 @@ if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ] && [ -e /var/lib/$DEBIAN_NAM
     cp /var/lib/$DEBIAN_NAME/application.yml.user /var/lib/$DEBIAN_NAME/application.yml
     rm -f /var/lib/$DEBIAN_NAME/application.yml.user
   fi
-  /bin/systemctl start $DEBIAN_NAME.service
 fi
+
+/bin/systemctl start $DEBIAN_NAME.service
 
 exit 0
