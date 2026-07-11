@@ -46,8 +46,6 @@ import org.springframework.util.Assert;
 @Slf4j
 class SambaStore {
 
-  static final Object LOCK = new Object();
-
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
 
   private final AtomicInteger sidPostfix = new AtomicInteger(Sid.MAX_SYSTEM_SID_SUFFIX + 1);
@@ -125,14 +123,12 @@ class SambaStore {
     if (!dnTool.isValidDnWithBaseDn(dn)) {
       return Optional.empty();
     }
-    synchronized (LOCK) {
-      if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
-        LdapNode ypServers = new LdapNode(dn);
-        AdConstants.OBJECT_CLASS.setValues(ypServers, List.of("container", "top"));
-        return Optional.of(ypServers);
-      }
-      return findByDn(root, dn);
+    if (DnTool.isSameDn(dnTool.addBaseDn(AdConstants.YELLOW_PAGES), dn)) {
+      LdapNode ypServers = new LdapNode(dn);
+      AdConstants.OBJECT_CLASS.setValues(ypServers, List.of("container", "top"));
+      return Optional.of(ypServers);
     }
+    return findByDn(root, dn);
   }
 
   Optional<LdapNode> findByDn(LdapNode node, Dn dn) {
@@ -157,26 +153,24 @@ class SambaStore {
     if (isEmpty(request) || isEmpty(request.getBaseDn())) {
       return response;
     }
-    synchronized (LOCK) {
-      Optional<LdapNode> foundNode = findByDn(request.getBaseDn());
-      if (foundNode.isEmpty()) {
-        return response;
-      }
-      LdapNode node = foundNode.get();
-      if (node.matches(request.getFilter())) {
-        response.add(node);
-      }
-      if (SearchScope.OBJECT.equals(request.getSearchScope())) {
-        return response;
-      }
-      find(request, node.getChildren(), response);
-      if (request.getSizeLimit() > 0 && response.size() > request.getSizeLimit()) {
-        throw LdaptiveException.builder()
-            .reason("Response size exceeds limit of " + request.getSizeLimit())
-            .build();
-      }
+    Optional<LdapNode> foundNode = findByDn(request.getBaseDn());
+    if (foundNode.isEmpty()) {
       return response;
     }
+    LdapNode node = foundNode.get();
+    if (node.matches(request.getFilter())) {
+      response.add(node);
+    }
+    if (SearchScope.OBJECT.equals(request.getSearchScope())) {
+      return response;
+    }
+    find(request, node.getChildren(), response);
+    if (request.getSizeLimit() > 0 && response.size() > request.getSizeLimit()) {
+      throw LdaptiveException.builder()
+          .reason("Response size exceeds limit of " + request.getSizeLimit())
+          .build();
+    }
+    return response;
   }
 
   private void find(SearchRequest request, List<LdapNode> children, List<LdapEntry> response) {
@@ -194,45 +188,39 @@ class SambaStore {
     Assert.notNull(entry, "Ldap entry must not be null.");
     log.info("Adding entry: {}", toJson(new SerLdapEntry(entry)));
     Assert.isTrue(dnTool.isValidDnWithBaseDn(entry.getDn()), "Dn is invalid.");
-    synchronized (LOCK) {
-      findByDn(new Dn(entry.getDn()).getParent()).ifPresentOrElse(
-          parentNode -> new LdapNode(entry, parentNode),
-          () -> {
-            throw ServiceException.notFoundWithErrorCode(
-                OrganizationalUnit.class.getSimpleName(),
-                new Dn(entry.getDn()).getParent().format(),
-                ErrorCode.EC_OU_NOT_FOUND);
-          });
-    }
+    findByDn(new Dn(entry.getDn()).getParent()).ifPresentOrElse(
+        parentNode -> new LdapNode(entry, parentNode),
+        () -> {
+          throw ServiceException.notFoundWithErrorCode(
+              OrganizationalUnit.class.getSimpleName(),
+              new Dn(entry.getDn()).getParent().format(),
+              ErrorCode.EC_OU_NOT_FOUND);
+        });
   }
 
   void remove(String dn) {
-    synchronized (LOCK) {
-      findByDn(dn).ifPresent(node -> {
-        node.getParent().getChildren().remove(node);
-        adjustDns(new Dn(dn), null);
-      });
-    }
+    findByDn(dn).ifPresent(node -> {
+      node.getParent().getChildren().remove(node);
+      adjustDns(new Dn(dn), null);
+    });
   }
 
   void modifyDn(ModifyDnRequest request) {
-    synchronized (LOCK) {
-      findByDn(request.getOldDn()).ifPresent(entry -> {
-        Dn oldDn = new Dn(entry.getDn());
-        Dn newDn = new Dn(request.getNewRDn());
-        if (isEmpty(request.getNewSuperiorDn())) {
-          newDn.add(oldDn.getParent());
-        } else {
-          newDn.add(new Dn(request.getNewSuperiorDn()));
-        }
-        if (!oldDn.getParent().isSame(newDn.getParent())) {
-          entry.getParent().removeChild(entry);
-          findByDn(newDn).ifPresent(newParent -> newParent.addChild(entry));
-        }
-        AdConstants.NAME.setValue(entry, newDn.getRDn().getNameValue().getStringValue());
-        adjustDns(oldDn, newDn);
-      });
-    }
+    findByDn(request.getOldDn()).ifPresent(entry -> {
+      Dn oldDn = new Dn(entry.getDn());
+      Dn newDn = new Dn(request.getNewRDn());
+      if (isEmpty(request.getNewSuperiorDn())) {
+        newDn.add(oldDn.getParent());
+      } else {
+        newDn.add(new Dn(request.getNewSuperiorDn()));
+      }
+      if (!oldDn.getParent().isSame(newDn.getParent())) {
+        entry.getParent().removeChild(entry);
+        findByDn(newDn).ifPresent(newParent -> newParent.addChild(entry));
+      }
+      AdConstants.NAME.setValue(entry, newDn.getRDn().getNameValue().getStringValue());
+      adjustDns(oldDn, newDn);
+    });
   }
 
   private void adjustDns(Dn oldDn, @Nullable Dn newDn) {

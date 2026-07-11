@@ -3,7 +3,7 @@
 DEBIAN_NAME="samba-ad-dc-manager"
 APP_NAME=$DEBIAN_NAME
 
-if [ -e /etc/systemd/system/$DEBIAN_NAME.service ]; then
+if [ -e /etc/systemd/system/multi-user.target.wants/$DEBIAN_NAME.service ]; then
   /bin/systemctl stop $DEBIAN_NAME.service
   /bin/systemctl disable $DEBIAN_NAME.service
 fi

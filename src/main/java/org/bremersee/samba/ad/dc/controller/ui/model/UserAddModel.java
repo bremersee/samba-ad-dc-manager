@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui.model;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,7 +75,7 @@ public class UserAddModel extends UserModel implements Serializable {
       PasswordInformation passwordInformation,
       boolean isRfc2307Enabled) {
     int passwordAgeInDays = passwordInformation.getMaximumPasswordAgeInDays();
-    setAccountExpires(OffsetDateTime.now().plusDays(passwordAgeInDays));
+    setAccountExpires(OffsetDateTime.now(ZoneOffset.UTC).plusDays(passwordAgeInDays));
     setUseUsernameAsCn(properties.isUseUsernameAsCn());
     setCompany(properties.getDefaultCompany());
     setDisplayName(properties.getDefaultDisplayName());

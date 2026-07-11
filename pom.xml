@@ -26,8 +26,11 @@
     <start-class>org.bremersee.samba.ad.dc.Application</start-class>
 
     <!--suppress UnresolvedMavenProperty -->
+    <debVersion>
+      ${project.version}-${maven.build.timestamp}+${buildNumber}
+    </debVersion>
     <debBaseName>
-      samba-ad-dc-manager_${project.version}-${maven.build.timestamp}+${buildNumber}_all
+      samba-ad-dc-manager_${debVersion}_all
     </debBaseName>
     <debName>${debBaseName}.deb</debName>
     <debChangesName>${debBaseName}.changes</debChangesName>
@@ -46,7 +49,7 @@
       <organization>bremersee.org</organization>
       <organizationUrl>https://bremersee.org</organizationUrl>
       <email>christian@bremersee.org</email>
-      <timezone>+1</timezone>
+      <timezone>Europe/Berlin</timezone>
       <roles>
         <role>Developer</role>
       </roles>
@@ -222,14 +225,6 @@
       <artifactId>spring-retry</artifactId>
     </dependency>
 
-    <!-- Sleuth and Zipkin -->
-    <!--
-    <dependency>
-      <groupId>io.zipkin.reporter2</groupId>
-      <artifactId>zipkin-reporter-brave</artifactId>
-    </dependency>
-    -->
-
     <!-- Eureka client -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -314,68 +309,11 @@
             <skip>true</skip>
           </configuration>
         </plugin>
-        <plugin>
-          <artifactId>jdeb</artifactId>
-          <groupId>org.vafer</groupId>
-          <version>1.5</version>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
   <profiles>
-    <!--
-    <profile>
-      <id>openapi</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-              <jvmArguments>-Dspring.application.admin.enabled=true -Dspring.profiles.active=mock,api</jvmArguments>
-              <excludes>
-                <exclude>
-                  <groupId>org.projectlombok</groupId>
-                  <artifactId>lombok</artifactId>
-                </exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>start</goal>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-maven-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>integration-test</id>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <apiDocsUrl>http://localhost:8080/v3/api-docs.yaml</apiDocsUrl>
-              <outputFileName>openapi.yaml</outputFileName>
-              <skip>false</skip>
-              <failOnError>true</failOnError>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    -->
     <profile>
       <id>debian</id>
       <activation>
@@ -442,32 +380,35 @@
       </build>
     </profile>
 
-    <!-- TODO rename repo to debian-java-apps -->
     <profile>
-      <id>deploy-to-repo-debian-bullseye</id>
+      <id>deploy-to-debian-repo</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
       <build>
         <plugins>
-          <!--+
-              | wagon-http only supports http method put
-              | uploading to nexus apt works only with a workaround in haproxy
-              +-->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
-            <artifactId>wagon-maven-plugin</artifactId>
+            <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>upload-to-debian-bullseye</id>
+                <id>deploy-to-debian-repo-execution</id>
                 <phase>deploy</phase>
                 <goals>
-                  <goal>upload-single</goal>
+                  <goal>exec</goal>
                 </goals>
                 <configuration>
-                  <serverId>bremersee-apt</serverId>
-                  <fromFile>${project.build.directory}/${debName}</fromFile>
-                  <url>https://nexus.bremersee.org/repository/debian-bullseye</url>
+                  <executable>${repreproBinary}</executable>
+                  <workingDirectory>${project.build.directory}</workingDirectory>
+                  <arguments>
+                    <argument>--basedir</argument>
+                    <argument>${debianRepoDir}</argument>
+                    <argument>-C</argument>
+                    <argument>main</argument>
+                    <argument>include</argument>
+                    <argument>stable</argument>
+                    <argument>${debChangesName}</argument>
+                  </arguments>
                 </configuration>
               </execution>
             </executions>
@@ -477,7 +418,7 @@
     </profile>
 
     <profile>
-      <id>apt-get-on-dc3</id>
+      <id>apt-install-on-dc1</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -488,18 +429,18 @@
             <artifactId>wagon-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>install-on-dc3</id>
+                <id>install-on-dc1</id>
                 <phase>deploy</phase>
                 <goals>
                   <goal>sshexec</goal>
                 </goals>
                 <configuration>
                   <serverId>bremersee-dpkg</serverId>
-                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <url>scp://dc1.eixe.bremersee.org/tmp</url>
                   <commands>
-                    <command>sudo -n /usr/bin/apt-get update</command>
-                    <command>sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get
-                      -yq install samba-ad-dc-manager
+                    <command>sudo -n /usr/bin/apt update</command>
+                    <command>
+                      sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt -yq install samba-ad-dc-manager
                     </command>
                   </commands>
                   <displayCommandOutputs>true</displayCommandOutputs>
@@ -513,7 +454,7 @@
     </profile>
 
     <profile>
-      <id>copy-to-and-install-on-dc3</id>
+      <id>apt-install-on-dc2</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -524,20 +465,56 @@
             <artifactId>wagon-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>copy-to-dc3</id>
+                <id>install-on-dc2</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>sshexec</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-dpkg</serverId>
+                  <url>scp://dc2.eixe.bremersee.org/tmp</url>
+                  <commands>
+                    <command>sudo -n /usr/bin/apt update</command>
+                    <command>
+                      sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt -yq install samba-ad-dc-manager
+                    </command>
+                  </commands>
+                  <displayCommandOutputs>true</displayCommandOutputs>
+                  <failOnError>false</failOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>copy-to-and-install-on-dc1</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-to-dc1</id>
                 <phase>deploy</phase>
                 <goals>
                   <goal>upload-single</goal>
                 </goals>
                 <configuration>
                   <serverId>bremersee-dpkg</serverId>
-                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <url>scp://dc1.eixe.bremersee.org/srv/incomming</url>
                   <fromFile>${project.build.directory}/${debName}</fromFile>
                   <toFile>samba-ad-dc-manager.deb</toFile>
                 </configuration>
               </execution>
               <execution>
-                <id>dpkg-on-dc3</id>
+                <id>dpkg-on-dc1</id>
                 <phase>deploy</phase>
                 <goals>
                   <goal>sshexec</goal>
@@ -546,8 +523,55 @@
                   <serverId>bremersee-dpkg</serverId>
                   <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
                   <commands>
-                    <command>sudo -n /usr/bin/dpkg -i /home/giacomo/samba-ad-dc-manager.deb</command>
-                    <command>rm /home/giacomo/samba-ad-dc-manager.deb</command>
+                    <command>sudo -n /usr/bin/dpkg -i /srv/incoming/samba-ad-dc-manager.deb</command>
+                    <command>rm /srv/incoming/samba-ad-dc-manager.deb</command>
+                  </commands>
+                  <displayCommandOutputs>true</displayCommandOutputs>
+                  <failOnError>true</failOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>copy-to-and-install-on-dc2</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>wagon-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-to-dc2</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>upload-single</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-dpkg</serverId>
+                  <url>scp://dc2.eixe.bremersee.org/srv/incomming</url>
+                  <fromFile>${project.build.directory}/${debName}</fromFile>
+                  <toFile>samba-ad-dc-manager.deb</toFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>dpkg-on-dc2</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>sshexec</goal>
+                </goals>
+                <configuration>
+                  <serverId>bremersee-dpkg</serverId>
+                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <commands>
+                    <command>sudo -n /usr/bin/dpkg -i /srv/incoming/samba-ad-dc-manager.deb</command>
+                    <command>rm /srv/incoming/samba-ad-dc-manager.deb</command>
                   </commands>
                   <displayCommandOutputs>true</displayCommandOutputs>
                   <failOnError>true</failOnError>

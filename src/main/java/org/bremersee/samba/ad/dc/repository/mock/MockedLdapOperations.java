@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
@@ -33,6 +34,8 @@ import org.springframework.stereotype.Component;
 @Profile("mock")
 @Slf4j
 class MockedLdapOperations implements LdaptiveOperations {
+
+  private static final Object LOCK = new Object();
 
   private final SambaStore store;
 
@@ -72,7 +75,9 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void delete(DeleteRequest request) {
-    store.remove(request.getDn());
+    synchronized (LOCK) {
+      store.remove(request.getDn());
+    }
   }
 
   @Override
@@ -83,7 +88,7 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modify(ModifyRequest request) {
-    synchronized (SambaStore.LOCK) {
+    synchronized (LOCK) {
       store.findByDn(request.getDn())
           .ifPresent(node -> modify(node, request.getModifications()));
     }
@@ -91,8 +96,10 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   private void modify(LdapEntry entry, AttributeModification[] modifications) {
     if (!isEmpty(modifications)) {
-      for (AttributeModification modification : modifications) {
-        modify(entry, modification);
+      synchronized (LOCK) {
+        for (AttributeModification modification : modifications) {
+          modify(entry, modification);
+        }
       }
     }
   }
@@ -103,7 +110,7 @@ class MockedLdapOperations implements LdaptiveOperations {
     if (Type.ADD.equals(type) || Type.REPLACE.equals(type)) {
       addAttribute(entry, attr);
       if (AdConstants.USER_UNICODE_PWD.getName().equalsIgnoreCase(attr.getName())) {
-        AdConstants.USER_PWD_LAST_SET.setValue(entry, OffsetDateTime.now());
+        AdConstants.USER_PWD_LAST_SET.setValue(entry, OffsetDateTime.now(ZoneOffset.UTC));
       }
     } else if (Type.DELETE.equals(type)) {
       removeAttribute(entry, attr);
@@ -123,29 +130,35 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modifyDn(ModifyDnRequest request) {
-    store.modifyDn(request);
+    synchronized (LOCK) {
+      store.modifyDn(request);
+    }
   }
 
   @Override
   public SearchResponse search(SearchRequest request) {
-    return SearchResponse.builder()
-        .entry(store.find(request))
-        .build();
+    synchronized (LOCK) {
+      return SearchResponse.builder()
+          .entry(store.find(request))
+          .build();
+    }
   }
 
   @Override
   public boolean exists(String dn) {
-    return store.findByDn(dn).isPresent();
+    synchronized (LOCK) {
+      return store.findByDn(dn).isPresent();
+    }
   }
 
   @Override
   public <T> T save(T domainObject, LdaptiveEntryMapper<T> entryMapper) {
-    synchronized (SambaStore.LOCK) {
+    synchronized (LOCK) {
       String dn = entryMapper.mapDn(domainObject);
       return store.findByDn(dn)
           .map(node -> {
             entryMapper.map(domainObject, node);
-            AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now());
+            AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now(ZoneOffset.UTC));
             return entryMapper.map(node);
           })
           .orElseGet(() -> {

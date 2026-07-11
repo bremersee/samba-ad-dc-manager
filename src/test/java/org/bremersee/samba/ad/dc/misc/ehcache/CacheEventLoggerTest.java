@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.misc;
+package org.bremersee.samba.ad.dc.misc.ehcache;
 
-import org.bremersee.samba.ad.dc.model.AvatarDefault;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+
+import org.ehcache.core.events.CacheEvents;
+import org.ehcache.event.CacheEvent;
+import org.junit.jupiter.api.Test;
 
 /**
- * The avatar default converter.
- *
- * @author Christian Bremer
+ * The cache event logger test.
  */
-@Component
-public class AvatarDefaultConverter implements Converter<String, AvatarDefault> {
+class CacheEventLoggerTest {
 
-  @Override
-  public AvatarDefault convert(@NonNull String source) {
-    return AvatarDefault.fromValue(source, AvatarDefault.NOT_FOUND);
+  /**
+   * On event.
+   */
+  @Test
+  void onEvent() {
+    CacheEvent<?, ?> event = CacheEvents.creation("myKey", "newValue", null);
+    CacheEventLogger target = new CacheEventLogger();
+    assertThatNoException().isThrownBy(() -> target.onEvent(event));
   }
+
 }

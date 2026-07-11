@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.repository;
 import static java.util.Objects.isNull;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -158,7 +159,7 @@ public class DomainComputerRepositoryImpl extends SamAccountRepository
     DomainComputer computer = domainComputer
         .withDistinguishedName(existingComputer.getDistinguishedName())
         .withCreated(existingComputer.getCreated())
-        .withModified(OffsetDateTime.now())
+        .withModified(OffsetDateTime.now(ZoneOffset.UTC))
         .withSid(existingComputer.getSid())
         .withCriticalSystemObject(existingComputer.isCriticalSystemObject());
     Dn oldDn = new Dn(existingComputer.getDistinguishedName());

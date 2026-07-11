@@ -1,9 +1,10 @@
 [Unit]
-Description=Domain Controller Connector
+Description=Samba AD DC Manager
 After=syslog.target
 
 [Service]
 User=smb-mngr
+WorkingDirectory=/var/lib/samba-ad-dc-manager
 ExecStart=/var/lib/samba-ad-dc-manager/samba-ad-dc-manager.jar
 SuccessExitStatus=1 4 3
 

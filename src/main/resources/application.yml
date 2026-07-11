@@ -337,6 +337,12 @@ spring:
     activate:
       on-profile: debian
 logging:
+  level:
+    ROOT: info
+    com.netflix.eureka.registry: warn
+    com.netflix.discovery.shared.resolver: warn
+    org.bremersee: info
+    org.springframework.cloud.configclient: warn
   file:
     name: /var/log/samba-ad-dc-manager/samba-ad-dc-manager.log
   logback:
@@ -346,6 +352,6 @@ logging:
 server:
   tomcat:
     accesslog:
-      enabled: true
+      enabled: false
       directory: /var/log/samba-ad-dc-manager
       prefix: access_log

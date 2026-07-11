@@ -1,6 +1,7 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -423,7 +424,7 @@ class SambaStoreInit {
   }
 
   private DnsZone createSamdomDnsZone() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     return DnsZone.builder()
         .distinguishedName("")
         .created(now)
@@ -448,7 +449,7 @@ class SambaStoreInit {
   }
 
   private List<DnsEntry> createSamdomDnsEntries() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     List<DnsEntry> entries = new CopyOnWriteArrayList<>();
     entries.add(DnsEntry.builder()
         .distinguishedName("")
@@ -550,7 +551,7 @@ class SambaStoreInit {
   }
 
   private DnsZone createSamdomReverseDnsZone() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     return DnsZone.builder()
         .distinguishedName("")
         .created(now)
@@ -575,7 +576,7 @@ class SambaStoreInit {
   }
 
   private List<DnsEntry> createSamdomReverseDnsEntries() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     List<DnsEntry> entries = new CopyOnWriteArrayList<>();
     entries.add(DnsEntry.builder()
         .distinguishedName("")
@@ -665,7 +666,7 @@ class SambaStoreInit {
   }
 
   private DnsZone createMsdcsDnsZone() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     return DnsZone.builder()
         .distinguishedName("")
         .created(now)
@@ -690,7 +691,7 @@ class SambaStoreInit {
   }
 
   private List<DnsEntry> createMsdcsDnsEntries() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     List<DnsEntry> entries = new CopyOnWriteArrayList<>();
     entries.add(DnsEntry.builder()
         .distinguishedName("")

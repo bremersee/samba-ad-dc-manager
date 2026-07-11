@@ -1,12 +1,17 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.config.MockProperties;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveAuthenticationToken;
 import org.bremersee.spring.security.ldaptive.userdetails.LdaptiveUserDetails;
@@ -32,10 +37,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 class MockedAuthenticationManager implements AuthenticationManager, AuthenticationProvider {
 
-  private final SambaStore store;
+  private final DnTool dnTool;
 
-  MockedAuthenticationManager(SambaStore store) {
-    this.store = store;
+  private final LdaptiveOperations ldaptiveOperations;
+
+  MockedAuthenticationManager(
+      ApplicationProperties properties,
+      LdaptiveOperations ldaptiveOperations) {
+    this.dnTool = new DefaultDnTool(properties);
+    this.ldaptiveOperations = ldaptiveOperations;
   }
 
   @Override
@@ -51,7 +61,7 @@ class MockedAuthenticationManager implements AuthenticationManager, Authenticati
     String username = authentication.getName();
     String password = String.valueOf(authentication.getCredentials());
     SearchRequest request = SearchRequest.builder()
-        .dn(store.getDnTool().getBaseDn().format())
+        .dn(dnTool.getBaseDn().format())
         .filter(new AndFilter(
             new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_USER),
             new OrFilter(
@@ -59,7 +69,7 @@ class MockedAuthenticationManager implements AuthenticationManager, Authenticati
                 new EqualityFilter(AdConstants.MAIL.getName(), username))))
         .sizeLimit(1)
         .build();
-    return store.find(request).stream()
+    return ldaptiveOperations.findAll(request).stream()
         .findFirst()
         .map(entry -> authenticate(entry, password))
         .orElseThrow(() -> new UsernameNotFoundException(String.format("Not found %s", username)));
@@ -80,7 +90,7 @@ class MockedAuthenticationManager implements AuthenticationManager, Authenticati
   private LdaptiveUserDetails getUserDetails(LdapEntry entry) {
     UserAccountControl control = AdConstants.USER_USER_ACCOUNT_CONTROL.getValue(entry)
         .orElseGet(UserAccountControl::new);
-    AdConstants.USER_LAST_LOGON.setValue(entry, OffsetDateTime.now());
+    AdConstants.USER_LAST_LOGON.setValue(entry, OffsetDateTime.now(ZoneOffset.UTC));
     AdConstants.USER_LOGON_COUNT.getValue(entry)
         .ifPresentOrElse(
             counter -> AdConstants.USER_LOGON_COUNT.setValue(entry, counter + 1),

@@ -1,6 +1,7 @@
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.bremersee.samba.ad.dc.repository.DhcpLeaseListTool;
@@ -15,7 +16,7 @@ public class MockedDhcpLeaseListTool implements DhcpLeaseListTool {
 
   @Override
   public List<DhcpLease> findActive() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     return List.of(
         DhcpLease.builder()
             .ip("192.168.1.101")

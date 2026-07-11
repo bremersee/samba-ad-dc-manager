@@ -20,6 +20,7 @@ import static java.util.Objects.isNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -250,7 +251,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
     DomainGroup group = domainGroup
         .withDistinguishedName(existingGroup.getDistinguishedName())
         .withCreated(existingGroup.getCreated())
-        .withModified(OffsetDateTime.now())
+        .withModified(OffsetDateTime.now(ZoneOffset.UTC))
         .withSid(existingGroup.getSid())
         .withCriticalSystemObject(existingGroup.isCriticalSystemObject())
         .withGroupType(existingGroup.getGroupType())

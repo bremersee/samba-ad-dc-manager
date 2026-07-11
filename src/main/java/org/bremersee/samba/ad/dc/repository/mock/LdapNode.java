@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.repository.mock;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +46,7 @@ class LdapNode extends LdapEntry {
   private final List<LdapNode> children = new ArrayList<>();
 
   private LdapNode() {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     AdConstants.WHEN_CREATED.setValue(this, now);
     AdConstants.WHEN_CHANGED.setValue(this, now);
   }
@@ -90,9 +91,7 @@ class LdapNode extends LdapEntry {
         && (hasObjectClass(AdConstants.OBJECT_CLASS_USER)
         || hasObjectClass(AdConstants.OBJECT_CLASS_GROUP));
     if (isMemberOf) {
-      synchronized (SambaStore.LOCK) {
-        return getMemberships(attr);
-      }
+      return getMemberships(attr);
     }
     if (!isEmpty(attr) || !DnTool.isValidDn(getDn())) {
       return attr;
@@ -169,27 +168,30 @@ class LdapNode extends LdapEntry {
     if (isEmpty(filter)) {
       return true;
     }
-    if (filter instanceof AndFilter af) {
-      return af.getComponents().stream().allMatch(this::matches);
+    switch (filter) {
+      case AndFilter af -> {
+        return af.getComponents().stream().allMatch(this::matches);
+      }
+      case OrFilter or -> {
+        return or.getComponents().stream().anyMatch(this::matches);
+      }
+      case NotFilter nf -> {
+        return !matches(nf.getComponent());
+      }
+      case PresenceFilter pf -> {
+        String attrName = pf.getAttributeDesc();
+        return !isEmpty(getAttribute(attrName));
+      }
+      case EqualityFilter ef -> {
+        return matches(ef);
+      }
+      case SubstringFilter sf -> {
+        return matches(sf);
+      }
+      default -> {
+        return false;
+      }
     }
-    if (filter instanceof OrFilter or) {
-      return or.getComponents().stream().anyMatch(this::matches);
-    }
-    if (filter instanceof NotFilter nf) {
-      return !matches(nf.getComponent());
-    }
-    if (filter instanceof PresenceFilter pf) {
-      String attrName = pf.getAttributeDesc();
-      return !isEmpty(getAttribute(attrName));
-    }
-    if (filter instanceof EqualityFilter ef) {
-      return matches(ef);
-    }
-    if (filter instanceof SubstringFilter sf) {
-      return matches(sf);
-    }
-    // and so on, what we need
-    return false;
   }
 
   private boolean matches(EqualityFilter ef) {
