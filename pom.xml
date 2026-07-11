@@ -427,9 +427,9 @@
                   <serverId>bremersee-dpkg</serverId>
                   <url>scp://dc1.eixe.bremersee.org/tmp</url>
                   <commands>
-                    <command>sudo -n /usr/bin/apt-get update</command>
-                    <command>sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get
-                      -yq install samba-ad-dc-manager
+                    <command>sudo -n /usr/bin/apt update</command>
+                    <command>
+                      sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt -yq install samba-ad-dc-manager
                     </command>
                   </commands>
                   <displayCommandOutputs>true</displayCommandOutputs>
@@ -463,9 +463,9 @@
                   <serverId>bremersee-dpkg</serverId>
                   <url>scp://dc2.eixe.bremersee.org/tmp</url>
                   <commands>
-                    <command>sudo -n /usr/bin/apt-get update</command>
-                    <command>sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get
-                      -yq install samba-ad-dc-manager
+                    <command>sudo -n /usr/bin/apt update</command>
+                    <command>
+                      sudo -n /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt -yq install samba-ad-dc-manager
                     </command>
                   </commands>
                   <displayCommandOutputs>true</displayCommandOutputs>

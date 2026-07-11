@@ -6,9 +6,9 @@ pipeline {
     CODECOV_TOKEN = credentials('samba-ad-dc-manager-codecov-token')
     TEST = true
     SITE = false
-    DEPLOY_TO_DEBIAN_REPO = false
+    DEPLOY_TO_DEBIAN_REPO = true
     APT_INSTALL_ON_DC1 = false
-    APT_INSTALL_ON_DC2 = false
+    APT_INSTALL_ON_DC2 = true
     CLEAN = true
   }
   tools {
