@@ -180,7 +180,7 @@ public class ProfileController extends UiController {
 
     Pattern emailPattern = getProperties().getEmail().getEmailRegexFlags()
         .compile(getProperties().getEmail().getEmailRegex());
-    if (emailPattern.matcher(editModel.getNewEmail()).matches()) {
+    if (!emailPattern.matcher(editModel.getNewEmail()).matches()) {
       bindingResult.rejectValue(
           "newEmail",
           "user-profile.email.invalid",
