@@ -91,9 +91,7 @@ class LdapNode extends LdapEntry {
         && (hasObjectClass(AdConstants.OBJECT_CLASS_USER)
         || hasObjectClass(AdConstants.OBJECT_CLASS_GROUP));
     if (isMemberOf) {
-      synchronized (SambaStore.LOCK) {
-        return getMemberships(attr);
-      }
+      return getMemberships(attr);
     }
     if (!isEmpty(attr) || !DnTool.isValidDn(getDn())) {
       return attr;

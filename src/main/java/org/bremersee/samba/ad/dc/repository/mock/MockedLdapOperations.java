@@ -35,6 +35,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 class MockedLdapOperations implements LdaptiveOperations {
 
+  private static final Object LOCK = new Object();
+
   private final SambaStore store;
 
   MockedLdapOperations(SambaStore store) {
@@ -73,7 +75,9 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void delete(DeleteRequest request) {
-    store.remove(request.getDn());
+    synchronized (LOCK) {
+      store.remove(request.getDn());
+    }
   }
 
   @Override
@@ -84,7 +88,7 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modify(ModifyRequest request) {
-    synchronized (SambaStore.LOCK) {
+    synchronized (LOCK) {
       store.findByDn(request.getDn())
           .ifPresent(node -> modify(node, request.getModifications()));
     }
@@ -92,8 +96,10 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   private void modify(LdapEntry entry, AttributeModification[] modifications) {
     if (!isEmpty(modifications)) {
-      for (AttributeModification modification : modifications) {
-        modify(entry, modification);
+      synchronized (LOCK) {
+        for (AttributeModification modification : modifications) {
+          modify(entry, modification);
+        }
       }
     }
   }
@@ -124,24 +130,30 @@ class MockedLdapOperations implements LdaptiveOperations {
 
   @Override
   public void modifyDn(ModifyDnRequest request) {
-    store.modifyDn(request);
+    synchronized (LOCK) {
+      store.modifyDn(request);
+    }
   }
 
   @Override
   public SearchResponse search(SearchRequest request) {
-    return SearchResponse.builder()
-        .entry(store.find(request))
-        .build();
+    synchronized (LOCK) {
+      return SearchResponse.builder()
+          .entry(store.find(request))
+          .build();
+    }
   }
 
   @Override
   public boolean exists(String dn) {
-    return store.findByDn(dn).isPresent();
+    synchronized (LOCK) {
+      return store.findByDn(dn).isPresent();
+    }
   }
 
   @Override
   public <T> T save(T domainObject, LdaptiveEntryMapper<T> entryMapper) {
-    synchronized (SambaStore.LOCK) {
+    synchronized (LOCK) {
       String dn = entryMapper.mapDn(domainObject);
       return store.findByDn(dn)
           .map(node -> {
