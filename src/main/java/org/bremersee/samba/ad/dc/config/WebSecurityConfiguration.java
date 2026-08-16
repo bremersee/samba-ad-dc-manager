@@ -88,10 +88,12 @@ public class WebSecurityConfiguration {
   }
 
   private AccessDeniedHandler getAccessDeniedHandler() {
+    AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
     LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers = LinkedHashMap
-        .newLinkedHashMap(1);
+        .newLinkedHashMap(2);
     handlers.put(PathPatternRequestMatcher.withDefaults().matcher("/api/**"),
-        new AccessDeniedHandlerImpl());
+        accessDeniedHandler);
+    handlers.put(EndpointRequest.toAnyEndpoint(), accessDeniedHandler);
     AccessDeniedHandlerImpl defaultHandler = new AccessDeniedHandlerImpl();
     defaultHandler.setErrorPage("/forbidden");
     return new RequestMatcherDelegatingAccessDeniedHandler(handlers, defaultHandler);
