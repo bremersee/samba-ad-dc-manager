@@ -3,8 +3,6 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -14,6 +12,8 @@ import java.util.Optional;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.lang.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The windows/samba SID. Well known (system) SIDs are listed <a
@@ -54,7 +54,7 @@ public interface Sid extends Serializable {
    */
   @Schema(description = "Determines whether this SID belongs to a system entity or not.",
       defaultValue = "false", accessMode = AccessMode.READ_ONLY)
-  @JsonProperty(value = "systemEntity", defaultValue = "false", access =  Access.READ_ONLY)
+  @JsonProperty(value = "systemEntity", defaultValue = "false", access = Access.READ_ONLY)
   @Value.Lazy
   default boolean isSystemEntity() {
     if (!getValue().startsWith(DEFAULT_SID_PREFIX)) {

@@ -1,13 +1,13 @@
 package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,

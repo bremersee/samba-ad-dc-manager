@@ -2,8 +2,6 @@ package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
@@ -12,6 +10,8 @@ import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(description = "Domain user's account control.")
 @Value.Style(

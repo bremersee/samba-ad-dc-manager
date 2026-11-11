@@ -5,8 +5,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -18,6 +16,8 @@ import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
 import org.springframework.lang.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The interface Domain user.

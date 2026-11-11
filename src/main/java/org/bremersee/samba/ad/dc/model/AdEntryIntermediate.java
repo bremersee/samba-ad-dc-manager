@@ -2,11 +2,11 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The active directory base entry model with immutable builder.

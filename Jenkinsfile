@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label 'jdk21&&maven&&docker'
+    label 'jdk21 && maven && docker'
   }
   environment {
     CODECOV_TOKEN = credentials('samba-ad-dc-manager-codecov-token')

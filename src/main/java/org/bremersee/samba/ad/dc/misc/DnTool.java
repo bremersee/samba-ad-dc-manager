@@ -46,7 +46,7 @@ public interface DnTool {
           .map(Dn::new)
           .filter(v -> !isEmpty(v))
           .isPresent();
-    } catch (RuntimeException e) {
+    } catch (RuntimeException _) {
       return false;
     }
   }

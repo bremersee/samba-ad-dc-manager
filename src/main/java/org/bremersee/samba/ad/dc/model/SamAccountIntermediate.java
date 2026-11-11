@@ -2,13 +2,13 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The base of a 'SamAccount' like 'User', 'Group' and 'Computer' with immutable builder.
