@@ -52,7 +52,7 @@ import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.NotFilter;
 import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.SubstringFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -60,7 +60,7 @@ import org.springframework.validation.annotation.Validated;
  *
  * @author Christian Bremer
  */
-@Component("domainGroupMemberRepository")
+@Repository("domainGroupMemberRepository")
 @Validated
 @Slf4j
 public class DomainGroupMemberRepositoryImpl extends SamAccountRepository

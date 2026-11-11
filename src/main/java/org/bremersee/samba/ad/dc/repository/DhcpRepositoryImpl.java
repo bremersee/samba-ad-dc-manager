@@ -19,14 +19,16 @@ package org.bremersee.samba.ad.dc.repository;
 import java.util.List;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The dhcp repository implementation.
  *
  * @author Christian Bremer
  */
-@Component("dhcpRepository")
+@Repository("dhcpRepository")
+@Validated
 public class DhcpRepositoryImpl implements DhcpRepository {
 
   private final DhcpLeaseListTool dhcpTool;

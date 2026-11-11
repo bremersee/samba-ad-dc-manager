@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.ValueComparator;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
@@ -32,22 +31,23 @@ import org.bremersee.samba.ad.dc.ErrorCode;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.model.AdEntry;
-import org.bremersee.samba.ad.dc.model.AdEntry.AdEntryTypeComparator;
 import org.bremersee.samba.ad.dc.model.ModelConstants;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.model.comparator.AdEntryTypeComparator;
 import org.bremersee.samba.ad.dc.repository.OrganizationalUnitRepository;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
- * The type OrganizationalUnitServiceImpl.
+ * The organizational unit service implementation.
  *
  * @author Christian Bremer
  */
 @Service
-@Slf4j
+@Validated
 public class OrganizationalUnitServiceImpl implements OrganizationalUnitService, ErrorCode {
 
   private final ApplicationProperties properties;
@@ -130,7 +130,7 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
         .flatMap(repository::findOne)
         .or(() -> Optional.ofNullable(ou)
             .filter(dn -> DnTool.isSameDn(dn, properties.getBaseDn()))
-            .map(baseDn -> base));
+            .map(dn -> base));
   }
 
   @Override

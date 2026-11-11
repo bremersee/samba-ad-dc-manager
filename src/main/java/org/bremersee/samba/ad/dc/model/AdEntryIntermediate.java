@@ -2,9 +2,11 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -34,6 +36,11 @@ public interface AdEntryIntermediate extends AdEntry {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default AdEntryIntermediate withCreated(OffsetDateTime created) {
     return builder()
@@ -41,6 +48,11 @@ public interface AdEntryIntermediate extends AdEntry {
         .created(created)
         .build();
   }
+
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
 
   @Override
   default AdEntryIntermediate withModified(OffsetDateTime modified) {

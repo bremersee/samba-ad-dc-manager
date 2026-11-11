@@ -15,7 +15,7 @@ import java.util.UUID;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -57,6 +57,11 @@ public interface DnsEntry extends AdEntry {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default DnsEntry withCreated(OffsetDateTime created) {
     return builder()
@@ -64,6 +69,11 @@ public interface DnsEntry extends AdEntry {
         .created(created)
         .build();
   }
+
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
 
   @Override
   default DnsEntry withModified(OffsetDateTime modified) {

@@ -21,18 +21,18 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The interface DnsRepository.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DnsZoneRepository {
 
+  @NotNull
   List<String> getDnsZoneNames(@NotNull DnsZoneType type);
 
+  @NotNull
   DnsZone getDnsZone(@NotEmpty String zoneName);
 
   @NotNull

@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -47,6 +47,11 @@ public interface DnsZone extends AdEntry {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default DnsZone withCreated(OffsetDateTime created) {
     return builder()
@@ -54,6 +59,11 @@ public interface DnsZone extends AdEntry {
         .created(created)
         .build();
   }
+
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
 
   @Override
   default DnsZone withModified(OffsetDateTime modified) {

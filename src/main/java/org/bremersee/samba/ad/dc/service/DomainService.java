@@ -20,14 +20,12 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain service interface.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DomainService {
 
   /**

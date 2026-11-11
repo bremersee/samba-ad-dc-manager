@@ -25,23 +25,23 @@ import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 /**
- * The interface DnsRepository.
+ * The dns service.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DnsService {
 
   String REVERSE_ZONE_POSTFIX = ".in-addr.arpa";
 
+  @NotNull
   List<String> getDnsZoneNames(@Nullable DnsZoneType type);
 
+  @NotNull
   DnsZone getDnsZone(@NotEmpty String zoneName);
 
   @NotNull
@@ -68,6 +68,7 @@ public interface DnsService {
 
   void deleteDnsEntry(@NotNull DnsEntry entry);
 
+  @NotNull
   Page<DhcpLease> getDhcpLeases(@NotNull Pageable pageable, String query);
 
 }

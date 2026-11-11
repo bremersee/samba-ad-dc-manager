@@ -27,18 +27,16 @@ import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain group service interface.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DomainGroupService {
 
   /**

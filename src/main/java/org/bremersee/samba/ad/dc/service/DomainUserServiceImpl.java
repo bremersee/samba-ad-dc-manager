@@ -16,8 +16,6 @@
 
 package org.bremersee.samba.ad.dc.service;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.io.InputStream;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +32,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain user service.
  *
  * @author Christian Bremer
  */
-@Component("domainUserService")
+@Service("domainUserService")
+@Validated
 @Slf4j
 public class DomainUserServiceImpl implements DomainUserService {
 

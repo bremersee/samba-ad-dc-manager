@@ -25,8 +25,8 @@ import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.DomainGroupMember;
 import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
-import org.springframework.lang.Nullable;
 
 /**
  * The domain group member repository interface.

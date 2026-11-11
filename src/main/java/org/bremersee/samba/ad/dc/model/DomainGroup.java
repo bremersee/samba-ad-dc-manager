@@ -16,7 +16,7 @@ import java.util.Optional;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -56,6 +56,11 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default DomainGroup withCreated(OffsetDateTime created) {
     return builder()
@@ -63,6 +68,11 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
         .created(created)
         .build();
   }
+
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
 
   @Override
   default DomainGroup withModified(OffsetDateTime modified) {

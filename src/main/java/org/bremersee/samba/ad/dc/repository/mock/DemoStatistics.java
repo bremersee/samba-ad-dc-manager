@@ -17,8 +17,8 @@ public class DemoStatistics implements Serializable {
 
   private final OffsetDateTime startTime = OffsetDateTime.now(ZoneOffset.UTC);
 
-  private AtomicInteger loginCounter = new AtomicInteger();
+  private final AtomicInteger loginCounter = new AtomicInteger();
 
-  private AtomicInteger entriesCounter = new AtomicInteger();
+  private final AtomicInteger entriesCounter = new AtomicInteger();
 
 }

@@ -13,7 +13,7 @@ import java.util.Objects;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -53,6 +53,11 @@ public interface DomainComputer extends SamAccount {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default DomainComputer withCreated(OffsetDateTime created) {
     return builder()
@@ -61,6 +66,11 @@ public interface DomainComputer extends SamAccount {
         .build();
   }
 
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
   @Override
   default DomainComputer withModified(OffsetDateTime modified) {
     return builder()
@@ -68,6 +78,11 @@ public interface DomainComputer extends SamAccount {
         .modified(modified)
         .build();
   }
+
+  @Schema(description = "The SID of the sam account.")
+  @Nullable
+  @Override
+  Sid getSid();
 
   @Override
   default DomainComputer withSid(Sid sid) {

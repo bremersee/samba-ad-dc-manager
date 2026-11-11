@@ -22,16 +22,14 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.model.DomainGroup;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain group repository.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DomainGroupRepository {
 
   /**

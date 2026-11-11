@@ -17,12 +17,12 @@
 package org.bremersee.samba.ad.dc.service;
 
 import java.util.Map;
-import org.bremersee.samba.ad.dc.misc.PasswordGenerator;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.repository.DomainRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain service implementation.
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
  * @author Christian Bremer
  */
 @Service("domainService")
+@Validated
 public class DomainServiceImpl implements DomainService, TemplateEngineContextSupplier {
 
   private final DomainRepository domainRepository;

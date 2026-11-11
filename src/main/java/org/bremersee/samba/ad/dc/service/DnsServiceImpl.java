@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.comparator.ValueComparator;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 import org.bremersee.pagebuilder.PageBuilder;
@@ -47,6 +46,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The type DnsServiceImpl.
@@ -54,7 +54,7 @@ import org.springframework.stereotype.Service;
  * @author Christian Bremer
  */
 @Service
-@Slf4j
+@Validated
 public class DnsServiceImpl implements DnsService, ErrorCode {
 
   private static final Pattern IPV4_PATTERN = Pattern.compile(
@@ -251,7 +251,7 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
     }
     return getDnsZoneNames(DnsZoneType.PRIMARY).stream()
         .map(this::getDnsZone)
-        .filter(zone -> !zone.getReverseZone())
+        .filter(zone -> Boolean.FALSE.equals(zone.getReverseZone()))
         .flatMap(
             zone -> findDnsEntries(zone.getName(), DnsEntryRepository.ZONE_ENTRIES_NODE_NAME, type)
                 .filter(entry -> !entry.isConflict())

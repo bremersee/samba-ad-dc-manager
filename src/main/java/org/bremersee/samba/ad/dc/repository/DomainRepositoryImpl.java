@@ -28,14 +28,16 @@ import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.dn.Dn;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain repository implementation.
  *
  * @author Christian Bremer
  */
-@Component("domainRepository")
+@Repository("domainRepository")
+@Validated
 @Slf4j
 public class DomainRepositoryImpl extends AdRepository implements DomainRepository {
 

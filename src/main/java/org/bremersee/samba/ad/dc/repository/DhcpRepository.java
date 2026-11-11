@@ -16,16 +16,15 @@
 
 package org.bremersee.samba.ad.dc.repository;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The dhcp repository.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DhcpRepository {
 
   /**
@@ -33,6 +32,7 @@ public interface DhcpRepository {
    *
    * @return the dhcp leases
    */
+  @NotNull
   List<DhcpLease> findActive();
 
 }

@@ -5,7 +5,6 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.config.MockProperties;
 import org.bremersee.samba.ad.dc.misc.DnTool;
@@ -17,7 +16,6 @@ import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 
-@Slf4j
 class SambaStoreInit {
 
   private static final String ZONE_NAME = "samdom.example.org";

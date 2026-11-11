@@ -22,16 +22,14 @@ import java.io.InputStream;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The avatar repository.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface AvatarRepository {
 
   /**

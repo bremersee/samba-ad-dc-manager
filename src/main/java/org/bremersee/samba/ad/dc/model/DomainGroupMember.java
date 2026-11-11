@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -54,6 +54,11 @@ public interface DomainGroupMember extends SamAccount {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default DomainGroupMember withCreated(OffsetDateTime created) {
     return builder()
@@ -62,6 +67,11 @@ public interface DomainGroupMember extends SamAccount {
         .build();
   }
 
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
   @Override
   default DomainGroupMember withModified(OffsetDateTime modified) {
     return builder()
@@ -69,6 +79,11 @@ public interface DomainGroupMember extends SamAccount {
         .modified(modified)
         .build();
   }
+
+  @Schema(description = "The SID of the sam account.")
+  @Nullable
+  @Override
+  Sid getSid();
 
   @Override
   default DomainGroupMember withSid(Sid sid) {

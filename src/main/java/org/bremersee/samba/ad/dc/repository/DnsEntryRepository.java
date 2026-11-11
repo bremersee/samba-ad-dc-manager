@@ -20,20 +20,20 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The interface DnsRepository.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface DnsEntryRepository {
 
   String ZONE_ENTRIES_NODE_NAME = "@";
 
+  @NotNull
   List<DnsEntry> getDnsEntries(@NotEmpty String zoneName);
 
+  @NotNull
   DnsEntry addCommonAttributes(@NotNull DnsEntry entry);
 
   void addDnsEntry(@NotNull DnsEntry entry);

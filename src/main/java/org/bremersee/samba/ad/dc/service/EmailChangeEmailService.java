@@ -21,7 +21,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.AesEncValue;
@@ -47,7 +46,6 @@ import org.thymeleaf.context.Context;
  */
 @Service("emailChangeEmailService")
 @ConditionalOnProperty(name = "spring.mail.host")
-@Slf4j
 public class EmailChangeEmailService extends AbstractEmailService {
 
   private final CryptoService<EmailChange, AesEncValue> cryptoService;

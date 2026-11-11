@@ -19,15 +19,13 @@ package org.bremersee.samba.ad.dc.repository;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The avatar provider.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface AvatarProvider {
 
   /**
@@ -56,7 +54,7 @@ public interface AvatarProvider {
    * @param size the size
    * @return the avatar size
    */
-  default int getAvatarSize(Integer size) {
+  default int getAvatarSize(@Nullable Integer size) {
     return size == null || size < 1 || size > MAX_AVATAR_SIZE ? DEFAULT_AVATAR_SIZE : size;
   }
 

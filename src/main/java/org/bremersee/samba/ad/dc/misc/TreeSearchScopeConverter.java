@@ -19,9 +19,9 @@ package org.bremersee.samba.ad.dc.misc;
 import static java.util.Objects.isNull;
 
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.NonNull;
 import org.ldaptive.SearchScope;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**

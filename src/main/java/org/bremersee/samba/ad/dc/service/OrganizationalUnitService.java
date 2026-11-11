@@ -21,18 +21,16 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.bremersee.samba.ad.dc.model.AdEntry;
 import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The interface OrganizationalUnitService.
  *
  * @author Christian Bremer
  */
-@Validated
 public interface OrganizationalUnitService {
 
   Page<OrganizationalUnit> getOrganizationalUnits(Pageable pageable, String query);

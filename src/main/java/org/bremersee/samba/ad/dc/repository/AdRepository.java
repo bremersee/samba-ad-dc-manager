@@ -53,7 +53,7 @@ import org.springframework.util.Assert;
 @Slf4j
 public abstract class AdRepository implements ErrorCode {
 
-  private static final Dn[] IGNORED_DN = new Dn[]{
+  private static final Dn[] IGNORED_DN = {
       new Dn("CN=Builtin"),
       new Dn("CN=Configuration"),
       new Dn("CN=Infrastructure"),
