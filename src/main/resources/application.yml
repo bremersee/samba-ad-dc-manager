@@ -244,11 +244,12 @@ spring:
     port: 587
     #username: ""
     #password: ""
-    test-connection: true
-    properties:
-      mail.smtp.starttls.enable: true
+    #test-connection: true
     #ssl:
     #  enabled: false
+    #properties:
+    #  mail.smtp.starttls.enable: true
+
 bremersee:
   dc:
     email:
@@ -274,10 +275,6 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
-  #open-api:
-  #  servers:
-  #    - url: https://apps.eixe.bremersee.org/${spring.application.name}
-  #      description: Samba AD DC Manager API
 
 bremersee:
   web:
