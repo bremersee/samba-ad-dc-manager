@@ -82,11 +82,11 @@ bremersee:
         using-sudo: false
       ssh:
         using-ssh: false
-    domain:
-      forbidden-new-sam-account-names:
-        - "root"
-        - "admin"
-        - "guest"
+    #domain:
+    #  forbidden-new-sam-account-names:
+    #    - "root"
+    #    - "admin"
+    #    - "guest"
     user:
       user-able-to-change-email: true
       default-language: "de-DE"
@@ -116,10 +116,8 @@ bremersee:
       chain-separator: ";"
 
 spring:
-  application:
-    name: samba-ad-dc-manager
-  profiles:
-    default: mock
+  jmx:
+    enabled: true
   messages:
     use-code-as-default-message: true
     fallback-to-system-locale: false
@@ -129,15 +127,6 @@ spring:
   cloud:
     config:
       enabled: false
-      uri:
-      username:
-      password:
-      fail-fast: true
-      retry:
-        initial-interval: 3000
-        max-interval: 4000
-        max-attempts: 8
-        multiplier: 1.1
 
 management:
   endpoints:
@@ -157,6 +146,7 @@ management:
 
 server:
   port: 8080
+  forward-headers-strategy: native
 
 logging:
   level:
@@ -205,6 +195,7 @@ bremersee:
     #
     ssl-config:
       trust-certificates: "file:/var/lib/samba/private/tls/ca.pem,file:/var/lib/samba/private/tls/cert.pem"
+      hostname-verifier: allow_any
   dc:
     cli:
       sudo:
@@ -283,6 +274,24 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+  #open-api:
+  #  servers:
+  #    - url: https://apps.eixe.bremersee.org/${spring.application.name}
+  #      description: Samba AD DC Manager API
+
+bremersee:
+  web:
+    cors:
+      enabled: true
+      configurations:
+        - path: "/api/**"
+          configuration:
+            allowed-origins:
+              - "*"
+            allowed-headers:
+              - "*"
+            allowed-methods:
+              - "*"
 
 ---
 
@@ -300,6 +309,7 @@ spring:
           swagger-ui:
             authorization-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/auth
             token-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/token
+
 
 bremersee:
   authentication:

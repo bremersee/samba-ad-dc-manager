@@ -15,6 +15,18 @@
             <fileMode>600</fileMode>
         </file>
         <file>
+            <source>src/main/resources/bootstrap.yml</source>
+            <outputDirectory>var/lib/samba-ad-dc-manager</outputDirectory>
+            <filtered>false</filtered>
+            <fileMode>600</fileMode>
+        </file>
+        <file>
+            <source>src/assembly/debian/etc/samba-ad-dc-manager.conf</source>
+            <outputDirectory>etc</outputDirectory>
+            <filtered>false</filtered>
+            <fileMode>600</fileMode>
+        </file>
+        <file>
             <source>src/assembly/debian/samba-ad-dc-manager.conf</source>
             <outputDirectory>var/lib/samba-ad-dc-manager</outputDirectory>
             <filtered>false</filtered>

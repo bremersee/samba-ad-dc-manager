@@ -29,17 +29,25 @@ if [ $? -eq 1 ]; then
 fi
 
 /bin/systemctl enable $DEBIAN_NAME.service
-if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ] && [ -e /var/lib/$DEBIAN_NAME/application.yml.user ]; then
-  if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ]; then
-    cp /var/lib/$DEBIAN_NAME/$APP_NAME.conf /var/lib/$DEBIAN_NAME/$APP_NAME.conf.package
-    cp /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user /var/lib/$DEBIAN_NAME/$APP_NAME.conf
-    rm -f /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user
-  fi
-  if [ -e /var/lib/$DEBIAN_NAME/application.yml.user ]; then
-    cp /var/lib/$DEBIAN_NAME/application.yml /var/lib/$DEBIAN_NAME/application.yml.package
-    cp /var/lib/$DEBIAN_NAME/application.yml.user /var/lib/$DEBIAN_NAME/application.yml
-    rm -f /var/lib/$DEBIAN_NAME/application.yml.user
-  fi
+if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf ] && [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ]; then
+  cp /var/lib/$DEBIAN_NAME/$APP_NAME.conf /var/lib/$DEBIAN_NAME/$APP_NAME.conf.package
+  cp /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user /var/lib/$DEBIAN_NAME/$APP_NAME.conf
+  rm -f /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user
+fi
+if [ -e /var/lib/$DEBIAN_NAME/application.yml ] && [ -e /var/lib/$DEBIAN_NAME/application.yml.user ]; then
+  cp /var/lib/$DEBIAN_NAME/application.yml /var/lib/$DEBIAN_NAME/application.yml.package
+  cp /var/lib/$DEBIAN_NAME/application.yml.user /var/lib/$DEBIAN_NAME/application.yml
+  rm -f /var/lib/$DEBIAN_NAME/application.yml.user
+fi
+if [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml ] && [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml.user ]; then
+  cp /var/lib/$DEBIAN_NAME/bootstrap.yml /var/lib/$DEBIAN_NAME/bootstrap.yml.package
+  cp /var/lib/$DEBIAN_NAME/bootstrap.yml.user /var/lib/$DEBIAN_NAME/bootstrap.yml
+  rm -f /var/lib/$DEBIAN_NAME/bootstrap.yml.user
+fi
+if [ -e /etc/$APP_NAME.conf ] && [ -e /etc/$APP_NAME.conf.user ]; then
+  cp /etc/$APP_NAME.conf /etc/$APP_NAME.conf.package
+  cp /etc/$APP_NAME.conf.user /etc/$APP_NAME.conf
+  rm -f /etc/$APP_NAME.conf.user
 fi
 
 /bin/systemctl start $DEBIAN_NAME.service

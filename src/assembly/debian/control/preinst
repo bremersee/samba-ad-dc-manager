@@ -14,5 +14,11 @@ fi
 if [ -e /var/lib/$DEBIAN_NAME/application.yml ]; then
   cp /var/lib/$DEBIAN_NAME/application.yml /var/lib/$DEBIAN_NAME/application.yml.user
 fi
+if [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml ]; then
+  cp /var/lib/$DEBIAN_NAME/bootstrap.yml /var/lib/$DEBIAN_NAME/bootstrap.yml.user
+fi
+if [ -e /etc/$APP_NAME.conf ]; then
+  cp /etc/$APP_NAME.conf /etc/$APP_NAME.conf.user
+fi
 
 exit 0
