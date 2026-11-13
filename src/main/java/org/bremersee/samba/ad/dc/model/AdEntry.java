@@ -41,10 +41,10 @@ import org.ldaptive.dn.Dn;
  */
 @Schema(
     name = "AdEntry",
-    description = "Active directory base entry.",
+    description = "Active directory base entry."
 
-    discriminatorProperty = ModelConstants.DISCRIMINATOR,
-
+/*
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ENTRY,
@@ -73,9 +73,9 @@ import org.ldaptive.dn.Dn;
             schema = ImmutableDomainUser.class)
     }
 
-
-
+ */
 )
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
@@ -92,6 +92,8 @@ import org.ldaptive.dn.Dn;
         name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
 })
+
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {
 

@@ -23,8 +23,9 @@ import org.jspecify.annotations.Nullable;
 
 @Schema(
     name = "SamAccount",
-    description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
-    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+    description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'."
+    /*
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
@@ -39,9 +40,8 @@ import org.jspecify.annotations.Nullable;
             value = ModelConstants.USER,
             schema = ImmutableDomainUser.class)
     }
-
+*/
 )
-
 
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
