@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNullElse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -14,19 +15,17 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-@Schema(name = "DnsZone", description = "DNS zone.", implementation = DnsZone.class)
+@Schema(name = "DnsZone", description = "DNS zone.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*",
-    passAnnotations = {
-        Schema.class
-    })
+    withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
+@JsonTypeName(ModelConstants.DNS_ZONE)
 @JsonSerialize(as = ImmutableDnsZone.class)
 @JsonDeserialize(as = ImmutableDnsZone.class)
 public interface DnsZone extends AdEntry {

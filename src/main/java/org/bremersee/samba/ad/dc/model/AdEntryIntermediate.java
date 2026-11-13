@@ -41,9 +41,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
     withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = ImmutableAdEntryIntermediate.class, name = ModelConstants.AD_ENTRY),
-})
 @JsonSerialize(as = ImmutableAdEntryIntermediate.class)
 @JsonDeserialize(as = ImmutableAdEntryIntermediate.class)
 public interface AdEntryIntermediate extends AdEntry {

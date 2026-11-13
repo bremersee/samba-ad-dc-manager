@@ -3,6 +3,7 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -47,6 +48,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
     @JsonSubTypes.Type(value = DomainGroupMember.class, name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
 })
+@JsonTypeName(ModelConstants.SAM_ACCOUNT)
 @JsonSerialize(as = ImmutableSamAccountIntermediate.class)
 @JsonDeserialize(as = ImmutableSamAccountIntermediate.class)
 public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {

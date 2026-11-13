@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -93,6 +94,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 })
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeName(ModelConstants.AD_ENTRY)
 @JsonSerialize(as = ImmutableAdEntryIntermediate.class)
 @JsonDeserialize(as = ImmutableAdEntryIntermediate.class)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {

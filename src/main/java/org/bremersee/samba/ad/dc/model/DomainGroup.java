@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNullElseGet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -22,20 +23,17 @@ import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(
     name = "DomainGroup",
-    description = "The domain group.",
-    implementation = DomainGroup.class)
+    description = "The domain group.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*",
-    passAnnotations = {
-        Schema.class
-    })
+    withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
+@JsonTypeName(ModelConstants.GROUP)
 @JsonSerialize(as = ImmutableDomainGroup.class)
 @JsonDeserialize(as = ImmutableDomainGroup.class)
 public interface DomainGroup extends SamAccount, NisDomainMember {

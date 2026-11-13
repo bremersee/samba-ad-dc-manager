@@ -5,6 +5,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -22,19 +23,17 @@ import tools.jackson.databind.annotation.JsonSerialize;
 /**
  * The interface Domain user.
  */
-@Schema(name = "DomainUser", description = "The domain user.", implementation = DomainUser.class)
+@Schema(name = "DomainUser", description = "The domain user.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*",
-    passAnnotations = {
-        Schema.class
-    })
+    withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
+@JsonTypeName(ModelConstants.USER)
 @JsonSerialize(as = ImmutableDomainUser.class)
 @JsonDeserialize(as = ImmutableDomainUser.class)
 public interface DomainUser extends SamAccount, NisDomainMember {

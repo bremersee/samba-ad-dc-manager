@@ -2,8 +2,6 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -28,12 +26,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
     withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
-@JsonSubTypes({
-    @JsonSubTypes.Type(
-        value = ImmutableSamAccountIntermediate.class,
-        name = ModelConstants.SAM_ACCOUNT),
-})
 @JsonSerialize(as = ImmutableSamAccountIntermediate.class)
 @JsonDeserialize(as = ImmutableSamAccountIntermediate.class)
 public interface SamAccountIntermediate extends SamAccount {

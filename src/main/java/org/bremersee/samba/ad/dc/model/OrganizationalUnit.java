@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNullElse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -23,20 +24,17 @@ import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(
     name = "OrganizationalUnit",
-    description = "The organizational unit in an active directory.",
-    implementation = OrganizationalUnit.class)
+    description = "The organizational unit in an active directory.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*",
-    passAnnotations = {
-        Schema.class
-    })
+    withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
+@JsonTypeName(ModelConstants.ORGANIZATIONAL_UNIT)
 @JsonSerialize(as = ImmutableOrganizationalUnit.class)
 @JsonDeserialize(as = ImmutableOrganizationalUnit.class)
 public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<OrganizationalUnit> {
