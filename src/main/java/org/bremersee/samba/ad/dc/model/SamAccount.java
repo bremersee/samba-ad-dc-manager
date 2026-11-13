@@ -21,11 +21,9 @@ import tools.jackson.databind.annotation.JsonSerialize;
  *
  * @author Christian Bremer
  */
-//@Schema(implementation = SamAccountIntermediate.class)
-
 @Schema(
     name = "SamAccount",
-    description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
+    description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
     discriminatorProperty = ModelConstants.DISCRIMINATOR,
     discriminatorMapping = {
         @DiscriminatorMapping(
@@ -42,13 +40,11 @@ import tools.jackson.databind.annotation.JsonSerialize;
             schema = DomainUser.class)
     }
 )
-
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
     @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
     @JsonSubTypes.Type(value = DomainGroup.class, name = ModelConstants.GROUP),
-    @JsonSubTypes.Type(
-        value = DomainGroupMember.class,
-        name = ModelConstants.GROUP_MEMBER),
+    @JsonSubTypes.Type(value = DomainGroupMember.class, name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
 })
 @JsonSerialize(as = ImmutableSamAccountIntermediate.class)

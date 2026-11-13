@@ -18,8 +18,8 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
@@ -33,57 +33,19 @@ import tools.jackson.databind.annotation.JsonSerialize;
  *
  * @author Christian Bremer
  */
-/*
-@Schema(
-    name = "AdEntry",
-    description = "Active directory base entry.",
-    //implementation = AdEntry.class,
-    discriminatorProperty = ModelConstants.DISCRIMINATOR
-
-    ,
-    discriminatorMapping = {
-        @DiscriminatorMapping(
-            value = ModelConstants.DNS_ENTRY,
-            schema = DnsEntry.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.DNS_ZONE,
-            schema = DnsZone.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.ORGANIZATIONAL_UNIT,
-            schema = OrganizationalUnit.class),
-
-        @DiscriminatorMapping(
-            value = ModelConstants.SAM_ACCOUNT,
-            schema = SamAccount.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.COMPUTER,
-            schema = DomainComputer.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.GROUP,
-            schema = DomainGroup.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.GROUP_MEMBER,
-            schema = DomainGroupMember.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.USER,
-            schema = DomainUser.class)
-    }
-
-)
-
- */
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*",
-passAnnotations = {
-        Schema.class
-})
+    withUnaryOperator = "with*")
 @Value.Immutable
 @Serial.Version(1L)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = ImmutableAdEntryIntermediate.class, name = ModelConstants.AD_ENTRY),
+})
 @JsonSerialize(as = ImmutableAdEntryIntermediate.class)
 @JsonDeserialize(as = ImmutableAdEntryIntermediate.class)
 public interface AdEntryIntermediate extends AdEntry {

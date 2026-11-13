@@ -75,6 +75,8 @@ import tools.jackson.databind.annotation.JsonSerialize;
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = AdEntry.class, name = ModelConstants.AD_ENTRY),
+
     @JsonSubTypes.Type(value = DnsEntry.class, name = ModelConstants.DNS_ENTRY),
     @JsonSubTypes.Type(value = DnsZone.class, name = ModelConstants.DNS_ZONE),
     @JsonSubTypes.Type(
@@ -89,7 +91,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
         name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
 })
-
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize(as = ImmutableAdEntryIntermediate.class)
