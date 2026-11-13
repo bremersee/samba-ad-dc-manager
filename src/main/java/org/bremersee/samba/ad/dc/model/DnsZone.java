@@ -23,7 +23,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
     get = {"get*", "is*"},
     withUnaryOperator = "with*",
     passAnnotations = {
-        Schema.class
+        //Schema.class
     })
 @Value.Immutable
 @Serial.Version(1L)
