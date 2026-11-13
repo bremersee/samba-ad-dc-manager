@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
@@ -45,48 +46,39 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @Schema(
     name = "AdEntry",
     description = "Active directory base entry.",
-    subTypes = {
-        DnsEntry.class,
-        DnsZone.class,
-        OrganizationalUnit.class,
-        SamAccount.class,
-        DomainComputer.class,
-        DomainGroup.class,
-        DomainUser.class
-    },
-    discriminatorProperty = ModelConstants.DISCRIMINATOR
-    /*
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+
     discriminatorMapping = {
         @DiscriminatorMapping(
-            value = ModelConstants.DNS_ENTRY,
+            //value = ModelConstants.DNS_ENTRY,
             schema = DnsEntry.class),
         @DiscriminatorMapping(
-            value = ModelConstants.DNS_ZONE,
+            //value = ModelConstants.DNS_ZONE,
             schema = DnsZone.class),
         @DiscriminatorMapping(
-            value = ModelConstants.ORGANIZATIONAL_UNIT,
+            //value = ModelConstants.ORGANIZATIONAL_UNIT,
             schema = OrganizationalUnit.class),
 
         @DiscriminatorMapping(
-            value = ModelConstants.SAM_ACCOUNT,
+            //value = ModelConstants.SAM_ACCOUNT,
             schema = SamAccount.class),
         @DiscriminatorMapping(
-            value = ModelConstants.COMPUTER,
+            //value = ModelConstants.COMPUTER,
             schema = DomainComputer.class),
         @DiscriminatorMapping(
-            value = ModelConstants.GROUP,
+            //value = ModelConstants.GROUP,
             schema = DomainGroup.class),
         @DiscriminatorMapping(
-            value = ModelConstants.GROUP_MEMBER,
+            //value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
-            value = ModelConstants.USER,
+            //value = ModelConstants.USER,
             schema = DomainUser.class)
     }
-    */
+
 )
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
+    use = Id.SIMPLE_NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = ModelConstants.DISCRIMINATOR)
 @JsonSubTypes({
