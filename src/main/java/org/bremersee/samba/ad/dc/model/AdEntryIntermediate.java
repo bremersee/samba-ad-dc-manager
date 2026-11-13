@@ -33,6 +33,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
  *
  * @author Christian Bremer
  */
+/*
 @Schema(
     name = "AdEntry",
     description = "Active directory base entry.",
@@ -69,6 +70,8 @@ import tools.jackson.databind.annotation.JsonSerialize;
     }
 
 )
+
+ */
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,

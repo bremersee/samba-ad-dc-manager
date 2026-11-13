@@ -18,6 +18,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
  *
  * @author Christian Bremer
  */
+/*
 @Schema(
     name = "SamAccount",
     description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
@@ -40,6 +41,8 @@ import tools.jackson.databind.annotation.JsonSerialize;
     }
 
 )
+
+ */
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
