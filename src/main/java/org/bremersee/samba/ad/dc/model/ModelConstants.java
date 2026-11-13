@@ -2,7 +2,7 @@ package org.bremersee.samba.ad.dc.model;
 
 public class ModelConstants {
 
-  public static final String DISCRIMINATOR = "_type";
+  public static final String DISCRIMINATOR = "_json_type";
 
   public static final String AD_ENTRY = "ad-entry";
 
@@ -19,8 +19,6 @@ public class ModelConstants {
   public static final String USER = "user";
 
   public static final String ORGANIZATIONAL_UNIT = "organizational-unit";
-
-
 
   public static final String SAM_ACCOUNT = "sam-account";
 
