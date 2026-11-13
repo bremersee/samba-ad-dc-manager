@@ -23,14 +23,18 @@ import java.util.Enumeration;
 import java.util.Optional;
 import lombok.Getter;
 import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.samba.ad.dc.misc.FeaturesAware;
 import org.bremersee.samba.ad.dc.misc.SortMapperAware;
+import org.bremersee.samba.ad.dc.model.Features;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * The type Abstract controller.
+ * The abstract controller.
+ *
+ * @author Christian Bremer
  */
-public abstract class AbstractController implements SortMapperAware {
+public abstract class AbstractController implements SortMapperAware, FeaturesAware {
 
   /**
    * The constant PAGE.
@@ -172,13 +176,24 @@ public abstract class AbstractController implements SortMapperAware {
       + ";" + DNS_ENTRY_VALUE;
 
   @Getter
+  private Features features;
+
+  @Getter
   private SortMapper sortMapper;
 
   /**
    * Instantiates a new abstract controller.
    */
   protected AbstractController() {
+    this.features = Features.builder().build();
     this.sortMapper = SortMapper.defaultSortMapper();
+  }
+
+  @Override
+  public void setFeatures(Features features) {
+    if (!isEmpty(features)) {
+      this.features = features;
+    }
   }
 
   @Override

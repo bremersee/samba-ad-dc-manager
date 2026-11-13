@@ -68,7 +68,7 @@ public abstract class AbstractEmailService {
     }
     Pattern emailPattern = getProperties().getEmail().getEmailRegexFlags()
         .compile(getProperties().getEmail().getEmailRegex());
-    if (emailPattern.matcher("sender").matches()) {
+    if (!emailPattern.matcher(sender).matches()) {
       throw new IllegalStateException("Email sender is not a valid email address.");
     }
   }
