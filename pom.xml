@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.bremersee</groupId>
     <artifactId>common-service-parent</artifactId>
-    <version>6.1.6</version>
+    <version>6.1.7-SNAPSHOT</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -39,6 +39,7 @@
 
     <dockerfile.image>samba-ad-dc-manager</dockerfile.image>
 
+    <openapi-generator.version>7.27.0</openapi-generator.version>
     <openapi.jvmArguments>
       -Dspring.application.admin.enabled=true -Dspring.profiles.active=mock,api
     </openapi.jvmArguments>
