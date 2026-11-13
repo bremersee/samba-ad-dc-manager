@@ -2,6 +2,7 @@ package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -17,7 +18,15 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Christian Bremer
  */
-@Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
+//@Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
+    @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
+    @JsonSubTypes.Type(
+        value = ImmutableDomainGroupMember.class,
+        name = ModelConstants.GROUP_MEMBER),
+    @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
+})
 public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {
 
   @Hidden

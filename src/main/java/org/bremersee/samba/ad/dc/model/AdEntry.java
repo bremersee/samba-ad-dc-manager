@@ -43,15 +43,17 @@ import org.ldaptive.dn.Dn;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
     @JsonSubTypes.Type(value = ImmutableDnsZone.class, name = ModelConstants.DNS_ZONE),
+    @JsonSubTypes.Type(
+        value = ImmutableOrganizationalUnit.class,
+        name = ModelConstants.ORGANIZATIONAL_UNIT),
+
+    @JsonSubTypes.Type(value = ImmutableSamAccountIntermediate.class, name = ModelConstants.SAM_ACCOUNT),
     @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
     @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
     @JsonSubTypes.Type(
         value = ImmutableDomainGroupMember.class,
         name = ModelConstants.GROUP_MEMBER),
-    @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER),
-    @JsonSubTypes.Type(
-        value = ImmutableOrganizationalUnit.class,
-        name = ModelConstants.ORGANIZATIONAL_UNIT)
+    @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {

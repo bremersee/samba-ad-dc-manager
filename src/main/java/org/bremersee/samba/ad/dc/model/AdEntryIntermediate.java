@@ -46,6 +46,13 @@ import tools.jackson.databind.annotation.JsonSerialize;
             value = ModelConstants.DNS_ZONE,
             schema = DnsZone.class),
         @DiscriminatorMapping(
+            value = ModelConstants.ORGANIZATIONAL_UNIT,
+            schema = OrganizationalUnit.class),
+
+        @DiscriminatorMapping(
+            value = ModelConstants.SAM_ACCOUNT,
+            schema = SamAccountIntermediate.class),
+        @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
             schema = DomainComputer.class),
         @DiscriminatorMapping(
@@ -57,9 +64,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
         @DiscriminatorMapping(
             value = ModelConstants.USER,
             schema = DomainUser.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.ORGANIZATIONAL_UNIT,
-            schema = OrganizationalUnit.class)
     }
 
 )
