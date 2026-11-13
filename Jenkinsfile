@@ -10,6 +10,7 @@ pipeline {
     SITE = false
     BUILD_API = false
     DEPLOY_TO_DEBIAN_REPO = false
+    COPY_TO_DC1 = true
     APT_INSTALL_ON_DC1 = false
     APT_INSTALL_ON_DC2 = false
     CLEAN = true
@@ -114,6 +115,23 @@ pipeline {
       steps {
         sh '''
           mvn -B -DskipTests=true -P build-system,debian,deploy-to-debian-repo clean deploy
+        '''
+      }
+    }
+    stage('Copy to DC1') {
+      when {
+        allOf {
+          environment name: 'COPY_TO_DC1', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'bugfix/*'
+          }
+        }
+      }
+      steps {
+        sh '''
+          mvn -B -DskipTests=true -P build-system,debian,copy-to-and-install-on-dc1 clean deploy
         '''
       }
     }

@@ -532,6 +532,7 @@
                   <toFile>samba-ad-dc-manager.deb</toFile>
                 </configuration>
               </execution>
+              <!-- do not start
               <execution>
                 <id>dpkg-on-dc1</id>
                 <phase>deploy</phase>
@@ -540,7 +541,7 @@
                 </goals>
                 <configuration>
                   <serverId>bremersee-dpkg</serverId>
-                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <url>scp://dc1.eixe.bremersee.org/home/giacomo</url>
                   <commands>
                     <command>sudo -n /usr/bin/dpkg -i /srv/incoming/samba-ad-dc-manager.deb</command>
                     <command>rm /srv/incoming/samba-ad-dc-manager.deb</command>
@@ -549,6 +550,7 @@
                   <failOnError>true</failOnError>
                 </configuration>
               </execution>
+              -->
             </executions>
           </plugin>
         </plugins>
@@ -587,7 +589,7 @@
                 </goals>
                 <configuration>
                   <serverId>bremersee-dpkg</serverId>
-                  <url>scp://dc3.eixe.bremersee.org/home/giacomo</url>
+                  <url>scp://dc2.eixe.bremersee.org/home/giacomo</url>
                   <commands>
                     <command>sudo -n /usr/bin/dpkg -i /srv/incoming/samba-ad-dc-manager.deb</command>
                     <command>rm /srv/incoming/samba-ad-dc-manager.deb</command>
