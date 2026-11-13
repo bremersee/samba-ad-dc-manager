@@ -36,6 +36,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @Schema(
     name = "AdEntry",
     description = "Active directory base entry.",
+    //implementation = AdEntry.class,
     discriminatorProperty = ModelConstants.DISCRIMINATOR
 
     ,

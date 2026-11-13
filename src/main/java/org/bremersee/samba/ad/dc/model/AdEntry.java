@@ -40,11 +40,12 @@ import org.ldaptive.dn.Dn;
  * @author Christian Bremer
  */
 @Schema(
-    name = "AdEntry",
-    description = "Active directory base entry.",
-    discriminatorProperty = ModelConstants.DISCRIMINATOR
+//    name = "AdEntry",
+//    description = "Active directory base entry.",
+    implementation = AdEntryIntermediate.class
+    /*
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
 
-    ,
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ENTRY,
@@ -72,6 +73,8 @@ import org.ldaptive.dn.Dn;
             value = ModelConstants.USER,
             schema = DomainUser.class)
     }
+
+     */
 
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)

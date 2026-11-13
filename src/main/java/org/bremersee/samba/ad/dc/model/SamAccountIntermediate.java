@@ -21,9 +21,9 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @Schema(
     name = "SamAccount",
     description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
-    discriminatorProperty = ModelConstants.DISCRIMINATOR
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+    //implementation = SamAccount.class
 
-    ,
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,

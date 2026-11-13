@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Christian Bremer
  */
+@Schema(implementation = SamAccountIntermediate.class)
+/*
 @Schema(
     name = "SamAccount",
     description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
@@ -41,6 +43,8 @@ import org.jspecify.annotations.Nullable;
     }
 
 )
+
+ */
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
     @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
