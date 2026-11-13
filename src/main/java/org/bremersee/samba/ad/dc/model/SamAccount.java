@@ -28,16 +28,16 @@ import org.jspecify.annotations.Nullable;
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
-            schema = DomainComputer.class),
+            schema = ImmutableDomainComputer.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP,
-            schema = DomainGroup.class),
+            schema = ImmutableDomainGroup.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
             value = ModelConstants.USER,
-            schema = DomainUser.class)
+            schema = ImmutableDomainUser.class)
     }
 
 )

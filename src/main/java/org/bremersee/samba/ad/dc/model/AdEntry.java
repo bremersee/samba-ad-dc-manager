@@ -48,29 +48,29 @@ import org.ldaptive.dn.Dn;
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ENTRY,
-            schema = DnsEntry.class),
+            schema = ImmutableDnsEntry.class),
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ZONE,
-            schema = DnsZone.class),
+            schema = ImmutableDnsZone.class),
         @DiscriminatorMapping(
             value = ModelConstants.ORGANIZATIONAL_UNIT,
-            schema = OrganizationalUnit.class),
+            schema = ImmutableOrganizationalUnit.class),
 
         @DiscriminatorMapping(
             value = ModelConstants.SAM_ACCOUNT,
             schema = SamAccount.class),
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
-            schema = DomainComputer.class),
+            schema = ImmutableDomainComputer.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP,
-            schema = DomainGroup.class),
+            schema = ImmutableDomainGroup.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
             value = ModelConstants.USER,
-            schema = DomainUser.class)
+            schema = ImmutableDomainUser.class)
     }
 
 
