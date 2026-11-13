@@ -58,7 +58,7 @@ import org.ldaptive.dn.Dn;
 
         @DiscriminatorMapping(
             value = ModelConstants.SAM_ACCOUNT,
-            schema = SamAccountIntermediate.class),
+            schema = SamAccount.class),
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
             schema = DomainComputer.class),
@@ -70,7 +70,7 @@ import org.ldaptive.dn.Dn;
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
             value = ModelConstants.USER,
-            schema = DomainUser.class),
+            schema = DomainUser.class)
     }
 
 )

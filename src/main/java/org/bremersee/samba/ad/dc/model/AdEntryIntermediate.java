@@ -52,7 +52,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 
         @DiscriminatorMapping(
             value = ModelConstants.SAM_ACCOUNT,
-            schema = SamAccountIntermediate.class),
+            schema = SamAccount.class),
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
             schema = DomainComputer.class),
@@ -64,7 +64,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
             value = ModelConstants.USER,
-            schema = DomainUser.class),
+            schema = DomainUser.class)
     }
 
 )
