@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -30,16 +31,11 @@ import tools.jackson.databind.annotation.JsonSerialize;
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*",
-    passAnnotations = {
-        Schema.class
-    })
+    withUnaryOperator = "with*")
 @Value.Immutable
 @Value.Modifiable
 @Serial.Version(1L)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
-})
+@JsonTypeName(ModelConstants.DNS_ENTRY)
 @JsonSerialize(as = ImmutableDnsEntry.class)
 @JsonDeserialize(as = ImmutableDnsEntry.class)
 public interface DnsEntry extends AdEntry {
