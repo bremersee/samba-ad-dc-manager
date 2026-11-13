@@ -21,7 +21,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
- * The interface Domain user.
+ * The domain user.
  */
 @Schema(name = "DomainUser", description = "The domain user.")
 @Value.Style(
