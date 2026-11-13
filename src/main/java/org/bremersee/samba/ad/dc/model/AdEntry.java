@@ -45,7 +45,17 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @Schema(
     name = "AdEntry",
     description = "Active directory base entry.",
-    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+    subTypes = {
+        DnsEntry.class,
+        DnsZone.class,
+        OrganizationalUnit.class,
+        SamAccount.class,
+        DomainComputer.class,
+        DomainGroup.class,
+        DomainUser.class
+    },
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
+    /*
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ENTRY,
@@ -73,6 +83,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
             value = ModelConstants.USER,
             schema = DomainUser.class)
     }
+    */
 )
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
