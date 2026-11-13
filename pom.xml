@@ -39,7 +39,6 @@
 
     <dockerfile.image>samba-ad-dc-manager</dockerfile.image>
 
-    <openapi-generator.version>7.27.0</openapi-generator.version>
     <openapi.jvmArguments>
       -Dspring.application.admin.enabled=true -Dspring.profiles.active=mock,api
     </openapi.jvmArguments>

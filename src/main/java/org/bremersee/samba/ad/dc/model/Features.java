@@ -36,7 +36,10 @@ import tools.jackson.databind.annotation.JsonSerialize;
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+    passAnnotations = {
+        Schema.class
+    })
 @Value.Immutable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableFeatures.class)

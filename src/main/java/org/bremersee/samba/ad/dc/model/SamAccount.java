@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
@@ -18,7 +19,28 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Christian Bremer
  */
-//@Schema(description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.")
+@Schema(
+    name = "SamAccount",
+    description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
+
+    ,
+    discriminatorMapping = {
+        @DiscriminatorMapping(
+            value = ModelConstants.COMPUTER,
+            schema = DomainComputer.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP,
+            schema = DomainGroup.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP_MEMBER,
+            schema = DomainGroupMember.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.USER,
+            schema = DomainUser.class)
+    }
+
+)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
     @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),

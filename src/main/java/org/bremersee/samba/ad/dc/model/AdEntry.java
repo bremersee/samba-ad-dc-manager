@@ -39,6 +39,41 @@ import org.ldaptive.dn.Dn;
  *
  * @author Christian Bremer
  */
+@Schema(
+    name = "AdEntry",
+    description = "Active directory base entry.",
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
+
+    ,
+    discriminatorMapping = {
+        @DiscriminatorMapping(
+            value = ModelConstants.DNS_ENTRY,
+            schema = DnsEntry.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.DNS_ZONE,
+            schema = DnsZone.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.ORGANIZATIONAL_UNIT,
+            schema = OrganizationalUnit.class),
+
+        @DiscriminatorMapping(
+            value = ModelConstants.SAM_ACCOUNT,
+            schema = SamAccountIntermediate.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.COMPUTER,
+            schema = DomainComputer.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP,
+            schema = DomainGroup.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP_MEMBER,
+            schema = DomainGroupMember.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.USER,
+            schema = DomainUser.class),
+    }
+
+)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
