@@ -5,13 +5,14 @@ spring:
     active: ${ACTIVE_PROFILES:mock,api}
   cloud:
     config:
-      enabled: ${CONFIG_CLIENT_ENABLED:false}
-      uri: ${CONFIG_URI:https://configserver.example.org}
-      username: ${CONFIG_USER:user}
-      password: ${CONFIG_PASSWORD:changeit}
-      fail-fast: ${CONFIG_CLIENT_FAIL_FAST:true}
+      enabled: false
+      uri: https://configserver.example.org
+      #label: develop
+      #username: user
+      #password: changeit
+      fail-fast: true
       retry:
-        initial-interval: ${CONFIG_RETRY_INIT_INTERVAL:3000}
-        max-interval: ${CONFIG_RETRY_MAX_INTERVAL:4000}
-        max-attempts: ${CONFIG_RETRY_MAX_ATTEMPTS:32}
-        multiplier: ${CONFIG_RETRY_MULTIPLIER:1.1}
+        initial-interval: 3000
+        max-interval: 6000
+        max-attempts: 32
+        multiplier: 1.1

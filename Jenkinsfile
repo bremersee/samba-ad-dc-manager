@@ -4,8 +4,11 @@ pipeline {
   }
   environment {
     CODECOV_TOKEN = credentials('samba-ad-dc-manager-codecov-token')
+    BRANCH_NAME = "${GIT_BRANCH.split("/").size() > 1 ? GIT_BRANCH.split("/")[1] : GIT_BRANCH}"
+    API_NAME = 'samba-ad-dc-manager-api'
     TEST = true
     SITE = false
+    BUILD_API = false
     DEPLOY_TO_DEBIAN_REPO = false
     APT_INSTALL_ON_DC1 = false
     APT_INSTALL_ON_DC2 = false
@@ -40,6 +43,32 @@ pipeline {
               sourceCodeRetention: 'LAST_BUILD'
           )
         }
+      }
+    }
+    stage('Build API') {
+      when {
+        allOf {
+          environment name: 'BUILD_API', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+          }
+        }
+      }
+      steps {
+        sh '''
+          git clone -b $BRANCH_NAME git@github.com:bremersee/$API_NAME.git target/$API_NAME
+          mvn -B -P build-system,openapi verify
+          cp -rf target/openapi.yaml target/$API_NAME/src/main/resources/openapi
+          PARENT_VERSION=$(mvn help:evaluate -Dexpression=project.parent.version -q -DforceStdout)
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          mvn -f target/$API_NAME/pom.xml versions:update-parent -DparentVersion=\$PARENT_VERSION
+          mvn -f target/$API_NAME/pom.xml versions:set -DnewVersion=\$PROJECT_VERSION
+          git -C target/$API_NAME add .
+          git -C target/$API_NAME commit --allow-empty -m "Updates api"
+          git -C target/$API_NAME push
+          rm -rf target/$API_NAME
+        '''
       }
     }
     stage('Site') {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
@@ -48,7 +47,6 @@ import org.springframework.util.Assert;
  * @author Christian Bremer
  */
 @Component
-@Slf4j
 public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUser> implements
     AdEntryLdapMapperDelegate<DomainUser> {
 
@@ -63,8 +61,7 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
   private final SamAccountLdapMapper samAccountLdapMapper;
 
   /**
-   * --- GETTER ---
-   * Gets the unmodifiable set of mapped attributes.
+   * --- GETTER --- Gets the unmodifiable set of mapped attributes.
    *
    * @return the unmodifiable set of mapped attributes
    */

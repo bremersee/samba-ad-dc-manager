@@ -30,10 +30,18 @@ public class  AdEntryPage extends JsonPageDto<AdEntry> {
   @Serial
   private static final long serialVersionUID = 1;
 
+  /**
+   * Instantiates a new ad entry page.
+   */
   public AdEntryPage() {
     super();
   }
 
+  /**
+   * Instantiates a new Ad entry page.
+   *
+   * @param page the page
+   */
   public AdEntryPage(Page<? extends AdEntry> page) {
     super(page);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveAttribute;
 import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
 import org.bremersee.samba.ad.dc.misc.DnTool;
@@ -46,7 +45,6 @@ import org.springframework.util.Assert;
  * @author Christian Bremer
  */
 @Component
-@Slf4j
 public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGroup>
     implements AdEntryLdapMapperDelegate<DomainGroup> {
 
@@ -55,8 +53,7 @@ public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper<DomainGr
   private final Supplier<Boolean> rfc2307EnabledSupplier;
 
   /**
-   * --- GETTER ---
-   * Gets the unmodifiable set of mapped attributes.
+   * --- GETTER --- Gets the unmodifiable set of mapped attributes.
    *
    * @return the unmodifiable set of mapped attributes
    */

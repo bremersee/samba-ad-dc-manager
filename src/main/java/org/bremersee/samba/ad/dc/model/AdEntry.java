@@ -75,6 +75,11 @@ import org.ldaptive.dn.Dn;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {
 
+  /**
+   * Gets ad entry type.
+   *
+   * @return the ad entry type
+   */
   @Hidden
   @JsonIgnore
   @Value.Lazy

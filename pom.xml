@@ -19,6 +19,8 @@
   <description>Management application for Samba AD DC</description>
   <url>https://github.com/bremersee/samba-ad-dc-manager</url>
 
+  <inceptionYear>2025</inceptionYear>
+
   <properties>
     <github.repo>samba-ad-dc-manager</github.repo>
     <gh-pages-staging-dir>${project.build.directory}/staging</gh-pages-staging-dir>
@@ -155,7 +157,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -269,8 +271,33 @@
     </dependency>
 
     <dependency>
+      <groupId>org.bremersee</groupId>
+      <artifactId>spring-integration-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
+      <artifactId>spring-boot-starter-actuator-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security-oauth2-resource-server-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -281,11 +308,6 @@
     <dependency>
       <groupId>com.unboundid</groupId>
       <artifactId>unboundid-ldapsdk</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
