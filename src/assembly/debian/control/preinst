@@ -8,6 +8,12 @@ if [ -e /etc/systemd/system/multi-user.target.wants/$DEBIAN_NAME.service ]; then
   /bin/systemctl disable $DEBIAN_NAME.service
 fi
 
+if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf ]; then
+  rm /var/lib/$DEBIAN_NAME/$APP_NAME.conf
+fi
+if [ -e /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user ]; then
+  rm /var/lib/$DEBIAN_NAME/$APP_NAME.conf.user
+fi
 if [ -e /var/lib/$DEBIAN_NAME/application.yml ]; then
   cp /var/lib/$DEBIAN_NAME/application.yml /var/lib/$DEBIAN_NAME/application.yml.user
 fi

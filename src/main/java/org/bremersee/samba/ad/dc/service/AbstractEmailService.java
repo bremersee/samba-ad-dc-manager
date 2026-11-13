@@ -5,6 +5,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
@@ -12,7 +13,9 @@ import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.spring.security.core.NormalizedPrincipal;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.MessageSource;
+import org.springframework.context.event.EventListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +55,22 @@ public abstract class AbstractEmailService {
     this.templateEngine = templateEngine;
     this.contextSuppliers = contextSuppliers;
     this.javaMailSender = javaMailSender;
+  }
+
+  /**
+   * Init.
+   */
+  @EventListener(ApplicationReadyEvent.class)
+  public void init() {
+    String sender = getProperties().getEmail().getSender();
+    if (isEmpty(sender)) {
+      throw new IllegalStateException("Email sender is not configured.");
+    }
+    Pattern emailPattern = getProperties().getEmail().getEmailRegexFlags()
+        .compile(getProperties().getEmail().getEmailRegex());
+    if (emailPattern.matcher("sender").matches()) {
+      throw new IllegalStateException("Email sender is not a valid email address.");
+    }
   }
 
   /**

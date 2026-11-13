@@ -21,7 +21,13 @@
             <fileMode>600</fileMode>
         </file>
         <file>
-            <source>src/assembly/debian/etc/samba-ad-dc-manager.conf</source>
+            <source>src/assembly/debian/samba-ad-dc-manager-info.txt</source>
+            <outputDirectory>etc</outputDirectory>
+            <filtered>false</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>src/assembly/debian/samba-ad-dc-manager.conf</source>
             <outputDirectory>etc</outputDirectory>
             <filtered>false</filtered>
             <fileMode>600</fileMode>

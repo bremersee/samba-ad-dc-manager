@@ -307,6 +307,18 @@ public interface DomainUser extends SamAccount, NisDomainMember {
   Integer getLogonCount();
 
   /**
+   * Determines whether the user has logged on at least once.
+   *
+   * @return the boolean
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default boolean isLogonDone() {
+    return getLogonCount() != null && getLogonCount() > 0;
+  }
+
+  /**
    * User's mobile phone number.
    *
    * @return the mobile

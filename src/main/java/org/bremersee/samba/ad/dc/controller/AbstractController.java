@@ -175,7 +175,7 @@ public abstract class AbstractController implements SortMapperAware {
   private SortMapper sortMapper;
 
   /**
-   * Instantiates a new Abstract controller.
+   * Instantiates a new abstract controller.
    */
   protected AbstractController() {
     this.sortMapper = SortMapper.defaultSortMapper();

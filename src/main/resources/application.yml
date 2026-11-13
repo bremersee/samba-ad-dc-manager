@@ -235,7 +235,7 @@ spring:
       on-profile: mail
   mail:
     #
-    # Set your smtp server.
+    # Set up your SMTP server.
     #
     host: smtp.mail.me.com
     port: 587
@@ -244,8 +244,11 @@ spring:
     #test-connection: true
     #ssl:
     #  enabled: false
-    #properties:
-    #  mail.smtp.starttls.enable: true
+    #
+    # If your SMTP server uses STARTTLS, set the property mail.smtp.starttls.enable to true:
+    properties:
+      mail.smtp.starttls.enable: ${SPRING_MAIL_STARTTLS_ENABLED:false}
+      # For more information see https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
 
 bremersee:
   dc:

@@ -66,7 +66,7 @@ public abstract class SamAccountRepository extends AdRepository {
     this.newSamAccountNamePattern = Pattern
         .compile(getProperties().getDomain().getNewSamAccountNameRegex());
     this.emailPattern = getProperties().getEmail().getEmailRegexFlags()
-        .compile(properties.getEmail().getEmailRegex());
+        .compile(getProperties().getEmail().getEmailRegex());
   }
 
   protected abstract Dn getDefaultOu();

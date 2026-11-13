@@ -35,7 +35,7 @@ public class EmailProperties implements Serializable {
 
   private String sender = "";
 
-  private String baseUri = "http://localhost:8080";
+  private String baseUri = "";
 
   public RegexFlags getEmailRegexFlags() {
     if (Objects.equals(getEmailRegex(), EMAIL_REGEX) && !emailRegexFlags.isCaseInsensitive()) {

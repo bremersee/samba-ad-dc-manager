@@ -10,7 +10,7 @@ pipeline {
     SITE = false
     BUILD_API = false
     DEPLOY_TO_DEBIAN_REPO = false
-    COPY_TO_DC1 = true
+    COPY_TO_DC1 = false
     APT_INSTALL_ON_DC1 = false
     APT_INSTALL_ON_DC2 = false
     CLEAN = true
