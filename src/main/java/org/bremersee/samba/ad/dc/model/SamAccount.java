@@ -13,6 +13,8 @@ import java.util.Objects;
 import org.immutables.value.Value;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.
@@ -23,34 +25,34 @@ import org.jspecify.annotations.Nullable;
 
 @Schema(
     name = "SamAccount",
-    description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'."
-    /*
-    discriminatorProperty = ModelConstants.DISCRIMINATOR
+    description = "Active directory base entry.The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
-            schema = ImmutableDomainComputer.class),
+            schema = DomainComputer.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP,
-            schema = ImmutableDomainGroup.class),
+            schema = DomainGroup.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
             value = ModelConstants.USER,
-            schema = ImmutableDomainUser.class)
+            schema = DomainUser.class)
     }
-*/
 )
 
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
-    @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
+    @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
+    @JsonSubTypes.Type(value = DomainGroup.class, name = ModelConstants.GROUP),
     @JsonSubTypes.Type(
-        value = ImmutableDomainGroupMember.class,
+        value = DomainGroupMember.class,
         name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
 })
+@JsonSerialize(as = ImmutableSamAccountIntermediate.class)
+@JsonDeserialize(as = ImmutableSamAccountIntermediate.class)
 public interface SamAccount extends AdEntry, NameProvider, Comparable<SamAccount> {
 
   @Hidden

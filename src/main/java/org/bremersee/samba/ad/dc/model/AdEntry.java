@@ -33,6 +33,8 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.immutables.value.Value;
 import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The active directory base entry.
@@ -41,60 +43,57 @@ import org.ldaptive.dn.Dn;
  */
 @Schema(
     name = "AdEntry",
-    description = "Active directory base entry."
-
-/*
-    discriminatorProperty = ModelConstants.DISCRIMINATOR
+    description = "Active directory base entry.",
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
     discriminatorMapping = {
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ENTRY,
-            schema = ImmutableDnsEntry.class),
+            schema = DnsEntry.class),
         @DiscriminatorMapping(
             value = ModelConstants.DNS_ZONE,
-            schema = ImmutableDnsZone.class),
+            schema = DnsZone.class),
         @DiscriminatorMapping(
             value = ModelConstants.ORGANIZATIONAL_UNIT,
-            schema = ImmutableOrganizationalUnit.class),
+            schema = OrganizationalUnit.class),
 
         @DiscriminatorMapping(
             value = ModelConstants.SAM_ACCOUNT,
             schema = SamAccount.class),
         @DiscriminatorMapping(
             value = ModelConstants.COMPUTER,
-            schema = ImmutableDomainComputer.class),
+            schema = DomainComputer.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP,
-            schema = ImmutableDomainGroup.class),
+            schema = DomainGroup.class),
         @DiscriminatorMapping(
             value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
             value = ModelConstants.USER,
-            schema = ImmutableDomainUser.class)
+            schema = DomainUser.class)
     }
-
- */
 )
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
-    @JsonSubTypes.Type(value = ImmutableDnsZone.class, name = ModelConstants.DNS_ZONE),
+    @JsonSubTypes.Type(value = DnsEntry.class, name = ModelConstants.DNS_ENTRY),
+    @JsonSubTypes.Type(value = DnsZone.class, name = ModelConstants.DNS_ZONE),
     @JsonSubTypes.Type(
-        value = ImmutableOrganizationalUnit.class,
+        value = OrganizationalUnit.class,
         name = ModelConstants.ORGANIZATIONAL_UNIT),
 
-    //@JsonSubTypes.Type(value = ImmutableSamAccountIntermediate.class, name = ModelConstants.SAM_ACCOUNT),
-    @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
-    @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
+    @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
+    @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
+    @JsonSubTypes.Type(value = DomainGroup.class, name = ModelConstants.GROUP),
     @JsonSubTypes.Type(
-        value = ImmutableDomainGroupMember.class,
+        value = DomainGroupMember.class,
         name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
 })
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSerialize(as = ImmutableAdEntryIntermediate.class)
+@JsonDeserialize(as = ImmutableAdEntryIntermediate.class)
 public interface AdEntry extends Serializable, DistinguishedNameProvider {
 
   /**
