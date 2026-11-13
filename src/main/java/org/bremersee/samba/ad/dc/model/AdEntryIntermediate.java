@@ -18,6 +18,7 @@ package org.bremersee.samba.ad.dc.model;
 
 import static java.util.Objects.requireNonNullElse;
 
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
@@ -31,13 +32,47 @@ import tools.jackson.databind.annotation.JsonSerialize;
  *
  * @author Christian Bremer
  */
+@Schema(
+    name = "AdEntry",
+    description = "Active directory base entry.",
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
+
+    ,
+    discriminatorMapping = {
+        @DiscriminatorMapping(
+            value = ModelConstants.DNS_ENTRY,
+            schema = DnsEntry.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.DNS_ZONE,
+            schema = DnsZone.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.COMPUTER,
+            schema = DomainComputer.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP,
+            schema = DomainGroup.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP_MEMBER,
+            schema = DomainGroupMember.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.USER,
+            schema = DomainUser.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.ORGANIZATIONAL_UNIT,
+            schema = OrganizationalUnit.class)
+    }
+
+)
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
     depluralize = true,
     jdk9Collections = true,
     get = {"get*", "is*"},
-    withUnaryOperator = "with*")
+    withUnaryOperator = "with*",
+passAnnotations = {
+        Schema.class
+})
 @Value.Immutable
 @Serial.Version(1L)
 @JsonSerialize(as = ImmutableAdEntryIntermediate.class)
