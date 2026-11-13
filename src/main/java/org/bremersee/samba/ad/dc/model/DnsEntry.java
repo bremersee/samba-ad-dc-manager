@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNullElse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -36,6 +37,9 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @Value.Immutable
 @Value.Modifiable
 @Serial.Version(1L)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
+})
 @JsonSerialize(as = ImmutableDnsEntry.class)
 @JsonDeserialize(as = ImmutableDnsEntry.class)
 public interface DnsEntry extends AdEntry {
