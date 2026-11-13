@@ -20,10 +20,10 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+@Hidden
 @Schema(
     name = "DnsEntry",
-    description = "DNS entry.",
-    implementation = DnsEntry.class)
+    description = "DNS entry.", implementation = ImmutableDnsEntry.class)
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,
