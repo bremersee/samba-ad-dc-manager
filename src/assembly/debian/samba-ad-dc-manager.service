@@ -4,9 +4,9 @@ After=syslog.target
 
 [Service]
 User=smb-mngr
-WorkingDirectory=/var/lib/samba-ad-dc-manager
 EnvironmentFile=/etc/samba-ad-dc-manager.conf
-ExecStart=/var/lib/samba-ad-dc-manager/samba-ad-dc-manager.jar
+WorkingDirectory=/var/lib/samba-ad-dc-manager
+ExecStart=java -jar -Xmx512m -Djava.security.egd=file:/dev/./urandom -Dspring.cloud.bootstrap.location=/var/lib/samba-ad-dc-manager/bootstrap.yml -Dspring.config.location=/var/lib/samba-ad-dc-manager/application.yml samba-ad-dc-manager.jar
 SuccessExitStatus=1 4 3
 
 [Install]
