@@ -527,7 +527,7 @@
                 </goals>
                 <configuration>
                   <serverId>bremersee-dpkg</serverId>
-                  <url>scp://dc1.eixe.bremersee.org/srv/incomming</url>
+                  <url>scp://dc1.eixe.bremersee.org/srv/incoming</url>
                   <fromFile>${project.build.directory}/${debName}</fromFile>
                   <toFile>samba-ad-dc-manager.deb</toFile>
                 </configuration>
@@ -576,7 +576,7 @@
                 </goals>
                 <configuration>
                   <serverId>bremersee-dpkg</serverId>
-                  <url>scp://dc2.eixe.bremersee.org/srv/incomming</url>
+                  <url>scp://dc2.eixe.bremersee.org/srv/incoming</url>
                   <fromFile>${project.build.directory}/${debName}</fromFile>
                   <toFile>samba-ad-dc-manager.deb</toFile>
                 </configuration>
