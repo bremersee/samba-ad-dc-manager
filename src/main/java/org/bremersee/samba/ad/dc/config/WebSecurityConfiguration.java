@@ -19,7 +19,6 @@ package org.bremersee.samba.ad.dc.config;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.LinkedHashMap;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.spring.boot.autoconfigure.security.authentication.AuthenticationProperties;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveRememberMeServices;
 import org.springframework.beans.factory.ObjectProvider;
@@ -61,7 +60,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
     OAuth2ResourceServerProperties.class, AuthenticationProperties.class
 })
 @Configuration
-@Slf4j
 public class WebSecurityConfiguration {
 
   private static final String API_PATH_PATTERN = "/api/**";
@@ -108,12 +106,6 @@ public class WebSecurityConfiguration {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) {
-    var e = System.getenv();
-    for (var entry : e.entrySet()) {
-      log.info("=======> Environment variable: {}={}", entry.getKey(), entry.getValue());
-    }
-
-
     String appName = env.getProperty("spring.application.name", "samba-ad-dc-manager");
     String[] actuatorReadRoles = authenticationProperties.getActuator().getReadRoles()
         .toArray(new String[0]);
