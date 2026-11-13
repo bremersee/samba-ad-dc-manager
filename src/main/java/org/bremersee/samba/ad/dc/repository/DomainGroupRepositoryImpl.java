@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,14 +46,16 @@ import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.SubstringFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain group repository.
  *
  * @author Christian Bremer
  */
-@Component("domainGroupRepository")
+@Repository("domainGroupRepository")
+@Validated
 @Slf4j
 public class DomainGroupRepositoryImpl extends SamAccountRepository
     implements DomainGroupRepository {
@@ -141,7 +143,7 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
   public Optional<DomainGroup> findOneByPrimaryGroupId(Integer primaryGroupId) {
     log.debug("findByPrimaryGroupId({})", primaryGroupId);
     return Optional.ofNullable(primaryGroupId)
-        .map(id -> domainRepository.getDomainSid() + "-" + primaryGroupId)
+        .map(id -> domainRepository.getDomainSid() + "-" + id)
         .flatMap(sid -> {
           Filter filter = new AndFilter(
               objectClassFilter(),

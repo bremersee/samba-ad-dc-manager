@@ -32,14 +32,16 @@ import org.ldaptive.SearchRequest;
 import org.ldaptive.dn.Dn;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The dns entry repository implementation.
  *
  * @author Christian Bremer
  */
-@Component("dnsEntryRepository")
+@Repository("dnsEntryRepository")
+@Validated
 @Slf4j
 public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepository {
 

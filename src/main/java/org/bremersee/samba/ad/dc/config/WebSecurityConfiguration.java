@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2025-2026  the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ package org.bremersee.samba.ad.dc.config;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.LinkedHashMap;
-import lombok.extern.slf4j.Slf4j;
+import org.bremersee.spring.boot.autoconfigure.security.authentication.AuthenticationProperties;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveRememberMeServices;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -51,19 +51,22 @@ import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
- * The type WebSecurityConfiguration.
+ * The web security configuration.
  *
  * @author Christian Bremer
  */
 @EnableWebSecurity
 @EnableConfigurationProperties({
-    OAuth2ResourceServerProperties.class
+    OAuth2ResourceServerProperties.class, AuthenticationProperties.class
 })
 @Configuration
-@Slf4j
 public class WebSecurityConfiguration {
 
+  private static final String API_PATH_PATTERN = "/api/**";
+
   private final Environment env;
+
+  private final AuthenticationProperties authenticationProperties;
 
   private final OAuth2ResourceServerProperties resourceServerProperties;
 
@@ -75,11 +78,13 @@ public class WebSecurityConfiguration {
 
   public WebSecurityConfiguration(
       Environment env,
+      AuthenticationProperties authenticationProperties,
       OAuth2ResourceServerProperties resourceServerProperties,
       CorsConfigurationSource corsConfigurationSource,
       ObjectProvider<Converter<Jwt, AbstractAuthenticationToken>> jwtConverterProvider,
       ObjectProvider<LdaptiveRememberMeServices> rememberMeServices) {
     this.env = env;
+    this.authenticationProperties = authenticationProperties;
     this.resourceServerProperties = resourceServerProperties;
     this.corsConfigurationSource = corsConfigurationSource;
     this.jwtAuthenticationConverter = jwtConverterProvider
@@ -88,18 +93,24 @@ public class WebSecurityConfiguration {
   }
 
   private AccessDeniedHandler getAccessDeniedHandler() {
+    AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
     LinkedHashMap<RequestMatcher, AccessDeniedHandler> handlers = LinkedHashMap
-        .newLinkedHashMap(1);
-    handlers.put(PathPatternRequestMatcher.withDefaults().matcher("/api/**"),
-        new AccessDeniedHandlerImpl());
+        .newLinkedHashMap(2);
+    handlers.put(PathPatternRequestMatcher.withDefaults().matcher(API_PATH_PATTERN),
+        accessDeniedHandler);
+    handlers.put(EndpointRequest.toAnyEndpoint(), accessDeniedHandler);
     AccessDeniedHandlerImpl defaultHandler = new AccessDeniedHandlerImpl();
     defaultHandler.setErrorPage("/forbidden");
     return new RequestMatcherDelegatingAccessDeniedHandler(handlers, defaultHandler);
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http) {
     String appName = env.getProperty("spring.application.name", "samba-ad-dc-manager");
+    String[] actuatorReadRoles = authenticationProperties.getActuator().getReadRoles()
+        .toArray(new String[0]);
+    String[] actuatorWriteRoles = authenticationProperties.getActuator().getWriteRoles()
+        .toArray(new String[0]);
     http
         .exceptionHandling(customizer -> customizer
             .accessDeniedHandler(getAccessDeniedHandler()))
@@ -116,16 +127,16 @@ public class WebSecurityConfiguration {
             .requestMatchers(new AndRequestMatcher(
                 EndpointRequest.toAnyEndpoint(),
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/**")))
-            .hasAnyAuthority("ROLE_ACTUATOR", "ROLE_ACTUATOR_ADMIN", "ROLE_ADMIN")
+            .hasAnyAuthority(actuatorReadRoles)
 
             .requestMatchers(EndpointRequest.toAnyEndpoint())
-            .hasAnyAuthority("ROLE_ACTUATOR_ADMIN", "ROLE_ADMIN")
+            .hasAnyAuthority(actuatorWriteRoles)
 
             .requestMatchers(PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.GET, "/api/users/*/avatar"))
             .permitAll()
 
-            .requestMatchers("/api/**", "/management/**")
+            .requestMatchers(API_PATH_PATTERN, "/management/**")
             .hasAuthority("ROLE_ADMIN")
 
             .requestMatchers("/user/**")
@@ -155,7 +166,7 @@ public class WebSecurityConfiguration {
         .csrf(customizer -> customizer
             .ignoringRequestMatchers(RequestMatchers.anyOf(
                 EndpointRequest.toAnyEndpoint(),
-                PathPatternRequestMatcher.withDefaults().matcher("/api/**"))))
+                PathPatternRequestMatcher.withDefaults().matcher(API_PATH_PATTERN))))
 
         .cors(customizer -> customizer
             .configurationSource(corsConfigurationSource))
@@ -172,28 +183,7 @@ public class WebSecurityConfiguration {
             .loginPage("/login")
             .defaultSuccessUrl("/user/profile"))
 
-        .logout(logout -> logout.logoutSuccessUrl("/index"))
-
-        /*
-        .logout(logout -> logout
-            .logoutUrl("/logout")
-            .permitAll()
-            //.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-            //.clearAuthentication(true)
-            //.deleteCookies("JSESSIONID")
-            .logoutSuccessUrl("/logged-out"))
-        .formLogin(form -> form
-            .loginPage("/login")
-            .loginProcessingUrl("/login")
-            .defaultSuccessUrl("/profile")
-            .permitAll())
-        .logout(logout -> logout
-            .logoutUrl("/logged-out")
-            .permitAll())
-        */
-
-    //.formLogin(Customizer.withDefaults())
-    ;
+        .logout(logout -> logout.logoutSuccessUrl("/index"));
 
     if (!isEmpty(rememberMeServices)) {
       http.rememberMe(customizer -> customizer

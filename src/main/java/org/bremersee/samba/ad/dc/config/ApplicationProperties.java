@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
@@ -38,7 +37,6 @@ import org.springframework.stereotype.Component;
 @Setter
 @ToString(exclude = "cryptoSecret")
 @EqualsAndHashCode
-@Slf4j
 public class ApplicationProperties implements Serializable {
 
   @Serial

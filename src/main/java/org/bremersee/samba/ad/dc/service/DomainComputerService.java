@@ -5,15 +5,14 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import org.bremersee.samba.ad.dc.model.DomainComputer;
 import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
-@Validated
 public interface DomainComputerService {
 
+  @NotNull
   Page<DomainComputer> getComputers(
       @NotNull Pageable pageable,
       @Nullable String query,

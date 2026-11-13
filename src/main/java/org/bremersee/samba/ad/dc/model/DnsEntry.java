@@ -6,8 +6,6 @@ import static java.util.Objects.requireNonNullElse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -17,7 +15,9 @@ import java.util.UUID;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(name = "DnsEntry", description = "DNS entry.", implementation = DnsEntry.class)
 @Value.Style(
@@ -57,6 +57,11 @@ public interface DnsEntry extends AdEntry {
         .build();
   }
 
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
   @Override
   default DnsEntry withCreated(OffsetDateTime created) {
     return builder()
@@ -64,6 +69,11 @@ public interface DnsEntry extends AdEntry {
         .created(created)
         .build();
   }
+
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
 
   @Override
   default DnsEntry withModified(OffsetDateTime modified) {

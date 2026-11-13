@@ -82,11 +82,11 @@ bremersee:
         using-sudo: false
       ssh:
         using-ssh: false
-    domain:
-      forbidden-new-sam-account-names:
-        - "root"
-        - "admin"
-        - "guest"
+    #domain:
+    #  forbidden-new-sam-account-names:
+    #    - "root"
+    #    - "admin"
+    #    - "guest"
     user:
       user-able-to-change-email: true
       default-language: "de-DE"
@@ -116,28 +116,14 @@ bremersee:
       chain-separator: ";"
 
 spring:
-  application:
-    name: samba-ad-dc-manager
-  profiles:
-    default: mock
+  jmx:
+    enabled: true
   messages:
     use-code-as-default-message: true
     fallback-to-system-locale: false
   cache:
     jcache:
       config: classpath:ehcache.xml
-  cloud:
-    config:
-      enabled: false
-      uri:
-      username:
-      password:
-      fail-fast: true
-      retry:
-        initial-interval: 3000
-        max-interval: 4000
-        max-attempts: 8
-        multiplier: 1.1
 
 management:
   endpoints:
@@ -157,6 +143,7 @@ management:
 
 server:
   port: 8080
+  forward-headers-strategy: native
 
 logging:
   level:
@@ -205,6 +192,7 @@ bremersee:
     #
     ssl-config:
       trust-certificates: "file:/var/lib/samba/private/tls/ca.pem,file:/var/lib/samba/private/tls/cert.pem"
+      hostname-verifier: allow_any
   dc:
     cli:
       sudo:
@@ -253,11 +241,12 @@ spring:
     port: 587
     #username: ""
     #password: ""
-    test-connection: true
-    properties:
-      mail.smtp.starttls.enable: true
+    #test-connection: true
     #ssl:
     #  enabled: false
+    #properties:
+    #  mail.smtp.starttls.enable: true
+
 bremersee:
   dc:
     email:
@@ -284,6 +273,20 @@ springdoc:
   swagger-ui:
     enabled: true
 
+bremersee:
+  web:
+    cors:
+      enabled: true
+      configurations:
+        - path: "/api/**"
+          configuration:
+            allowed-origins:
+              - "*"
+            allowed-headers:
+              - "*"
+            allowed-methods:
+              - "*"
+
 ---
 
 spring:
@@ -294,23 +297,24 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/certs
+          jwk-set-uri: ${JWT_JWK_SET_URI:https://openid.bremersee.org/realms/eixe/protocol/openid-connect/certs}
       client:
         provider:
           swagger-ui:
-            authorization-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/auth
-            token-uri: https://openid.bremersee.org/realms/eixe/protocol/openid-connect/token
+            authorization-uri: ${JWT_SWAGGER_AUTHORIZATION_URI:https://openid.bremersee.org/realms/eixe/protocol/openid-connect/auth}
+            token-uri: ${JWT_SWAGGER_TOKEN_URI:https://openid.bremersee.org/realms/eixe/protocol/openid-connect/token}
+
 
 bremersee:
   authentication:
     jwt-converter:
-      name-json-path: $.preferred_username
-      first-name-json-path: $.given_name
-      last-name-json-path: $.family_name
-      roles-json-path: $.realm_access.roles
-      roles-value-list: true
-      role-prefix: "ROLE_"
-      role-case-transformation: to_upper_case
+      name-json-path: ${JWT_CONVERTER_NAME_JSON_PATH:$.preferred_username}
+      first-name-json-path: ${JWT_CONVERTER_FIRST_NAME_JSON_PATH:$.given_name}
+      last-name-json-path: ${JWT_CONVERTER_LAST_NAME_JSON_PATH:$.family_name}
+      roles-json-path: ${JWT_CONVERTER_ROLES_JSON_PATH:$.realm_access.roles}
+      roles-value-list: ${JWT_CONVERTER_ROLES_VALUE_LIST:true}
+      role-prefix: ${JWT_CONVERTER_ROLE_PREFIX:ROLE_}
+      role-case-transformation: ${JWT_CONVERTER_ROLE_CASE_TRANSFORMATION:to_upper_case}
       role-string-replacements:
         - regex: "[- ]"
           replacement: "_"

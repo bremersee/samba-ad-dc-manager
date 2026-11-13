@@ -33,6 +33,13 @@ public abstract class AbstractCommandExecutorResponseParser<T>
     implements CommandExecutorResponseParser<T> {
 
   /**
+   * Instantiates a new abstract command executor response parser.
+   */
+  protected AbstractCommandExecutorResponseParser() {
+    super();
+  }
+
+  /**
    * Gets default value.
    *
    * @return the default value

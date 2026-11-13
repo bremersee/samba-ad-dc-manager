@@ -21,12 +21,12 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.DefaultAttributeValueEscaper;
 import org.ldaptive.dn.DefaultRDnNormalizer;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.RDnNormalizer;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 public interface DnTool {
 
@@ -46,7 +46,7 @@ public interface DnTool {
           .map(Dn::new)
           .filter(v -> !isEmpty(v))
           .isPresent();
-    } catch (RuntimeException e) {
+    } catch (RuntimeException ignored) {
       return false;
     }
   }

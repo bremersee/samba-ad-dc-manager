@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.bremersee.samba.ad.dc.service;
 
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -33,14 +32,16 @@ import org.bremersee.samba.ad.dc.repository.DomainGroupRepository;
 import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain group service.
  *
  * @author Christian Bremer
  */
-@Component("domainGroupService")
+@Service("domainGroupService")
+@Validated
 @Slf4j
 public class DomainGroupServiceImpl implements DomainGroupService {
 

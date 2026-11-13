@@ -3,8 +3,6 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
@@ -14,6 +12,8 @@ import java.util.regex.Pattern;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.springframework.context.MessageSource;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(description = "The password information of an active directory.")
 @Value.Style(
@@ -162,7 +162,7 @@ public interface PasswordInformation extends Serializable {
   default String getPasswordDescription(MessageSource messageSource, Locale locale) {
     return messageSource.getMessage(
         getPasswordComplexity().getI18nCode(),
-        new Object[] { getMinimumPasswordLength(), getMaximumPasswordLength() },
+        new Object[]{getMinimumPasswordLength(), getMaximumPasswordLength()},
         getPasswordComplexity().getDefaultDescription(),
         locale);
   }

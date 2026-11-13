@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
@@ -60,7 +59,6 @@ public interface DomainInfoParser
    * The default domain info parser.
    */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  @Slf4j
   class Default extends AbstractCommandExecutorResponseParser<Optional<DomainInfo>>
       implements DomainInfoParser {
 

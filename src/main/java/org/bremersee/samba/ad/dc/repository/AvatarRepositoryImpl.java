@@ -47,14 +47,16 @@ import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.EqualityFilter;
 import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.OrFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The avatar repository.
  *
  * @author Christian Bremer
  */
-@Component("avatarRepository")
+@Repository("avatarRepository")
+@Validated
 @Slf4j
 public class AvatarRepositoryImpl extends SamAccountRepository
     implements AvatarRepository {
@@ -105,7 +107,11 @@ public class AvatarRepositoryImpl extends SamAccountRepository
   }
 
   @Override
-  public boolean existsAvatarInActiveDirectory(String user, Dn ou, TreeSearchScope searchScope) {
+  public boolean existsAvatarInActiveDirectory(
+      String user,
+      Dn ou,
+      TreeSearchScope searchScope) {
+
     log.debug("existsAvatarInActiveDirectory({}, {}, {})", user, ou, searchScope);
     return findLdapEntryForAvatar(user, ou, searchScope)
         .flatMap(AdConstants.USER_JPEG_PHOTO::getValue)
@@ -114,8 +120,12 @@ public class AvatarRepositoryImpl extends SamAccountRepository
   }
 
   @Override
-  public Optional<byte[]> findAvatar(String userNameOrEmail, Dn ou, TreeSearchScope searchScope,
-      AvatarDefault avatarDefault, Integer size) {
+  public Optional<byte[]> findAvatar(
+      String userNameOrEmail,
+      Dn ou,
+      TreeSearchScope searchScope,
+      AvatarDefault avatarDefault,
+      Integer size) {
 
     log.debug("findAvatar({}, {}, {})", userNameOrEmail, avatarDefault, size);
     int avatarSize = getAvatarSize(size);

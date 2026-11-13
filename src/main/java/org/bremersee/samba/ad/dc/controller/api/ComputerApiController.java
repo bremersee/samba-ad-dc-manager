@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.misc.DnTool;
@@ -22,6 +39,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,18 +49,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The computer api controller.
+ */
 @Profile("api")
 @RestController
 @RequestMapping(path = "/api/computers")
+@Tag(name = "ad-computer-manager", description = "RESTful api for computers.")
+@Validated
 public class ComputerApiController extends ApiController {
 
   private final DomainComputerService domainComputerService;
 
+  /**
+   * Instantiates a new computer api controller.
+   *
+   * @param domainComputerService the domain computer service
+   */
   public ComputerApiController(
       DomainComputerService domainComputerService) {
     this.domainComputerService = domainComputerService;
   }
 
+  /**
+   * Gets computers.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @return the computers
+   */
   @PageableAsQueryParam
   @Operation(
       description = "Get computer page.",
@@ -94,6 +131,14 @@ public class ComputerApiController extends ApiController {
     return ResponseEntity.ok(new DomainComputerPage(computerPage));
   }
 
+  /**
+   * Gets computer.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @return the computer
+   */
   @Operation(
       description = "Get computer.",
       security = {
@@ -141,6 +186,14 @@ public class ComputerApiController extends ApiController {
     return ResponseEntity.of(domainComputerService.getComputer(samAccountName, ou, scope));
   }
 
+  /**
+   * Update computer response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param newOu the new ou
+   * @param computer the computer
+   * @return the response entity
+   */
   @Operation(
       description = "Update computer.",
       security = {
@@ -195,6 +248,12 @@ public class ComputerApiController extends ApiController {
     return ResponseEntity.ok(domainComputerService.updateComputer(computer, newOu));
   }
 
+  /**
+   * Delete computer response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
   @Operation(
       description = "Delete computer.",
       security = {

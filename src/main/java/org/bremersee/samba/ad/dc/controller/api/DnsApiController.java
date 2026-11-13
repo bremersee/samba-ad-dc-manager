@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.controller.api;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.bremersee.exception.model.RestApiException;
 import org.bremersee.samba.ad.dc.model.DhcpLease;
@@ -24,6 +41,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,17 +51,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The dns api controller.
+ */
 @Profile("api")
 @RestController
 @RequestMapping(path = "/api/dns")
+@Tag(name = "ad-dns-manager", description = "RESTful api for dns.")
+@Validated
 public class DnsApiController extends ApiController {
 
   private final DnsService dnsService;
 
+  /**
+   * Instantiates a new dns api controller.
+   *
+   * @param dnsService the dns service
+   */
   public DnsApiController(DnsService dnsService) {
     this.dnsService = dnsService;
   }
 
+  /**
+   * Gets dns zone names.
+   *
+   * @param zoneType the zone type
+   * @return the dns zone names
+   */
   @Operation(
       description = "Get DNS zones.",
       security = {
@@ -82,6 +116,12 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.ok(dnsService.getDnsZoneNames(zoneType));
   }
 
+  /**
+   * Add dns zone response entity.
+   *
+   * @param zoneName the zone name
+   * @return the response entity
+   */
   @Operation(
       description = "Add DNS zone.",
       security = {
@@ -114,6 +154,12 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.ok(dnsService.createDnsZone(zoneName));
   }
 
+  /**
+   * Gets dns zone.
+   *
+   * @param zoneName the zone name
+   * @return the dns zone
+   */
   @Operation(
       description = "Get DNS zone.",
       security = {
@@ -149,6 +195,12 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.ok(dnsService.getDnsZone(zoneName));
   }
 
+  /**
+   * Delete dns zone response entity.
+   *
+   * @param zoneName the zone name
+   * @return the response entity
+   */
   @Operation(
       description = "Delete DNS zone.",
       security = {
@@ -182,6 +234,14 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.ok().build();
   }
 
+  /**
+   * Gets dns entries.
+   *
+   * @param zoneName the zone name
+   * @param pageable the pageable
+   * @param query the query
+   * @return the dns entries
+   */
   @PageableAsQueryParam
   @Operation(
       description = "Get dns entries of a zone.",
@@ -228,6 +288,13 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.ok(new DnsEntryPage(dnsService.getDnsEntries(zoneName, pageable, query)));
   }
 
+  /**
+   * Add dns entry response entity.
+   *
+   * @param zoneName the zone name
+   * @param dnsEntry the dns entry
+   * @return the response entity
+   */
   @Operation(
       description = "Add DNS entry to a zone.",
       security = {
@@ -270,6 +337,16 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.of(dnsService.findDnsEntry(entry));
   }
 
+  /**
+   * Gets dns entry.
+   *
+   * @param zoneName the zone name
+   * @param entryName the entry name
+   * @param entryType the entry type
+   * @param entryValue the entry value
+   * @param reverseEntry the reverse entry
+   * @return the dns entry
+   */
   @Operation(
       description = "Get DNS entry of a zone.",
       security = {
@@ -331,6 +408,16 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.of(dnsService.findDnsEntry(entry));
   }
 
+  /**
+   * Update dns entry response entity.
+   *
+   * @param zoneName the zone name
+   * @param entryName the entry name
+   * @param entryType the entry type
+   * @param entryValue the entry value
+   * @param newValue the new value
+   * @return the response entity
+   */
   @Operation(
       description = "Update DNS entry of a zone.",
       security = {
@@ -387,6 +474,15 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.of(dnsService.findDnsEntry(entry.withValue(newValue)));
   }
 
+  /**
+   * Delete dns entry response entity.
+   *
+   * @param zoneName the zone name
+   * @param entryName the entry name
+   * @param entryType the entry type
+   * @param entryValue the entry value
+   * @return the response entity
+   */
   @Operation(
       description = "Delete DNS entry of a zone.",
       security = {
@@ -440,6 +536,13 @@ public class DnsApiController extends ApiController {
     return ResponseEntity.ok().build();
   }
 
+  /**
+   * Gets dhcp leases.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @return the dhcp leases
+   */
   @PageableAsQueryParam
   @Operation(
       description = "Get dhcp leases.",

@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.misc.DnTool.DnPair;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
@@ -36,7 +35,6 @@ import org.ldaptive.filter.PresenceFilter;
 import org.ldaptive.filter.SubstringFilter;
 import org.springframework.util.Assert;
 
-@Slf4j
 @Getter(AccessLevel.PACKAGE)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 class LdapNode extends LdapEntry {

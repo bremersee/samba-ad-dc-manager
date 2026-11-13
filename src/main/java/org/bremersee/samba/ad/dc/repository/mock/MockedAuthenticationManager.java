@@ -5,7 +5,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveOperations;
 import org.bremersee.ldaptive.transcoder.UserAccountControl;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
@@ -34,7 +33,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("mock")
-@Slf4j
 class MockedAuthenticationManager implements AuthenticationManager, AuthenticationProvider {
 
   private final DnTool dnTool;

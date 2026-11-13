@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2025-2026  the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The gravatar provider.
@@ -39,6 +41,7 @@ import org.springframework.util.DigestUtils;
  */
 @Component
 @Order(AvatarProvider.GRAVATAR_PROVIDER_ORDER)
+@Validated
 @Slf4j
 public class GravatarProvider implements AvatarProvider {
 
@@ -49,7 +52,11 @@ public class GravatarProvider implements AvatarProvider {
   }
 
   @Override
-  public Optional<byte[]> findAvatar(String user, AvatarDefault avatarDefault, Integer size) {
+  public Optional<byte[]> findAvatar(
+      String user,
+      @Nullable AvatarDefault avatarDefault,
+      @Nullable Integer size) {
+
     String source = requireNonNullElseGet(user, () -> String.valueOf(UUID.randomUUID()));
     byte[] md5 = DigestUtils.md5Digest(source.getBytes(StandardCharsets.UTF_8));
     String hex = new String(Hex.encode(md5));

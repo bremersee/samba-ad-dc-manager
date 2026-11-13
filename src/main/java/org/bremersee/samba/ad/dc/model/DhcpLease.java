@@ -1,15 +1,15 @@
 package org.bremersee.samba.ad.dc.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The dhcp lease of the dhcp server.

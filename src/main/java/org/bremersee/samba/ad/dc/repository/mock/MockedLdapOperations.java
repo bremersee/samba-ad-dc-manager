@@ -5,7 +5,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.ldaptive.LdaptiveEntryMapper;
 import org.bremersee.ldaptive.LdaptiveErrorHandler;
 import org.bremersee.ldaptive.LdaptiveOperations;
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Component;
 @Primary
 @Component
 @Profile("mock")
-@Slf4j
 class MockedLdapOperations implements LdaptiveOperations {
 
   private static final Object LOCK = new Object();

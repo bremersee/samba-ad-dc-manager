@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2025-2026  the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import javax.imageio.ImageIO;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.exception.ServiceException;
 import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The fallback avatar provider.
@@ -39,7 +40,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(AvatarProvider.FALLBACK_AVATAR_PROVIDER_ORDER)
-@Slf4j
+@Validated
 public class FallbackAvatarProvider implements AvatarProvider {
 
   private static final ResourceLoader RESOURCE_LOADER = new DefaultResourceLoader();
@@ -77,7 +78,11 @@ public class FallbackAvatarProvider implements AvatarProvider {
   }
 
   @Override
-  public Optional<byte[]> findAvatar(String user, AvatarDefault avatarDefault, Integer size) {
+  public Optional<byte[]> findAvatar(
+      String user,
+      @Nullable AvatarDefault avatarDefault,
+      @Nullable Integer size) {
+
     AvatarDefault defaultAvatar = requireNonNullElse(avatarDefault, AvatarDefault.NOT_FOUND);
     if (AvatarDefault.NOT_FOUND.equals(defaultAvatar)) {
       return Optional.empty();

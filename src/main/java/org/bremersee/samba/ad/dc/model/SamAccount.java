@@ -9,8 +9,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.immutables.value.Value;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.

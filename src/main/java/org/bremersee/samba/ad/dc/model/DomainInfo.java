@@ -1,12 +1,12 @@
 package org.bremersee.samba.ad.dc.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(description = "The password information of an active directory.")
 @Value.Style(

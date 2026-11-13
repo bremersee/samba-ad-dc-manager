@@ -39,14 +39,16 @@ import org.ldaptive.filter.AndFilter;
 import org.ldaptive.filter.Filter;
 import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.SubstringFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain computer repository implementation.
  *
  * @author Christian Bremer
  */
-@Component("domainComputerRepository")
+@Repository("domainComputerRepository")
+@Validated
 @Slf4j
 public class DomainComputerRepositoryImpl extends SamAccountRepository
     implements DomainComputerRepository {

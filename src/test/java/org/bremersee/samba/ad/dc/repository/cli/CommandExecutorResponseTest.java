@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,8 @@ class CommandExecutorResponseTest {
     String line4 = UUID.randomUUID().toString();
     model = new CommandExecutorResponse(line1 + "\n" + line2, line3 + "\n" + line4);
     softly.assertThat(model.toOneLine())
-        .isEqualTo("stdout=[" + line1 + " | " + line2 + "], stderr=[" + line3 + " | " + line4 + "]");
+        .isEqualTo(
+            "stdout=[" + line1 + " | " + line2 + "], stderr=[" + line3 + " | " + line4 + "]");
   }
 
   /**

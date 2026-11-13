@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +54,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,17 +64,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The group api controller.
+ */
 @Profile("api")
 @RestController
 @RequestMapping(path = "/api/groups")
+@Tag(name = "ad-group-manager", description = "RESTful api for groups.")
+@Validated
 public class GroupApiController extends ApiController {
 
   private final DomainGroupService domainGroupService;
 
+  /**
+   * Instantiates a new group api controller.
+   *
+   * @param domainGroupService the domain group service
+   */
   public GroupApiController(DomainGroupService domainGroupService) {
     this.domainGroupService = domainGroupService;
   }
 
+  /**
+   * Gets groups.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @return the groups
+   */
   @PageableAsQueryParam
   @Operation(
       description = "Get group page.",
@@ -124,6 +145,13 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.ok(new DomainGroupPage(groupPage));
   }
 
+  /**
+   * Add group response entity.
+   *
+   * @param group the group
+   * @param ou the ou
+   * @return the response entity
+   */
   @Operation(
       description = "Add group.",
       security = {
@@ -168,6 +196,15 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.ok(domainGroupService.addGroup(group, ou));
   }
 
+  /**
+   * Gets group.
+   *
+   * @param samAccountName the sam account name
+   * @param identifier the identifier
+   * @param ou the ou
+   * @param scope the scope
+   * @return the group
+   */
   @Operation(
       description = "Get group.",
       security = {
@@ -232,6 +269,14 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.of(domainGroup);
   }
 
+  /**
+   * Update group response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param group the group
+   * @param newOu the new ou
+   * @return the response entity
+   */
   @Operation(
       description = "Update group.",
       security = {
@@ -280,6 +325,12 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.ok(domainGroupService.updateGroup(samAccountName, group, newOu));
   }
 
+  /**
+   * Delete group response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
   @Operation(
       description = "Delete group.",
       security = {
@@ -311,6 +362,16 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.ok(domainGroupService.deleteGroup(samAccountName));
   }
 
+  /**
+   * Gets memberships.
+   *
+   * @param samAccountName the sam account name
+   * @param resolveMemberships the resolve memberships
+   * @param ou the ou
+   * @param scope the scope
+   * @param sort the sort
+   * @return the memberships
+   */
   @SortAsQueryParam
   @Operation(
       description = "Get memberships of group.",
@@ -378,6 +439,18 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.ok(groups);
   }
 
+  /**
+   * Gets member selection.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @param memberTypes the member types
+   * @param withPrimaryMembers the with primary members
+   * @param pageable the pageable
+   * @param query the query
+   * @return the member selection
+   */
   @PageableAsQueryParam
   @Operation(
       description = "Get group members.",
@@ -452,6 +525,15 @@ public class GroupApiController extends ApiController {
     return ResponseEntity.ok(new DomainGroupMemberPage(memberPage));
   }
 
+  /**
+   * Modify members response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @param modifications the modifications
+   * @return the response entity
+   */
   @Operation(
       description = "Modify group members.",
       security = {

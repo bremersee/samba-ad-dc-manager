@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,14 +56,16 @@ import org.ldaptive.filter.NotFilter;
 import org.ldaptive.filter.OrFilter;
 import org.ldaptive.filter.SubstringFilter;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * The domain user repository.
  *
  * @author Christian Bremer
  */
-@Component("domainUserRepository")
+@Repository("domainUserRepository")
+@Validated
 @Slf4j
 public class DomainUserRepositoryImpl extends SamAccountRepository
     implements DomainUserRepository {

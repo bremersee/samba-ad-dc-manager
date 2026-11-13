@@ -2,8 +2,6 @@ package org.bremersee.samba.ad.dc.repository.mock;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +28,16 @@ import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 import org.bremersee.samba.ad.dc.model.Sid;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.jspecify.annotations.Nullable;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchScope;
 import org.ldaptive.dn.Dn;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @Profile("mock")
@@ -50,7 +48,7 @@ class SambaStore {
 
   private final AtomicInteger sidPostfix = new AtomicInteger(Sid.MAX_SYSTEM_SID_SUFFIX + 1);
 
-  private final ObjectMapper objectMapper;
+  private final JsonMapper jsonMapper;
 
   @Getter(AccessLevel.PACKAGE)
   private final DnTool dnTool;
@@ -67,8 +65,8 @@ class SambaStore {
   @Getter(AccessLevel.PACKAGE)
   private final Map<DnsZone, List<DnsEntry>> dns;
 
-  SambaStore(ApplicationProperties properties, Jackson2ObjectMapperBuilder objectMapperBuilder) {
-    this.objectMapper = objectMapperBuilder.build();
+  SambaStore(ApplicationProperties properties, JsonMapper.Builder jsonMapperBuilder) {
+    this.jsonMapper = jsonMapperBuilder.build();
     this.dnTool = new DefaultDnTool(properties);
     this.root = new LdapNode(properties.getBaseDn());
     this.dns = new ConcurrentHashMap<>();
@@ -280,10 +278,6 @@ class SambaStore {
     if (value == null) {
       return null;
     }
-    try {
-      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
-    } catch (JsonProcessingException e) {
-      return e.getMessage();
-    }
+    return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
   }
 }

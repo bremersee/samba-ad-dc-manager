@@ -5,6 +5,7 @@ After=syslog.target
 [Service]
 User=smb-mngr
 WorkingDirectory=/var/lib/samba-ad-dc-manager
+EnvironmentFile=/etc/samba-ad-dc-manager.conf
 ExecStart=/var/lib/samba-ad-dc-manager/samba-ad-dc-manager.jar
 SuccessExitStatus=1 4 3
 

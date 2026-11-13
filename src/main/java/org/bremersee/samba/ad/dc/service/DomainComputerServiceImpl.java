@@ -10,8 +10,10 @@ import org.ldaptive.dn.Dn;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class DomainComputerServiceImpl implements DomainComputerService {
 
   private final SortMapper sortMapper;

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.controller.api;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -10,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -34,6 +51,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,9 +61,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The user api controller.
+ */
 @Profile("api")
 @RestController
 @RequestMapping(path = "/api/users")
+@Tag(name = "ad-user-manager", description = "RESTful api for users.")
+@Validated
 public class UserApiController extends UserAvatarApiController {
 
   private final ApplicationProperties properties;
@@ -54,6 +77,14 @@ public class UserApiController extends UserAvatarApiController {
 
   private final DomainService domainService;
 
+  /**
+   * Instantiates a new user api controller.
+   *
+   * @param properties the properties
+   * @param eventPublisher the event publisher
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   */
   public UserApiController(
       ApplicationProperties properties,
       ApplicationEventPublisher eventPublisher,
@@ -65,6 +96,15 @@ public class UserApiController extends UserAvatarApiController {
     this.domainService = domainService;
   }
 
+  /**
+   * Gets users.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @return the users
+   */
   @PageableAsQueryParam
   @Operation(
       description = "Get user page.",
@@ -119,6 +159,16 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok(new DomainUserPage(userPage));
   }
 
+  /**
+   * Add user response entity.
+   *
+   * @param user the user
+   * @param clearPassword the clear password
+   * @param ou the ou
+   * @param useUsernameAsCn the use username as cn
+   * @param sendInvitationEmail the send invitation email
+   * @return the response entity
+   */
   @Operation(
       description = "Add user.",
       security = {
@@ -190,6 +240,15 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok(addedUser);
   }
 
+  /**
+   * Gets user.
+   *
+   * @param samAccountName the sam account name
+   * @param identifier the identifier
+   * @param ou the ou
+   * @param scope the scope
+   * @return the user
+   */
   @Operation(
       description = "Get user.",
       security = {
@@ -250,6 +309,14 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.of(domainUser);
   }
 
+  /**
+   * Update user response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param user the user
+   * @param newOu the new ou
+   * @return the response entity
+   */
   @Operation(
       description = "Update user.",
       security = {
@@ -298,6 +365,12 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok(domainUserService.updateUser(samAccountName, user, newOu));
   }
 
+  /**
+   * Delete user response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
   @Operation(
       description = "Delete user.",
       security = {
@@ -329,6 +402,14 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok(domainUserService.deleteUser(samAccountName));
   }
 
+  /**
+   * Update user password response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param clearPassword the clear password
+   * @param sendInvitationEmail the send invitation email
+   * @return the response entity
+   */
   @Operation(
       description = "Update user password.",
       security = {
@@ -406,6 +487,13 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok().build();
   }
 
+  /**
+   * Update user avatar response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param avatar the avatar
+   * @return the response entity
+   */
   @Operation(
       description = "Update user avatar.",
       security = {
@@ -452,6 +540,12 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok().build();
   }
 
+  /**
+   * Remove user avatar response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
   @Operation(
       description = "Remove user avatar.",
       security = {
@@ -487,6 +581,14 @@ public class UserApiController extends UserAvatarApiController {
     return ResponseEntity.ok().build();
   }
 
+  /**
+   * Exists avatar in active directory response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @return the response entity
+   */
   @Operation(
       description = "Checks whether the avatar of the user is present in the active directory.",
       security = {

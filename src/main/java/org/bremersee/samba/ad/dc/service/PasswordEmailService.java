@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2026 the original author or authors.
+ * Copyright 2025-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.AesEncValue;
@@ -50,7 +49,6 @@ import org.thymeleaf.context.Context;
  */
 @Service("passwordEmailService")
 @ConditionalOnProperty(name = "spring.mail.host")
-@Slf4j
 public class PasswordEmailService extends AbstractEmailService {
 
   private final CryptoService<PasswordReset, AesEncValue> passwordResetCryptoService;
