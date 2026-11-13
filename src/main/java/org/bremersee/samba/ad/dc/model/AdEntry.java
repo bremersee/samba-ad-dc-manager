@@ -42,7 +42,9 @@ import org.ldaptive.dn.Dn;
 @Schema(
     name = "AdEntry",
     description = "Active directory base entry.",
-    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+    discriminatorProperty = ModelConstants.DISCRIMINATOR
+    /*
+    ,
     discriminatorMapping = {
         @DiscriminatorMapping(value = ModelConstants.DNS_ENTRY, schema = ImmutableDnsEntry.class),
         @DiscriminatorMapping(value = ModelConstants.DNS_ZONE, schema = ImmutableDnsZone.class),
@@ -57,7 +59,9 @@ import org.ldaptive.dn.Dn;
         @DiscriminatorMapping(
             value = ModelConstants.ORGANIZATIONAL_UNIT,
             schema = ImmutableOrganizationalUnit.class)
-    })
+    }
+    */
+    )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ImmutableDnsEntry.class, name = ModelConstants.DNS_ENTRY),
