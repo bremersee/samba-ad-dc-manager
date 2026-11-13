@@ -43,7 +43,7 @@ import org.ldaptive.dn.Dn;
     name = "AdEntry",
     description = "Active directory base entry.",
     discriminatorProperty = ModelConstants.DISCRIMINATOR
-    /*
+
     ,
     discriminatorMapping = {
         @DiscriminatorMapping(value = ModelConstants.DNS_ENTRY, schema = ImmutableDnsEntry.class),
@@ -60,7 +60,7 @@ import org.ldaptive.dn.Dn;
             value = ModelConstants.ORGANIZATIONAL_UNIT,
             schema = ImmutableOrganizationalUnit.class)
     }
-    */
+
     )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR, visible = true)
 @JsonSubTypes({
