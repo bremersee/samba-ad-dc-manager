@@ -74,7 +74,10 @@ import tools.jackson.databind.annotation.JsonSerialize;
             schema = DomainUser.class)
     }
 )
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = ModelConstants.DISCRIMINATOR)
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = ModelConstants.DISCRIMINATOR)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = AdEntry.class, name = ModelConstants.AD_ENTRY),
 
