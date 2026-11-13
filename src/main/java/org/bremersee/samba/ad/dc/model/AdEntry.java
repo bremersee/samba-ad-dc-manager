@@ -87,7 +87,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
     @JsonSubTypes.Type(
         value = DomainGroupMember.class,
         name = ModelConstants.GROUP_MEMBER),
-    @JsonSubTypes.Type(value = ImmutableDomainUser.class, name = ModelConstants.USER)
+    @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
 })
 
 
