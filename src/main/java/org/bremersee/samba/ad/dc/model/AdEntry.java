@@ -84,7 +84,7 @@ import org.ldaptive.dn.Dn;
         value = ImmutableOrganizationalUnit.class,
         name = ModelConstants.ORGANIZATIONAL_UNIT),
 
-    @JsonSubTypes.Type(value = ImmutableSamAccountIntermediate.class, name = ModelConstants.SAM_ACCOUNT),
+    //@JsonSubTypes.Type(value = ImmutableSamAccountIntermediate.class, name = ModelConstants.SAM_ACCOUNT),
     @JsonSubTypes.Type(value = ImmutableDomainComputer.class, name = ModelConstants.COMPUTER),
     @JsonSubTypes.Type(value = ImmutableDomainGroup.class, name = ModelConstants.GROUP),
     @JsonSubTypes.Type(
