@@ -60,7 +60,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
     OAuth2ResourceServerProperties.class, AuthenticationProperties.class
 })
 @Configuration
-public class WebSecurityConfiguration {
+class WebSecurityConfiguration {
 
   private static final String API_PATH_PATTERN = "/api/**";
 
@@ -76,7 +76,17 @@ public class WebSecurityConfiguration {
 
   private final LdaptiveRememberMeServices rememberMeServices;
 
-  public WebSecurityConfiguration(
+  /**
+   * Instantiates a new web security configuration.
+   *
+   * @param env the env
+   * @param authenticationProperties the authentication properties
+   * @param resourceServerProperties the resource server properties
+   * @param corsConfigurationSource the cors configuration source
+   * @param jwtConverterProvider the jwt converter provider
+   * @param rememberMeServices the remember me services
+   */
+  WebSecurityConfiguration(
       Environment env,
       AuthenticationProperties authenticationProperties,
       OAuth2ResourceServerProperties resourceServerProperties,
@@ -104,6 +114,12 @@ public class WebSecurityConfiguration {
     return new RequestMatcherDelegatingAccessDeniedHandler(handlers, defaultHandler);
   }
 
+  /**
+   * Filter chain security filter chain.
+   *
+   * @param http the http
+   * @return the security filter chain
+   */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) {
     String appName = env.getProperty("spring.application.name", "samba-ad-dc-manager");

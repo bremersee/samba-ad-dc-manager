@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Christian Bremer
  */
 @Configuration
-public class SortMapperConfiguration {
+class SortMapperConfiguration {
 
   /**
    * Instantiates a new sort mapper configuration.
@@ -35,7 +35,7 @@ public class SortMapperConfiguration {
    * @param sortMapper the sort mapper
    * @param sortMapperComponents the sort mapper components
    */
-  public SortMapperConfiguration(
+  SortMapperConfiguration(
       SortMapper sortMapper,
       List<SortMapperAware> sortMapperComponents) {
 

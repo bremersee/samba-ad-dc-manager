@@ -71,4 +71,10 @@ public class ApplicationProperties implements Serializable {
   @NestedConfigurationProperty
   private MockProperties mock = new MockProperties();
 
+  /**
+   * Instantiates new application properties.
+   */
+  public ApplicationProperties() {
+    super();
+  }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -9,10 +25,14 @@ import io.swagger.v3.oas.annotations.security.OAuthFlow;
 import io.swagger.v3.oas.annotations.security.OAuthFlows;
 import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+/**
+ * The OpenAPI configuration.
+ *
+ * @author Christian Bremer
+ */
 @Configuration
 @Profile("api")
 @OpenAPIDefinition(
@@ -29,10 +49,20 @@ import org.springframework.context.annotation.Profile;
 )
 class OpenApiConfiguration {
 
+  /**
+   * Instantiates a new OpenAPI configuration.
+   *
+   * @author Christian Bremer
+   */
   OpenApiConfiguration() {
     super();
   }
 
+  /**
+   * For basic auth.
+   *
+   * @author Christian Bremer
+   */
   @Configuration
   @Profile("!jwt & api")
   @SecurityScheme(
@@ -42,11 +72,19 @@ class OpenApiConfiguration {
       in = SecuritySchemeIn.HEADER)
   static class ForBasicAuth {
 
+    /**
+     * Instantiates a new instance for basic auth.
+     */
     ForBasicAuth() {
       super();
     }
   }
 
+  /**
+   * For jwt.
+   *
+   * @author Christian Bremer
+   */
   @Configuration
   @Profile("jwt & api")
   @SecurityScheme(
@@ -69,6 +107,9 @@ class OpenApiConfiguration {
       in = SecuritySchemeIn.HEADER)
   static class ForJwt {
 
+    /**
+     * Instantiates a new instance for jwt.
+     */
     ForJwt() {
       super();
     }

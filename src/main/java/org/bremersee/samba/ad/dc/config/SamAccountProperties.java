@@ -50,7 +50,7 @@ abstract class SamAccountProperties implements Serializable {
   private int minQueryLength = 2;
 
   /**
-   * Instantiates a new Sam account properties.
+   * Instantiates new sam account properties.
    */
   SamAccountProperties() {
     super();

@@ -16,18 +16,6 @@
 
 package org.bremersee.samba.ad.dc.config;
 
-import java.io.Serializable;
-import java.util.Map;
-import javax.cache.event.CacheEntryCreatedListener;
-import javax.cache.event.CacheEntryEvent;
-import javax.cache.event.CacheEntryEventFilter;
-import javax.cache.event.CacheEntryExpiredListener;
-import javax.cache.event.CacheEntryListener;
-import javax.cache.event.CacheEntryListenerException;
-import javax.cache.event.CacheEntryRemovedListener;
-import javax.cache.event.CacheEntryUpdatedListener;
-import lombok.extern.slf4j.Slf4j;
-import org.bremersee.samba.ad.dc.model.DhcpLease;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,110 +26,13 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableCaching
-@Slf4j
-public class CachingConfiguration {
+class CachingConfiguration {
 
-  /*
-  @Bean
-  public JCacheManagerCustomizer cacheManagerCustomizer() {
-    return cacheManager -> {
-      TimeUnit durationUnit = TimeUnit.SECONDS;
-      if (Objects.isNull(cacheManager.getCache("dnsZoneCache"))) {
-        log.info("Creating cache 'dnsZoneCache'.");
-        cacheManager.createCache("dnsZoneCache", new MutableConfiguration<>()
-            .setExpiryPolicyFactory(CreatedExpiryPolicy
-                .factoryOf(new javax.cache.expiry.Duration(TimeUnit.DAYS, 1L)))
-            .setStoreByValue(false)
-            .setStatisticsEnabled(true)
-        );
-      }
-
-      if (cacheManager.getCache("dhcp-leases-by-ip") == null) {
-        log.info("msg=[Creating cache 'dhcp-leases-by-ip']");
-        cacheManager.createCache(
-            "dhcp-leases-by-ip",
-            new MutableConfiguration<Object, Map<String, DhcpLease>>()
-                .setExpiryPolicyFactory(CreatedExpiryPolicy
-                    .factoryOf(new javax.cache.expiry.Duration(durationUnit, 30L)))
-                .setStoreByValue(false)
-                .setStatisticsEnabled(true)
-                .addCacheEntryListenerConfiguration(cacheEntryListenerConfiguration())
-        );
-      }
-      if (cacheManager.getCache("dhcp-leases-by-name") == null) {
-        log.info("msg=[Creating cache 'dhcp-leases-by-name']");
-        cacheManager.createCache(
-            "dhcp-leases-by-name",
-            new MutableConfiguration<Object, Map<String, DhcpLease>>()
-                .setExpiryPolicyFactory(CreatedExpiryPolicy
-                    .factoryOf(new javax.cache.expiry.Duration(durationUnit, 30L)))
-                .setStoreByValue(false)
-                .setStatisticsEnabled(true)
-                .addCacheEntryListenerConfiguration(cacheEntryListenerConfiguration())
-        );
-      }
-    };
+  /**
+   * Instantiates a new caching configuration.
+   */
+  CachingConfiguration() {
+    super();
   }
-
-  @Bean
-  public MutableCacheEntryListenerConfiguration<Object, Map<String, DhcpLease>> cacheEntryListenerConfiguration() {
-    return new MutableCacheEntryListenerConfiguration<>(
-        FactoryBuilder.factoryOf(new DhcpLeaseCacheEntryListener()),
-        FactoryBuilder.factoryOf(new DhcpLeaseCacheEntryEventFilter()),
-        false, true);
-  }
-  */
-
-  @Slf4j
-  static class DhcpLeaseCacheEntryEventFilter
-      implements Serializable, CacheEntryEventFilter<Object, Map<String, DhcpLease>> {
-
-    @Override
-    public boolean evaluate(CacheEntryEvent<?, ? extends Map<String, DhcpLease>> cacheEntryEvent)
-        throws CacheEntryListenerException {
-      log.info("msg=[Evaluate cache entry event] eventType=[{}]", cacheEntryEvent.getEventType());
-      return true;
-    }
-  }
-
-  @Slf4j
-  static class DhcpLeaseCacheEntryListener implements
-      Serializable,
-      CacheEntryListener<Object, Map<String, DhcpLease>>,
-      CacheEntryCreatedListener<Object, Map<String, DhcpLease>>,
-      CacheEntryUpdatedListener<Object, Map<String, DhcpLease>>,
-      CacheEntryRemovedListener<Object, Map<String, DhcpLease>>,
-      CacheEntryExpiredListener<Object, Map<String, DhcpLease>> {
-
-    @Override
-    public void onCreated(Iterable<CacheEntryEvent<?, ? extends Map<String, DhcpLease>>> iterable)
-        throws CacheEntryListenerException {
-      iterable.iterator().forEachRemaining(cacheEntryEvent -> log
-          .info("msg=[Dhcp lease cache created.] values=[{}[", cacheEntryEvent.getValue()));
-    }
-
-    @Override
-    public void onUpdated(Iterable<CacheEntryEvent<?, ? extends Map<String, DhcpLease>>> iterable)
-        throws CacheEntryListenerException {
-      iterable.iterator().forEachRemaining(cacheEntryEvent -> log
-          .info("msg=[Dhcp lease cache updated.] values=[{}[", cacheEntryEvent.getValue()));
-    }
-
-    @Override
-    public void onRemoved(Iterable<CacheEntryEvent<?, ? extends Map<String, DhcpLease>>> iterable)
-        throws CacheEntryListenerException {
-      iterable.iterator().forEachRemaining(cacheEntryEvent -> log
-          .info("msg=[Dhcp lease cache removed.] values=[{}[", cacheEntryEvent.getValue()));
-    }
-
-    @Override
-    public void onExpired(Iterable<CacheEntryEvent<?, ? extends Map<String, DhcpLease>>> iterable)
-        throws CacheEntryListenerException {
-      iterable.iterator().forEachRemaining(cacheEntryEvent -> log
-          .info("msg=[Dhcp lease cache expired.] values=[{}[", cacheEntryEvent.getValue()));
-    }
-
-  }
-
 
 }

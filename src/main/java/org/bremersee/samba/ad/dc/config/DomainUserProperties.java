@@ -41,6 +41,9 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The constant DEFAULT_USER_OU.
+   */
   public static final String DEFAULT_USER_OU = "CN=Users";
 
   /**
@@ -112,10 +115,18 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
 
   private String gravatarUrl = "https://www.gravatar.com/avatar/{hash}?d={default}&s={size}";
 
+  /**
+   * Instantiates a new Domain user properties.
+   */
   public DomainUserProperties() {
     setDefaultOu(DEFAULT_USER_OU);
   }
 
+  /**
+   * The default login page.
+   *
+   * @author Christian Bremer
+   */
   @Data
   public static class DefaultLoginPage implements Serializable {
 
@@ -128,6 +139,18 @@ public class DomainUserProperties extends SamAccountProperties implements Serial
 
     private boolean usingNetbiosDomainPrefix = true;
 
+    /**
+     * Instantiates a new default login page.
+     */
+    public DefaultLoginPage() {
+      super();
+    }
+
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
     public String getName() {
       if (isEmpty(name)) {
         return url;

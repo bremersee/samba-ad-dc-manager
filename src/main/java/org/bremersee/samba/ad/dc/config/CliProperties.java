@@ -20,12 +20,11 @@ import java.io.Serial;
 import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * The type CliProperties.
+ * The cli properties.
  *
  * @author Christian Bremer
  */
@@ -33,14 +32,10 @@ import lombok.ToString;
 @Setter
 @ToString(exclude = {"sambaToolCredentialsOptions"})
 @EqualsAndHashCode
-@NoArgsConstructor
 public class CliProperties implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  // TODO for installation to generate secret?
-  private String randomStringCommand = "/usr/bin/tr -dc 'A-Za-z0-9!\"#$%&'\\''()*+,-./:;<=>?@[\\]^_`{|}~' </dev/urandom | head -c 13; echo";
 
   private String execDir = System.getProperty("java.io.tmpdir");
 
@@ -58,11 +53,22 @@ public class CliProperties implements Serializable {
 
   private SshProperties ssh = new SshProperties();
 
+  /**
+   * Instantiates new cli properties.
+   */
+  public CliProperties() {
+    super();
+  }
+
+  /**
+   * The sudo properties.
+   *
+   * @author Christian Bremer
+   */
   @Getter
   @Setter
   @ToString
   @EqualsAndHashCode
-  @NoArgsConstructor
   public static class SudoProperties implements Serializable {
 
     @Serial
@@ -71,13 +77,24 @@ public class CliProperties implements Serializable {
     private boolean usingSudo = true;
 
     private String sudoCommand = "/usr/bin/sudo";
+
+    /**
+     * Instantiates new sudo properties.
+     */
+    public SudoProperties() {
+      super();
+    }
   }
 
+  /**
+   * The ssh properties.
+   *
+   * @author Christian Bremer
+   */
   @Getter
   @Setter
   @ToString
   @EqualsAndHashCode
-  @NoArgsConstructor
   public static class SshProperties implements Serializable {
 
     @Serial
@@ -89,6 +106,13 @@ public class CliProperties implements Serializable {
      * The ssh command like {@code /usr/bin/ssh root@hostname}.
      */
     private String sshCommand;
+
+    /**
+     * Instantiates new ssh properties.
+     */
+    public SshProperties() {
+      super();
+    }
   }
 
 }

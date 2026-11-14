@@ -37,6 +37,9 @@ public class DomainGroupProperties extends SamAccountProperties implements Seria
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Instantiates new domain group properties.
+   */
   public DomainGroupProperties() {
     setDefaultOu(DomainUserProperties.DEFAULT_USER_OU);
   }

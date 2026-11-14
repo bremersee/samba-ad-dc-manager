@@ -37,8 +37,14 @@ public class DomainComputerProperties extends SamAccountProperties implements Se
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The constant DEFAULT_COMPUTER_OU.
+   */
   public static final String DEFAULT_COMPUTER_OU = "CN=Computers";
 
+  /**
+   * Instantiates new domain computer properties.
+   */
   public DomainComputerProperties() {
     setDefaultOu(DEFAULT_COMPUTER_OU);
   }

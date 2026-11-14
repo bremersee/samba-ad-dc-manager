@@ -32,7 +32,14 @@ import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecu
 @Configuration
 @EnableAsync
 @EnableScheduling
-public class AsyncConfiguration implements AsyncConfigurer {
+class AsyncConfiguration implements AsyncConfigurer {
+
+  /**
+   * Instantiates a new async configuration.
+   */
+  AsyncConfiguration() {
+    super();
+  }
 
   @Override
   public Executor getAsyncExecutor() {

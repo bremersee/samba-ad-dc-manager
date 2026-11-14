@@ -56,7 +56,7 @@ class FeatureDetectionConfiguration {
   private final LdaptiveRememberMeServices rememberMeServices;
 
   /**
-   * Instantiates a new Feature detection configuration.
+   * Instantiates a new feature detection configuration.
    *
    * @param applicationProperties the application properties
    * @param mailProperties the mail properties
