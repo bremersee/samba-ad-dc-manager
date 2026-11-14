@@ -26,6 +26,8 @@ import org.mapstruct.factory.Mappers;
 
 /**
  * The organizational unit edit model mapper.
+ *
+ * @author Christian Bremer
  */
 @Mapper
 public abstract class OrganizationalUnitEditModelMapper {

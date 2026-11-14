@@ -22,6 +22,8 @@ import lombok.Data;
 
 /**
  * The dns zone delete model.
+ *
+ * @author Christian Bremer
  */
 @Data
 public class DnsZoneDeleteModel implements Serializable {

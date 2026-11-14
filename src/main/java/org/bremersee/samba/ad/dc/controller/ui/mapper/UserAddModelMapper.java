@@ -24,6 +24,8 @@ import org.mapstruct.factory.Mappers;
 
 /**
  * The user add model mapper.
+ *
+ * @author Christian Bremer
  */
 @Mapper
 public interface UserAddModelMapper {

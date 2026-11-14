@@ -25,6 +25,8 @@ import org.ldaptive.dn.Dn;
 
 /**
  * The computer edit model.
+ *
+ * @author Christian Bremer
  */
 @Data
 public class ComputerEditModel implements Serializable {

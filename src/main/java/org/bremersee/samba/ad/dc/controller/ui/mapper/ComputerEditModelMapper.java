@@ -26,6 +26,8 @@ import org.mapstruct.factory.Mappers;
 
 /**
  * The computer edit model mapper.
+ *
+ * @author Christian Bremer
  */
 @Mapper
 public abstract class ComputerEditModelMapper {

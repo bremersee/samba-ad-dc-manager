@@ -31,6 +31,8 @@ import org.mapstruct.factory.Mappers;
 
 /**
  * The user edit model mapper.
+ *
+ * @author Christian Bremer
  */
 @Mapper
 public abstract class UserEditModelMapper {

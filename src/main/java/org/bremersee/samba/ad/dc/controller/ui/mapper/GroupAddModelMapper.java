@@ -24,6 +24,8 @@ import org.mapstruct.factory.Mappers;
 
 /**
  * The group add model mapper.
+ *
+ * @author Christian Bremer
  */
 @Mapper
 public interface GroupAddModelMapper {
