@@ -53,6 +53,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * The dns api controller.
+ *
+ * @author Christian Bremer
  */
 @Profile("api")
 @RestController
@@ -580,7 +582,9 @@ public class DnsApiController extends ApiController {
       @RequestParam(name = QUERY, required = false)
       String query) {
 
-    Page<DhcpLease> page = dnsService.getDhcpLeases(pageable, query);
+    Page<DhcpLease> page = getFeatures().isDhcpEnabled()
+        ? dnsService.getDhcpLeases(pageable, query)
+        : Page.empty();
     return ResponseEntity.ok(new DhcpLeasePage(page));
   }
 

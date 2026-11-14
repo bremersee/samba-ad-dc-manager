@@ -115,7 +115,7 @@
                 DNS
               </a>
             </li>
-            <li>
+            <li th:if="${@sambaAdDcMangerFeatures.dhcpEnabled}">
               <a class="dropdown-item show-spinner" href="#" th:href="@{/management/dhcp-leases}"
                  th:text="#{management.dhcp}">
                 DHCP
