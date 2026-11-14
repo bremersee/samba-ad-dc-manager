@@ -24,6 +24,7 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordChangeModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.Features;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -67,6 +68,12 @@ public class PasswordChangeController extends UiController {
       DomainUserService domainUserService) {
     super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
+  }
+
+  @ModelAttribute("features")
+  @Override
+  public Features getFeatures() {
+    return super.getFeatures();
   }
 
   /**

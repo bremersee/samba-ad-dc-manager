@@ -98,7 +98,8 @@ public class ProfileController extends UiController {
    */
   @ModelAttribute("userAbleToChangeEmail")
   public boolean isUserAbleToChangeEmail() {
-    return getProperties().getUser().isUserAbleToChangeEmail();
+    return getProperties().getUser().isUserAbleToChangeEmail()
+        && getFeatures().isMailEnabled();
   }
 
   /**
