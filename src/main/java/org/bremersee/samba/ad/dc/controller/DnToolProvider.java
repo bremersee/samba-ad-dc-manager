@@ -26,6 +26,11 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
  */
 public interface DnToolProvider extends ApplicationPropertiesProvider {
 
+  /**
+   * Gets dn tool.
+   *
+   * @return the dn tool
+   */
   default DnTool getDnTool() {
     return new DefaultDnTool(getProperties());
   }

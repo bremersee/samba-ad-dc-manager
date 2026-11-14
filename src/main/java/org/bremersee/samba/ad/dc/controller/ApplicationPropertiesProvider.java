@@ -25,6 +25,11 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
  */
 public interface ApplicationPropertiesProvider {
 
+  /**
+   * Gets properties.
+   *
+   * @return the properties
+   */
   ApplicationProperties getProperties();
 
 }
