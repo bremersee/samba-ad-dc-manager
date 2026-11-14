@@ -28,16 +28,16 @@ import tools.jackson.databind.annotation.JsonSerialize;
     discriminatorProperty = ModelConstants.DISCRIMINATOR,
     discriminatorMapping = {
         @DiscriminatorMapping(
-            value = ModelConstants.COMPUTER,
+            //value = ModelConstants.COMPUTER,
             schema = DomainComputer.class),
         @DiscriminatorMapping(
-            value = ModelConstants.GROUP,
+            //value = ModelConstants.GROUP,
             schema = DomainGroup.class),
         @DiscriminatorMapping(
-            value = ModelConstants.GROUP_MEMBER,
+            //value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
-            value = ModelConstants.USER,
+            //value = ModelConstants.USER,
             schema = DomainUser.class)
     }
 )
