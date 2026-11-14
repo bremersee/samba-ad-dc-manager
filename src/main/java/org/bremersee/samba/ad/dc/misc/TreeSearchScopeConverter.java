@@ -32,6 +32,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TreeSearchScopeConverter implements Converter<String, TreeSearchScope> {
 
+  /**
+   * Instantiates a new tree search scope converter.
+   */
+  public TreeSearchScopeConverter() {
+    super();
+  }
+
   @Override
   public TreeSearchScope convert(@NonNull String source) {
     return TreeSearchScope.fromValue(source);

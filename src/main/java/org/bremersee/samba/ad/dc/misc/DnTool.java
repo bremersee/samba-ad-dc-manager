@@ -272,6 +272,9 @@ public interface DnTool {
   /**
    * The dn pair.
    *
+   * @param dn the dn
+   * @param normalizedDn the normalized dn
+   *
    * @author Christian Bremer
    */
   record DnPair(String dn, String normalizedDn) {

@@ -69,6 +69,11 @@ public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper<DomainUse
   @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new domain user ldap mapper.
+   *
+   * @param domainRepository the domain repository
+   */
   public DomainUserLdapMapper(DomainRepository domainRepository) {
     rfc2307EnabledSupplier = domainRepository::isRfc2307Enabled;
     samAccountLdapMapper = new SamAccountLdapMapper();

@@ -31,6 +31,13 @@ public class PaginationHelper {
 
   private static final String PAGE_MUST_NOT_BE_NULL = "Page must not be null.";
 
+  /**
+   * Instantiates a new pagination helper.
+   */
+  public PaginationHelper() {
+    super();
+  }
+
   private int ceil(Number a, Number b) {
     return (int) Math.ceil(a.doubleValue() / b.doubleValue());
   }

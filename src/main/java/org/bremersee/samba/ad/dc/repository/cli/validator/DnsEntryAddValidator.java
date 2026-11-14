@@ -25,6 +25,13 @@ import org.bremersee.samba.ad.dc.ErrorCode;
  */
 public class DnsEntryAddValidator extends DnsEntryValidator {
 
+  /**
+   * Instantiates a new dns entry add validator.
+   */
+  public DnsEntryAddValidator() {
+    super();
+  }
+
   @Override
   String getExpectedResponse() {
     return "Record added successfully";

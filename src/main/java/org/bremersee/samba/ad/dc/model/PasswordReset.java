@@ -112,6 +112,12 @@ public interface PasswordReset extends Serializable {
    */
   class Builder extends ImmutablePasswordReset.Builder {
 
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+      super();
+    }
   }
 
 }

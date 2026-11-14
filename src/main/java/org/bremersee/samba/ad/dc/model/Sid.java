@@ -123,9 +123,17 @@ public interface Sid extends Serializable {
 
   /**
    * The immutable builder.
+   *
+   * @author Christian Bremer
    */
   class Builder extends ImmutableSid.Builder {
 
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+      super();
+    }
   }
 
 }

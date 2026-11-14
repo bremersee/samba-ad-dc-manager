@@ -114,9 +114,17 @@ public interface DhcpLease extends Serializable {
 
   /**
    * The immutable builder.
+   *
+   * @author Christian Bremer
    */
   class Builder extends ImmutableDhcpLease.Builder {
 
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+      super();
+    }
   }
 
 }

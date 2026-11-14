@@ -128,9 +128,17 @@ public interface SamAccountIntermediate extends SamAccount {
 
   /**
    * The immutable builder.
+   *
+   * @author Christian Bremer
    */
   class Builder extends ImmutableSamAccountIntermediate.Builder {
 
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+      super();
+    }
   }
 
 }

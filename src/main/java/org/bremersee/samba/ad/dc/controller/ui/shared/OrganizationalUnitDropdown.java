@@ -73,6 +73,13 @@ public class OrganizationalUnitDropdown implements Serializable {
   private String selectableScopeDisplayValue;
 
   /**
+   * Instantiates a new organizational unit dropdown.
+   */
+  public OrganizationalUnitDropdown() {
+    super();
+  }
+
+  /**
    * Gets selectable organizational units.
    *
    * @return the selectable organizational units

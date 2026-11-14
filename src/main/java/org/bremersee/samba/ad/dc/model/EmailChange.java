@@ -103,10 +103,18 @@ public interface EmailChange extends Serializable {
   }
 
   /**
-   * The type Builder.
+   * The builder.
+   *
+   * @author Christian Bremer
    */
   class Builder extends ImmutableEmailChange.Builder {
 
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+      super();
+    }
   }
 
 }

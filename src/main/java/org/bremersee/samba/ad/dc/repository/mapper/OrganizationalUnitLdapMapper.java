@@ -59,6 +59,11 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
   @Getter
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new organizational unit ldap mapper.
+   *
+   * @param properties the properties
+   */
   public OrganizationalUnitLdapMapper(ApplicationProperties properties) {
     dnTool = new DefaultDnTool(properties);
     adEntryLdapMapper = new AdEntryLdapMapper();

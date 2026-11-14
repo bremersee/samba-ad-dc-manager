@@ -175,9 +175,17 @@ public abstract class AbstractController implements SortMapperAware, FeaturesAwa
       + ";" + DNS_ENTRY_TYPE
       + ";" + DNS_ENTRY_VALUE;
 
+  /**
+   * --- GETTER ---
+   * Gets features.
+   */
   @Getter
   private Features features;
 
+  /**
+   * --- GETTER ---
+   * Gets sort mapper.
+   */
   @Getter
   private SortMapper sortMapper;
 

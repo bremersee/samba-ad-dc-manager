@@ -22,6 +22,9 @@ import java.io.Serializable;
 /**
  * The aes enc value.
  *
+ * @param encryptedValue the encrypted value
+ * @param salt the salt
+ *
  * @author Christian Bremer
  */
 public record AesEncValue(String encryptedValue, String salt) implements Serializable {

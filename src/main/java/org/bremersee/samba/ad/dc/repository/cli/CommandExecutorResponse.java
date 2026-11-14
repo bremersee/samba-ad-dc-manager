@@ -33,7 +33,6 @@ import org.springframework.util.StringUtils;
 @Getter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
 @SuppressWarnings("ClassCanBeRecord")
 public class CommandExecutorResponse implements Serializable {
 
@@ -43,6 +42,17 @@ public class CommandExecutorResponse implements Serializable {
   private final String stdout;
 
   private final String stderr;
+
+  /**
+   * Instantiates a new command executor response.
+   *
+   * @param stdout the stdout
+   * @param stderr the stderr
+   */
+  public CommandExecutorResponse(String stdout, String stderr) {
+    this.stdout = stdout;
+    this.stderr = stderr;
+  }
 
   /**
    * Check whether stdout has text or not.
