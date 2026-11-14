@@ -5,6 +5,7 @@ pipeline {
   environment {
     CODECOV_TOKEN = credentials('samba-ad-dc-manager-codecov-token')
     BRANCH_NAME = "${GIT_BRANCH.split("/").size() > 1 ? GIT_BRANCH.split("/")[1] : GIT_BRANCH}"
+    NAME = 'samba-ad-dc-manager'
     API_NAME = 'samba-ad-dc-manager-api'
     TEST = true
     SITE = false
@@ -65,6 +66,12 @@ pipeline {
           PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           mvn -f target/$API_NAME/pom.xml versions:update-parent -DparentVersion=\$PARENT_VERSION
           mvn -f target/$API_NAME/pom.xml versions:set -DnewVersion=\$PROJECT_VERSION
+          echo "# "$API_NAME > target/$API_NAME/README.md
+          echo "" >> target/$API_NAME/README.md
+          echo "RESTful API clients of ["$NAME"](https://github.com/bremersee/"$NAME)"." >> target/$API_NAME/README.md
+          echo "" >> target/$API_NAME/README.md
+          echo "[Maven-Site](https://bremersee.github.io/"$API_NAME/\$PROJECT_VERSION"/index.html)" >> target/$API_NAME/README.md
+          echo "" >> target/$API_NAME/README.md
           git -C target/$API_NAME add .
           git -C target/$API_NAME commit --allow-empty -m "Updates api"
           git -C target/$API_NAME push
