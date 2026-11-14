@@ -21,7 +21,7 @@ import org.bremersee.pagebuilder.model.JsonPageDto;
 import org.springframework.data.domain.Page;
 
 /**
- * The type OrganizationUnitPage.
+ * The organization unit page.
  *
  * @author Christian Bremer
  */
@@ -30,9 +30,11 @@ public class OrganizationalUnitPage extends JsonPageDto<OrganizationalUnit> {
   @Serial
   private static final long serialVersionUID = 1;
 
-  public OrganizationalUnitPage() {
-  }
-
+  /**
+   * Instantiates a new Organizational unit page.
+   *
+   * @param page the page
+   */
   public OrganizationalUnitPage(
       Page<? extends OrganizationalUnit> page) {
     super(page);

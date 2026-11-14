@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 
 /**
- * The enum DomainGroupMemberType.
+ * The domain group member type.
  *
  * @author Christian Bremer
  */
@@ -35,24 +35,36 @@ import lombok.Getter;
 @Getter
 public enum DomainGroupMemberType {
 
+  /**
+   * The Unknown.
+   */
   UNKNOWN(
       "text-danger",
       "fas fa-question-circle",
       "Unknown",
       "domain-group-member-type.unknown"),
 
+  /**
+   * The User.
+   */
   USER(
       "text-primary",
       "fas fa-user",
       "User",
       "domain-group-member-type.user"),
 
+  /**
+   * The Group.
+   */
   GROUP(
       "text-success",
       "fas fa-user-group",
       "Group",
       "domain-group-member-type.group"),
 
+  /**
+   * The Computer.
+   */
   COMPUTER(
       "text-warning",
       "fas fa-computer",
@@ -80,6 +92,12 @@ public enum DomainGroupMemberType {
     return name().toLowerCase();
   }
 
+  /**
+   * From string domain group member type.
+   *
+   * @param type the type
+   * @return the domain group member type
+   */
   @JsonCreator
   public static DomainGroupMemberType fromString(String type) {
     if (isNull(type)) {
@@ -92,6 +110,12 @@ public enum DomainGroupMemberType {
     }
   }
 
+  /**
+   * From object classes domain group member type.
+   *
+   * @param objectClasses the object classes
+   * @return the domain group member type
+   */
   public static DomainGroupMemberType fromObjectClasses(Collection<String> objectClasses) {
     return Stream.ofNullable(objectClasses)
         .flatMap(Collection::stream)

@@ -31,6 +31,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The dns zone.
+ *
+ * @author Christian Bremer
+ */
 @Schema(name = ModelConstants.DNS_ZONE, description = "DNS zone.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
@@ -88,54 +93,134 @@ public interface DnsZone extends AdEntry {
         .build();
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   @Schema(description = "The zone name.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "name", required = true)
   String getName();
 
+  /**
+   * Gets zone type.
+   *
+   * @return the zone type
+   */
   @Schema(description = "The zone type.")
   @Nullable
   String getZoneType(); // DNS_ZONE_TYPE_PRIMARY, DNS_ZONE_TYPE_CACHE
 
+  /**
+   * Gets reverse zone.
+   *
+   * @return the reverse zone
+   */
   @Schema(description = "Specifies whether this zone is a reverse zone or not.")
   @Nullable
   Boolean getReverseZone();
 
+  /**
+   * Gets allow update.
+   *
+   * @return the allow update
+   */
   @Nullable
   String getAllowUpdate();
 
+  /**
+   * Gets paused.
+   *
+   * @return the paused
+   */
   @Nullable
   Boolean getPaused();
 
+  /**
+   * Gets shutdown.
+   *
+   * @return the shutdown
+   */
   @Nullable
   Boolean getShutdown();
 
+  /**
+   * Gets auto created.
+   *
+   * @return the auto created
+   */
   @Nullable
   Boolean getAutoCreated();
 
+  /**
+   * Gets use database.
+   *
+   * @return the use database
+   */
   @Nullable
   Boolean getUseDatabase();
 
+  /**
+   * Gets data file.
+   *
+   * @return the data file
+   */
   @Nullable
   String getDataFile();
 
+  /**
+   * Gets use wins.
+   *
+   * @return the use wins
+   */
   @Nullable
   Boolean getUseWins();
 
+  /**
+   * Gets use nbstat.
+   *
+   * @return the use nbstat
+   */
   @Nullable
   Boolean getUseNbstat();
 
+  /**
+   * Gets aging.
+   *
+   * @return the aging
+   */
   @Nullable
   Boolean getAging();
 
+  /**
+   * Gets fqdn.
+   *
+   * @return the fqdn
+   */
   @Nullable
   String getFqdn();
 
+  /**
+   * Gets queued for background load.
+   *
+   * @return the queued for background load
+   */
   @Nullable
   Boolean getQueuedForBackgroundLoad();
 
+  /**
+   * Gets background load in progress.
+   *
+   * @return the background load in progress
+   */
   @Nullable
   Boolean getBackgroundLoadInProgress();
 
+  /**
+   * Gets read only zone.
+   *
+   * @return the read only zone
+   */
   @Nullable
   Boolean getReadOnlyZone();
 

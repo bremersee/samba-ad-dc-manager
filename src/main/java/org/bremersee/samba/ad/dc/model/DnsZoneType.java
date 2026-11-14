@@ -23,7 +23,7 @@ import java.util.Arrays;
 import lombok.Getter;
 
 /**
- * The enum DnsZoneType.
+ * The dns zone type.
  *
  * @author Christian Bremer
  */
@@ -84,11 +84,22 @@ public enum DnsZoneType {
     this.i18nCode = i18nCode;
   }
 
+  /**
+   * Gets parameter value.
+   *
+   * @return the parameter value
+   */
   @JsonValue
   public String getParameterValue() {
     return parameterValue;
   }
 
+  /**
+   * From value dns zone type.
+   *
+   * @param value the value
+   * @return the dns zone type
+   */
   @JsonCreator
   public static DnsZoneType fromValue(String value) {
     return Arrays.stream(values())

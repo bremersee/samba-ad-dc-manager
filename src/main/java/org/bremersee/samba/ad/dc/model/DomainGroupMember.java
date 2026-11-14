@@ -35,6 +35,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The domain group member.
+ *
+ * @author Christian Bremer
+ */
 @Schema(
     name = ModelConstants.GROUP_MEMBER,
     description = "The domain group.")
@@ -131,14 +136,29 @@ public interface DomainGroupMember extends SamAccount {
         .build();
   }
 
+  /**
+   * Gets member type.
+   *
+   * @return the member type
+   */
   @Schema(description = "The type of the member.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "memberType", required = true)
   DomainGroupMemberType getMemberType();
 
+  /**
+   * Gets display name.
+   *
+   * @return the display name
+   */
   @Schema(description = "The display name of the member.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "displayName", required = true)
   String getDisplayName();
 
+  /**
+   * Is member boolean.
+   *
+   * @return the boolean
+   */
   @Schema(description = "Determines whether this sam account is a member of the requested group "
       + "or not.", defaultValue = "false")
   @JsonProperty(value = "member", defaultValue = "false")
@@ -147,6 +167,11 @@ public interface DomainGroupMember extends SamAccount {
     return false;
   }
 
+  /**
+   * Is primary member boolean.
+   *
+   * @return the boolean
+   */
   @Schema(description = "Determines whether the requested group is the primary group if this sam "
       + "account or not.", defaultValue = "false")
   @JsonProperty(value = "primaryMember", defaultValue = "false")
@@ -155,6 +180,12 @@ public interface DomainGroupMember extends SamAccount {
     return false;
   }
 
+  /**
+   * With member domain group member.
+   *
+   * @param isMember the is member
+   * @return the domain group member
+   */
   @NotNull
   default DomainGroupMember withMember(boolean isMember) {
     return builder()
@@ -163,6 +194,12 @@ public interface DomainGroupMember extends SamAccount {
         .build();
   }
 
+  /**
+   * With primary member domain group member.
+   *
+   * @param isPrimaryMember the is primary member
+   * @return the domain group member
+   */
   @NotNull
   default DomainGroupMember withPrimaryMember(boolean isPrimaryMember) {
     return builder()

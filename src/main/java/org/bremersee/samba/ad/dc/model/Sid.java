@@ -51,8 +51,14 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableSid.class)
 public interface Sid extends Serializable {
 
+  /**
+   * The constant DEFAULT_SID_PREFIX.
+   */
   String DEFAULT_SID_PREFIX = "S-1-5-21-";
 
+  /**
+   * The constant MAX_SYSTEM_SID_SUFFIX.
+   */
   int MAX_SYSTEM_SID_SUFFIX = 999;
 
   /**

@@ -19,15 +19,12 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.pagebuilder.model.JsonPageDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
 /**
  * The dhcp lease page.
@@ -43,47 +40,6 @@ public class DhcpLeasePage extends JsonPageDto<DhcpLease> {
 
   @Serial
   private static final long serialVersionUID = 1;
-
-  /**
-   * Instantiates a new dhcp lease page.
-   *
-   * @param content the content
-   * @param number the number
-   * @param size the size
-   * @param totalElements the total elements
-   */
-  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size,
-      long totalElements) {
-    super(content, number, size, totalElements);
-  }
-
-  /**
-   * Instantiates a new dhcp lease page.
-   *
-   * @param content the content
-   * @param number the number
-   * @param size the size
-   * @param totalElements the total elements
-   * @param sort the sort
-   */
-  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size, long totalElements,
-      SortOrder sort) {
-    super(content, number, size, totalElements, sort);
-  }
-
-  /**
-   * Instantiates a new dhcp lease page.
-   *
-   * @param content the content
-   * @param number the number
-   * @param size the size
-   * @param totalElements the total elements
-   * @param sort the sort
-   */
-  public DhcpLeasePage(List<? extends DhcpLease> content, int number, int size, long totalElements,
-      Sort sort) {
-    super(content, number, size, totalElements, sort);
-  }
 
   /**
    * Instantiates a new dhcp lease page.

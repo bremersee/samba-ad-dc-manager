@@ -34,6 +34,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The domain computer.
+ *
+ * @author Christian Bremer
+ */
 @Schema(
     name = ModelConstants.COMPUTER,
     description = "The domain computer.")
@@ -136,47 +141,75 @@ public interface DomainComputer extends SamAccount {
   @Override
   String getName();
 
-  default DomainComputer withName(String name) {
-    return builder()
-        .from(this)
-        .name(name)
-        .build();
-  }
-
   @Schema(description = "The primary group ID of the computer.")
   @JsonProperty(value = "primaryGroupId")
   @Nullable
   @Override
   Integer getPrimaryGroupId();
 
+  /**
+   * Gets dns host name.
+   *
+   * @return the dns host name
+   */
   @Schema(description = "The dns host name of the computer.")
   @Nullable
   String getDnsHostName();
 
+  /**
+   * Gets network addresses.
+   *
+   * @return the network addresses
+   */
   @Schema(description = "The network addresses of the computer.")
   @Value.Default
   default List<String> getNetworkAddresses() {
     return List.of();
   }
 
+  /**
+   * Gets operating system.
+   *
+   * @return the operating system
+   */
   @Schema(description = "The operating system of the computer.")
   @Nullable
   String getOperatingSystem();
 
+  /**
+   * Gets operating system version.
+   *
+   * @return the operating system version
+   */
   @Schema(description = "The version operating system.")
   @Nullable
   String getOperatingSystemVersion();
 
+  /**
+   * Gets description.
+   *
+   * @return the description
+   */
   @Schema(description = "The description of the computer.")
   @Nullable
   String getDescription();
 
+  /**
+   * Gets service principal names.
+   *
+   * @return the service principal names
+   */
   @Schema(description = "The service principal names of the computer.")
   @Value.Default
   default List<String> getServicePrincipalNames() {
     return List.of();
   }
 
+  /**
+   * Gets sam account name without trailing dollar sign.
+   *
+   * @return the sam account name without trailing dollar sign
+   */
   @Hidden
   @JsonIgnore
   @Value.Lazy

@@ -21,13 +21,27 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 
+/**
+ * The domain group identifier.
+ *
+ * @author Christian Bremer
+ */
 @Schema(enumAsRef = true)
 public enum DomainGroupIdentifier {
 
+  /**
+   * Sam account name domain group identifier.
+   */
   SAM_ACCOUNT_NAME("name"),
 
+  /**
+   * Primary group id domain group identifier.
+   */
   PRIMARY_GROUP_ID("group-id"),
 
+  /**
+   * Unix group id domain group identifier.
+   */
   UNIX_GROUP_ID("unix-group-id");
 
   private final String parameterValue;
@@ -36,11 +50,22 @@ public enum DomainGroupIdentifier {
     this.parameterValue = parameterValue;
   }
 
+  /**
+   * Gets parameter value.
+   *
+   * @return the parameter value
+   */
   @JsonValue
   public String getParameterValue() {
     return parameterValue;
   }
 
+  /**
+   * From parameter value domain group identifier.
+   *
+   * @param parameterValue the parameter value
+   * @return the domain group identifier
+   */
   @JsonCreator
   public static DomainGroupIdentifier fromParameterValue(String parameterValue) {
 

@@ -52,18 +52,41 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableDomainGroupType.class)
 public interface DomainGroupType {
 
+  /**
+   * The constant GLOBAL_SECURITY.
+   */
   int GLOBAL_SECURITY = -2147483646;
 
+  /**
+   * The constant GLOBAL_DISTRIBUTION.
+   */
   int GLOBAL_DISTRIBUTION = 2;
 
+  /**
+   * The constant DOMAIN_LOCAL_SECURITY.
+   */
   int DOMAIN_LOCAL_SECURITY = -2147483644;
 
+  /**
+   * The constant DOMAIN_LOCAL_DISTRIBUTION.
+   */
   int DOMAIN_LOCAL_DISTRIBUTION = 4;
 
+  /**
+   * The constant UNIVERSAL_SECURITY.
+   */
   int UNIVERSAL_SECURITY = -2147483640;
 
+  /**
+   * The constant UNIVERSAL_DISTRIBUTION.
+   */
   int UNIVERSAL_DISTRIBUTION = 8;
 
+  /**
+   * Gets value.
+   *
+   * @return the value
+   */
   @Schema(description = "The integer value of the group type.", defaultValue = "-2147483646")
   @JsonProperty(value = "value", defaultValue = "-2147483646")
   @Value.Default
@@ -71,6 +94,11 @@ public interface DomainGroupType {
     return GLOBAL_SECURITY;
   }
 
+  /**
+   * Gets scope.
+   *
+   * @return the scope
+   */
   @Schema(description = "The scope of the group.", accessMode = Schema.AccessMode.READ_ONLY)
   @JsonProperty(value = "scope", access = Access.READ_ONLY)
   @Value.Lazy
@@ -83,6 +111,11 @@ public interface DomainGroupType {
     };
   }
 
+  /**
+   * Gets purpose.
+   *
+   * @return the purpose
+   */
   @Schema(description = "The purpose of the group.", accessMode = Schema.AccessMode.READ_ONLY)
   @JsonProperty(value = "purpose", access = Access.READ_ONLY)
   @Value.Lazy
@@ -98,6 +131,13 @@ public interface DomainGroupType {
     };
   }
 
+  /**
+   * From domain group type.
+   *
+   * @param scope the scope
+   * @param purpose the purpose
+   * @return the domain group type
+   */
   static DomainGroupType from(Scope scope, Purpose purpose) {
     if (scope == Scope.DOMAIN_LOCAL && purpose == Purpose.DISTRIBUTION) {
       return from(DOMAIN_LOCAL_DISTRIBUTION);
@@ -117,10 +157,21 @@ public interface DomainGroupType {
     return defaultGroupType();
   }
 
+  /**
+   * From domain group type.
+   *
+   * @param value the value
+   * @return the domain group type
+   */
   static DomainGroupType from(int value) {
     return builder().value(value).build();
   }
 
+  /**
+   * Default group type domain group type.
+   *
+   * @return the domain group type
+   */
   static DomainGroupType defaultGroupType() {
     return from(GLOBAL_SECURITY);
   }
@@ -141,10 +192,25 @@ public interface DomainGroupType {
 
   }
 
+  /**
+   * The enum Scope.
+   */
   enum Scope {
+    /**
+     * Unknown scope.
+     */
     UNKNOWN("Unknown", "domain-group-type.scope.unknown"),
+    /**
+     * Universal scope.
+     */
     UNIVERSAL("Universal", "domain-group-type.scope.universal"),
+    /**
+     * Global scope.
+     */
     GLOBAL("Global", "domain-group-type.scope.global"),
+    /**
+     * Domain local scope.
+     */
     DOMAIN_LOCAL("Domain", "domain-group-type.scope.domain-local");
 
     @Getter
@@ -164,6 +230,12 @@ public interface DomainGroupType {
       return value;
     }
 
+    /**
+     * From string scope.
+     *
+     * @param scope the scope
+     * @return the scope
+     */
     @JsonCreator
     public static Scope fromString(String scope) {
       if (isNull(scope)) {
@@ -178,9 +250,21 @@ public interface DomainGroupType {
     }
   }
 
+  /**
+   * The enum Purpose.
+   */
   enum Purpose {
+    /**
+     * Unknown purpose.
+     */
     UNKNOWN("Unknown", "domain-group-type.purpose.unknown"),
+    /**
+     * Security purpose.
+     */
     SECURITY("Security", "domain-group-type.purpose.security"),
+    /**
+     * Distribution purpose.
+     */
     DISTRIBUTION("Distribution", "domain-group-type.purpose.distribution");
 
     @Getter
@@ -200,6 +284,12 @@ public interface DomainGroupType {
       return value;
     }
 
+    /**
+     * From string purpose.
+     *
+     * @param value the value
+     * @return the purpose
+     */
     @JsonCreator
     public static Purpose fromString(String value) {
       if (isNull(value)) {

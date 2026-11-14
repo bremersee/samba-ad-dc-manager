@@ -29,6 +29,11 @@ import org.immutables.value.Value.Style.ImplementationVisibility;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The domain user account control.
+ *
+ * @author Christian Bremer
+ */
 @Schema(description = "Domain user's account control.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
@@ -43,6 +48,11 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableDomainUserAccountControl.class)
 public interface DomainUserAccountControl extends Serializable {
 
+  /**
+   * Is normal account boolean.
+   *
+   * @return the boolean
+   */
   @Schema(
       description = "Specifies whether the account of the domain user is a normal one or not.",
       defaultValue = "true")
@@ -52,6 +62,11 @@ public interface DomainUserAccountControl extends Serializable {
     return true;
   }
 
+  /**
+   * Is enabled boolean.
+   *
+   * @return the boolean
+   */
   @Schema(
       description = "Specifies whether the domain user is enabled or not.",
       defaultValue = "true")
@@ -61,6 +76,11 @@ public interface DomainUserAccountControl extends Serializable {
     return true;
   }
 
+  /**
+   * Is password expiration enabled boolean.
+   *
+   * @return the boolean
+   */
   @Schema(
       description = "Specifies whether the password expiration is enabled or not.",
       defaultValue = "false")
@@ -70,6 +90,11 @@ public interface DomainUserAccountControl extends Serializable {
     return false;
   }
 
+  /**
+   * Gets user account control.
+   *
+   * @return the user account control
+   */
   @Hidden
   @JsonIgnore
   @Value.Lazy
@@ -81,10 +106,21 @@ public interface DomainUserAccountControl extends Serializable {
     return userAccountControl;
   }
 
+  /**
+   * Default account control domain user account control.
+   *
+   * @return the domain user account control
+   */
   static DomainUserAccountControl defaultAccountControl() {
     return builder().build();
   }
 
+  /**
+   * From domain user account control.
+   *
+   * @param userAccountControl the user account control
+   * @return the domain user account control
+   */
   static DomainUserAccountControl from(UserAccountControl userAccountControl) {
     return Optional.ofNullable(userAccountControl)
         .map(accountControl -> builder()

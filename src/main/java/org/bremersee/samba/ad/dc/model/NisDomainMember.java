@@ -17,12 +17,17 @@
 package org.bremersee.samba.ad.dc.model;
 
 /**
- * The interface NisDomainMember.
+ * The nis domain member interface.
  *
  * @author Christian Bremer
  */
 public interface NisDomainMember {
 
+  /**
+   * Gets nis domain.
+   *
+   * @return the nis domain
+   */
   String getNisDomain();
 
 }

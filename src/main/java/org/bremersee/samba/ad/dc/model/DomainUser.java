@@ -38,6 +38,8 @@ import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The domain user.
+ *
+ * @author Christian Bremer
  */
 @Schema(name = ModelConstants.USER, description = "The domain user.")
 @Value.Style(

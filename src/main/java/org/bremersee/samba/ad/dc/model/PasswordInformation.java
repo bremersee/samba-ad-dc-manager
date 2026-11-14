@@ -31,6 +31,11 @@ import org.springframework.context.MessageSource;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The password information.
+ *
+ * @author Christian Bremer
+ */
 @Schema(description = "The password information of an active directory.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
@@ -45,12 +50,23 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutablePasswordInformation.class)
 public interface PasswordInformation extends Serializable {
 
+  /**
+   * The constant SIMPLE_PASSWORD_REGEX.
+   */
   String SIMPLE_PASSWORD_REGEX = "^(?=.{%d,%d}$).*";
 
+  /**
+   * The constant COMPLEX_PASSWORD_REGEX.
+   */
   String COMPLEX_PASSWORD_REGEX = "(?=^.{%d,%d}$)"
       + "((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])"
       + "|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*";
 
+  /**
+   * Gets password complexity.
+   *
+   * @return the password complexity
+   */
   @Schema(description = "The password complexity.", defaultValue = "on")
   @JsonProperty(value = "passwordComplexity", defaultValue = "on")
   @Value.Default
@@ -58,6 +74,11 @@ public interface PasswordInformation extends Serializable {
     return PasswordComplexity.ON;
   }
 
+  /**
+   * Is store plaintext passwords boolean.
+   *
+   * @return the boolean
+   */
   @Schema(description = "Store plaintext passwords where account have 'store passwords with "
       + "reversible encryption' set (on | off | default). Default is 'off'.",
       defaultValue = "false")
@@ -67,6 +88,11 @@ public interface PasswordInformation extends Serializable {
     return false;
   }
 
+  /**
+   * Gets password history length.
+   *
+   * @return the password history length
+   */
   @Schema(description = "The password history length. Default is 24.", defaultValue = "24")
   @JsonProperty(value = "passwordHistoryLength", defaultValue = "24")
   @Value.Default
@@ -74,6 +100,11 @@ public interface PasswordInformation extends Serializable {
     return 24;
   }
 
+  /**
+   * Gets minimum password length.
+   *
+   * @return the minimum password length
+   */
   @Schema(description = "The minimum password length. Default is 7.", defaultValue = "7")
   @JsonProperty(value = "minimumPasswordLength", defaultValue = "7")
   @Value.Default
@@ -81,6 +112,11 @@ public interface PasswordInformation extends Serializable {
     return 7;
   }
 
+  /**
+   * Gets maximum password length.
+   *
+   * @return the maximum password length
+   */
   @Schema(description = "The maximum password length. Default is 75.", defaultValue = "75")
   @JsonProperty(value = "maximumPasswordLength", defaultValue = "75")
   @Value.Default
@@ -88,6 +124,11 @@ public interface PasswordInformation extends Serializable {
     return 75;
   }
 
+  /**
+   * Gets minimum password age in days.
+   *
+   * @return the minimum password age in days
+   */
   @Schema(description = "The minimum password age in days. Default is 1.", defaultValue = "1")
   @JsonProperty(value = "minimumPasswordAgeInDays", defaultValue = "1")
   @Value.Default
@@ -95,6 +136,11 @@ public interface PasswordInformation extends Serializable {
     return 1;
   }
 
+  /**
+   * Gets maximum password age in days.
+   *
+   * @return the maximum password age in days
+   */
   @Schema(description = "The maximum password age in days. Default is 42.", defaultValue = "42")
   @JsonProperty(value = "maximumPasswordAgeInDays", defaultValue = "42")
   @Value.Default
@@ -102,6 +148,11 @@ public interface PasswordInformation extends Serializable {
     return 42;
   }
 
+  /**
+   * Gets account lockout duration in minutes.
+   *
+   * @return the account lockout duration in minutes
+   */
   @Schema(description = "The the length of time an account is locked out after exceeding the "
       + "limit on bad password attempts. Default is 30.", defaultValue = "30")
   @JsonProperty(value = "accountLockoutDurationInMinutes", defaultValue = "30")
@@ -110,6 +161,11 @@ public interface PasswordInformation extends Serializable {
     return 30;
   }
 
+  /**
+   * Gets account lockout threshold.
+   *
+   * @return the account lockout threshold
+   */
   @Schema(description = "The number of bad password attempts allowed before locking out the "
       + "account. Default is 0 (never lock out).", defaultValue = "0")
   @JsonProperty(value = "accountLockoutThreshold", defaultValue = "0")
@@ -118,6 +174,11 @@ public interface PasswordInformation extends Serializable {
     return 0;
   }
 
+  /**
+   * Gets reset account lockout after.
+   *
+   * @return the reset account lockout after
+   */
   @Schema(description = "After this time is elapsed, the recorded number of attempts restarts "
       + "from zero. Default is 30.", defaultValue = "30")
   @JsonProperty(value = "resetAccountLockoutAfter", defaultValue = "30")
@@ -126,6 +187,11 @@ public interface PasswordInformation extends Serializable {
     return 30;
   }
 
+  /**
+   * Gets simple password regex template.
+   *
+   * @return the simple password regex template
+   */
   @Hidden
   @JsonIgnore
   @Value.Default
@@ -133,6 +199,11 @@ public interface PasswordInformation extends Serializable {
     return SIMPLE_PASSWORD_REGEX;
   }
 
+  /**
+   * Gets complex password regex template.
+   *
+   * @return the complex password regex template
+   */
   @Hidden
   @JsonIgnore
   @Value.Default
@@ -175,6 +246,13 @@ public interface PasswordInformation extends Serializable {
     return Pattern.compile(getPasswordRegex());
   }
 
+  /**
+   * Gets password description.
+   *
+   * @param messageSource the message source
+   * @param locale the locale
+   * @return the password description
+   */
   default String getPasswordDescription(MessageSource messageSource, Locale locale) {
     return messageSource.getMessage(
         getPasswordComplexity().getI18nCode(),

@@ -24,6 +24,11 @@ import org.immutables.value.Value;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The omain group member modifications.
+ *
+ * @author Christian Bremer
+ */
 @Schema(description = "The domain group member modifications.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
@@ -38,11 +43,21 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableDomainGroupMemberModifications.class)
 public interface DomainGroupMemberModifications extends Serializable {
 
+  /**
+   * Gets members to add.
+   *
+   * @return the members to add
+   */
   @Value.Default
   default Set<String> getMembersToAdd() {
     return Set.of();
   }
 
+  /**
+   * Gets members to remove.
+   *
+   * @return the members to remove
+   */
   @Value.Default
   default Set<String> getMembersToRemove() {
     return Set.of();

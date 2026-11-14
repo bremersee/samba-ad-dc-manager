@@ -37,6 +37,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The dns entry.
+ *
+ * @author Christian Bremer
+ */
 @Hidden
 @Schema(name = ModelConstants.DNS_ENTRY, description = "DNS entry.")
 @Value.Style(
@@ -54,8 +59,14 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableDnsEntry.class)
 public interface DnsEntry extends AdEntry {
 
+  /**
+   * The constant CONFLICT_IDENTIFIER.
+   */
   String CONFLICT_IDENTIFIER = "CNF";
 
+  /**
+   * The constant CONFLICT_NAME_PART.
+   */
   String CONFLICT_NAME_PART = "\\0A" + CONFLICT_IDENTIFIER + ':';
 
   @Hidden
@@ -100,10 +111,21 @@ public interface DnsEntry extends AdEntry {
         .build();
   }
 
+  /**
+   * Gets zone name.
+   *
+   * @return the zone name
+   */
   @Schema(description = "The zone name of this dns entry.")
   @Nullable
   String getZoneName();
 
+  /**
+   * With zone name dns entry.
+   *
+   * @param zoneName the zone name
+   * @return the dns entry
+   */
   default DnsEntry withZoneName(String zoneName) {
     return builder()
         .from(this)
@@ -111,18 +133,39 @@ public interface DnsEntry extends AdEntry {
         .build();
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   @Schema(description = "The name of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "name", required = true)
   String getName();
 
+  /**
+   * Gets type.
+   *
+   * @return the type
+   */
   @Schema(description = "The type of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "type", required = true)
   DnsEntryType getType();
 
+  /**
+   * Gets value.
+   *
+   * @return the value
+   */
   @Schema(description = "The value of this dns entry.", requiredMode = RequiredMode.REQUIRED)
   @JsonProperty(value = "value", required = true)
   String getValue();
 
+  /**
+   * With value dns entry.
+   *
+   * @param value the value
+   * @return the dns entry
+   */
   default DnsEntry withValue(String value) {
     return builder()
         .from(this)
@@ -130,18 +173,38 @@ public interface DnsEntry extends AdEntry {
         .build();
   }
 
+  /**
+   * Gets flags.
+   *
+   * @return the flags
+   */
   @Schema(description = "The flags of this dns entry.")
   @Nullable
   String getFlags();
 
+  /**
+   * Gets serial.
+   *
+   * @return the serial
+   */
   @Schema(description = "The serial of this dns entry.")
   @Nullable
   Integer getSerial();
 
+  /**
+   * Gets ttl seconds.
+   *
+   * @return the ttl seconds
+   */
   @Schema(description = "The ttl seconds of this dns entry.")
   @Nullable
   Integer getTtlSeconds();
 
+  /**
+   * Gets display name.
+   *
+   * @return the display name
+   */
   @Schema(description = "The display name of this dns entry.", accessMode = AccessMode.READ_ONLY)
   @JsonProperty(value = "displayName", access = Access.READ_ONLY)
   @Value.Lazy
@@ -153,6 +216,11 @@ public interface DnsEntry extends AdEntry {
     return index > 0 ? getName().substring(0, index) : getName();
   }
 
+  /**
+   * Is conflict boolean.
+   *
+   * @return the boolean
+   */
   @Schema(description = "Determines whether this DNS entry is marked as conflict or not.",
       defaultValue = "false", accessMode = AccessMode.READ_ONLY)
   @JsonProperty(value = "conflict", defaultValue = "false", access = Access.READ_ONLY)

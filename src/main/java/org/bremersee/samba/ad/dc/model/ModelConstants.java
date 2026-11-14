@@ -16,27 +16,62 @@
 
 package org.bremersee.samba.ad.dc.model;
 
+/**
+ * The odel constants.
+ *
+ * @author Christian Bremer
+ */
 public class ModelConstants {
 
+  /**
+   * The constant DISCRIMINATOR.
+   */
   public static final String DISCRIMINATOR = "_json_type";
 
+  /**
+   * The constant AD_ENTRY.
+   */
   public static final String AD_ENTRY = "AdEntry";
 
-  public static final String DNS_ENTRY = "DnsEntry"; //.class.getSimpleName(); // " dns-entry";
+  /**
+   * The constant DNS_ENTRY.
+   */
+  public static final String DNS_ENTRY = "DnsEntry";
 
-  public static final String DNS_ZONE = "DnsZone"; //.class.getSimpleName(); // "dns-zone";
+  /**
+   * The constant DNS_ZONE.
+   */
+  public static final String DNS_ZONE = "DnsZone";
 
-  public static final String COMPUTER = "DomainComputer"; //.class.getSimpleName(); // "computer";
+  /**
+   * The constant COMPUTER.
+   */
+  public static final String COMPUTER = "DomainComputer";
 
-  public static final String GROUP = "DomainGroup"; //.class.getSimpleName(); // "group";
+  /**
+   * The constant GROUP.
+   */
+  public static final String GROUP = "DomainGroup";
 
-  public static final String GROUP_MEMBER = "DomainGroupMember"; //.class.getSimpleName(); // "group-member";
+  /**
+   * The constant GROUP_MEMBER.
+   */
+  public static final String GROUP_MEMBER = "DomainGroupMember";
 
-  public static final String USER = "DomainUser"; //.class.getSimpleName(); // "user";
+  /**
+   * The constant USER.
+   */
+  public static final String USER = "DomainUser";
 
-  public static final String ORGANIZATIONAL_UNIT = "OrganizationalUnit"; //.class.getSimpleName(); // "organizational-unit";
+  /**
+   * The constant ORGANIZATIONAL_UNIT.
+   */
+  public static final String ORGANIZATIONAL_UNIT = "OrganizationalUnit";
 
-  public static final String SAM_ACCOUNT = "SamAccount"; //.class.getSimpleName(); // "sam-account";
+  /**
+   * The constant SAM_ACCOUNT.
+   */
+  public static final String SAM_ACCOUNT = "SamAccount";
 
   private ModelConstants() {
     super();

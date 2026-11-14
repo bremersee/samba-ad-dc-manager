@@ -21,15 +21,32 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 
+/**
+ * The domain user identifier.
+ *
+ * @author Christian Bremer
+ */
 @Schema(enumAsRef = true)
 public enum DomainUserIdentifier {
 
+  /**
+   * Sam account name domain user identifier.
+   */
   SAM_ACCOUNT_NAME("name"),
 
+  /**
+   * Principal domain user identifier.
+   */
   PRINCIPAL("principal"),
 
+  /**
+   * Uid domain user identifier.
+   */
   UID("uid"),
 
+  /**
+   * Uid number domain user identifier.
+   */
   UID_NUMBER("uid-number");
 
   private final String parameterValue;
@@ -38,11 +55,22 @@ public enum DomainUserIdentifier {
     this.parameterValue = parameterValue;
   }
 
+  /**
+   * Gets parameter value.
+   *
+   * @return the parameter value
+   */
   @JsonValue
   public String getParameterValue() {
     return parameterValue;
   }
 
+  /**
+   * From parameter value domain user identifier.
+   *
+   * @param parameterValue the parameter value
+   * @return the domain user identifier
+   */
   @JsonCreator
   public static DomainUserIdentifier fromParameterValue(String parameterValue) {
 

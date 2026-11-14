@@ -17,14 +17,11 @@
 package org.bremersee.samba.ad.dc.model;
 
 import java.io.Serial;
-import java.util.List;
-import org.bremersee.comparator.model.SortOrder;
 import org.bremersee.pagebuilder.model.JsonPageDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
 /**
- * The type DnsEntryPage.
+ * The dns entry page.
  *
  * @author Christian Bremer
  */
@@ -33,24 +30,11 @@ public class DnsEntryPage extends JsonPageDto<DnsEntry> {
   @Serial
   private static final long serialVersionUID = 1;
 
-  public DnsEntryPage() {
-  }
-
-  public DnsEntryPage(List<? extends DnsEntry> content, int number, int size,
-      long totalElements) {
-    super(content, number, size, totalElements);
-  }
-
-  public DnsEntryPage(List<? extends DnsEntry> content, int number, int size,
-      long totalElements, SortOrder sort) {
-    super(content, number, size, totalElements, sort);
-  }
-
-  public DnsEntryPage(List<? extends DnsEntry> content, int number, int size,
-      long totalElements, Sort sort) {
-    super(content, number, size, totalElements, sort);
-  }
-
+  /**
+   * Instantiates a new dns entry page.
+   *
+   * @param page the page
+   */
   public DnsEntryPage(Page<? extends DnsEntry> page) {
     super(page);
   }

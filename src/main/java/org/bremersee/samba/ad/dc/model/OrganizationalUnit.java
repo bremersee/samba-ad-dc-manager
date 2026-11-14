@@ -38,6 +38,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The organizational unit.
+ *
+ * @author Christian Bremer
+ */
 @Schema(
     name = ModelConstants.ORGANIZATIONAL_UNIT,
     description = "The organizational unit in an active directory.")
@@ -97,6 +102,11 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
         .build();
   }
 
+  /**
+   * Gets description.
+   *
+   * @return the description
+   */
   @Nullable
   String getDescription();
 
@@ -128,6 +138,11 @@ public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable<Or
     return nameTree;
   }
 
+  /**
+   * Is system ou boolean.
+   *
+   * @return the boolean
+   */
   @Schema(description = "Determines whether this organizational unit is a system one or not.",
       defaultValue = "false")
   @JsonProperty(value = "systemOu", defaultValue = "false")

@@ -16,10 +16,18 @@
 
 package org.bremersee.samba.ad.dc.model;
 
+/**
+ * The translatable.
+ *
+ * @author Christian Bremer
+ */
 public interface Translatable {
 
+  /**
+   * Gets i18n code.
+   *
+   * @return the i18n code
+   */
   String getI18nCode();
-
-  String getDefaultTranslation(Object... args);
 
 }

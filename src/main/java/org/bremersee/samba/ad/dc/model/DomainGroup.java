@@ -37,6 +37,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The omain group.
+ *
+ * @author Christian Bremer
+ */
 @Schema(
     name = ModelConstants.GROUP,
     description = "The domain group.")
@@ -127,6 +132,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
 
   /**
    * The description of the domain group.
+   *
+   * @return the description
    */
   @Schema(description = "The description of the domain group.")
   @Nullable
@@ -134,6 +141,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
 
   /**
    * The email address of the domain group.
+   *
+   * @return the email
    */
   @Schema(description = "The email address of the domain group.")
   @Nullable
@@ -141,6 +150,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
 
   /**
    * Group's Unix/RFC2307 GID number.
+   *
+   * @return the gid number
    */
   @Schema(description = "Group's Unix/RFC2307 GID number.")
   @Nullable
@@ -148,6 +159,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
 
   /**
    * The type of the domain group.
+   *
+   * @return the group type
    */
   @Schema(description = "The type of the domain group.")
   @JsonProperty(value = "groupType")
@@ -156,6 +169,12 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
     return DomainGroupType.defaultGroupType();
   }
 
+  /**
+   * With group type domain group.
+   *
+   * @param groupType the group type
+   * @return the domain group
+   */
   default DomainGroup withGroupType(DomainGroupType groupType) {
     return builder()
         .from(this)
@@ -165,6 +184,8 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
 
   /**
    * The members of the domain group.
+   *
+   * @return the members
    */
   @Schema(description = "The members of the domain group.")
   @Value.Default
@@ -172,6 +193,12 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
     return List.of();
   }
 
+  /**
+   * With members domain group.
+   *
+   * @param members the members
+   * @return the domain group
+   */
   default DomainGroup withMembers(Iterable<String> members) {
     return builder()
         .from(this)
@@ -186,6 +213,11 @@ public interface DomainGroup extends SamAccount, NisDomainMember {
   @Nullable
   String getNisDomain();
 
+  /**
+   * Gets group id.
+   *
+   * @return the group id
+   */
   @Schema(description = "The group id of this domain group.",
       accessMode = AccessMode.READ_ONLY)
   @JsonProperty(value = "groupId", access = Access.READ_ONLY)

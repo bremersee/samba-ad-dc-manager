@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
- * The enum TreeSearchScope.
+ * The tree search scope.
  *
  * @author Christian Bremer
  */
@@ -32,8 +32,14 @@ import lombok.Getter;
 @Getter
 public enum TreeSearchScope implements Translatable {
 
+  /**
+   * One level search scope.
+   */
   ONELEVEL("one-level", "search-scope.one-level.label", "One Level"),
 
+  /**
+   * Subtree tree search scope.
+   */
   SUBTREE("subtree", "search-scope.subtree.label", "Subtree");
 
   private final String parameterValue;
@@ -48,11 +54,22 @@ public enum TreeSearchScope implements Translatable {
     this.defaultDisplayName = defaultDisplayName;
   }
 
+  /**
+   * Gets parameter value.
+   *
+   * @return the parameter value
+   */
   @JsonValue
   public String getParameterValue() {
     return parameterValue;
   }
 
+  /**
+   * From value tree search scope.
+   *
+   * @param value the value
+   * @return the tree search scope
+   */
   @JsonCreator
   public static TreeSearchScope fromValue(String value) {
     if (isNull(value) || value.isEmpty()) {
@@ -64,11 +81,6 @@ public enum TreeSearchScope implements Translatable {
       }
     }
     return null;
-  }
-
-  @Override
-  public String getDefaultTranslation(Object... args) {
-    return getDefaultDisplayName();
   }
 
 }

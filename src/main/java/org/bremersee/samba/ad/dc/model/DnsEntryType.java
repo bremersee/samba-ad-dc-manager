@@ -548,6 +548,11 @@ public enum DnsEntryType {
     return VALUE_TYPE_MAP.getOrDefault(value, defaultType);
   }
 
+  /**
+   * Gets supported add or delete types.
+   *
+   * @return the supported add or delete types
+   */
   public static List<DnsEntryType> getSupportedAddOrDeleteTypes() {
     return Arrays.stream(values())
         .filter(DnsEntryType::isAddable)
@@ -555,6 +560,12 @@ public enum DnsEntryType {
         .toList();
   }
 
+  /**
+   * Gets supported update types.
+   *
+   * @param dnsEntry the dns entry
+   * @return the supported update types
+   */
   public static List<DnsEntryType> getSupportedUpdateTypes(DnsEntry dnsEntry) {
     return Arrays.stream(values())
         .filter(type -> SOA.equals(type) ? isSoa(dnsEntry) : type.isUpdatable())
@@ -569,6 +580,9 @@ public enum DnsEntryType {
     return SOA.equals(dnsEntry.getType());
   }
 
+  /**
+   * The type To samba tool value transformers.
+   */
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   static class ToSambaToolValueTransformers {
 
@@ -586,6 +600,9 @@ public enum DnsEntryType {
 
     private static final String MINIMUM_TTL = "minttl";
 
+    /**
+     * The constant FQDN_TRANSFORMER.
+     */
     public static final UnaryOperator<String> FQDN_TRANSFORMER = fqdn -> {
       if (isEmpty(fqdn)) {
         throw ServiceException.badRequest("FQDN must be present.",
@@ -597,6 +614,9 @@ public enum DnsEntryType {
       return fqdn;
     };
 
+    /**
+     * The constant SOA_TRANSFORMER.
+     */
     public static final UnaryOperator<String> SOA_TRANSFORMER = soa -> {
       if (isEmpty(soa)) {
         throw ServiceException.badRequest("SOA value must be present.",
@@ -628,6 +648,9 @@ public enum DnsEntryType {
       return input.substring(start + name.length() + 1, end);
     }
 
+    /**
+     * The constant MX_TRANSFORMER.
+     */
     public static final UnaryOperator<String> MX_TRANSFORMER = mx -> {
       if (isEmpty(mx)) {
         throw ServiceException.badRequest("MX value must be present.",
@@ -655,6 +678,9 @@ public enum DnsEntryType {
           + '"';
     };
 
+    /**
+     * The constant SRV_TRANSFORMER.
+     */
     public static final UnaryOperator<String> SRV_TRANSFORMER = srv -> {
       if (isEmpty(srv)) {
         throw ServiceException.badRequest("SRV value must be present.",
@@ -704,6 +730,9 @@ public enum DnsEntryType {
           + '"';
     };
 
+    /**
+     * The constant TXT_TRANSFORMER.
+     */
     public static final UnaryOperator<String> TXT_TRANSFORMER = txt -> {
       if (isEmpty(txt)) {
         throw ServiceException.badRequest("TXT value must be present.",

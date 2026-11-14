@@ -17,7 +17,7 @@
 package org.bremersee.samba.ad.dc.model;
 
 /**
- * The interface DistinguishedNameProvider.
+ * The distinguished name provider.
  *
  * @author Christian Bremer
  */

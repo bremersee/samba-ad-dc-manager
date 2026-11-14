@@ -25,6 +25,11 @@ import org.immutables.value.Value;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The password reset model.
+ *
+ * @author Christian Bremer
+ */
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
@@ -38,24 +43,51 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutablePasswordReset.class)
 public interface PasswordReset extends Serializable {
 
+  /**
+   * Gets username.
+   *
+   * @return the username
+   */
   @JsonProperty(value = "username", required = true)
   String getUsername();
 
+  /**
+   * Gets request date time.
+   *
+   * @return the request date time
+   */
   @JsonProperty(value = "requested", required = true)
   @Value.Default
   default OffsetDateTime getRequestDateTime() {
     return OffsetDateTime.now(ZoneOffset.UTC);
   }
 
+  /**
+   * Gets pwd last set date time.
+   *
+   * @return the pwd last set date time
+   */
   @JsonProperty(value = "pwdLastSet", required = true)
   OffsetDateTime getPwdLastSetDateTime();
 
+  /**
+   * Is invitation boolean.
+   *
+   * @return the boolean
+   */
   @JsonProperty(value = "invitation", defaultValue = "false")
   @Value.Default
   default boolean isInvitation() {
     return false;
   }
 
+  /**
+   * Of password reset.
+   *
+   * @param domainUser the domain user
+   * @param isInvitation the is invitation
+   * @return the password reset
+   */
   static PasswordReset of(DomainUser domainUser, boolean isInvitation) {
     return builder()
         .username(domainUser.getSamAccountName())
@@ -64,10 +96,20 @@ public interface PasswordReset extends Serializable {
         .build();
   }
 
+  /**
+   * Gets new builder.
+   *
+   * @return the builder
+   */
   static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * The builder.
+   *
+   * @author Christian Bremer
+   */
   class Builder extends ImmutablePasswordReset.Builder {
 
   }

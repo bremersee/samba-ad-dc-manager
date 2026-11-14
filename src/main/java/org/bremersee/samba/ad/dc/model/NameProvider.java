@@ -17,12 +17,17 @@
 package org.bremersee.samba.ad.dc.model;
 
 /**
- * The interface NameProvider.
+ * The name provider interface.
  *
  * @author Christian Bremer
  */
 public interface NameProvider {
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   String getName();
 
 }

@@ -24,6 +24,11 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The domain info.
+ *
+ * @author Christian Bremer
+ */
 @Schema(description = "The password information of an active directory.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
@@ -38,24 +43,59 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableDomainInfo.class)
 public interface DomainInfo extends Serializable {
 
+  /**
+   * Gets forest.
+   *
+   * @return the forest
+   */
   @Nullable
   String getForest();
 
+  /**
+   * Gets domain.
+   *
+   * @return the domain
+   */
   @Nullable
   String getDomain();
 
+  /**
+   * Gets netbios domain.
+   *
+   * @return the netbios domain
+   */
   @Nullable
   String getNetbiosDomain();
 
+  /**
+   * Gets domain controller name.
+   *
+   * @return the domain controller name
+   */
   @Nullable
   String getDomainControllerName();
 
+  /**
+   * Gets domain controller netbios name.
+   *
+   * @return the domain controller netbios name
+   */
   @Nullable
   String getDomainControllerNetbiosName();
 
+  /**
+   * Gets server site.
+   *
+   * @return the server site
+   */
   @Nullable
   String getServerSite();
 
+  /**
+   * Gets client site.
+   *
+   * @return the client site
+   */
   @Nullable
   String getClientSite();
 

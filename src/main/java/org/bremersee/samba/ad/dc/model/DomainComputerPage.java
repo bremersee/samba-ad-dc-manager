@@ -20,11 +20,21 @@ import java.io.Serial;
 import org.bremersee.pagebuilder.model.JsonPageDto;
 import org.springframework.data.domain.Page;
 
+/**
+ * The domain computer page.
+ *
+ * @author Christian Bremer
+ */
 public class DomainComputerPage extends JsonPageDto<DomainComputer> {
 
   @Serial
   private static final long serialVersionUID = 1;
 
+  /**
+   * Instantiates a new domain computer page.
+   *
+   * @param page the page
+   */
   public DomainComputerPage(Page<? extends DomainComputer> page) {
     super(page);
   }

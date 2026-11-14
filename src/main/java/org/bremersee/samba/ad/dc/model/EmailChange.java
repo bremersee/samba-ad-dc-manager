@@ -25,6 +25,11 @@ import org.immutables.value.Value;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
+/**
+ * The email change.
+ *
+ * @author Christian Bremer
+ */
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,
     overshadowImplementation = true,
@@ -38,21 +43,48 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonDeserialize(as = ImmutableEmailChange.class)
 public interface EmailChange extends Serializable {
 
+  /**
+   * Gets username.
+   *
+   * @return the username
+   */
   @JsonProperty(value = "username", required = true)
   String getUsername();
 
+  /**
+   * Gets old email.
+   *
+   * @return the old email
+   */
   @JsonProperty(value = "oldEmail", required = true)
   String getOldEmail();
 
+  /**
+   * Gets new email.
+   *
+   * @return the new email
+   */
   @JsonProperty(value = "newEmail", required = true)
   String getNewEmail();
 
+  /**
+   * Gets request date time.
+   *
+   * @return the request date time
+   */
   @JsonProperty(value = "requested", required = true)
   @Value.Default
   default OffsetDateTime getRequestDateTime() {
     return OffsetDateTime.now(ZoneOffset.UTC);
   }
 
+  /**
+   * Of email change.
+   *
+   * @param domainUser the domain user
+   * @param newEmail the new email
+   * @return the email change
+   */
   static EmailChange of(DomainUser domainUser, String newEmail) {
     return builder()
         .username(domainUser.getSamAccountName())
@@ -61,10 +93,18 @@ public interface EmailChange extends Serializable {
         .build();
   }
 
+  /**
+   * Builder builder.
+   *
+   * @return the builder
+   */
   static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * The type Builder.
+   */
   class Builder extends ImmutableEmailChange.Builder {
 
   }
