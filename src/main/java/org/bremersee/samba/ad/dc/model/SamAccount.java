@@ -28,27 +28,19 @@ import tools.jackson.databind.annotation.JsonSerialize;
     discriminatorProperty = ModelConstants.DISCRIMINATOR,
     discriminatorMapping = {
         @DiscriminatorMapping(
-            //value = ModelConstants.COMPUTER,
+            value = ModelConstants.COMPUTER,
             schema = DomainComputer.class),
         @DiscriminatorMapping(
-            //value = ModelConstants.GROUP,
+            value = ModelConstants.GROUP,
             schema = DomainGroup.class),
         @DiscriminatorMapping(
-            //value = ModelConstants.GROUP_MEMBER,
+            value = ModelConstants.GROUP_MEMBER,
             schema = DomainGroupMember.class),
         @DiscriminatorMapping(
-            //value = ModelConstants.USER,
+            value = ModelConstants.USER,
             schema = DomainUser.class)
     }
 )
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = SamAccount.class),
-    @JsonSubTypes.Type(value = DomainComputer.class),
-    @JsonSubTypes.Type(value = DomainGroup.class),
-    @JsonSubTypes.Type(value = DomainGroupMember.class),
-    @JsonSubTypes.Type(value = DomainUser.class)
-})
-/*
 @JsonSubTypes({
     @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
     @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
@@ -56,7 +48,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
     @JsonSubTypes.Type(value = DomainGroupMember.class, name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
 })
-*/
 @JsonTypeName(ModelConstants.SAM_ACCOUNT)
 @JsonSerialize(as = ImmutableSamAccountIntermediate.class)
 @JsonDeserialize(as = ImmutableSamAccountIntermediate.class)

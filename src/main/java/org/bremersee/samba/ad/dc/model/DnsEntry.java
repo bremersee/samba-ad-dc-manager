@@ -23,7 +23,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 
 @Hidden
 @Schema(
-    name = "DnsEntry",
+    name = "DnsEntryFoo",
     description = "DNS entry.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
