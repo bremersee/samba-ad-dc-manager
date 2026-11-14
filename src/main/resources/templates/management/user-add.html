@@ -372,7 +372,7 @@
         </div>
       </div>
 
-      <div class="form-check form-switch mb-3">
+      <div class="form-check form-switch mb-3" th:if="${@sambaAdDcMangerFeatures.mailEnabled}">
         <input class="form-check-input" type="checkbox" id="sendEmail"
                name="sendEmail" th:field="*{sendEmail}" />
         <label class="form-check-label" for="sendEmail" th:text="#{user-add.send-invitation.label}">
@@ -391,7 +391,7 @@
     </form>
   </div>
 </main>
-<script type="text/javascript" th:inline="javascript">
+<script type="text/javascript">
   //<![CDATA[
   "use strict";
   function convertNumber(n) {

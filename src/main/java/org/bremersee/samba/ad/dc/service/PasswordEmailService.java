@@ -93,7 +93,9 @@ public class PasswordEmailService extends AbstractEmailService {
   @EventListener
   @Async
   public void onInvitationEvent(InvitationEvent event) {
-    sendResetEmail(event.getSource(), event.getBaseUri(), true);
+    DomainUser user = event.getSource();
+    boolean isInvitation = !user.isLogonDone();
+    sendResetEmail(user, event.getBaseUri(), isInvitation);
   }
 
   /**

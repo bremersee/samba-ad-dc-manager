@@ -79,8 +79,6 @@ public class UserResetPasswordController extends UiController
     this.eventPublisher = eventPublisher;
   }
 
-  // TODO verify that mail support is working
-
   @Override
   public String getDefaultSort() {
     return USER_SORT;
@@ -124,8 +122,6 @@ public class UserResetPasswordController extends UiController
       @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
       ModelMap model,
       RedirectAttributes redirectAttributes) {
-
-    // TODO change of username only if logonCount is 0
 
     return Optional.ofNullable(userName)
         .flatMap(name -> domainUserService.getUser(userName, ou, searchScope))
