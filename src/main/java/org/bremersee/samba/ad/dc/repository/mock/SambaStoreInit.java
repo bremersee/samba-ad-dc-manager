@@ -668,12 +668,16 @@ class SambaStoreInit {
   }
 
   private DnsZone createSamdomDnsZone() {
+    return createDnsZone(ZONE_NAME);
+  }
+
+  private DnsZone createDnsZone(String zoneName) {
     OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     return DnsZone.builder()
         .distinguishedName("")
         .created(now)
         .modified(now)
-        .name(ZONE_NAME)
+        .name(zoneName)
         .zoneType(DnsZoneType.PRIMARY.name())
         .reverseZone(false)
         .fqdn(ZONE_FQDN)
@@ -693,28 +697,7 @@ class SambaStoreInit {
   }
 
   private DnsZone createMsdcsDnsZone() {
-    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-    return DnsZone.builder()
-        .distinguishedName("")
-        .created(now)
-        .modified(now)
-        .name(MSDCS_ZONE_NAME)
-        .zoneType(DnsZoneType.PRIMARY.name())
-        .reverseZone(false)
-        .fqdn(ZONE_FQDN)
-        .allowUpdate(DNS_ZONE_UPDATE_SECURE)
-        .paused(Boolean.FALSE)
-        .shutdown(Boolean.FALSE)
-        .autoCreated(Boolean.FALSE)
-        .useDatabase(Boolean.TRUE)
-        .dataFile("None")
-        .useWins(Boolean.FALSE)
-        .useNbstat(Boolean.FALSE)
-        .aging(Boolean.FALSE)
-        .queuedForBackgroundLoad(Boolean.FALSE)
-        .backgroundLoadInProgress(Boolean.FALSE)
-        .readOnlyZone(Boolean.FALSE)
-        .build();
+    return createDnsZone(MSDCS_ZONE_NAME);
   }
 
   private List<DnsEntry> createMsdcsDnsEntries() {
