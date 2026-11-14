@@ -42,12 +42,21 @@ import tools.jackson.databind.annotation.JsonSerialize;
     }
 )
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = SamAccount.class),
+    @JsonSubTypes.Type(value = DomainComputer.class),
+    @JsonSubTypes.Type(value = DomainGroup.class),
+    @JsonSubTypes.Type(value = DomainGroupMember.class),
+    @JsonSubTypes.Type(value = DomainUser.class)
+})
+/*
+@JsonSubTypes({
     @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
     @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
     @JsonSubTypes.Type(value = DomainGroup.class, name = ModelConstants.GROUP),
     @JsonSubTypes.Type(value = DomainGroupMember.class, name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
 })
+*/
 @JsonTypeName(ModelConstants.SAM_ACCOUNT)
 @JsonSerialize(as = ImmutableSamAccountIntermediate.class)
 @JsonDeserialize(as = ImmutableSamAccountIntermediate.class)

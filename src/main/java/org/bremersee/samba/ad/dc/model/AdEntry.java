@@ -81,6 +81,23 @@ import tools.jackson.databind.annotation.JsonSerialize;
     use = Id.SIMPLE_NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = ModelConstants.DISCRIMINATOR)
+
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = AdEntry.class),
+
+    @JsonSubTypes.Type(value = DnsEntry.class),
+    @JsonSubTypes.Type(value = DnsZone.class),
+    @JsonSubTypes.Type(
+        value = OrganizationalUnit.class),
+
+    @JsonSubTypes.Type(value = SamAccount.class),
+    @JsonSubTypes.Type(value = DomainComputer.class),
+    @JsonSubTypes.Type(value = DomainGroup.class),
+    @JsonSubTypes.Type(
+        value = DomainGroupMember.class),
+    @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
+})
+/*
 @JsonSubTypes({
     @JsonSubTypes.Type(value = AdEntry.class, name = ModelConstants.AD_ENTRY),
 
@@ -98,6 +115,8 @@ import tools.jackson.databind.annotation.JsonSerialize;
         name = ModelConstants.GROUP_MEMBER),
     @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
 })
+
+ */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName(ModelConstants.AD_ENTRY)
