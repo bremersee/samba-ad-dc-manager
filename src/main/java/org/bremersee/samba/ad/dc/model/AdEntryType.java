@@ -21,6 +21,8 @@ import org.springframework.core.Ordered;
 
 /**
  * The ad entry type.
+ *
+ * @author Christian Bremer
  */
 public enum AdEntryType {
 
