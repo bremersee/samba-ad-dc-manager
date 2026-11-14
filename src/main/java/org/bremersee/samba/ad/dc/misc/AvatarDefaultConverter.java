@@ -29,6 +29,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class AvatarDefaultConverter implements Converter<String, AvatarDefault> {
 
+  /**
+   * Instantiates a new avatar default converter.
+   */
+  public AvatarDefaultConverter() {
+    super();
+  }
+
   @Override
   public AvatarDefault convert(@NonNull String source) {
     return AvatarDefault.fromValue(source, AvatarDefault.NOT_FOUND);

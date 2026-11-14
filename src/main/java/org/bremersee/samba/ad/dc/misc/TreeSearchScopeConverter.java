@@ -37,6 +37,12 @@ public class TreeSearchScopeConverter implements Converter<String, TreeSearchSco
     return TreeSearchScope.fromValue(source);
   }
 
+  /**
+   * To search scope .
+   *
+   * @param scope the scope
+   * @return the search scope
+   */
   public static SearchScope toSearchScope(TreeSearchScope scope) {
     if (isNull(scope)) {
       return null;
@@ -48,10 +54,4 @@ public class TreeSearchScopeConverter implements Converter<String, TreeSearchSco
     }
   }
 
-  public static TreeSearchScope fromSearchScope(SearchScope scope) {
-    if (isNull(scope)) {
-      return null;
-    }
-    return TreeSearchScope.fromValue(scope.name());
-  }
 }

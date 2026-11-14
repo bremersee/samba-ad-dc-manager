@@ -28,17 +28,37 @@ import org.ldaptive.dn.DefaultRDnNormalizer;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.RDnNormalizer;
 
+/**
+ * The dn tool.
+ *
+ * @author Christian Bremer
+ */
 public interface DnTool {
 
+  /**
+   * The constant CASE_SENSITIVE_RDN_NORMALIZER.
+   */
   RDnNormalizer CASE_SENSITIVE_RDN_NORMALIZER = new DefaultRDnNormalizer(
       new DefaultAttributeValueEscaper(), name -> name, value -> value);
 
+  /**
+   * To string.
+   *
+   * @param dn the dn
+   * @return the string
+   */
   static String toString(Dn dn) {
     return Optional.ofNullable(dn)
         .map(d -> d.format(CASE_SENSITIVE_RDN_NORMALIZER))
         .orElse("null");
   }
 
+  /**
+   * Is valid dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
   static boolean isValidDn(String dn) {
     try {
       return Optional.ofNullable(dn)
@@ -51,12 +71,24 @@ public interface DnTool {
     }
   }
 
+  /**
+   * Is valid dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
   static boolean isValidDn(Dn dn) {
     return Optional.ofNullable(dn)
         .filter(v -> !isEmpty(v))
         .isPresent();
   }
 
+  /**
+   * Is valid dn with base dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
   default boolean isValidDnWithBaseDn(String dn) {
     if (isValidDn(dn)) {
       return isValidDnWithBaseDn(new Dn(dn));
@@ -64,10 +96,23 @@ public interface DnTool {
     return false;
   }
 
+  /**
+   * Is valid dn with base dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
   default boolean isValidDnWithBaseDn(Dn dn) {
     return isValidDn(dn) && (dn.isSame(getBaseDn()) || getBaseDn().isAncestor(dn));
   }
 
+  /**
+   * Is same dn boolean.
+   *
+   * @param dn1 the dn 1
+   * @param dn2 the dn 2
+   * @return the boolean
+   */
   static boolean isSameDn(String dn1, String dn2) {
     if (!isValidDn(dn1) || !isValidDn(dn2)) {
       return false;
@@ -75,6 +120,13 @@ public interface DnTool {
     return isSameDn(new Dn(dn1), new Dn(dn2));
   }
 
+  /**
+   * Is same dn boolean.
+   *
+   * @param dn1 the dn 1
+   * @param dn2 the dn 2
+   * @return the boolean
+   */
   static boolean isSameDn(Dn dn1, String dn2) {
     if (!isValidDn(dn1) || !isValidDn(dn2)) {
       return false;
@@ -82,6 +134,13 @@ public interface DnTool {
     return isSameDn(dn1, new Dn(dn2));
   }
 
+  /**
+   * Is same dn boolean.
+   *
+   * @param dn1 the dn 1
+   * @param dn2 the dn 2
+   * @return the boolean
+   */
   static boolean isSameDn(Dn dn1, Dn dn2) {
     if (!isValidDn(dn1) || !isValidDn(dn2)) {
       return false;
@@ -89,9 +148,20 @@ public interface DnTool {
     return dn1.format().equalsIgnoreCase(dn2.format());
   }
 
+  /**
+   * Gets base dn.
+   *
+   * @return the base dn
+   */
   @NotNull
   Dn getBaseDn();
 
+  /**
+   * Add base dn.
+   *
+   * @param dn the dn
+   * @return the dn
+   */
   @NotNull
   default Dn addBaseDn(String dn) {
     if (!isValidDn(dn)) {
@@ -100,6 +170,12 @@ public interface DnTool {
     return addBaseDn(new Dn(dn));
   }
 
+  /**
+   * Add base dn.
+   *
+   * @param dn the dn
+   * @return the dn
+   */
   @NotNull
   default Dn addBaseDn(Dn dn) {
     if (!isValidDn(dn)) {
@@ -113,14 +189,12 @@ public interface DnTool {
     return newDn;
   }
 
-  @Nullable
-  default Dn removeBaseDn(String dn) {
-    if (!isValidDn(dn)) {
-      return null;
-    }
-    return removeBaseDn(new Dn(dn));
-  }
-
+  /**
+   * Remove base dn.
+   *
+   * @param dn the dn
+   * @return the dn
+   */
   @Nullable
   default Dn removeBaseDn(Dn dn) {
     Dn adBaseDn = getBaseDn();
@@ -133,6 +207,13 @@ public interface DnTool {
     return dn;
   }
 
+  /**
+   * Remove ancestor dn.
+   *
+   * @param dn the dn
+   * @param ancestor the ancestor
+   * @return the dn
+   */
   static Dn removeAncestor(Dn dn, Dn ancestor) {
     if (!isValidDn(dn) || !isValidDn(ancestor)) {
       return dn;
@@ -146,6 +227,14 @@ public interface DnTool {
     return dn;
   }
 
+  /**
+   * Replace ancestor dn.
+   *
+   * @param dn the dn
+   * @param ancestor the ancestor
+   * @param newAncestor the new ancestor
+   * @return the dn
+   */
   static Dn replaceAncestor(Dn dn, Dn ancestor, Dn newAncestor) {
     Dn newDn = removeAncestor(dn, ancestor);
     if (isValidDn(newAncestor) && !dn.isSame(newDn)) {
@@ -154,6 +243,12 @@ public interface DnTool {
     return newDn;
   }
 
+  /**
+   * Gets dn pair.
+   *
+   * @param dn the dn
+   * @return the dn pair
+   */
   static DnPair getDnPair(String dn) {
     if (isValidDn(dn)) {
       return getDnPair(new Dn(dn));
@@ -161,6 +256,12 @@ public interface DnTool {
     return null;
   }
 
+  /**
+   * Gets dn pair.
+   *
+   * @param dn the dn
+   * @return the dn pair
+   */
   static DnPair getDnPair(Dn dn) {
     if (isValidDn(dn)) {
       return new DnPair(dn.format(CASE_SENSITIVE_RDN_NORMALIZER), dn.format());
@@ -168,6 +269,11 @@ public interface DnTool {
     return null;
   }
 
+  /**
+   * The dn pair.
+   *
+   * @author Christian Bremer
+   */
   record DnPair(String dn, String normalizedDn) {
 
     @Override

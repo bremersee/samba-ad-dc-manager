@@ -41,6 +41,14 @@ public class TemplateEngineException extends IllegalArgumentException
    */
   public final int lineNo;
 
+  /**
+   * Instantiates a new template engine exception.
+   *
+   * @param message the message
+   * @param key the key
+   * @param lineNo the line no
+   * @param cause the cause
+   */
   public TemplateEngineException(String message, String key, int lineNo, Throwable cause) {
     super(message, cause);
     this.key = key;

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.misc;
 
 import java.security.SecureRandom;
@@ -9,11 +25,19 @@ import org.passay.data.CharacterData;
 import org.passay.rule.CharacterRule;
 import org.springframework.stereotype.Service;
 
+/**
+ * The passay password generator.
+ *
+ * @author Christian Bremer
+ */
 @Service
 public class PassayPasswordGenerator implements PasswordGenerator {
 
   private final Random random;
 
+  /**
+   * Instantiates a new passay password generator.
+   */
   public PassayPasswordGenerator() {
     this.random = new SecureRandom();
   }
@@ -56,7 +80,9 @@ public class PassayPasswordGenerator implements PasswordGenerator {
   }
 
   /**
-   * The type Special character data.
+   * The special character data.
+   *
+   * @author Christian Bremer
    */
   private static class SpecialCharacterData implements CharacterData {
 
@@ -72,7 +98,9 @@ public class PassayPasswordGenerator implements PasswordGenerator {
   }
 
   /**
-   * The type Digit character data.
+   * The digit character data.
+   *
+   * @author Christian Bremer
    */
   private static class DigitCharacterData implements CharacterData {
 
@@ -88,7 +116,9 @@ public class PassayPasswordGenerator implements PasswordGenerator {
   }
 
   /**
-   * The type Upper character data.
+   * The pper character data.
+   *
+   * @author Christian Bremer
    */
   private static class UpperCharacterData implements CharacterData {
 
@@ -104,7 +134,9 @@ public class PassayPasswordGenerator implements PasswordGenerator {
   }
 
   /**
-   * The type Lower character data.
+   * The lower character data.
+   *
+   * @author Christian Bremer
    */
   private static class LowerCharacterData implements CharacterData {
 

@@ -29,6 +29,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class DnsEntryTypeConverter implements Converter<String, DnsEntryType> {
 
+  /**
+   * Instantiates a new dns entry type converter.
+   */
+  public DnsEntryTypeConverter() {
+    super();
+  }
+
   @Override
   public DnsEntryType convert(@NonNull String source) {
     return DnsEntryType.fromValue(source);

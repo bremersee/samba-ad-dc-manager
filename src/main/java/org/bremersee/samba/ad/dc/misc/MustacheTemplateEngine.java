@@ -40,6 +40,12 @@ public class MustacheTemplateEngine implements TemplateEngine {
 
   private final List<TemplateEngineContextSupplier> contextSuppliers;
 
+  /**
+   * Instantiates a new mustache template engine.
+   *
+   * @param properties the properties
+   * @param contextSuppliers the context suppliers
+   */
   public MustacheTemplateEngine(
       ApplicationProperties properties,
       List<TemplateEngineContextSupplier> contextSuppliers) {

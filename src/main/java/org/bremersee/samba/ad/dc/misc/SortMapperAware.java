@@ -19,7 +19,9 @@ package org.bremersee.samba.ad.dc.misc;
 import org.bremersee.comparator.spring.mapper.SortMapper;
 
 /**
- * The interface Sort mapper aware.
+ * The sort mapper aware interface.
+ *
+ * @author Christian Bremer
  */
 public interface SortMapperAware {
 

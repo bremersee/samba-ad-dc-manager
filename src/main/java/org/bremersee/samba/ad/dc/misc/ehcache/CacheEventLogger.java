@@ -28,6 +28,13 @@ import org.ehcache.event.CacheEventListener;
 @Slf4j
 public class CacheEventLogger implements CacheEventListener<Object, Object> {
 
+  /**
+   * Instantiates a new cache event logger.
+   */
+  public CacheEventLogger() {
+    super();
+  }
+
   @Override
   public void onEvent(CacheEvent<?, ?> cacheEvent) {
 

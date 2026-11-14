@@ -29,6 +29,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class DnsZoneTypeConverter implements Converter<String, DnsZoneType> {
 
+  /**
+   * Instantiates a new dns zone type converter.
+   */
+  public DnsZoneTypeConverter() {
+    super();
+  }
+
   @Override
   public DnsZoneType convert(@NonNull String source) {
     return DnsZoneType.fromValue(source);

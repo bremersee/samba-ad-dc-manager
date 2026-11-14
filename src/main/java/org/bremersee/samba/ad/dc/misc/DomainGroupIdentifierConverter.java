@@ -22,8 +22,20 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+/**
+ * The domain group identifier converter.
+ *
+ * @author Christian Bremer
+ */
 @Component
 public class DomainGroupIdentifierConverter implements Converter<String, DomainGroupIdentifier> {
+
+  /**
+   * Instantiates a new domain group identifier converter.
+   */
+  public DomainGroupIdentifierConverter() {
+    super();
+  }
 
   @Override
   public @Nullable DomainGroupIdentifier convert(@NonNull String source) {
