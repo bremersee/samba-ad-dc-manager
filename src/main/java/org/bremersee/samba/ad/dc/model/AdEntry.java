@@ -60,21 +60,6 @@ import tools.jackson.databind.annotation.JsonSerialize;
         @DiscriminatorMapping(
             value = ModelConstants.SAM_ACCOUNT,
             schema = SamAccount.class)
-        /*
-        @DiscriminatorMapping(
-            value = ModelConstants.COMPUTER,
-            schema = DomainComputer.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.GROUP,
-            schema = DomainGroup.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.GROUP_MEMBER,
-            schema = DomainGroupMember.class),
-        @DiscriminatorMapping(
-            value = ModelConstants.USER,
-            schema = DomainUser.class)
-
-         */
     }
 )
 @JsonTypeInfo(
@@ -90,16 +75,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
         value = OrganizationalUnit.class,
         name = ModelConstants.ORGANIZATIONAL_UNIT),
 
-    @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
-    /*
-    @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
-    @JsonSubTypes.Type(value = DomainGroup.class, name = ModelConstants.GROUP),
-    @JsonSubTypes.Type(
-        value = DomainGroupMember.class,
-        name = ModelConstants.GROUP_MEMBER),
-    @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
-
-     */
+    @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT)
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName(ModelConstants.AD_ENTRY)
