@@ -23,7 +23,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(
-    name = "OrganizationalUnit",
+    name = ModelConstants.ORGANIZATIONAL_UNIT,
     description = "The organizational unit in an active directory.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,

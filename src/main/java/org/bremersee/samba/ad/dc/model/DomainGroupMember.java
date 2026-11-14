@@ -20,7 +20,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(
-    name = "DomainGroupMember",
+    name = ModelConstants.GROUP_MEMBER,
     description = "The domain group.")
 @Value.Style(
     visibility = Value.Style.ImplementationVisibility.PACKAGE,

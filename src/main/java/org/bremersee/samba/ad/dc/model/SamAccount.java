@@ -23,7 +23,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
  * @author Christian Bremer
  */
 @Schema(
-    name = "SamAccount",
+    name = ModelConstants.SAM_ACCOUNT,
     description = "The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.",
     discriminatorProperty = ModelConstants.DISCRIMINATOR,
     discriminatorMapping = {

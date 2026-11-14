@@ -23,7 +23,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 /**
  * The domain user.
  */
-@Schema(name = "DomainUser", description = "The domain user.")
+@Schema(name = ModelConstants.USER, description = "The domain user.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,

@@ -22,9 +22,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 @Hidden
-@Schema(
-    name = "DnsEntryFoo",
-    description = "DNS entry.")
+@Schema(name = ModelConstants.DNS_ENTRY, description = "DNS entry.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
     overshadowImplementation = true,

@@ -19,7 +19,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 @Schema(
-    name = "DomainComputer",
+    name = ModelConstants.COMPUTER,
     description = "The domain computer.")
 @Value.Style(
     visibility = ImplementationVisibility.PUBLIC,
