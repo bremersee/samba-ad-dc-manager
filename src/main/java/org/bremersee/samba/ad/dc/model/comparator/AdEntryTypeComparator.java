@@ -26,6 +26,13 @@ import org.bremersee.samba.ad.dc.model.AdEntry;
  */
 public class AdEntryTypeComparator implements Comparator<AdEntry> {
 
+  /**
+   * Instantiates a new ad entry type comparator.
+   */
+  public AdEntryTypeComparator() {
+    super();
+  }
+
   @Override
   public int compare(AdEntry o1, AdEntry o2) {
     return Integer.compare(o1.getAdEntryType().getSortOrder(),
