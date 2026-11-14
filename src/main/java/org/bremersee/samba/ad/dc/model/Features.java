@@ -47,7 +47,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 public interface Features extends Serializable {
 
   /**
-   * Is mail enabled boolean.
+   * Determines whether mail is enabled.
    *
    * @return the boolean
    */
@@ -57,12 +57,22 @@ public interface Features extends Serializable {
   }
 
   /**
-   * Is dhcp enabled boolean.
+   * Determines whether dhcp is enabled.
    *
    * @return the boolean
    */
   @Default
   default boolean isDhcpEnabled() {
+    return false;
+  }
+
+  /**
+   * Determines whether remember me is enabled.
+   *
+   * @return the boolean
+   */
+  @Default
+  default boolean isRememberMeEnabled() {
     return false;
   }
 
@@ -81,7 +91,7 @@ public interface Features extends Serializable {
   class Builder extends ImmutableFeatures.Builder {
 
     /**
-     * Instantiates a new Builder.
+     * Instantiates a new builder.
      */
     public Builder() {
       super();

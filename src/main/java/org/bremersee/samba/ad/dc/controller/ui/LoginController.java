@@ -19,6 +19,7 @@ package org.bremersee.samba.ad.dc.controller.ui;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.Features;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +46,12 @@ public class LoginController extends UiController {
       LocaleResolver localeResolver,
       DomainService domainService) {
     super(properties, localeResolver, domainService);
+  }
+
+  @ModelAttribute("features")
+  @Override
+  public Features getFeatures() {
+    return super.getFeatures();
   }
 
   /**

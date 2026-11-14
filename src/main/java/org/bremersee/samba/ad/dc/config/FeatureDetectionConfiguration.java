@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bremersee.samba.ad.dc.misc.FeaturesAware;
 import org.bremersee.samba.ad.dc.model.Features;
 import org.bremersee.samba.ad.dc.repository.DhcpLeaseListTool;
+import org.bremersee.spring.security.ldaptive.authentication.LdaptiveRememberMeServices;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.mail.autoconfigure.MailProperties;
@@ -48,27 +49,32 @@ class FeatureDetectionConfiguration {
 
   private final MailProperties mailProperties;
 
+  private final DhcpLeaseListTool dhcpLeaseListTool;
+
   private final JavaMailSender javaMailSender;
 
-  private final DhcpLeaseListTool dhcpLeaseListTool;
+  private final LdaptiveRememberMeServices rememberMeServices;
 
   /**
    * Instantiates a new Feature detection configuration.
    *
    * @param applicationProperties the application properties
    * @param mailProperties the mail properties
-   * @param javaMailSender the java mail sender
    * @param dhcpLeaseListTool the dhcp lease list tool
+   * @param javaMailSender the java mail sender
+   * @param rememberMeServices the remember me services
    */
   FeatureDetectionConfiguration(
       ApplicationProperties applicationProperties,
       MailProperties mailProperties,
+      DhcpLeaseListTool dhcpLeaseListTool,
       ObjectProvider<JavaMailSender> javaMailSender,
-      DhcpLeaseListTool dhcpLeaseListTool) {
+      ObjectProvider<LdaptiveRememberMeServices> rememberMeServices) {
     this.applicationProperties = applicationProperties;
     this.mailProperties = mailProperties;
-    this.javaMailSender = javaMailSender.getIfAvailable();
     this.dhcpLeaseListTool = dhcpLeaseListTool;
+    this.javaMailSender = javaMailSender.getIfAvailable();
+    this.rememberMeServices = rememberMeServices.getIfAvailable();
   }
 
   /**
@@ -82,21 +88,10 @@ class FeatureDetectionConfiguration {
     Features features = Features.builder()
         .dhcpEnabled(isDhcpEnabled())
         .mailEnabled(isMailEnabled())
+        .rememberMeEnabled(isRememberMeEnabled())
         .build();
     log.info("Features: {}", features);
     return features;
-  }
-
-  private boolean isMailEnabled() {
-    String sender = applicationProperties.getEmail().getSender();
-    if (isEmpty(sender)) {
-      return false;
-    }
-    Pattern emailPattern = applicationProperties.getEmail().getEmailRegexFlags()
-        .compile(applicationProperties.getEmail().getEmailRegex());
-    return !isEmpty(mailProperties.getHost())
-        && !isEmpty(javaMailSender)
-        && emailPattern.matcher(sender).matches();
   }
 
   private boolean isDhcpEnabled() {
@@ -109,6 +104,27 @@ class FeatureDetectionConfiguration {
     } catch (RuntimeException e) {
       return false;
     }
+  }
+
+  private boolean isMailEnabled() {
+    String sender = applicationProperties.getEmail().getSender();
+    if (isEmpty(sender)) {
+      log.info("Mail sender is not configured.");
+      return false;
+    }
+    Pattern emailPattern = applicationProperties.getEmail().getEmailRegexFlags()
+        .compile(applicationProperties.getEmail().getEmailRegex());
+    boolean matches = emailPattern.matcher(sender).matches();
+    if (!matches) {
+      log.info("Mail sender is not a valid e-mail address.");
+    }
+    return matches
+        && !isEmpty(mailProperties.getHost())
+        && !isEmpty(javaMailSender);
+  }
+
+  private boolean isRememberMeEnabled() {
+    return !isEmpty(rememberMeServices);
   }
 
   /**
