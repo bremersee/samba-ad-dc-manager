@@ -203,7 +203,7 @@ public class ProfileController extends UiController {
   }
 
   private DomainUser getCurrentUser() {
-    return Optional.ofNullable(SecurityContextHolder.getContext())
+    return Optional.of(SecurityContextHolder.getContext())
         .map(SecurityContext::getAuthentication)
         .map(Authentication::getName)
         .flatMap(username -> domainUserService.getUser(username, null, null))

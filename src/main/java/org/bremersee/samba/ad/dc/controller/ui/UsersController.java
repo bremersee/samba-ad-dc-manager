@@ -51,6 +51,15 @@ public class UsersController extends UiController
   @Getter
   private final OrganizationalUnitService organizationalUnitService;
 
+  /**
+   * Instantiates a new Users controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param organizationalUnitService the organizational unit service
+   */
   public UsersController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -77,6 +86,18 @@ public class UsersController extends UiController
     return "users";
   }
 
+  /**
+   * Display users string.
+   *
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @param model the model
+   * @return the string
+   */
   @GetMapping(path = "/management/users")
   public String displayUsers(
       @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,

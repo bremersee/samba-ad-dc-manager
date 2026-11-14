@@ -50,14 +50,29 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public abstract class UiController extends AbstractController implements LoggerProvider,
     DnToolProvider, MessageProvider, RedirectComponent, ErrorCode {
 
+  /**
+   * The constant COMPUTER.
+   */
   protected static final String COMPUTER = "computer";
 
+  /**
+   * The constant COMPUTERS.
+   */
   protected static final String COMPUTERS = "computers";
 
+  /**
+   * The constant GROUP.
+   */
   protected static final String GROUP = "group";
 
+  /**
+   * The constant GROUPS.
+   */
   protected static final String GROUPS = "groups";
 
+  /**
+   * The constant SAM_ACCOUNT_NAME.
+   */
   protected static final String SAM_ACCOUNT_NAME = "samAccountName";
 
   private final Logger logger;
@@ -74,6 +89,13 @@ public abstract class UiController extends AbstractController implements LoggerP
   @Setter
   private MessageSource messageSource;
 
+  /**
+   * Instantiates a new Ui controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   */
   protected UiController(
       ApplicationProperties properties,
       LocaleResolver localeResolver,
@@ -91,11 +113,21 @@ public abstract class UiController extends AbstractController implements LoggerP
     return properties;
   }
 
+  /**
+   * Gets domain info.
+   *
+   * @return the domain info
+   */
   @ModelAttribute("domainInfo")
   public DomainInfo getDomainInfo() {
     return getDomainService().getDomainInfo();
   }
 
+  /**
+   * Gets company url.
+   *
+   * @return the company url
+   */
   @ModelAttribute("companyUrl")
   public String getCompanyUrl() {
     String companyUrl = getProperties().getCompanyUrl();
@@ -105,10 +137,26 @@ public abstract class UiController extends AbstractController implements LoggerP
     return companyUrl;
   }
 
+  /**
+   * Gets base uri.
+   *
+   * @return the base uri
+   */
   protected String getBaseUri() {
     return getBaseUri(getProperties().getEmail().getBaseUri());
   }
 
+  /**
+   * Entity not found redirect string.
+   *
+   * @param redirectAttributes the redirect attributes
+   * @param entityType the entity type
+   * @param i18nCode the 18 n code
+   * @param entityName the entity name
+   * @param parameterTemplate the parameter template
+   * @param redirect the redirect
+   * @return the string
+   */
   protected String entityNotFoundRedirect(
       RedirectAttributes redirectAttributes,
       String entityType,
@@ -126,6 +174,12 @@ public abstract class UiController extends AbstractController implements LoggerP
     return redirectUri;
   }
 
+  /**
+   * Log redirect to.
+   *
+   * @param msg the msg
+   * @param redirect the redirect
+   */
   protected void logRedirectTo(String msg, String redirect) {
     if (isEmpty(msg)) {
       getLogger().debug("Redirecting to {}", redirect);
@@ -133,18 +187,5 @@ public abstract class UiController extends AbstractController implements LoggerP
       getLogger().debug("{} Redirecting to {}", msg, redirect);
     }
   }
-
-  /*
-  @ExceptionHandler(Exception.class)
-  public ModelAndView handleError(HttpServletRequest req, Exception ex) {
-    getLogger().error("Request {} raised exception", req.getRequestURL(), ex);
-    // send email? with hostname!
-    ModelAndView mav = new ModelAndView();
-    mav.addObject("exception", ex);
-    mav.addObject("url", req.getRequestURL());
-    mav.setViewName("error");
-    return mav;
-  }
-  */
 
 }

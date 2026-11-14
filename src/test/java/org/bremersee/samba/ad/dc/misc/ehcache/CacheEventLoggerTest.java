@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * The cache event logger test.
+ *
+ * @author Christian Bremer
  */
 class CacheEventLoggerTest {
 

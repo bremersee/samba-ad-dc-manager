@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * The avatar default converter test.
+ *
+ * @author Christian Bremer
  */
 @ExtendWith(SoftAssertionsExtension.class)
 class AvatarDefaultConverterTest {

@@ -92,7 +92,7 @@ public class DnsEntryAddController extends UiController
     DnsEntryAddModel addModel = new DnsEntryAddModel(zoneName);
     List<String> reverseZones = dnsService.getDnsZoneNames(DnsZoneType.REVERSE);
     if (!reverseZones.isEmpty()) {
-      addModel.setReverseZoneName(reverseZones.get(0));
+      addModel.setReverseZoneName(reverseZones.getFirst());
     }
     model.addAttribute("dnsReverseZones", reverseZones);
     model.addAttribute("dnsEntryAddModel", addModel);
