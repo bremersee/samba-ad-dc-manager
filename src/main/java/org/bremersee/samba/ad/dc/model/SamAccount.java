@@ -3,6 +3,8 @@ package org.bremersee.samba.ad.dc.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
@@ -41,6 +43,10 @@ import tools.jackson.databind.annotation.JsonSerialize;
             schema = DomainUser.class)
     }
 )
+@JsonTypeInfo(
+    use = Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = ModelConstants.DISCRIMINATOR)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
     @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
