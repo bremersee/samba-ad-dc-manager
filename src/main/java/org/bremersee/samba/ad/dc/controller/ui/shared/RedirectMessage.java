@@ -32,6 +32,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
+@SuppressWarnings("ClassCanBeRecord")
 public class RedirectMessage implements Serializable {
 
   @Serial
