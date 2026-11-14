@@ -34,30 +34,15 @@ import org.ldaptive.LdapEntry;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-/**
- * The domain computer ldap mapper.
- *
- * @author Christian Bremer
- */
 @Component
 public class DomainComputerLdapMapper extends LdaptiveEntryImmutableMapper<DomainComputer>
     implements AdEntryLdapMapperDelegate<DomainComputer> {
 
   private final SamAccountLdapMapper samAccountLdapMapper;
 
-  /**
-   * --- GETTER ---
-   * Gets the unmodifiable set of mapped attributes.
-   *
-   * @return the unmodifiable set of mapped attributes
-   */
   @Getter
-  @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
-  /**
-   * Instantiates a new domain computer ldap mapper.
-   */
   public DomainComputerLdapMapper() {
     samAccountLdapMapper = new SamAccountLdapMapper();
     mappedAttributes = initMappedAttributesOfDomainComputer();

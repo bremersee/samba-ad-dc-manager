@@ -57,7 +57,6 @@ public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper<O
    * @return the unmodifiable set of mapped attributes
    */
   @Getter
-  @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
   public OrganizationalUnitLdapMapper(ApplicationProperties properties) {

@@ -34,6 +34,9 @@ import org.ldaptive.AttributeModification;
 import org.ldaptive.LdapEntry;
 import org.springframework.util.Assert;
 
+/**
+ * The type Sam account ldap mapper.
+ */
 public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccount> {
 
   private final AdEntryLdapMapper adEntryLdapMapper;
@@ -45,9 +48,11 @@ public class SamAccountLdapMapper extends LdaptiveEntryImmutableMapper<SamAccoun
    * @return the unmodifiable set of mapped attributes
    */
   @Getter
-  @SuppressWarnings("JavadocDeclaration")
   private final Set<LdaptiveAttribute<?>> mappedAttributes;
 
+  /**
+   * Instantiates a new Sam account ldap mapper.
+   */
   public SamAccountLdapMapper() {
     adEntryLdapMapper = new AdEntryLdapMapper();
     mappedAttributes = initMappedAttributesOfSamAccount();
