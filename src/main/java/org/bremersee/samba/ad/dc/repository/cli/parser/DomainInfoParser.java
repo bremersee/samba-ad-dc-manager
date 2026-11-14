@@ -16,17 +16,12 @@
 
 package org.bremersee.samba.ad.dc.repository.cli.parser;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.Optional;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.bremersee.samba.ad.dc.model.DomainInfo;
-import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The domain info parser parses linux command line tool
+ * The domain info parser parses Linux command line tool
  * {@code samba-tool domain info <ip_address> [options]}, for example
  * {@code samba-tool domain info dc1}.
  *
@@ -52,105 +47,7 @@ public interface DomainInfoParser
    * @return the domain info parser
    */
   static DomainInfoParser defaultParser() {
-    return Default.getInstance();
-  }
-
-  /**
-   * The default domain info parser.
-   */
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  class Default extends AbstractCommandExecutorResponseParser<Optional<DomainInfo>>
-      implements DomainInfoParser {
-
-    /**
-     * The Forest.
-     */
-    static final String FOREST = "Forest";
-
-    /**
-     * The Domain.
-     */
-    static final String DOMAIN = "Domain";
-
-    /**
-     * The Netbios domain.
-     */
-    static final String NETBIOS_DOMAIN = "Netbios domain";
-
-    /**
-     * The Dc name.
-     */
-    static final String DC_NAME = "DC name";
-
-    /**
-     * The Dc netbios name.
-     */
-    static final String DC_NETBIOS_NAME = "DC netbios name";
-
-    /**
-     * The Server site.
-     */
-    static final String SERVER_SITE = "Server site";
-
-    /**
-     * The Client site.
-     */
-    static final String CLIENT_SITE = "Client site";
-
-    private static DomainInfoParser instance;
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    static DomainInfoParser getInstance() {
-      if (instance == null) {
-        instance = new Default();
-      }
-      return instance;
-    }
-
-    @Override
-    protected Optional<DomainInfo> getDefaultValue() {
-      return Optional.empty();
-    }
-
-    @Override
-    protected Optional<DomainInfo> doParse(BufferedReader reader) throws IOException {
-      DomainInfo.Builder info = DomainInfo.builder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        line = line.trim();
-        findValue(line, FOREST)
-            .ifPresent(info::forest);
-        findValue(line, DOMAIN)
-            .ifPresent(info::domain);
-        findValue(line, NETBIOS_DOMAIN)
-            .ifPresent(info::netbiosDomain);
-        findValue(line, DC_NETBIOS_NAME)
-            .ifPresent(info::domainControllerNetbiosName);
-        findValue(line, DC_NAME)
-            .ifPresent(info::domainControllerName);
-        findValue(line, SERVER_SITE)
-            .ifPresent(info::serverSite);
-        findValue(line, CLIENT_SITE)
-            .ifPresent(info::clientSite);
-      }
-      return Optional.of(info.build());
-    }
-
-    private Optional<String> findValue(String line, String label) {
-      int index = line.indexOf(":", label.length());
-      if (line.trim().startsWith(label) && index > -1) {
-        String value = line.substring(index + 1).trim();
-        if (!value.isEmpty()) {
-          return Optional.of(value);
-        }
-      }
-      return Optional.empty();
-    }
-
+    return DefaultDomainInfoParser.getInstance();
   }
 
 }

@@ -16,13 +16,7 @@
 
 package org.bremersee.samba.ad.dc.repository.cli.parser;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.Optional;
-import java.util.function.Predicate;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
@@ -38,41 +32,7 @@ public interface HostNameParser extends CommandExecutorResponseParser<Optional<S
    * @return the host name parser
    */
   static HostNameParser defaultParser() {
-    return Default.getInstance();
-  }
-
-  /**
-   * The default host name parser.
-   */
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  class Default extends AbstractCommandExecutorResponseParser<Optional<String>>
-      implements HostNameParser {
-
-    private static HostNameParser instance;
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    public static HostNameParser getInstance() {
-      if (instance == null) {
-        instance = new Default();
-      }
-      return instance;
-    }
-
-    @Override
-    protected Optional<String> getDefaultValue() {
-      return Optional.empty();
-    }
-
-    @Override
-    protected Optional<String> doParse(BufferedReader reader) throws IOException {
-      return Optional.ofNullable(reader.readLine())
-          .map(String::trim)
-          .filter(Predicate.not(String::isEmpty));
-    }
+    return DefaultHostNameParser.getInstance();
   }
 
 }

@@ -16,19 +16,11 @@
 
 package org.bremersee.samba.ad.dc.repository.cli.parser;
 
-import static java.util.Objects.isNull;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
 import org.bremersee.samba.ad.dc.repository.cli.CommandExecutorResponseParser;
 
 /**
- * The dns zone list parser parses linux command line tool
+ * The dns zone list parser parses Linux command line tool
  * {@code samba-tool dns zonelist <server> [options]}, for example
  * {@code samba-tool dns zonelist dc1 --primary}.
  *
@@ -61,56 +53,7 @@ public interface DnsZoneListParser extends CommandExecutorResponseParser<List<St
    * @return the dns zone list parser
    */
   static DnsZoneListParser defaultParser() {
-    return Default.getInstance();
-  }
-
-  /**
-   * The default dns zone list parser.
-   */
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  class Default extends AbstractCommandExecutorResponseParser<List<String>>
-      implements DnsZoneListParser {
-
-    /**
-     * The zone name.
-     */
-    static final String ZONE_NAME = "pszZoneName";
-
-    private static DnsZoneListParser instance;
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    static DnsZoneListParser getInstance() {
-      if (isNull(instance)) {
-        instance = new Default();
-      }
-      return instance;
-    }
-
-    @Override
-    protected List<String> getDefaultValue() {
-      return List.of();
-    }
-
-    @Override
-    protected List<String> doParse(BufferedReader reader) throws IOException {
-      List<String> result = new ArrayList<>();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        line = line.trim();
-        int index = line.indexOf(':');
-        if (line.contains(ZONE_NAME) && index > ZONE_NAME.length()) {
-          String zoneName = line.substring(index + 1).trim();
-          if (!zoneName.isEmpty()) {
-            result.add(zoneName);
-          }
-        }
-      }
-      return result;
-    }
+    return DefaultDnsZoneListParser.getInstance();
   }
 
 }

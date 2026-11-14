@@ -17,15 +17,15 @@
 package org.bremersee.samba.ad.dc.repository.cli.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.ACCOUNT_LOCKOUT_DURATION;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.ACCOUNT_LOCKOUT_THRESHOLD;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.MAXIMUM_PASSWORD_AGE;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.MINIMUM_PASSWORD_AGE;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.MINIMUM_PASSWORD_LENGTH;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.PASSWORD_COMPLEXITY;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.PASSWORD_HISTORY_LENGTH;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.RESET_ACCOUNT_LOCKOUT_AFTER;
-import static org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser.Default.STORE_PLAINTEXT_PASSWORD;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.ACCOUNT_LOCKOUT_DURATION;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.ACCOUNT_LOCKOUT_THRESHOLD;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.MAXIMUM_PASSWORD_AGE;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.MINIMUM_PASSWORD_AGE;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.MINIMUM_PASSWORD_LENGTH;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.PASSWORD_COMPLEXITY;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.PASSWORD_HISTORY_LENGTH;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.RESET_ACCOUNT_LOCKOUT_AFTER;
+import static org.bremersee.samba.ad.dc.repository.cli.parser.DefaultPasswordInformationParser.STORE_PLAINTEXT_PASSWORD;
 
 import org.bremersee.samba.ad.dc.model.PasswordComplexity;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
