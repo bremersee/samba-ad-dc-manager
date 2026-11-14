@@ -69,34 +69,86 @@ public abstract class SamAccountRepository extends AdRepository {
         .compile(getProperties().getEmail().getEmailRegex());
   }
 
+  /**
+   * Gets default ou.
+   *
+   * @return the default ou
+   */
   protected abstract Dn getDefaultOu();
 
+  /**
+   * Gets object class value.
+   *
+   * @return the object class value
+   */
   protected abstract String getObjectClassValue();
 
+  /**
+   * Get binary attributes string [ ].
+   *
+   * @return the string [ ]
+   */
   protected abstract String[] getBinaryAttributes();
 
+  /**
+   * Get return attributes string [ ].
+   *
+   * @return the string [ ]
+   */
   protected abstract String[] getReturnAttributes();
 
+  /**
+   * Gets unique name attribute name.
+   *
+   * @return the unique name attribute name
+   */
   protected String getUniqueNameAttributeName() {
     return AdConstants.SAM_ACCOUNT_NAME.getName();
   }
 
+  /**
+   * Object class filter filter.
+   *
+   * @return the filter
+   */
   protected Filter objectClassFilter() {
     return new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue());
   }
 
+  /**
+   * Find one filter filter.
+   *
+   * @param uniqueName the unique name
+   * @return the filter
+   */
   protected Filter findOneFilter(String uniqueName) {
     return new AndFilter(
         objectClassFilter(),
         new EqualityFilter(getUniqueNameAttributeName(), uniqueName));
   }
 
+  /**
+   * Search one request search request.
+   *
+   * @param uniqueName the unique name
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
   protected SearchRequest searchOneRequest(
       String uniqueName,
       String... returnAttributes) {
     return searchOneRequest(uniqueName, null, null, returnAttributes);
   }
 
+  /**
+   * Search one request search request.
+   *
+   * @param uniqueName the unique name
+   * @param ouRdn the ou rdn
+   * @param scope the scope
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
   protected SearchRequest searchOneRequest(
       String uniqueName,
       Dn ouRdn,
@@ -105,6 +157,16 @@ public abstract class SamAccountRepository extends AdRepository {
     return searchOneRequest(uniqueName, ouRdn, null, scope, returnAttributes);
   }
 
+  /**
+   * Search one request search request.
+   *
+   * @param uniqueName the unique name
+   * @param ouRdn the ou rdn
+   * @param filter the filter
+   * @param scope the scope
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
   protected SearchRequest searchOneRequest(
       String uniqueName,
       Dn ouRdn,
@@ -135,6 +197,15 @@ public abstract class SamAccountRepository extends AdRepository {
         .build();
   }
 
+  /**
+   * Search all request search request.
+   *
+   * @param ouRdn the ou rdn
+   * @param filter the filter
+   * @param scope the scope
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
   protected SearchRequest searchAllRequest(
       Dn ouRdn,
       Filter filter,
@@ -152,6 +223,11 @@ public abstract class SamAccountRepository extends AdRepository {
         .build();
   }
 
+  /**
+   * Validate email.
+   *
+   * @param email the email
+   */
   protected void validateEmail(String email) {
     Optional.ofNullable(email)
         .filter(mail -> !isEmpty(mail))
@@ -164,6 +240,11 @@ public abstract class SamAccountRepository extends AdRepository {
         });
   }
 
+  /**
+   * Validate sam account name.
+   *
+   * @param samAccount the sam account
+   */
   protected void validateSamAccountName(SamAccount samAccount) {
     if (isEmpty(samAccount.getSamAccountName())) {
       throw ServiceException.badRequest(
@@ -175,6 +256,11 @@ public abstract class SamAccountRepository extends AdRepository {
     }
   }
 
+  /**
+   * Validate new sam account name.
+   *
+   * @param samAccount the sam account
+   */
   protected void validateNewSamAccountName(SamAccount samAccount) {
     validateSamAccountName(samAccount);
     boolean isInvalidNewSamAccountName = !newSamAccountNamePattern
@@ -191,14 +277,32 @@ public abstract class SamAccountRepository extends AdRepository {
     }
   }
 
+  /**
+   * Sam account exists boolean.
+   *
+   * @param samAccount the sam account
+   * @return the boolean
+   */
   protected boolean samAccountExists(SamAccount samAccount) {
     return findDnOfSamAccount(samAccount).isPresent();
   }
 
+  /**
+   * Sam account name exists boolean.
+   *
+   * @param samAccountName the sam account name
+   * @return the boolean
+   */
   protected boolean samAccountNameExists(String samAccountName) {
     return findDnOfSamAccountName(samAccountName).isPresent();
   }
 
+  /**
+   * Find dn of sam account optional.
+   *
+   * @param samAccount the sam account
+   * @return the optional
+   */
   protected Optional<String> findDnOfSamAccount(SamAccount samAccount) {
     if (isEmpty(samAccount)) {
       return Optional.empty();
@@ -206,13 +310,21 @@ public abstract class SamAccountRepository extends AdRepository {
     return findDnOfSamAccountName(samAccount.getSamAccountName());
   }
 
+  /**
+   * Find dn of sam account name optional.
+   *
+   * @param samAccountName the sam account name
+   * @return the optional
+   */
   protected Optional<String> findDnOfSamAccountName(String samAccountName) {
     log.debug("findDnOfSamAccountName({})", samAccountName);
     if (isEmpty(samAccountName)) {
       log.debug("Dn of '{}' does not exist", samAccountName);
       return Optional.empty();
     }
-    String[] returnAttributes = new String[]{AdConstants.DN.getName()};
+    String[] returnAttributes = {
+        AdConstants.DN.getName()
+    };
     return getLdapOperations()
         .findOne(searchOneRequest(samAccountName, returnAttributes))
         .map(LdapEntry::getDn)

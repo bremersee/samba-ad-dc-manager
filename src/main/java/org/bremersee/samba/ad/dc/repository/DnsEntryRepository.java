@@ -22,24 +22,55 @@ import java.util.List;
 import org.bremersee.samba.ad.dc.model.DnsEntry;
 
 /**
- * The interface DnsRepository.
+ * The dns repository.
  *
  * @author Christian Bremer
  */
 public interface DnsEntryRepository {
 
+  /**
+   * The constant ZONE_ENTRIES_NODE_NAME.
+   */
   String ZONE_ENTRIES_NODE_NAME = "@";
 
+  /**
+   * Gets dns entries.
+   *
+   * @param zoneName the zone name
+   * @return the dns entries
+   */
   @NotNull
   List<DnsEntry> getDnsEntries(@NotEmpty String zoneName);
 
+  /**
+   * Add common attributes dns entry.
+   *
+   * @param entry the entry
+   * @return the dns entry
+   */
   @NotNull
   DnsEntry addCommonAttributes(@NotNull DnsEntry entry);
 
+  /**
+   * Add dns entry.
+   *
+   * @param entry the entry
+   */
   void addDnsEntry(@NotNull DnsEntry entry);
 
+  /**
+   * Update dns entry.
+   *
+   * @param entry the entry
+   * @param newValue the new value
+   */
   void updateDnsEntry(@NotNull DnsEntry entry, @NotEmpty String newValue);
 
+  /**
+   * Delete dns entry.
+   *
+   * @param entry the entry
+   */
   void deleteDnsEntry(@NotNull DnsEntry entry);
 
 }

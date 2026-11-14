@@ -62,6 +62,14 @@ public interface AvatarRepository {
     return bytes != null && bytes.length > 0;
   }
 
+  /**
+   * Exists avatar in active directory boolean.
+   *
+   * @param user the user
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the boolean
+   */
   boolean existsAvatarInActiveDirectory(
       @NotEmpty String user,
       @Nullable Dn ou,
@@ -71,6 +79,8 @@ public interface AvatarRepository {
    * Find avatar.
    *
    * @param user the user
+   * @param ou the ou
+   * @param searchScope the search scope
    * @param avatarDefault the avatar default
    * @param size the size
    * @return the optional avatar

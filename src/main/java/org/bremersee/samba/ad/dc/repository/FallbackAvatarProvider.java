@@ -49,6 +49,11 @@ public class FallbackAvatarProvider implements AvatarProvider {
 
   private final ImageTool imageTool;
 
+  /**
+   * Instantiates a new fallback avatar provider.
+   *
+   * @param imageTool the image tool
+   */
   public FallbackAvatarProvider(ImageTool imageTool) {
     this.imageTool = imageTool;
   }

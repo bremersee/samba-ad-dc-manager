@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class ImageToolAwt implements ImageTool {
 
   /**
-   * Instantiates a new default image tool.
+   * Instantiates a new awt image tool.
    */
   public ImageToolAwt() {
     super();

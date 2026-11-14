@@ -25,29 +25,83 @@ import org.jspecify.annotations.Nullable;
 import org.ldaptive.dn.Dn;
 
 /**
- * The interface OrganizationalUnitRepository.
+ * The rganizational unit repository.
  *
  * @author Christian Bremer
  */
 public interface OrganizationalUnitRepository {
 
+  /**
+   * Find custom ous stream.
+   *
+   * @return the stream
+   */
   Stream<OrganizationalUnit> findCustomOus();
 
+  /**
+   * Find all stream.
+   *
+   * @return the stream
+   */
   Stream<OrganizationalUnit> findAll();
 
+  /**
+   * Find one optional.
+   *
+   * @param ou the ou
+   * @return the optional
+   */
   Optional<OrganizationalUnit> findOne(@NotNull Dn ou);
 
+  /**
+   * Exists boolean.
+   *
+   * @param ou the ou
+   * @return the boolean
+   */
   boolean exists(@NotNull Dn ou);
 
+  /**
+   * Has children boolean.
+   *
+   * @param ou the ou
+   * @return the boolean
+   */
   boolean hasChildren(@Nullable Dn ou);
 
+  /**
+   * Gets children.
+   *
+   * @param ou the ou
+   * @return the children
+   */
   Stream<AdEntry> getChildren(@Nullable Dn ou);
 
+  /**
+   * Add organizational unit.
+   *
+   * @param organizationalUnit the organizational unit
+   * @param parentOu the parent ou
+   * @return the organizational unit
+   */
   OrganizationalUnit add(@NotNull OrganizationalUnit organizationalUnit, @Nullable Dn parentOu);
 
+  /**
+   * Update organizational unit.
+   *
+   * @param organizationalUnit the organizational unit
+   * @param newParentOu the new parent ou
+   * @return the organizational unit
+   */
   OrganizationalUnit update(@NotNull OrganizationalUnit organizationalUnit,
       @Nullable Dn newParentOu);
 
+  /**
+   * Delete boolean.
+   *
+   * @param ou the ou
+   * @return the boolean
+   */
   boolean delete(@NotNull Dn ou);
 
 }

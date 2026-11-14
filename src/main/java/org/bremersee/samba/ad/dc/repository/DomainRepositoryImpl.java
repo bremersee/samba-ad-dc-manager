@@ -84,7 +84,7 @@ public class DomainRepositoryImpl extends AdRepository implements DomainReposito
     log.debug("getDomainSid()");
     String baseDn = getProperties().getBaseDn();
     String attrName = AdConstants.OBJECT_SID.getName();
-    String[] returnAttributes = new String[]{
+    String[] returnAttributes = {
         attrName
     };
     return getLdapOperations()

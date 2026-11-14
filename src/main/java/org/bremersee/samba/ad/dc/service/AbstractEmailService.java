@@ -24,6 +24,8 @@ import org.thymeleaf.context.Context;
 
 /**
  * The abstract email service.
+ *
+ * @author Christian Bremer
  */
 @Getter(AccessLevel.PROTECTED)
 public abstract class AbstractEmailService {

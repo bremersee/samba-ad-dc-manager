@@ -29,15 +29,38 @@ import org.bremersee.samba.ad.dc.model.DnsZoneType;
  */
 public interface DnsZoneRepository {
 
+  /**
+   * Gets dns zone names.
+   *
+   * @param type the type
+   * @return the dns zone names
+   */
   @NotNull
   List<String> getDnsZoneNames(@NotNull DnsZoneType type);
 
+  /**
+   * Gets dns zone.
+   *
+   * @param zoneName the zone name
+   * @return the dns zone
+   */
   @NotNull
   DnsZone getDnsZone(@NotEmpty String zoneName);
 
+  /**
+   * Create dns zone.
+   *
+   * @param zoneName the zone name
+   * @return the dns zone
+   */
   @NotNull
   DnsZone createDnsZone(@NotEmpty String zoneName);
 
+  /**
+   * Delete dns zone.
+   *
+   * @param zoneName the zone name
+   */
   void deleteDnsZone(@NotEmpty String zoneName);
 
 }

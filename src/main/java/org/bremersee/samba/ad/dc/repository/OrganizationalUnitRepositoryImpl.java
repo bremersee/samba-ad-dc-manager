@@ -58,6 +58,14 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
 
   private final GenericLdapMapper genericLdapMapper;
 
+  /**
+   * Instantiates a new Organizational unit repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param ouLdapMapper the ou ldap mapper
+   * @param genericLdapMapper the generic ldap mapper
+   */
   OrganizationalUnitRepositoryImpl(
       ApplicationProperties properties,
       LdaptiveOperations ldapOperations,
@@ -68,22 +76,47 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
     this.genericLdapMapper = genericLdapMapper;
   }
 
+  /**
+   * Gets default ou.
+   *
+   * @return the default ou
+   */
   Dn getDefaultOu() {
     return getDnTool().getBaseDn();
   }
 
+  /**
+   * Gets object class value.
+   *
+   * @return the object class value
+   */
   String getObjectClassValue() {
     return AdConstants.OBJECT_CLASS_OU;
   }
 
+  /**
+   * Get binary attributes string [ ].
+   *
+   * @return the string [ ]
+   */
   String[] getBinaryAttributes() {
     return ouLdapMapper.getBinaryAttributeNames();
   }
 
+  /**
+   * Get return attributes string [ ].
+   *
+   * @return the string [ ]
+   */
   String[] getReturnAttributes() {
     return ouLdapMapper.getMappedAttributeNames();
   }
 
+  /**
+   * Object class filter filter.
+   *
+   * @return the filter
+   */
   Filter objectClassFilter() {
     return new OrFilter(
         new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue()),
@@ -286,6 +319,12 @@ class OrganizationalUnitRepositoryImpl extends AdRepository
         .orElse(false);
   }
 
+  /**
+   * Is deletable boolean.
+   *
+   * @param o the o
+   * @return the boolean
+   */
   boolean isDeletable(OrganizationalUnit o) {
     return !o.isSystemOu();
   }

@@ -109,13 +109,13 @@ public abstract class AdRepository implements ErrorCode {
     return DnTool.isSameDn(dnTool.getBaseDn(), dnTool.addBaseDn(ou));
   }
 
-  protected Predicate<String> getIgnoredDnFilter(Dn ou, SearchScope scope) {
-    if (isIgnoredDnFilterRequired(ou, scope)) {
-      return getIgnoredDnFilter();
-    }
-    return dn -> true;
-  }
-
+  /**
+   * Gets ignored entry filter.
+   *
+   * @param ou the ou
+   * @param scope the scope
+   * @return the ignored entry filter
+   */
   protected Predicate<LdapEntry> getIgnoredEntryFilter(Dn ou, SearchScope scope) {
     if (isIgnoredDnFilterRequired(ou, scope)) {
       return getIgnoredEntryFilter();
@@ -123,6 +123,13 @@ public abstract class AdRepository implements ErrorCode {
     return entry -> true;
   }
 
+  /**
+   * Gets ignored object filter.
+   *
+   * @param ou the ou
+   * @param scope the scope
+   * @return the ignored object filter
+   */
   protected Predicate<DistinguishedNameProvider> getIgnoredObjectFilter(Dn ou, SearchScope scope) {
     if (isIgnoredDnFilterRequired(ou, scope)) {
       return getIgnoredObjectFilter();
@@ -130,6 +137,13 @@ public abstract class AdRepository implements ErrorCode {
     return distinguishedNameProvider -> true;
   }
 
+  /**
+   * Dn exists with any object class boolean.
+   *
+   * @param dn the dn
+   * @param objectClasses the object classes
+   * @return the boolean
+   */
   protected boolean dnExistsWithAnyObjectClass(String dn, String... objectClasses) {
     log.debug("dnExistsWithAnyObjectClass({}, {})", dn, objectClasses);
     if (!DnTool.isValidDn(dn)) {
@@ -164,6 +178,13 @@ public abstract class AdRepository implements ErrorCode {
         .orElse(false);
   }
 
+  /**
+   * Validate parent dn dn.
+   *
+   * @param parentDn the parent dn
+   * @param defaultParentDn the default parent dn
+   * @return the dn
+   */
   protected Dn validateParentDn(Dn parentDn, Supplier<Dn> defaultParentDn) {
     Dn validatedDn = isEmpty(parentDn) || parentDn.isEmpty() ? defaultParentDn.get() : parentDn;
     if (isEmpty(validatedDn) || validatedDn.isEmpty()) {
@@ -183,6 +204,12 @@ public abstract class AdRepository implements ErrorCode {
             EC_OU_NOT_FOUND));
   }
 
+  /**
+   * Move and rename.
+   *
+   * @param existingDn the existing dn
+   * @param wantedDn the wanted dn
+   */
   protected void moveAndRename(Dn existingDn, Dn wantedDn) {
     if (!existingDn.isSame(wantedDn)) {
       ModifyDnRequest.Builder reqBuilder = ModifyDnRequest.builder()

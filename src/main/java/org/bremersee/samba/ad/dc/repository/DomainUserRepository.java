@@ -58,10 +58,28 @@ public interface DomainUserRepository {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Find one by principal name optional.
+   *
+   * @param principalName the principal name
+   * @return the optional
+   */
   Optional<DomainUser> findOneByPrincipalName(@NotEmpty String principalName);
 
+  /**
+   * Find one by uid optional.
+   *
+   * @param uid the uid
+   * @return the optional
+   */
   Optional<DomainUser> findOneByUid(@NotEmpty String uid);
 
+  /**
+   * Find one by uid number optional.
+   *
+   * @param uidNumber the uid number
+   * @return the optional
+   */
   Optional<DomainUser> findOneByUidNumber(@NotNull Integer uidNumber);
 
   /**

@@ -35,7 +35,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The gravatar provider.
+ * The Gravatar provider.
  *
  * @author Christian Bremer
  */
@@ -47,6 +47,11 @@ public class GravatarProvider implements AvatarProvider {
 
   private final ApplicationProperties properties;
 
+  /**
+   * Instantiates a new Gravatar provider.
+   *
+   * @param properties the properties
+   */
   public GravatarProvider(ApplicationProperties properties) {
     this.properties = properties;
   }

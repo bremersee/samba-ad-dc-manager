@@ -69,6 +69,8 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
    *
    * @param properties the properties
    * @param ldapOperations the ldap operations
+   * @param domainRepository the domain repository
+   * @param domainGroupLdapMapper the domain group ldap mapper
    */
   public DomainGroupRepositoryImpl(
       ApplicationProperties properties,
@@ -184,6 +186,12 @@ public class DomainGroupRepositoryImpl extends SamAccountRepository
         });
   }
 
+  /**
+   * Exists by gid number boolean.
+   *
+   * @param gidNumber the gid number
+   * @return the boolean
+   */
   boolean existsByGidNumber(Integer gidNumber) {
     log.debug("existsByGidNumber({})", gidNumber);
     return Optional.ofNullable(gidNumber)

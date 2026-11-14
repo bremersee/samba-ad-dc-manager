@@ -80,6 +80,7 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
    * @param properties the properties
    * @param ldapOperations the ldap operations
    * @param domainRepository the domain repository
+   * @param domainUserLdapMapper the domain user ldap mapper
    */
   public DomainUserRepositoryImpl(
       ApplicationProperties properties,
@@ -227,6 +228,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         .filter(getIgnoredObjectFilter());
   }
 
+  /**
+   * Exists by principal name boolean.
+   *
+   * @param principalName the principal name
+   * @return the boolean
+   */
   public boolean existsByPrincipalName(String principalName) {
     log.debug("existsByPrincipalName({})", principalName);
     if (isEmpty(principalName)) {
@@ -237,6 +244,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
             principalName));
   }
 
+  /**
+   * Exists by uid boolean.
+   *
+   * @param uid the uid
+   * @return the boolean
+   */
   public boolean existsByUid(String uid) {
     log.debug("existsByUid({})", uid);
     if (isEmpty(uid)) {
@@ -248,6 +261,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
     return existsByFilter(filter);
   }
 
+  /**
+   * Exists by uid number boolean.
+   *
+   * @param uidNumber the uid number
+   * @return the boolean
+   */
   public boolean existsByUidNumber(Integer uidNumber) {
     log.debug("existsByUidNumber({})", uidNumber);
     if (isEmpty(uidNumber)) {
@@ -438,6 +457,12 @@ public class DomainUserRepositoryImpl extends SamAccountRepository
         });
   }
 
+  /**
+   * Do save password.
+   *
+   * @param dn the dn
+   * @param newPassword the new password
+   */
   void doSavePassword(String dn, String newPassword) {
     AttributeModification attributeModification = new AttributeModification(
         Type.REPLACE,
