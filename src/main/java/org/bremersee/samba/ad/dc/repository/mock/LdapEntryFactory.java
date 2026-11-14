@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import static java.util.Objects.requireNonNullElse;
@@ -18,15 +34,29 @@ import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 import org.springframework.util.Assert;
 
-@SuppressWarnings("ClassCanBeRecord")
+/**
+ * The ldap entry factory.
+ *
+ * @author Christian Bremer
+ */
 class LdapEntryFactory {
 
   private final SambaStore store;
 
+  /**
+   * Instantiates a new ldap entry factory.
+   *
+   * @param store the store
+   */
   LdapEntryFactory(SambaStore store) {
     this.store = store;
   }
 
+  /**
+   * Sets default values.
+   *
+   * @param entry the entry
+   */
   void setDefaultValues(LdapEntry entry) {
     Assert.hasText(entry.getDn(), "DN must be present.");
     Dn dn = new Dn(entry.getDn());
@@ -52,6 +82,13 @@ class LdapEntryFactory {
     }
   }
 
+  /**
+   * New entry ldap entry.
+   *
+   * @param rdn the rdn
+   * @param parentDn the parent dn
+   * @return the ldap entry
+   */
   LdapEntry newEntry(String rdn, Dn parentDn) {
     Dn dn = new Dn(rdn);
     dn.add(store.getDnTool().addBaseDn(parentDn));
@@ -64,6 +101,13 @@ class LdapEntryFactory {
     return entry;
   }
 
+  /**
+   * New organizational unit entry ldap entry.
+   *
+   * @param name the name
+   * @param parentDn the parent dn
+   * @return the ldap entry
+   */
   LdapEntry newOrganizationalUnitEntry(String name, Dn parentDn) {
     LdapEntry entry = newEntry("OU=" + name, parentDn);
     AdConstants.OBJECT_CLASS.setValues(entry, List.of(
@@ -74,6 +118,15 @@ class LdapEntryFactory {
     return entry;
   }
 
+  /**
+   * New group entry ldap entry.
+   *
+   * @param samAccountName the sam account name
+   * @param parentDn the parent dn
+   * @param groupType the group type
+   * @param sid the sid
+   * @return the ldap entry
+   */
   LdapEntry newGroupEntry(
       String samAccountName, Dn parentDn,
       int groupType,
@@ -90,6 +143,15 @@ class LdapEntryFactory {
     return entry;
   }
 
+  /**
+   * New user entry ldap entry.
+   *
+   * @param samAccountName the sam account name
+   * @param parentDn the parent dn
+   * @param primaryGroupId the primary group id
+   * @param sid the sid
+   * @return the ldap entry
+   */
   LdapEntry newUserEntry(
       String samAccountName,
       Dn parentDn,
@@ -113,6 +175,15 @@ class LdapEntryFactory {
     return entry;
   }
 
+  /**
+   * New computer entry ldap entry.
+   *
+   * @param name the name
+   * @param parentDn the parent dn
+   * @param primaryGroupId the primary group id
+   * @param sid the sid
+   * @return the ldap entry
+   */
   LdapEntry newComputerEntry(
       String name,
       Dn parentDn,

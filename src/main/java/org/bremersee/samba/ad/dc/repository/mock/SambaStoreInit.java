@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.time.OffsetDateTime;
@@ -16,6 +32,11 @@ import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.dn.Dn;
 
+/**
+ * The samba store initialization.
+ *
+ * @author Christian Bremer
+ */
 class SambaStoreInit {
 
   private static final String ZONE_NAME = "samdom.example.org";
@@ -37,11 +58,19 @@ class SambaStoreInit {
 
   private final LdapEntryFactory entryFactory;
 
+  /**
+   * Instantiates a new samba store initialization.
+   *
+   * @param store the store
+   */
   SambaStoreInit(SambaStore store) {
     this.store = store;
     this.entryFactory = store.getEntryFactory();
   }
 
+  /**
+   * Init.
+   */
   void init() {
     store.add(createComputersOu());
     store.add(createUsersOu());
@@ -421,31 +450,6 @@ class SambaStoreInit {
     return node;
   }
 
-  private DnsZone createSamdomDnsZone() {
-    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-    return DnsZone.builder()
-        .distinguishedName("")
-        .created(now)
-        .modified(now)
-        .name(ZONE_NAME)
-        .zoneType(DnsZoneType.PRIMARY.name())
-        .reverseZone(false)
-        .fqdn(ZONE_FQDN)
-        .allowUpdate(DNS_ZONE_UPDATE_SECURE)
-        .paused(Boolean.FALSE)
-        .shutdown(Boolean.FALSE)
-        .autoCreated(Boolean.FALSE)
-        .useDatabase(Boolean.TRUE)
-        .dataFile("None")
-        .useWins(Boolean.FALSE)
-        .useNbstat(Boolean.FALSE)
-        .aging(Boolean.FALSE)
-        .queuedForBackgroundLoad(Boolean.FALSE)
-        .backgroundLoadInProgress(Boolean.FALSE)
-        .readOnlyZone(Boolean.FALSE)
-        .build();
-  }
-
   private List<DnsEntry> createSamdomDnsEntries() {
     OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
     List<DnsEntry> entries = new CopyOnWriteArrayList<>();
@@ -661,6 +665,31 @@ class SambaStoreInit {
         .flags("f0")
         .build());
     return entries;
+  }
+
+  private DnsZone createSamdomDnsZone() {
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+    return DnsZone.builder()
+        .distinguishedName("")
+        .created(now)
+        .modified(now)
+        .name(ZONE_NAME)
+        .zoneType(DnsZoneType.PRIMARY.name())
+        .reverseZone(false)
+        .fqdn(ZONE_FQDN)
+        .allowUpdate(DNS_ZONE_UPDATE_SECURE)
+        .paused(Boolean.FALSE)
+        .shutdown(Boolean.FALSE)
+        .autoCreated(Boolean.FALSE)
+        .useDatabase(Boolean.TRUE)
+        .dataFile("None")
+        .useWins(Boolean.FALSE)
+        .useNbstat(Boolean.FALSE)
+        .aging(Boolean.FALSE)
+        .queuedForBackgroundLoad(Boolean.FALSE)
+        .backgroundLoadInProgress(Boolean.FALSE)
+        .readOnlyZone(Boolean.FALSE)
+        .build();
   }
 
   private DnsZone createMsdcsDnsZone() {

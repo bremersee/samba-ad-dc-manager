@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -39,11 +55,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import tools.jackson.databind.json.JsonMapper;
 
+/**
+ * The samba store.
+ *
+ * @author Christian Bremer
+ */
 @Component
 @Profile("mock")
 @Slf4j
 class SambaStore {
 
+  /**
+   * The Domain sid.
+   */
   static final String DOMAIN_SID = Sid.DEFAULT_SID_PREFIX + "1111111111-111111111-1111111111";
 
   private final AtomicInteger sidPostfix = new AtomicInteger(Sid.MAX_SYSTEM_SID_SUFFIX + 1);
@@ -65,6 +89,12 @@ class SambaStore {
   @Getter(AccessLevel.PACKAGE)
   private final Map<DnsZone, List<DnsEntry>> dns;
 
+  /**
+   * Instantiates a new samba store.
+   *
+   * @param properties the properties
+   * @param jsonMapperBuilder the json mapper builder
+   */
   SambaStore(ApplicationProperties properties, JsonMapper.Builder jsonMapperBuilder) {
     this.jsonMapper = jsonMapperBuilder.build();
     this.dnTool = new DefaultDnTool(properties);
@@ -81,6 +111,11 @@ class SambaStore {
     new SambaStoreInit(this).init();
   }
 
+  /**
+   * Gets domain info.
+   *
+   * @return the domain info
+   */
   DomainInfo getDomainInfo() {
     if (isEmpty(domainInfo)) {
       domainInfo = DomainInfo.builder()
@@ -96,6 +131,11 @@ class SambaStore {
     return domainInfo;
   }
 
+  /**
+   * Gets password information.
+   *
+   * @return the password information
+   */
   PasswordInformation getPasswordInformation() {
     if (isEmpty(passwordInformation)) {
       passwordInformation = PasswordInformation.builder().build();
@@ -103,20 +143,43 @@ class SambaStore {
     return passwordInformation;
   }
 
+  /**
+   * Gets next sid.
+   *
+   * @return the next sid
+   */
   Sid getNextSid() {
     return getSid(sidPostfix.getAndIncrement());
   }
 
+  /**
+   * Gets sid.
+   *
+   * @param sidPostfix the sid postfix
+   * @return the sid
+   */
   Sid getSid(int sidPostfix) {
     return Sid.builder()
         .value(DOMAIN_SID + '-' + sidPostfix)
         .build();
   }
 
+  /**
+   * Find by dn optional.
+   *
+   * @param dn the dn
+   * @return the optional
+   */
   Optional<LdapNode> findByDn(Dn dn) {
     return findByDn(DnTool.toString(dn));
   }
 
+  /**
+   * Find by dn optional.
+   *
+   * @param dn the dn
+   * @return the optional
+   */
   Optional<LdapNode> findByDn(String dn) {
     if (!dnTool.isValidDnWithBaseDn(dn)) {
       return Optional.empty();
@@ -127,10 +190,6 @@ class SambaStore {
       return Optional.of(ypServers);
     }
     return findByDn(root, dn);
-  }
-
-  Optional<LdapNode> findByDn(LdapNode node, Dn dn) {
-    return findByDn(node, DnTool.toString(dn));
   }
 
   private Optional<LdapNode> findByDn(LdapNode node, String dn) {
@@ -146,6 +205,12 @@ class SambaStore {
     return Optional.empty();
   }
 
+  /**
+   * Find list.
+   *
+   * @param request the request
+   * @return the list
+   */
   List<LdapEntry> find(SearchRequest request) {
     List<LdapEntry> response = new ArrayList<>();
     if (isEmpty(request) || isEmpty(request.getBaseDn())) {
@@ -182,6 +247,11 @@ class SambaStore {
     }
   }
 
+  /**
+   * Add.
+   *
+   * @param entry the entry
+   */
   void add(LdapEntry entry) {
     Assert.notNull(entry, "Ldap entry must not be null.");
     log.info("Adding entry: {}", toJson(new SerLdapEntry(entry)));
@@ -196,6 +266,11 @@ class SambaStore {
         });
   }
 
+  /**
+   * Remove.
+   *
+   * @param dn the dn
+   */
   void remove(String dn) {
     findByDn(dn).ifPresent(node -> {
       node.getParent().getChildren().remove(node);
@@ -203,6 +278,11 @@ class SambaStore {
     });
   }
 
+  /**
+   * Modify dn.
+   *
+   * @param request the request
+   */
   void modifyDn(ModifyDnRequest request) {
     findByDn(request.getOldDn()).ifPresent(entry -> {
       Dn oldDn = new Dn(entry.getDn());

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -35,6 +51,11 @@ import org.ldaptive.filter.PresenceFilter;
 import org.ldaptive.filter.SubstringFilter;
 import org.springframework.util.Assert;
 
+/**
+ * The ldap node.
+ *
+ * @author Christian Bremer
+ */
 @Getter(AccessLevel.PACKAGE)
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 class LdapNode extends LdapEntry {
@@ -49,6 +70,11 @@ class LdapNode extends LdapEntry {
     AdConstants.WHEN_CHANGED.setValue(this, now);
   }
 
+  /**
+   * Instantiates a new ldap node.
+   *
+   * @param baseDn the base dn
+   */
   LdapNode(String baseDn) {
     this();
     Assert.isTrue(DnTool.isValidDn(baseDn), "Base DN must be valid.");
@@ -56,6 +82,12 @@ class LdapNode extends LdapEntry {
     AdConstants.DN.setValue(this, new Dn(getDn()));
   }
 
+  /**
+   * Instantiates a new ldap node.
+   *
+   * @param entry the entry
+   * @param parent the parent
+   */
   LdapNode(LdapEntry entry, LdapNode parent) {
     this(isEmpty(entry) ? null : entry.getDn());
     Assert.notNull(parent, "Parent ldap entry is required.");
@@ -63,10 +95,20 @@ class LdapNode extends LdapEntry {
     parent.addChild(this);
   }
 
+  /**
+   * Is root boolean.
+   *
+   * @return the boolean
+   */
   boolean isRoot() {
     return isEmpty(parent);
   }
 
+  /**
+   * Gets root.
+   *
+   * @return the root
+   */
   LdapNode getRoot() {
     LdapNode tmp = this;
     while (!tmp.isRoot()) {
@@ -75,6 +117,12 @@ class LdapNode extends LdapEntry {
     return tmp;
   }
 
+  /**
+   * Has object class boolean.
+   *
+   * @param objectClass the object class
+   * @return the boolean
+   */
   boolean hasObjectClass(String objectClass) {
     return Stream.ofNullable(getAttribute(AdConstants.OBJECT_CLASS.getName()))
         .map(LdapAttribute::getStringValues)
@@ -140,6 +188,11 @@ class LdapNode extends LdapEntry {
     }
   }
 
+  /**
+   * Add child.
+   *
+   * @param child the child
+   */
   void addChild(LdapNode child) {
     if (!isEmpty(child) && DnTool.isValidDn(child.getDn()) && !containsChild(child)) {
       child.parent = this;
@@ -147,6 +200,11 @@ class LdapNode extends LdapEntry {
     }
   }
 
+  /**
+   * Remove child.
+   *
+   * @param child the child
+   */
   void removeChild(LdapNode child) {
     if (!isEmpty(child) && children
         .removeIf(c -> DnTool.isSameDn(c.getDn(), child.getDn()))) {
@@ -154,6 +212,12 @@ class LdapNode extends LdapEntry {
     }
   }
 
+  /**
+   * Contains child boolean.
+   *
+   * @param child the child
+   * @return the boolean
+   */
   boolean containsChild(LdapNode child) {
     if (isEmpty(child) || !DnTool.isValidDn(child.getDn())) {
       return false;
@@ -162,6 +226,12 @@ class LdapNode extends LdapEntry {
         .anyMatch(ch -> DnTool.isSameDn(ch.getDn(), child.getDn()));
   }
 
+  /**
+   * Matches boolean.
+   *
+   * @param filter the filter
+   * @return the boolean
+   */
   boolean matches(Filter filter) {
     if (isEmpty(filter)) {
       return true;

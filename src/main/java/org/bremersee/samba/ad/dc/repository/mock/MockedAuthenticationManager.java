@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.bremersee.samba.ad.dc.repository.mock;
 
 import java.time.OffsetDateTime;
@@ -14,6 +30,7 @@ import org.bremersee.samba.ad.dc.misc.DnTool;
 import org.bremersee.samba.ad.dc.repository.AdConstants;
 import org.bremersee.spring.security.ldaptive.authentication.LdaptiveAuthenticationToken;
 import org.bremersee.spring.security.ldaptive.userdetails.LdaptiveUserDetails;
+import org.jspecify.annotations.NonNull;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.filter.AndFilter;
@@ -31,6 +48,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+/**
+ * The mocked authentication manager.
+ *
+ * @author Christian Bremer
+ */
 @Component
 @Profile("mock")
 class MockedAuthenticationManager implements AuthenticationManager, AuthenticationProvider {
@@ -39,6 +61,12 @@ class MockedAuthenticationManager implements AuthenticationManager, Authenticati
 
   private final LdaptiveOperations ldaptiveOperations;
 
+  /**
+   * Instantiates a new Mocked authentication manager.
+   *
+   * @param properties the properties
+   * @param ldaptiveOperations the ldaptive operations
+   */
   MockedAuthenticationManager(
       ApplicationProperties properties,
       LdaptiveOperations ldaptiveOperations) {
@@ -47,12 +75,14 @@ class MockedAuthenticationManager implements AuthenticationManager, Authenticati
   }
 
   @Override
-  public boolean supports(Class<?> authentication) {
+  public boolean supports(@NonNull Class<?> authentication) {
     return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
   }
 
   @Override
-  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+  public Authentication authenticate(@NonNull Authentication authentication)
+      throws AuthenticationException {
+
     if (!supports(authentication.getClass())) {
       return null;
     }
