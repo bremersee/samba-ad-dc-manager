@@ -49,7 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The type DnsServiceImpl.
+ * The dns service implementation.
  *
  * @author Christian Bremer
  */
@@ -68,6 +68,14 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
 
   private final DhcpRepository dhcpRepository;
 
+  /**
+   * Instantiates a new dns service.
+   *
+   * @param sortMapper the sort mapper
+   * @param dnsZoneRepository the dns zone repository
+   * @param dnsEntryRepository the dns entry repository
+   * @param dhcpRepository the dhcp repository
+   */
   public DnsServiceImpl(
       SortMapper sortMapper,
       DnsZoneRepository dnsZoneRepository,

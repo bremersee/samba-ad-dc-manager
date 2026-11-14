@@ -59,6 +59,13 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
   @Getter
   private final OrganizationalUnit base;
 
+  /**
+   * Instantiates a new organizational unit service.
+   *
+   * @param properties the properties
+   * @param sortMapper the sort mapper
+   * @param repository the repository
+   */
   public OrganizationalUnitServiceImpl(
       ApplicationProperties properties,
       SortMapper sortMapper,
@@ -76,6 +83,13 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
         .build();
   }
 
+  /**
+   * Contains boolean.
+   *
+   * @param ou the ou
+   * @param query the query
+   * @return the boolean
+   */
   boolean contains(OrganizationalUnit ou, String query) {
     if (!isEmpty(ou.getName()) && ou.getName().toLowerCase().contains(query)) {
       return true;
@@ -102,14 +116,6 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService,
   @Override
   public Stream<OrganizationalUnit> getOrganizationalUnits() {
     return repository.findCustomOus().sorted(Comparator.comparing(OrganizationalUnit::getNameTree));
-  }
-
-  @Override
-  public Stream<OrganizationalUnit> getOrganizationalUnitsWithBase() {
-    return Stream.concat(
-        Stream.of(base),
-        repository.findCustomOus()
-            .sorted(Comparator.comparing(OrganizationalUnit::getNameTree)));
   }
 
   @Override

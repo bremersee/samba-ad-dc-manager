@@ -30,7 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * The domain user service interface.
+ * The domain user service.
  *
  * @author Christian Bremer
  */
@@ -77,10 +77,28 @@ public interface DomainUserService {
   Optional<DomainUser> getUser(@NotEmpty String userName, @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Gets user by principal name.
+   *
+   * @param principalName the principal name
+   * @return the user by principal name
+   */
   Optional<DomainUser> getUserByPrincipalName(@NotEmpty String principalName);
 
+  /**
+   * Gets user by uid.
+   *
+   * @param uid the uid
+   * @return the user by uid
+   */
   Optional<DomainUser> getUserByUid(@NotEmpty String uid);
 
+  /**
+   * Gets user by uid number.
+   *
+   * @param uidNumber the uid number
+   * @return the user by uid number
+   */
   Optional<DomainUser> getUserByUidNumber(@NotNull Integer uidNumber);
 
   /**

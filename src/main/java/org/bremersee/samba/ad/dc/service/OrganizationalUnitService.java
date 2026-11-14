@@ -27,39 +27,109 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * The interface OrganizationalUnitService.
+ * The organizational unit service.
  *
  * @author Christian Bremer
  */
 public interface OrganizationalUnitService {
 
+  /**
+   * Gets organizational units.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @return the organizational units
+   */
   Page<OrganizationalUnit> getOrganizationalUnits(Pageable pageable, String query);
 
+  /**
+   * Gets organizational units.
+   *
+   * @return the organizational units
+   */
   Stream<OrganizationalUnit> getOrganizationalUnits();
 
-  Stream<OrganizationalUnit> getOrganizationalUnitsWithBase();
-
+  /**
+   * Gets organizational units with system ous.
+   *
+   * @return the organizational units with system ous
+   */
   Stream<OrganizationalUnit> getOrganizationalUnitsWithSystemOus();
 
+  /**
+   * Gets organizational units with system ous and base.
+   *
+   * @return the organizational units with system ous and base
+   */
   Stream<OrganizationalUnit> getOrganizationalUnitsWithSystemOusAndBase();
 
+  /**
+   * Gets organizational unit.
+   *
+   * @param ou the ou
+   * @return the organizational unit
+   */
   Optional<OrganizationalUnit> getOrganizationalUnit(@Nullable Dn ou);
 
+  /**
+   * Gets base.
+   *
+   * @return the base
+   */
   OrganizationalUnit getBase();
 
+  /**
+   * Organisation unit exists boolean.
+   *
+   * @param ou the ou
+   * @return the boolean
+   */
   boolean organisationUnitExists(@Nullable Dn ou);
 
+  /**
+   * Has children boolean.
+   *
+   * @param ou the ou
+   * @return the boolean
+   */
   boolean hasChildren(@Nullable Dn ou);
 
+  /**
+   * Gets children.
+   *
+   * @param ou the ou
+   * @param pageable the pageable
+   * @return the children
+   */
   Page<AdEntry> getChildren(@Nullable Dn ou, @NotNull Pageable pageable);
 
+  /**
+   * Add organizational unit.
+   *
+   * @param organizationalUnit the organizational unit
+   * @param parentOu the parent ou
+   * @return the organizational unit
+   */
   @NotNull
   OrganizationalUnit add(@NotNull OrganizationalUnit organizationalUnit, @Nullable Dn parentOu);
 
+  /**
+   * Update organizational unit.
+   *
+   * @param organizationalUnit the organizational unit
+   * @param newParentOu the new parent ou
+   * @return the organizational unit
+   */
   @NotNull
   OrganizationalUnit update(@NotNull OrganizationalUnit organizationalUnit,
       @Nullable Dn newParentOu);
 
+  /**
+   * Delete boolean.
+   *
+   * @param ou the ou
+   * @return the boolean
+   */
   boolean delete(@NotNull Dn ou);
 
 }

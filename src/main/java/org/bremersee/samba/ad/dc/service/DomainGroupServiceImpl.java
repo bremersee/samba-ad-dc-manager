@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The domain group service.
+ * The domain group service implementation.
  *
  * @author Christian Bremer
  */
@@ -54,7 +54,9 @@ public class DomainGroupServiceImpl implements DomainGroupService {
   /**
    * Instantiates a new domain group service.
    *
+   * @param sortMapper the sort mapper
    * @param domainGroupRepository the domain group repository
+   * @param domainGroupMemberRepository the domain group member repository
    */
   public DomainGroupServiceImpl(
       SortMapper sortMapper,

@@ -36,38 +36,119 @@ import org.springframework.data.domain.Pageable;
  */
 public interface DnsService {
 
+  /**
+   * The constant REVERSE_ZONE_POSTFIX.
+   */
   String REVERSE_ZONE_POSTFIX = ".in-addr.arpa";
 
+  /**
+   * Gets dns zone names.
+   *
+   * @param type the type
+   * @return the dns zone names
+   */
   @NotNull
   List<String> getDnsZoneNames(@Nullable DnsZoneType type);
 
+  /**
+   * Gets dns zone.
+   *
+   * @param zoneName the zone name
+   * @return the dns zone
+   */
   @NotNull
   DnsZone getDnsZone(@NotEmpty String zoneName);
 
+  /**
+   * Create dns zone dns zone.
+   *
+   * @param zoneName the zone name
+   * @return the dns zone
+   */
   @NotNull
   DnsZone createDnsZone(@NotEmpty String zoneName);
 
+  /**
+   * Delete dns zone.
+   *
+   * @param zoneName the zone name
+   */
   void deleteDnsZone(@NotEmpty String zoneName);
 
+  /**
+   * Gets dns entries.
+   *
+   * @param zoneName the zone name
+   * @param pageable the pageable
+   * @param query the query
+   * @return the dns entries
+   */
   Page<DnsEntry> getDnsEntries(
       @NotEmpty String zoneName,
       @NotNull Pageable pageable,
       String query);
 
+  /**
+   * Find dns entry optional.
+   *
+   * @param dnsEntry the dns entry
+   * @return the optional
+   */
   Optional<DnsEntry> findDnsEntry(@NotNull DnsEntry dnsEntry);
 
+  /**
+   * Find dns entry optional.
+   *
+   * @param ipAddress the ip address
+   * @return the optional
+   */
   Optional<DnsEntry> findDnsEntry(@NotEmpty String ipAddress);
 
+  /**
+   * Find reverse dns entry optional.
+   *
+   * @param dnsEntry the dns entry
+   * @return the optional
+   */
   Optional<DnsEntry> findReverseDnsEntry(@NotNull DnsEntry dnsEntry);
 
+  /**
+   * Find dns entries conflicting with stream.
+   *
+   * @param dnsEntry the dns entry
+   * @return the stream
+   */
   Stream<DnsEntry> findDnsEntriesConflictingWith(@NotNull DnsEntry dnsEntry);
 
+  /**
+   * Add dns entry.
+   *
+   * @param entry the entry
+   */
   void addDnsEntry(@NotNull DnsEntry entry);
 
+  /**
+   * Update dns entry.
+   *
+   * @param entry the entry
+   * @param newValue the new value
+   */
   void updateDnsEntry(@NotNull DnsEntry entry, @NotEmpty String newValue);
 
+  /**
+   * Delete dns entry.
+   *
+   * @param entry the entry
+   */
   void deleteDnsEntry(@NotNull DnsEntry entry);
 
+  /**
+   * Gets dhcp leases.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @return the dhcp leases
+   */
   @NotNull
   Page<DhcpLease> getDhcpLeases(@NotNull Pageable pageable, String query);
 

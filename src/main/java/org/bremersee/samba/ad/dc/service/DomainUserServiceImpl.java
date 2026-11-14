@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * The domain user service.
+ * The domain user service implementation.
  *
  * @author Christian Bremer
  */
@@ -53,6 +53,13 @@ public class DomainUserServiceImpl implements DomainUserService {
 
   private AuthenticationManager authenticationManager;
 
+  /**
+   * Instantiates a new domain user service.
+   *
+   * @param sortMapper the sort mapper
+   * @param domainUserRepository the domain user repository
+   * @param avatarRepository the avatar repository
+   */
   public DomainUserServiceImpl(
       SortMapper sortMapper,
       DomainUserRepository domainUserRepository,
@@ -62,6 +69,11 @@ public class DomainUserServiceImpl implements DomainUserService {
     this.avatarRepository = avatarRepository;
   }
 
+  /**
+   * Sets authentication manager.
+   *
+   * @param authenticationManager the authentication manager
+   */
   @Autowired(required = false)
   public void setAuthenticationManager(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;

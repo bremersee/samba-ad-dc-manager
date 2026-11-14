@@ -22,7 +22,7 @@ import org.bremersee.samba.ad.dc.model.DomainInfo;
 import org.bremersee.samba.ad.dc.model.PasswordInformation;
 
 /**
- * The domain service interface.
+ * The domain service.
  *
  * @author Christian Bremer
  */

@@ -33,7 +33,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * The domain group service interface.
+ * The domain group service.
  *
  * @author Christian Bremer
  */
@@ -44,6 +44,8 @@ public interface DomainGroupService {
    *
    * @param pageable the pageable
    * @param query the query
+   * @param ou the ou
+   * @param searchScope the search scope
    * @return the groups
    */
   Page<DomainGroup> getGroups(
@@ -52,16 +54,44 @@ public interface DomainGroupService {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Gets memberships.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the memberships
+   */
   Stream<DomainGroup> getMemberships(
       @NotEmpty String samAccountName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Resolve memberships stream.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the stream
+   */
   Stream<DomainGroup> resolveMemberships(
       @NotEmpty String samAccountName,
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Gets member selection.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @param memberTypes the member types
+   * @param withPrimaryMembers the with primary members
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the member selection
+   */
   Page<DomainGroupMember> getMemberSelection(
       @NotNull Pageable pageable,
       @Nullable String query,
@@ -71,6 +101,16 @@ public interface DomainGroupService {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Modify members domain group.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param membersToAdd the members to add
+   * @param membersToRemove the members to remove
+   * @return the domain group
+   */
   @NotNull
   DomainGroup modifyMembers(
       @NotEmpty String groupName,
@@ -83,6 +123,7 @@ public interface DomainGroupService {
    * Add domain group.
    *
    * @param domainGroup the domain group
+   * @param ou the ou
    * @return the domain group
    */
   DomainGroup addGroup(@NotNull @Valid DomainGroup domainGroup, @Nullable Dn ou);
@@ -91,6 +132,8 @@ public interface DomainGroupService {
    * Get group by name.
    *
    * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
    * @return the group
    */
   Optional<DomainGroup> getGroup(
@@ -98,10 +141,30 @@ public interface DomainGroupService {
       @Nullable Dn ou,
       @Nullable TreeSearchScope searchScope);
 
+  /**
+   * Gets group by primary group id.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the group by primary group id
+   */
   Optional<DomainGroup> getGroupByPrimaryGroupId(@NotNull Integer primaryGroupId);
 
+  /**
+   * Gets group by unix group id.
+   *
+   * @param unixGroupId the unix group id
+   * @return the group by unix group id
+   */
   Optional<DomainGroup> getGroupByUnixGroupId(@NotNull Integer unixGroupId);
 
+  /**
+   * Update group domain group.
+   *
+   * @param groupName the group name
+   * @param domainGroup the domain group
+   * @param newOu the new ou
+   * @return the domain group
+   */
   @NotNull
   DomainGroup updateGroup(
       @NotEmpty String groupName,
