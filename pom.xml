@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>samba-ad-dc-manager</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Samba AD DC Manager</name>
@@ -27,6 +27,7 @@
 
     <start-class>org.bremersee.samba.ad.dc.Application</start-class>
 
+    <!-- TODO repo things that snapshot is newer than release; adjust control, too -->
     <!--suppress UnresolvedMavenProperty -->
     <debVersion>
       ${project.version}-${maven.build.timestamp}+${buildNumber}
