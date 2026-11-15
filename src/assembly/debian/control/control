@@ -4,6 +4,6 @@ Section: net
 Priority: optional
 Architecture: all
 Description: [[description]]
-Maintainer: bremersee@googlemail.com
+Maintainer: christian@bremersee.org
 Distribution: stable
 Depends: sudo, openjdk-21-jre-headless | openjdk-21-jre | openjdk-25-jre-headless | openjdk-25-jre
