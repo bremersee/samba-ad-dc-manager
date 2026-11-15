@@ -1,0 +1,366 @@
+bremersee:
+  ldaptive:
+    ldaptive-template-class: org.bremersee.ldaptive.LdaptiveSambaTemplate
+    immutable: true
+    use-start-tls: false
+    #
+    # Set the bind DN of an administrator account.
+    #
+    bind-dn: "Administrator@samdom.example.org"
+    #
+    # Set the password of the administrator account.
+    #
+    bind-credentials: ""
+    pooled: true
+    connection-validator:
+      search-request:
+        base-dn: #${bremersee.dc.base-dn}
+        search-scope: object
+        return-attributes:
+          - objectClass
+    connection-pool:
+      min-pool-size: 3
+      max-pool-size: 10
+      validate-on-check-in: true
+      validate-on-check-out: true
+      validate-periodically: true
+      validator:
+        search-request:
+          base-dn: ${bremersee.dc.base-dn}
+          search-scope: object
+          return-attributes:
+            - objectClass
+  authentication:
+    remember-me:
+      #
+      # Set a remember me key.
+      #
+      key: ${spring.application.name}
+    ldaptive:
+      template: active_directory
+      user-base-dn: ${bremersee.dc.base-dn}
+      user-find-one-search-scope: subtree
+      #
+      # After a user with group 'samba-admins' is defined, I would refuse the login of default account 'Administrator'.
+      #
+      #refused-usernames:
+      #  - "Administrator"
+      role-prefix: "ROLE_"
+      role-case-transformation: to_upper_case
+      role-string-replacements:
+        - regex: "[- ]"
+          replacement: "_"
+        - regex: "_ADMINS"
+          replacement: "_ADMIN"
+      default-roles:
+        - "ROLE_LOCAL_USER"
+      role-mapping:
+        - source: "Domain Admins"
+          target: "ROLE_ADMIN"
+        - source: "samba-admins"
+          target: "ROLE_ADMIN"
+  dc:
+    #
+    # Set the base DN like DC=samdom,DC=example,DC=org
+    #
+    base-dn: ""
+    company-name: "Samba AD DC Manager"
+    company-url: "#"
+    #
+    # Set a long random secret.
+    #
+    crypto-secret: "change-it"
+    cli:
+      hostname-binary: /usr/bin/hostname
+      samba-tool-binary: /usr/bin/samba-tool
+      #
+      # Set username and password of a DND admin.
+      #
+      samba-tool-credentials-options: ${SAMBA_TOOL_CREDENTIALS_OPTIONS:-UAdministrator --password=}${bremersee.ldaptive.bind-credentials}
+      dhcp-lease-list-binary: /usr/sbin/dhcp-lease-list
+      sudo:
+        using-sudo: false
+      ssh:
+        using-ssh: false
+    #domain:
+    #  forbidden-new-sam-account-names:
+    #    - "root"
+    #    - "admin"
+    #    - "guest"
+    user:
+      user-able-to-change-email: true
+      default-language: "de-DE"
+      #
+      # Set an optional default login page.
+      #
+      default-login-page:
+        url: ""
+        name: ""
+        using-netbios-domain-prefix: false
+
+  exception-mapping:
+    api-paths:
+      - /api/**
+    default-exception-mapping-config:
+      include-message: true
+      include-exception: true
+      include-application-name: true
+      include-path: true
+      include-handler: true
+      include-stack-trace: true
+      include-cause: true
+
+  comparator:
+    converter:
+      argument-separator: ","
+      chain-separator: ";"
+
+spring:
+  jmx:
+    enabled: false
+  messages:
+    use-code-as-default-message: true
+    fallback-to-system-locale: false
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-headers: "*"
+        allowed-methods: "*"
+        allowed-origins: "*"
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    mail:
+      enabled: false
+
+server:
+  port: 8080
+  forward-headers-strategy: native
+
+logging:
+  level:
+    ROOT: info
+    com.netflix.discovery.shared.resolver: warn
+    com.netflix.eureka.registry: warn
+    org.bremersee: info
+    org.ldaptive: warn
+    org.springframework.cloud.configclient: warn
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mock
+
+bremersee:
+  dc:
+    base-dn: dc=samdom,dc=example,dc=org
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+bremersee:
+  ldaptive:
+    #
+    # Set the ldap url(s)
+    #
+    ldap-url: ldaps://localhost:636
+    #
+    # Remove if you have official signed certificates
+    #
+    ssl-config:
+      trust-certificates: "file:/var/lib/samba/private/tls/ca.pem,file:/var/lib/samba/private/tls/cert.pem"
+      hostname-verifier: allow_any
+  dc:
+    cli:
+      sudo:
+        using-sudo: true
+        sudo-command: /usr/bin/sudo
+      ssh:
+        using-ssh: false
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: remote
+
+bremersee:
+  ldaptive:
+    #
+    # Set the ldap url(s)
+    #
+    ldap-url: ldaps://localhost:636
+  dc:
+    cli:
+      sudo:
+        using-sudo: false
+      ssh:
+        using-ssh: true
+        ssh-command: /usr/bin/ssh root@${bremersee.dc.domain.host-name:}
+    domain:
+      #
+      # Set the hostname of the domain controller.
+      #
+      host-name: "localhost"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: mail
+  mail:
+    #
+    # Set up your SMTP server.
+    #
+    host: smtp.mail.me.com
+    port: 587
+    #username: ""
+    #password: ""
+    #test-connection: true
+    #ssl:
+    #  enabled: false
+    #
+    # If your SMTP server uses STARTTLS, set the property mail.smtp.starttls.enable to true:
+    properties:
+      mail.smtp.starttls.enable: ${SPRING_MAIL_STARTTLS_ENABLED:false}
+      # For more information see https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
+
+bremersee:
+  dc:
+    email:
+      #
+      # Set your email address.
+      #
+      sender: ""
+      #
+      # Set the base uri. For example https://samdom.example.org
+      # If it is empty, it will be detected.
+      #
+      base-uri: ""
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: api
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+bremersee:
+  web:
+    cors:
+      enabled: true
+      configurations:
+        - path: "/api/**"
+          configuration:
+            allowed-origins:
+              - "*"
+            allowed-headers:
+              - "*"
+            allowed-methods:
+              - "*"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: jwt
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWT_JWK_SET_URI:https://openid.bremersee.org/realms/eixe/protocol/openid-connect/certs}
+      client:
+        provider:
+          swagger-ui:
+            authorization-uri: ${JWT_SWAGGER_AUTHORIZATION_URI:https://openid.bremersee.org/realms/eixe/protocol/openid-connect/auth}
+            token-uri: ${JWT_SWAGGER_TOKEN_URI:https://openid.bremersee.org/realms/eixe/protocol/openid-connect/token}
+
+
+bremersee:
+  authentication:
+    jwt-converter:
+      name-json-path: ${JWT_CONVERTER_NAME_JSON_PATH:$.preferred_username}
+      first-name-json-path: ${JWT_CONVERTER_FIRST_NAME_JSON_PATH:$.given_name}
+      last-name-json-path: ${JWT_CONVERTER_LAST_NAME_JSON_PATH:$.family_name}
+      roles-json-path: ${JWT_CONVERTER_ROLES_JSON_PATH:$.realm_access.roles}
+      roles-value-list: ${JWT_CONVERTER_ROLES_VALUE_LIST:true}
+      role-prefix: ${JWT_CONVERTER_ROLE_PREFIX:ROLE_}
+      role-case-transformation: ${JWT_CONVERTER_ROLE_CASE_TRANSFORMATION:to_upper_case}
+      role-string-replacements:
+        - regex: "[- ]"
+          replacement: "_"
+        - regex: "_ADMINS"
+          replacement: "_ADMIN"
+      default-roles:
+        - "ROLE_LOCAL_USER"
+      role-mapping:
+        - source: "Domain Admins"
+          target: "ROLE_ADMIN"
+        - source: "samba-admins"
+          target: "ROLE_ADMIN"
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: samba-ad-dc-manager-pkce
+      use-pkce-with-authorization-code-grant: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: debian
+logging:
+  level:
+    ROOT: info
+    com.netflix.discovery.shared.resolver: warn
+    com.netflix.eureka.registry: warn
+    org.bremersee: info
+    org.ldaptive: warn
+    org.springframework.cloud.configclient: warn
+  file:
+    name: /var/log/samba-ad-dc-manager/samba-ad-dc-manager.log
+  logback:
+    rollingpolicy:
+      max-history: 25
+
+server:
+  tomcat:
+    accesslog:
+      enabled: false
+      directory: /var/log/samba-ad-dc-manager
+      prefix: access_log

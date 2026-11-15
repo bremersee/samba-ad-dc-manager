@@ -1,0 +1,141 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The group memberships controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class GroupMembershipsController extends UiController
+    implements PageableComponent, OrganizationalUnitComponent {
+
+  private final DomainGroupService domainGroupService;
+
+  /**
+   * Instantiates a new group memberships controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   */
+  public GroupMembershipsController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainGroupService domainGroupService) {
+    super(properties, localeResolver, domainService);
+    this.domainGroupService = domainGroupService;
+  }
+
+  @Override
+  public String getDefaultSort() {
+    return GROUP_SORT;
+  }
+
+  /**
+   * Display group edit memberships direct view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = "/management/group-memberships-direct")
+  public String displayGroupEditMembershipsDirect(
+      @RequestParam(value = "name", required = false) String groupName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+    return displayGroupEditMemberships(
+        true, groupName, ou, searchScope, model, redirectAttributes);
+  }
+
+  /**
+   * Display group edit memberships resolved view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = "/management/group-memberships-resolved")
+  public String displayGroupEditMembershipsResolved(
+      @RequestParam(value = "name", required = false) String groupName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+    return displayGroupEditMemberships(
+        false, groupName, ou, searchScope, model, redirectAttributes);
+  }
+
+  private String displayGroupEditMemberships(
+      boolean direct,
+      String groupName,
+      Dn ou,
+      TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+    return Optional.ofNullable(groupName)
+        .flatMap(name -> domainGroupService.getGroup(groupName, ou, searchScope))
+        .map(group -> {
+          model.addAttribute("group", group);
+          Stream<DomainGroup> memberships;
+          String page;
+          if (direct) {
+            memberships = domainGroupService.getMemberships(groupName, ou, searchScope);
+            page = "management/group-memberships-direct";
+          } else {
+            memberships = domainGroupService.resolveMemberships(groupName, ou, searchScope);
+            page = "management/group-memberships-resolved";
+          }
+          model.addAttribute("memberships", memberships.toList());
+          return page;
+        })
+        .orElseGet(() -> entityNotFoundRedirect(
+            redirectAttributes, "Group", "group.not-found", groupName, PAGE_AND_OU_PARAMS, GROUPS));
+  }
+
+}

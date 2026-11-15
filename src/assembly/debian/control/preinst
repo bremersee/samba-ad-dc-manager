@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+DEBIAN_NAME="samba-ad-dc-manager"
+APP_NAME=$DEBIAN_NAME
+
+if [ -e /etc/systemd/system/multi-user.target.wants/$DEBIAN_NAME.service ]; then
+  /bin/systemctl stop $DEBIAN_NAME.service
+  /bin/systemctl disable $DEBIAN_NAME.service
+fi
+
+if [ -e /var/lib/$DEBIAN_NAME/application.yml ]; then
+  cp /var/lib/$DEBIAN_NAME/application.yml /var/lib/$DEBIAN_NAME/application.yml.do_not_edit
+fi
+if [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml ]; then
+  cp /var/lib/$DEBIAN_NAME/bootstrap.yml /var/lib/$DEBIAN_NAME/bootstrap.yml.do_not_edit
+fi
+if [ -e /etc/$APP_NAME.conf ]; then
+  cp /etc/$APP_NAME.conf /etc/$APP_NAME.conf.do_not_edit
+fi
+
+exit 0

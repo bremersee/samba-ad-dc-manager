@@ -1,0 +1,233 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Objects;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The domain computer.
+ *
+ * @author Christian Bremer
+ */
+@Schema(
+    name = ModelConstants.COMPUTER,
+    description = "The domain computer.")
+@Value.Style(
+    visibility = ImplementationVisibility.PUBLIC,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {"get*", "is*"},
+    withUnaryOperator = "with*")
+@Value.Immutable
+@Serial.Version(1L)
+@JsonTypeName(ModelConstants.COMPUTER)
+@JsonSerialize(as = ImmutableDomainComputer.class)
+@JsonDeserialize(as = ImmutableDomainComputer.class)
+public interface DomainComputer extends SamAccount {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+    return AdEntryType.COMPUTER;
+  }
+
+  @Override
+  default DomainComputer withDistinguishedName(String distinguishedName) {
+    return builder()
+        .from(this)
+        .distinguishedName(requireNonNullElse(distinguishedName, ""))
+        .build();
+  }
+
+  @Schema(description = "The creation date.")
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
+  @Override
+  default DomainComputer withCreated(OffsetDateTime created) {
+    return builder()
+        .from(this)
+        .created(created)
+        .build();
+  }
+
+  @Schema(description = "The last modification date.")
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
+  @Override
+  default DomainComputer withModified(OffsetDateTime modified) {
+    return builder()
+        .from(this)
+        .modified(modified)
+        .build();
+  }
+
+  @Schema(description = "The SID of the sam account.")
+  @Nullable
+  @Override
+  Sid getSid();
+
+  @Override
+  default DomainComputer withSid(Sid sid) {
+    return builder()
+        .from(this)
+        .sid(sid)
+        .build();
+  }
+
+  @Override
+  default DomainComputer withMemberships(Iterable<String> memberships) {
+    return builder()
+        .from(this)
+        .memberships(Objects.requireNonNullElseGet(memberships, List::of))
+        .build();
+  }
+
+  @Override
+  default DomainComputer withCriticalSystemObject(boolean criticalSystemObject) {
+    return builder()
+        .from(this)
+        .criticalSystemObject(criticalSystemObject)
+        .build();
+  }
+
+  @Override
+  default DomainComputer withPrimaryGroupId(Integer primaryGroupId) {
+    return builder()
+        .from(this)
+        .primaryGroupId(primaryGroupId)
+        .build();
+  }
+
+  @Schema(description = "The name of the computer.")
+  @JsonProperty(value = "name")
+  @Nullable
+  @Override
+  String getName();
+
+  @Schema(description = "The primary group ID of the computer.")
+  @JsonProperty(value = "primaryGroupId")
+  @Nullable
+  @Override
+  Integer getPrimaryGroupId();
+
+  /**
+   * Gets dns host name.
+   *
+   * @return the dns host name
+   */
+  @Schema(description = "The dns host name of the computer.")
+  @Nullable
+  String getDnsHostName();
+
+  /**
+   * Gets network addresses.
+   *
+   * @return the network addresses
+   */
+  @Schema(description = "The network addresses of the computer.")
+  @Value.Default
+  default List<String> getNetworkAddresses() {
+    return List.of();
+  }
+
+  /**
+   * Gets operating system.
+   *
+   * @return the operating system
+   */
+  @Schema(description = "The operating system of the computer.")
+  @Nullable
+  String getOperatingSystem();
+
+  /**
+   * Gets operating system version.
+   *
+   * @return the operating system version
+   */
+  @Schema(description = "The version operating system.")
+  @Nullable
+  String getOperatingSystemVersion();
+
+  /**
+   * Gets description.
+   *
+   * @return the description
+   */
+  @Schema(description = "The description of the computer.")
+  @Nullable
+  String getDescription();
+
+  /**
+   * Gets service principal names.
+   *
+   * @return the service principal names
+   */
+  @Schema(description = "The service principal names of the computer.")
+  @Value.Default
+  default List<String> getServicePrincipalNames() {
+    return List.of();
+  }
+
+  /**
+   * Gets sam account name without trailing dollar sign.
+   *
+   * @return the sam account name without trailing dollar sign
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default String getSamAccountNameWithoutTrailingDollarSign() {
+    String tmpName = getSamAccountName();
+    if (isEmpty(tmpName)) {
+      return tmpName;
+    }
+    return tmpName.substring(0, tmpName.length() - 1);
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static ImmutableDomainComputer.Builder builder() {
+    return ImmutableDomainComputer.builder();
+  }
+
+}

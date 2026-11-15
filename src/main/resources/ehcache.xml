@@ -1,0 +1,93 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ehcache.org/v3"
+  xmlns:jsr107="http://www.ehcache.org/v3/jsr107"
+  xsi:schemaLocation="
+    http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd
+    http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.0.xsd">
+
+  <service>
+    <jsr107:defaults enable-management="true" enable-statistics="true" />
+  </service>
+
+  <!-- no persistence
+  <persistence directory="${java.io.tmpdir}"/>
+  -->
+
+  <cache-template name="listeners">
+    <listeners>
+      <listener>
+        <class>org.bremersee.samba.ad.dc.misc.ehcache.CacheEventLogger</class>
+        <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
+        <event-ordering-mode>UNORDERED</event-ordering-mode>
+        <events-to-fire-on>EVICTED</events-to-fire-on>
+        <events-to-fire-on>EXPIRED</events-to-fire-on>
+        <events-to-fire-on>REMOVED</events-to-fire-on>
+        <events-to-fire-on>CREATED</events-to-fire-on>
+        <events-to-fire-on>UPDATED</events-to-fire-on>
+      </listener>
+    </listeners>
+  </cache-template>
+
+  <cache alias="passwordInformationCache" uses-template="listeners">
+    <value-type>org.bremersee.samba.ad.dc.model.PasswordInformation</value-type>
+    <expiry>
+      <tti unit="hours">1</tti>
+    </expiry>
+    <resources>
+      <heap>1</heap>
+      <!-- There is only one instance, serialized size ~810 bytes -->
+    </resources>
+  </cache>
+
+  <cache alias="domainInfoCache" uses-template="listeners">
+    <value-type>org.bremersee.samba.ad.dc.model.DomainInfo</value-type>
+    <expiry>
+      <tti unit="hours">1</tti>
+    </expiry>
+    <resources>
+      <heap>10</heap>
+      <!-- There is one instance for each domain controller, serialized size ~370 bytes -->
+    </resources>
+  </cache>
+
+  <cache alias="dnsZoneListCache" uses-template="listeners">
+    <expiry>
+      <tti unit="hours">1</tti>
+    </expiry>
+    <resources>
+      <heap>8</heap>
+      <!-- There 8 zone types, each ~160 bytes -->
+    </resources>
+  </cache>
+
+  <cache alias="dnsZoneCache" uses-template="listeners">
+    <value-type>org.bremersee.samba.ad.dc.model.DnsZone</value-type>
+    <expiry>
+      <tti unit="hours">1</tti>
+    </expiry>
+    <resources>
+      <heap>32</heap>
+      <!-- ~840 bytes for each zone -->
+    </resources>
+  </cache>
+
+  <cache alias="dnsEntryListCache" uses-template="listeners">
+    <expiry>
+      <ttl unit="minutes">3</ttl>
+    </expiry>
+    <resources>
+      <heap>32</heap>
+      <!-- ~11100 bytes for each zone -->
+    </resources>
+  </cache>
+
+  <cache alias="dhcpLeasesCache" uses-template="listeners">
+    <expiry>
+      <ttl unit="minutes">3</ttl>
+    </expiry>
+    <resources>
+      <heap>2</heap>
+    </resources>
+  </cache>
+
+</config>

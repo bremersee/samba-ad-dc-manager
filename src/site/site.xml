@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site xmlns="http://maven.apache.org/SITE/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SITE/2.0.0 https://maven.apache.org/xsd/site-2.0.0.xsd"
+  name="samba-ad-dc-manager"
+  combine.self="override">
+  <!-- description: https://maven.apache.org/doxia/doxia-sitetools/doxia-site-model/site.html -->
+
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>2.1.0</version>
+  </skin>
+
+  <bannerLeft name="${project.name}" href="${project.url}">
+  </bannerLeft>
+
+  <version />
+  <publishDate position="right" format="yyyy-MM-dd HH:mm:ss z" />
+
+  <body>
+    <menu name="Reports" ref="reports"/>
+    <footer><![CDATA[<p>&copy;${project.inceptionYear} ${project.organization.name}</p>]]></footer>
+  </body>
+</site>

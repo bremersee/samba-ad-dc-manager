@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="en"
+      data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title th:text="#{group-edit-members.title}">Edit group members</title>
+  <link rel="stylesheet" href="../../static/lib/bootstrap/5.3.3/css/bootstrap.min.css"
+        th:href="@{/lib/bootstrap/5.3.3/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" href="../../static/lib/bootstrap-social/5.1.1/bootstrap-social.css"
+        th:href="@{/lib/bootstrap-social/5.1.1/bootstrap-social.css}"/>
+  <link rel="stylesheet" href="../../static/lib/fontawesome/6.5.2/css/fontawesome.min.css"
+        th:href="@{/lib/fontawesome/6.5.2/css/fontawesome.css}"/>
+  <link rel="stylesheet" href="../../static/lib/fontawesome/6.5.2/css/brands.min.css"
+        th:href="@{/lib/fontawesome/6.5.2/css/brands.min.css}"/>
+  <link rel="stylesheet" href="../../static/lib/fontawesome/6.5.2/css/solid.min.css"
+        th:href="@{/lib/fontawesome/6.5.2/css/solid.min.css}"/>
+  <link rel="stylesheet" href="../../static/css/app.css"
+        th:href="@{/css/app.css}"/>
+  <link rel="stylesheet" href="../../static/css/glyphicons.css"
+        th:href="@{/css/glyphicons.css}"/>
+  <script src="../../static/lib/jquery/jquery-3.7.1.min.js"
+          th:src="@{/lib/jquery/jquery-3.7.1.min.js}"></script>
+  <script src="../../static/lib/popper/2.11.8/popper.min.js"
+          th:src="@{/lib/popper/2.11.8/popper.min.js}"></script>
+  <script src="../../static/lib/jquery-typewatch.js"
+          th:src="@{/lib/jquery-typewatch.js}"></script>
+  <script src="../../static/lib/bootstrap/5.3.3/js/bootstrap.min.js"
+          th:src="@{/lib/bootstrap/5.3.3/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="Navigation"
+     th:replace="~{fragments/header :: management-header}">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">bremersee.org</a>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNavbar">
+    </div>
+  </div>
+</nav>
+<main role="main" class="container">
+
+  <div th:replace="~{fragments/loading-spinner :: loading-spinner}"></div>
+
+  <!--suppress ThymeleafVariablesResolveInspection -->
+  <div th:if="${rmsg != null}"
+       class="alert alert-success"
+       th:class="${rmsg != null} ? ${rmsg.msgType.cssClass} : ''" role="alert"
+       th:text="${rmsg != null} ? ${rmsg.msg} : ''">
+    Status message
+  </div>
+
+  <div th:if="${group != null}">
+    <div class="row mb-4">
+      <div class="col-1">
+        <a class="btn btn-outline-secondary" href="groups.html"
+           th:href="@{groups(page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+          <span class="fa fa-backward" aria-hidden="true" th:title="#{common.back}">
+            <span style="display: none;">Back</span>
+          </span>
+        </a>
+      </div>
+      <div class="col">
+        <div class="container">
+          <div class="d-flex justify-content-center">
+            <h3 class="small" th:text="#{group-edit-members.header}">Edit members of group</h3>
+          </div>
+          <div class="d-flex justify-content-center">
+            <h3 th:text="${group.name}">Domain Users</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-1"></div>
+    </div>
+
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" href="group-edit.html" th:title="#{common.edit}"
+           th:href="@{group-edit(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${group.parentDistinguishedName},scope=${scope})}">
+          <span class="fa fa-edit" aria-hidden="true">
+            <span style="display: none;">Edit</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#" th:title="#{group-edit-members.title}">
+          <span class="fa fa-people-group" aria-hidden="true">
+            <span style="display: none;">Members</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="group-memberships-direct.html" th:title="#{common.memberships.label}"
+           th:href="@{group-memberships-direct(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+          <span class="fa fa-folder-tree" aria-hidden="true">
+            <span style="display: none;">Memberships</span>
+          </span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="group-delete.html" th:title="#{common.delete}"
+           th:classappend="${group.sid.systemEntity} ? 'disabled' : ''"
+           th:attr="aria-disabled=${group.sid.systemEntity}"
+           th:href="@{group-delete(name=${group.samAccountName},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+          <span class="fa fa-trash-alt" aria-hidden="true">
+            <span style="display: none;">Delete</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="mb-3 p-3 border border-1">
+      <div class="row justify-content-between">
+        <div class="col col-auto">
+          <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <div class="input-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input type="text" id="q" name="q" class="form-control"
+                       placeholder="Search ..." th:placeholder="#{common.search.placeholder}"
+                       th:value="${memberQuery}">
+                <span class="input-group-text" th:if="${not #strings.isEmpty(memberQuery)}">
+                <a id="searchInputReset" href="#" title="Reset search" th:title="#{common.search.reset}"
+                   th:href="@{group-edit-members(name=${group.samAccountName},page=${page},size=${size},sort=${sort},ou=${ou},scope=${scope},member-page=${memberPageNo},member-size=${memberPageSize},member-sort=${memberSort},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser})}"
+                   th:classappend="${#strings.isEmpty(memberQuery)} ? 'disabled' : ''"
+                   th:disabled="${#strings.isEmpty(memberQuery)}"
+                   th:aria-disabled="${#strings.isEmpty(memberQuery)}">
+                  <span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
+                </a>
+              </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col col-auto mt-3 mt-sm-1 mt-lg-1">
+          <div class="form-switch" style="padding-left: 0;">
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.primary}">
+              <input class="form-check-input" type="checkbox" id="primarySwitch" name="primarySwitch" value="primary"
+                     th:checked="${withPrimaryMembers}">
+              <label class="form-check-label" for="primarySwitch">
+                <span class="text-light">
+                  <span class="fas fa-star" aria-hidden="true"></span>
+                </span>
+              </label>
+            </div>
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.user}">
+              <input class="form-check-input" type="checkbox" id="userSwitch" name="userSwitch" value="user"
+                     th:checked="${memberTypeUser}">
+              <label class="form-check-label" for="userSwitch">
+                <span class="text-primary">
+                  <span class="fas fa-user" aria-hidden="true"></span>
+                </span>
+              </label>
+            </div>
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.group}">
+              <input class="form-check-input" type="checkbox" id="groupSwitch" name="groupSwitch" value="group"
+                     th:checked="${memberTypeGroup}">
+              <label class="form-check-label" for="groupSwitch">
+                <span class="text-success">
+                  <span class="fas fa-user-group" aria-hidden="true"></span>
+                </span>
+              </label>
+            </div>
+            <div class="form-check form-check-inline ms-4" th:title="#{domain-group-member-type.computer}">
+              <input class="form-check-input" type="checkbox" id="computerSwitch" name="computerSwitch" value="computer"
+                     th:checked="${memberTypeComputer}">
+              <label class="form-check-label" for="computerSwitch">
+                <span class="text-warning">
+                  <span class="fas fa-computer" aria-hidden="true"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(memberPage.content)}"
+         class="alert alert-info" role="alert" th:text="#{group-edit-members.not-found}">
+      No members were found.
+    </div>
+
+    <div id="members" class="list-group list-group-flush" th:if="${not #lists.isEmpty(memberPage.content)}">
+      <div class="list-group-item list-group-item-action" aria-current="true"
+           th:each="member,iter : ${memberPage.content}"
+           th:classappend="'member-type-' + ${member.memberType}">
+        <div class="d-flex w-100 justify-content-between">
+          <div class="h6">
+            <span class="text-primary" th:class="${member.memberType.cssClass}"
+                  th:title="#{${member.memberType.i18nCode}}" >
+              <span class="fas fa-user" th:class="${member.memberType.cssClassIcon}" aria-hidden="true"></span>
+            </span>
+            <span class="ms-1" th:text="${member.displayName}">
+              Anna
+            </span>
+            <span class="text-light" th:if="${member.primaryMember}">
+              <span class="fas fa-star" aria-hidden="true" th:title="#{domain-group-member-type.primary}"></span>
+            </span>
+          </div>
+          <div class="form-switch h6">
+            <input th:id="'member-' + ${iter.index}" id="member-0"
+                   th:name="'member-' + ${iter.index}" name="member-0"
+                   th:value="${member.distinguishedName}"
+                   th:checked="${member.member}" th:disabled="${member.primaryMember}"
+                   th:title="#{group-edit-members.switch.title}"
+                   title="Add or remove member"
+                   type="checkbox" class="form-check-input" />
+          </div>
+        </div>
+        <small class="text-secondary" th:text="${member.nameTree}">CN=Anna,CN=Users</small>
+      </div>
+    </div>
+
+    <nav aria-label="Page navigation" th:if="${@paginationHelper.getTotalPages(memberPage) > 1}">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 3)}">
+          <a class="page-link" href="#" aria-label="First"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=0,member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item"
+            th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 5)}">
+          <a class="page-link" href="#" aria-label="Previous"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 5},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            <span aria-hidden="true">&mldr;</span>
+          </a>
+        </li>
+        <li class="page-item"
+            th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 2)}">
+          <a class="page-link" href="#" th:text="${memberPage.number - 1}"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 2},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            1
+          </a>
+        </li>
+        <li class="page-item" th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number - 1)}">
+          <a class="page-link" href="#" th:text="${memberPage.number}"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number - 1},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            2
+          </a>
+        </li>
+        <li class="page-item disabled">
+          <a class="page-link" href="#" th:text="${memberPage.number + 1}">
+            3
+          </a>
+        </li>
+        <li class="page-item"
+            th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 1)}">
+          <a class="page-link" href="#" th:text="${memberPage.number + 2}"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 1},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            4
+          </a>
+        </li>
+        <li class="page-item"
+            th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 2)}">
+          <a class="page-link" href="#" th:text="${memberPage.number + 3}"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 2},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            5
+          </a>
+        </li>
+        <li class="page-item"
+            th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 5)}">
+          <a class="page-link" href="#" aria-label="Next"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${memberPage.number + 5},member-size=${memberPageSize},member-sort=${memberSort},member-q=${memberQuery},member-primary=${withPrimaryMembers},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            <span aria-hidden="true">&mldr;</span>
+          </a>
+        </li>
+        <li class="page-item"
+            th:if="${@paginationHelper.isValidPageNumber(memberPage, memberPage.number + 3)}">
+          <a class="page-link" href="#" aria-label="Last"
+             th:href="@{${currentPage}(name=${group.samAccountName},member-page=${@paginationHelper.getTotalPages(memberPage) - 1},member-size=${memberPageSize},member-primary=${withPrimaryMembers},member-sort=${memberSort},member-q=${memberQuery},member-type-computer=${memberTypeComputer},member-type-group=${memberTypeGroup},member-type-user=${memberTypeUser},page=${page},size=${size},sort=${sort},q=${q},ou=${ou},scope=${scope})}">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+  </div>
+</main>
+<script type="text/javascript">
+  //<![CDATA[
+  "use strict";
+
+  function moveCursorToEnd(input) {
+    const length = input.value.length;
+    input.focus();
+    input.setSelectionRange(length, length);
+  }
+
+  $(document).ready(function () {
+    const csrfParameterName = /*[[${_csrf.parameterName}]]*/ "_csrf";
+    const csrfToken = /*[[${_csrf.token}]]*/ "";
+    const currentPage = /*[[${currentPage}]]*/ "group-edit-members";
+    const name = /*[[${group.samAccountName}]]*/ "";
+    const memberPageSize = /*[[${memberPageSize}]]*/ "";
+    const memberSort = /*[[${memberSort}]]*/ "";
+    const memberQuery = /*[[${memberQuery}]]*/ "";
+    const withPrimaryMembers = /*[[${withPrimaryMembers}]]*/ true;
+    const memberTypeComputer = /*[[${memberTypeComputer}]]*/ true;
+    const memberTypeGroup = /*[[${memberTypeGroup}]]*/ true;
+    const memberTypeUser = /*[[${memberTypeUser}]]*/ true;
+    const page = /*[[${page}]]*/ "";
+    const size = /*[[${size}]]*/ "";
+    const sort = /*[[${sort}]]*/ "";
+    const q = /*[[${q}]]*/ "";
+    const ou = /*[[${ou}]]*/ "";
+    const scope = /*[[${scope}]]*/ "";
+
+    const loadingSpinnerModal = new bootstrap.Modal('#loadingSpinnerModal');
+    $('a.show-spinner').on('click', function () {
+      loadingSpinnerModal.show();
+    });
+    $(globalThis).on('pageshow', function () {
+      loadingSpinnerModal.hide();
+    });
+
+    function redirect(memberQ, primary, computer, group, user) {
+      globalThis.location.href = currentPage
+          + "?name=" + encodeURIComponent(name)
+          + "&member-page=0"
+          + "&member-size=" + memberPageSize
+          + "&member-sort=" + encodeURIComponent(memberSort)
+          + "&member-q=" + encodeURIComponent(memberQ)
+          + "&member-primary=" + primary
+          + "&member-type-computer=" + computer
+          + "&member-type-group=" + group
+          + "&member-type-user=" + user
+          + "&page=" + page
+          + "&size=" + size
+          + "&sort=" + encodeURIComponent(sort)
+          + "&q=" + encodeURIComponent(q)
+          + "&ou=" + encodeURIComponent(ou)
+          + "&scope=" + scope;
+    }
+
+    const searchInput = $('#q');
+    searchInput.typeWatch({
+      callback: function (value) {
+        redirect(value, withPrimaryMembers, memberTypeComputer, memberTypeGroup, memberTypeUser);
+      },
+      wait: 750,
+      highlight: true,
+      allowSubmit: false,
+      captureLength: 3
+    });
+    moveCursorToEnd(searchInput[0]);
+
+    $('#primarySwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, isChecked, memberTypeComputer, memberTypeGroup, memberTypeUser);
+    });
+    $('#userSwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, withPrimaryMembers, memberTypeComputer, memberTypeGroup, isChecked);
+    });
+    $('#groupSwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, withPrimaryMembers, memberTypeComputer, isChecked, memberTypeUser);
+    });
+    $('#computerSwitch').on("change", function () {
+      const isChecked = $(this).is(':checked');
+      redirect(memberQuery, withPrimaryMembers, isChecked, memberTypeGroup, memberTypeUser);
+    });
+
+    $('#members :checkbox').on("change", function () {
+      const checkbox = $(this);
+      const addMember = checkbox.is(':checked');
+      const value = checkbox.val();
+      const url = currentPage
+          + "?name=" + encodeURIComponent(name)
+          + "&member=" + encodeURIComponent(value)
+          + "&add-member=" + addMember
+          + "&" + csrfParameterName + "=" + csrfToken;
+      $.post(url);
+    });
+  });
+  //]]>
+</script>
+</body>
+</html>

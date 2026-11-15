@@ -1,0 +1,189 @@
+pipeline {
+  agent {
+    label 'jdk21 && maven && docker'
+  }
+  environment {
+    CODECOV_TOKEN = credentials('samba-ad-dc-manager-codecov-token')
+    BRANCH_NAME = "${GIT_BRANCH.split("/").size() > 1 ? GIT_BRANCH.split("/")[1] : GIT_BRANCH}"
+    NAME = 'samba-ad-dc-manager'
+    API_NAME = 'samba-ad-dc-manager-api'
+    TEST = true
+    SITE = true
+    BUILD_API = true
+    DEPLOY_TO_DEBIAN_REPO = true
+    COPY_TO_DC1 = false
+    APT_INSTALL_ON_DC1 = true
+    APT_INSTALL_ON_DC2 = true
+    CLEAN = true
+  }
+  tools {
+    jdk 'jdk21'
+    maven 'm3'
+  }
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '8', artifactNumToKeepStr: '8'))
+  }
+  stages {
+    stage('Tools') {
+      steps {
+        sh 'java -version'
+        sh 'mvn -B --version'
+      }
+    }
+    stage('Test') {
+      when {
+        environment name: 'TEST', value: 'true'
+      }
+      steps {
+        sh 'mvn -B -P build-system clean test'
+      }
+      post {
+        always {
+          junit '**/surefire-reports/*.xml'
+          recordCoverage(
+              tools: [[parser: 'JACOCO', pattern: '**/coverage-reports/*.exec']],
+              sourceCodeRetention: 'LAST_BUILD'
+          )
+        }
+      }
+    }
+    stage('Build API') {
+      when {
+        allOf {
+          environment name: 'BUILD_API', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+          }
+        }
+      }
+      steps {
+        sh '''
+          git clone -b $BRANCH_NAME git@github.com:bremersee/$API_NAME.git target/$API_NAME
+          mvn -B -P build-system,openapi verify
+          cp -rf target/openapi.yaml target/$API_NAME/src/main/resources/openapi
+          PARENT_VERSION=$(mvn help:evaluate -Dexpression=project.parent.version -q -DforceStdout)
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          mvn -f target/$API_NAME/pom.xml versions:update-parent -DparentVersion=\$PARENT_VERSION
+          mvn -f target/$API_NAME/pom.xml versions:set -DnewVersion=\$PROJECT_VERSION
+          echo "# "$API_NAME > target/$API_NAME/README.md
+          echo "" >> target/$API_NAME/README.md
+          echo "RESTful API clients of ["$NAME"](https://github.com/bremersee/"$NAME")." >> target/$API_NAME/README.md
+          echo "" >> target/$API_NAME/README.md
+          echo "[Maven-Site](https://bremersee.github.io/"$API_NAME/\$PROJECT_VERSION"/index.html)" >> target/$API_NAME/README.md
+          echo "" >> target/$API_NAME/README.md
+          git -C target/$API_NAME add .
+          git -C target/$API_NAME commit --allow-empty -m "Updates api"
+          git -C target/$API_NAME push
+          rm -rf target/$API_NAME
+        '''
+      }
+    }
+    stage('Site') {
+      when {
+        allOf {
+          environment name: 'SITE', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'feature/*'
+            branch 'bugfix/*'
+          }
+        }
+      }
+      steps {
+        sh '''
+          mvn -B -P build-system,gh-pages-site site site:stage
+          git clone -b gh-pages git@github.com:bremersee/samba-ad-dc-manager.git target/gh-pages
+          rm -rf target/*-SNAPSHOT
+          cp -rf target/staging/* target/gh-pages
+          git -C target/gh-pages add .
+          git -C target/gh-pages commit -m "Maven site"
+          git -C target/gh-pages push
+          rm -rf target/gh-pages
+        '''
+      }
+      post {
+        always {
+          sh 'curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}'
+        }
+      }
+    }
+    stage('Deploy to Debian Repo') {
+      when {
+        allOf {
+          environment name: 'DEPLOY_TO_DEBIAN_REPO', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'bugfix/*'
+          }
+        }
+      }
+      steps {
+        sh '''
+          mvn -B -DskipTests=true -P build-system,debian,deploy-to-debian-repo clean deploy
+        '''
+      }
+    }
+    stage('Copy to DC1') {
+      when {
+        allOf {
+          environment name: 'COPY_TO_DC1', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'bugfix/*'
+          }
+        }
+      }
+      steps {
+        sh '''
+          mvn -B -DskipTests=true -P build-system,debian,copy-to-and-install-on-dc1 clean deploy
+        '''
+      }
+    }
+    stage('Apt Install on DC1') {
+      when {
+        allOf {
+          environment name: 'APT_INSTALL_ON_DC1', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'bugfix/*'
+          }
+        }
+      }
+      steps {
+        sh '''
+          mvn -B -DskipTests=true -P build-system,apt-install-on-dc1 deploy
+        '''
+      }
+    }
+    stage('Apt Install on DC2') {
+      when {
+        allOf {
+          environment name: 'APT_INSTALL_ON_DC2', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'bugfix/*'
+          }
+        }
+      }
+      steps {
+        sh '''
+          mvn -B -DskipTests=true -P build-system,apt-install-on-dc2 deploy
+        '''
+      }
+    }
+    stage('Clean') {
+      when {
+        environment name: 'CLEAN', value: 'true'
+      }
+      steps {
+        sh 'mvn -B clean'
+      }
+    }
+  }
+}

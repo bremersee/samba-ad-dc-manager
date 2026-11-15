@@ -1,0 +1,88 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.shared;
+
+import java.util.Locale;
+import java.util.Optional;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.LocaleResolver;
+
+/**
+ * The message provider.
+ *
+ * @author Christian Bremer
+ */
+public interface MessageProvider extends MessageSourceAware {
+
+  /**
+   * Gets locale resolver.
+   *
+   * @return the locale resolver
+   */
+  LocaleResolver getLocaleResolver();
+
+  /**
+   * Gets message source.
+   *
+   * @return the message source
+   */
+  MessageSource getMessageSource();
+
+  /**
+   * Gets resolved locale.
+   *
+   * @return the resolved locale
+   */
+  default Locale getResolvedLocale() {
+    return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+        .filter(ServletRequestAttributes.class::isInstance)
+        .map(ServletRequestAttributes.class::cast)
+        .map(ServletRequestAttributes::getRequest)
+        .map(req -> getLocaleResolver().resolveLocale(req))
+        .orElse(Locale.ENGLISH);
+  }
+
+  /**
+   * Gets message.
+   *
+   * @param defaultMessage the default message
+   * @param code the code
+   * @param args the args
+   * @return the message
+   */
+  default String getMessage(String defaultMessage, String code, Object... args) {
+    return getMessageSource().getMessage(code, args, defaultMessage, getResolvedLocale());
+  }
+
+  /**
+   * Gets redirect message.
+   *
+   * @param type the type
+   * @param defaultMessage the default message
+   * @param code the code
+   * @param args the args
+   * @return the redirect message
+   */
+  default RedirectMessage getRedirectMessage(RedirectMessageType type,
+      String defaultMessage, String code, Object... args) {
+    return new RedirectMessage(getMessage(defaultMessage, code, args), type);
+  }
+
+}

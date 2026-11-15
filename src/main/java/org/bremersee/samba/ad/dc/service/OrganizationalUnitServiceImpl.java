@@ -1,0 +1,187 @@
+/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.Getter;
+import org.bremersee.comparator.ValueComparator;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.pagebuilder.PageBuilder;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.ModelConstants;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.model.comparator.AdEntryTypeComparator;
+import org.bremersee.samba.ad.dc.repository.OrganizationalUnitRepository;
+import org.ldaptive.dn.Dn;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The organizational unit service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Service
+@Validated
+public class OrganizationalUnitServiceImpl implements OrganizationalUnitService, ErrorCode {
+
+  private final ApplicationProperties properties;
+
+  private final SortMapper sortMapper;
+
+  private final OrganizationalUnitRepository repository;
+
+  @Getter
+  private final OrganizationalUnit base;
+
+  /**
+   * Instantiates a new organizational unit service.
+   *
+   * @param properties the properties
+   * @param sortMapper the sort mapper
+   * @param repository the repository
+   */
+  public OrganizationalUnitServiceImpl(
+      ApplicationProperties properties,
+      SortMapper sortMapper,
+      OrganizationalUnitRepository repository) {
+    this.properties = properties;
+    this.sortMapper = sortMapper;
+    this.repository = repository;
+    this.base = OrganizationalUnit.builder()
+        .distinguishedName(properties.getBaseDn())
+        .created(OffsetDateTime.now(ZoneOffset.UTC))
+        .modified(OffsetDateTime.now(ZoneOffset.UTC))
+        .name("Base")
+        .description("Base of Active Directory")
+        .systemOu(true)
+        .build();
+  }
+
+  /**
+   * Contains boolean.
+   *
+   * @param ou the ou
+   * @param query the query
+   * @return the boolean
+   */
+  boolean contains(OrganizationalUnit ou, String query) {
+    if (!isEmpty(ou.getName()) && ou.getName().toLowerCase().contains(query)) {
+      return true;
+    }
+    return !isEmpty(ou.getDescription()) && ou.getDescription().toLowerCase().contains(query);
+  }
+
+  @Override
+  public Page<OrganizationalUnit> getOrganizationalUnits(Pageable pageable, String query) {
+    Stream<OrganizationalUnit> ous = getOrganizationalUnitsWithSystemOus();
+    if (isEmpty(query) || query.length() <= 2) {
+      return new PageBuilder<OrganizationalUnit, OrganizationalUnit>()
+          .sourceEntries(ous)
+          .pageable(sortMapper.applyDefaults(pageable, null, true, null))
+          .build();
+    }
+    String lowerQuery = query.toLowerCase();
+    return new PageBuilder<OrganizationalUnit, OrganizationalUnit>()
+        .sourceEntries(ous.filter(ou -> contains(ou, lowerQuery)))
+        .pageable(sortMapper.applyDefaults(pageable, null, true, null))
+        .build();
+  }
+
+  @Override
+  public Stream<OrganizationalUnit> getOrganizationalUnits() {
+    return repository.findCustomOus().sorted(Comparator.comparing(OrganizationalUnit::getNameTree));
+  }
+
+  @Override
+  public Stream<OrganizationalUnit> getOrganizationalUnitsWithSystemOus() {
+    return repository.findAll()
+        .sorted(Comparator.comparing(OrganizationalUnit::getNameTree));
+  }
+
+  @Override
+  public Stream<OrganizationalUnit> getOrganizationalUnitsWithSystemOusAndBase() {
+    return Stream.concat(Stream.of(base), getOrganizationalUnitsWithSystemOus());
+  }
+
+  @Override
+  public Optional<OrganizationalUnit> getOrganizationalUnit(Dn ou) {
+    return Optional.ofNullable(ou)
+        .filter(dn -> !dn.isEmpty())
+        .flatMap(repository::findOne)
+        .or(() -> Optional.ofNullable(ou)
+            .filter(dn -> DnTool.isSameDn(dn, properties.getBaseDn()))
+            .map(dn -> base));
+  }
+
+  @Override
+  public boolean organisationUnitExists(Dn ou) {
+    if (isEmpty(ou) || ou.isEmpty()) {
+      return false;
+    }
+    if (DnTool.isSameDn(ou, properties.getBaseDn())) {
+      return true;
+    }
+    return repository.exists(ou);
+  }
+
+  @Override
+  public boolean hasChildren(Dn ou) {
+    return repository.hasChildren(ou);
+  }
+
+  @Override
+  public Page<AdEntry> getChildren(Dn ou, Pageable pageable) {
+    return new PageBuilder<AdEntry, AdEntry>()
+        .sourceEntries(repository.getChildren(ou))
+        .pageable(sortMapper.applyDefaults(pageable, null, true, null))
+        .targetSortFn(sortOrder -> {
+          if (ModelConstants.DISCRIMINATOR.equalsIgnoreCase(sortOrder.getField())) {
+            return new AdEntryTypeComparator();
+          }
+          return new ValueComparator(sortOrder);
+        })
+        .build();
+  }
+
+  @Override
+  public OrganizationalUnit add(OrganizationalUnit organizationalUnit, Dn parentOu) {
+    return repository.add(organizationalUnit, parentOu);
+  }
+
+  @Override
+  public OrganizationalUnit update(OrganizationalUnit organizationalUnit, Dn newParentOu) {
+    return repository.update(organizationalUnit, newParentOu);
+  }
+
+  @Override
+  public boolean delete(Dn ou) {
+    return repository.delete(ou);
+  }
+
+}

@@ -1,0 +1,1 @@
+Will contains information about configuration and updates.

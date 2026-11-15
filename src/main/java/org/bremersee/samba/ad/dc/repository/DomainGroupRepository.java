@@ -1,0 +1,116 @@
+/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
+import org.ldaptive.dn.Dn;
+
+/**
+ * The domain group repository.
+ *
+ * @author Christian Bremer
+ */
+public interface DomainGroupRepository {
+
+  /**
+   * Find all groups.
+   *
+   * @param query the query
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the groups
+   */
+  Stream<DomainGroup> findAll(
+      @Nullable String query,
+      @Nullable Dn ou,
+      @Nullable TreeSearchScope searchScope);
+
+  /**
+   * Find group by name.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the group
+   */
+  Optional<DomainGroup> findOne(
+      @NotEmpty String groupName,
+      @Nullable Dn ou,
+      @Nullable TreeSearchScope searchScope);
+
+  /**
+   * Find one by primary group id.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the optional
+   */
+  Optional<DomainGroup> findOneByPrimaryGroupId(@NotNull Integer primaryGroupId);
+
+  /**
+   * Find one by unix gid number.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the optional
+   */
+  Optional<DomainGroup> findOneByGidNumber(@NotNull Integer primaryGroupId);
+
+  /**
+   * Add domain group.
+   *
+   * @param domainGroup the domain group
+   * @param ou the ou
+   * @return the domain group
+   */
+  @NotNull
+  DomainGroup add(@NotNull DomainGroup domainGroup, @Nullable Dn ou);
+
+  /**
+   * Update domain group.
+   *
+   * @param groupName the group name
+   * @param domainGroup the domain group
+   * @param newOu the new ou
+   * @return the domain group
+   */
+  @NotNull
+  DomainGroup update(@NotEmpty String groupName, @NotNull DomainGroup domainGroup,
+      @Nullable Dn newOu);
+
+  /**
+   * Delete group.
+   *
+   * @param groupName the group name
+   * @return {@code true} if the group was removed; {@code false} if the group didn't exist
+   */
+  boolean delete(@NotEmpty String groupName);
+
+  /**
+   * Save domain group.
+   *
+   * @param domainGroup the domain group
+   * @return the domain group
+   */
+  @NotNull
+  DomainGroup save(@NotNull DomainGroup domainGroup);
+
+}

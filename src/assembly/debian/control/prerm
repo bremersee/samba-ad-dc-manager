@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+DEBIAN_NAME="samba-ad-dc-manager"
+
+/bin/systemctl stop $DEBIAN_NAME.service
+/bin/systemctl disable $DEBIAN_NAME.service
+
+exit 0
