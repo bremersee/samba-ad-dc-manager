@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SambaToolDomainCli.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.cli</a> &gt; <span class="el_source">SambaToolDomainCli.java</span></div><h1>SambaToolDomainCli.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.cli;
+
+import static java.util.Objects.nonNull;
+
+import java.util.List;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
+import org.bremersee.samba.ad.dc.repository.SambaToolDomain;
+import org.bremersee.samba.ad.dc.repository.cli.parser.DomainInfoParser;
+import org.bremersee.samba.ad.dc.repository.cli.parser.PasswordInformationParser;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
+
+/**
+ * The samba tool domain cli.
+ *
+ * @author Christian Bremer
+ */
+@Component
+public class SambaToolDomainCli extends SambaToolCli implements SambaToolDomain {
+
+  private DomainInfoParser domainInfoParser;
+
+  private PasswordInformationParser passwordInformationParser;
+
+  /**
+   * Instantiates a new samba tool domain cli.
+   *
+   * @param properties the properties
+   */
+  public SambaToolDomainCli(ApplicationProperties properties) {
+<span class="fc" id="L51">    super(properties);</span>
+<span class="fc" id="L52">    domainInfoParser = DomainInfoParser.defaultParser();</span>
+<span class="fc" id="L53">    passwordInformationParser = PasswordInformationParser.defaultParser();</span>
+<span class="fc" id="L54">  }</span>
+
+  /**
+   * Sets domain info parser.
+   *
+   * @param domainInfoParser the domain info parser
+   */
+  public void setDomainInfoParser(DomainInfoParser domainInfoParser) {
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">    if (nonNull(domainInfoParser)) {</span>
+<span class="fc" id="L63">      this.domainInfoParser = domainInfoParser;</span>
+    }
+<span class="fc" id="L65">  }</span>
+
+  /**
+   * Sets password information parser.
+   *
+   * @param passwordInformationParser the password information parser
+   */
+  public void setPasswordInformationParser(PasswordInformationParser passwordInformationParser) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (nonNull(passwordInformationParser)) {</span>
+<span class="fc" id="L74">      this.passwordInformationParser = passwordInformationParser;</span>
+    }
+<span class="fc" id="L76">  }</span>
+
+  @Override
+  protected String getSubCommand() {
+<span class="fc" id="L80">    return &quot;domain&quot;;</span>
+  }
+
+  @Cacheable(value = &quot;domainInfoCache&quot;, key = &quot;#p0&quot;)
+  @Override
+  public DomainInfo getDomainInfo(String ipOrHostname) {
+<span class="fc" id="L86">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L87">    commands.add(&quot;info&quot;);</span>
+<span class="fc" id="L88">    commands.add(quote(ipOrHostname));</span>
+<span class="fc" id="L89">    return executeAndGet(commands, domainInfoParser)</span>
+<span class="fc" id="L90">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="fc" id="L91">            DomainInfo.class.getSimpleName(),</span>
+            ipOrHostname,
+            ErrorCode.EC_DOMAIN_INFO_NOT_FOUND));
+  }
+
+  @Cacheable(value = &quot;passwordInformationCache&quot;)
+  @Override
+  public PasswordInformation getPasswordInformation() {
+<span class="fc" id="L99">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L100">    commands.add(&quot;passwordsettings&quot;);</span>
+<span class="fc" id="L101">    commands.add(&quot;show&quot;);</span>
+<span class="fc" id="L102">    PasswordInformation raw = executeAndGet(</span>
+        commands,
+        passwordInformationParser);
+<span class="fc" id="L105">    int minLength = raw.getMinimumPasswordLength();</span>
+<span class="fc" id="L106">    int maxLength = Math.max(getProperties().getDomain().getMaximumPasswordLength(), minLength);</span>
+<span class="fc" id="L107">    return PasswordInformation.builder().from(raw)</span>
+<span class="fc" id="L108">        .maximumPasswordLength(maxLength)</span>
+<span class="fc" id="L109">        .simplePasswordRegexTemplate(getProperties().getDomain().getSimplePasswordRegexTemplate())</span>
+<span class="fc" id="L110">        .complexPasswordRegexTemplate(getProperties().getDomain().getComplexPasswordRegexTemplate())</span>
+<span class="fc" id="L111">        .build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

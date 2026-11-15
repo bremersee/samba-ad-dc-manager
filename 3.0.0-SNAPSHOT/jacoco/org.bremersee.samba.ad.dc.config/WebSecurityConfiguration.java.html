@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebSecurityConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.config</a> &gt; <span class="el_source">WebSecurityConfiguration.java</span></div><h1>WebSecurityConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.config;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.LinkedHashMap;
+import org.bremersee.spring.boot.autoconfigure.security.authentication.AuthenticationProperties;
+import org.bremersee.spring.security.ldaptive.authentication.LdaptiveRememberMeServices;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.actuate.info.InfoEndpoint;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.RequestMatcherDelegatingAccessDeniedHandler;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatchers;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+/**
+ * The web security configuration.
+ *
+ * @author Christian Bremer
+ */
+@EnableWebSecurity
+@EnableConfigurationProperties({
+    OAuth2ResourceServerProperties.class, AuthenticationProperties.class
+})
+@Configuration
+class WebSecurityConfiguration {
+
+  private static final String API_PATH_PATTERN = &quot;/api/**&quot;;
+
+  private final Environment env;
+
+  private final AuthenticationProperties authenticationProperties;
+
+  private final OAuth2ResourceServerProperties resourceServerProperties;
+
+  private final CorsConfigurationSource corsConfigurationSource;
+
+  private final Converter&lt;Jwt, AbstractAuthenticationToken&gt; jwtAuthenticationConverter;
+
+  private final LdaptiveRememberMeServices rememberMeServices;
+
+  /**
+   * Instantiates a new web security configuration.
+   *
+   * @param env the env
+   * @param authenticationProperties the authentication properties
+   * @param resourceServerProperties the resource server properties
+   * @param corsConfigurationSource the cors configuration source
+   * @param jwtConverterProvider the jwt converter provider
+   * @param rememberMeServices the remember me services
+   */
+  WebSecurityConfiguration(
+      Environment env,
+      AuthenticationProperties authenticationProperties,
+      OAuth2ResourceServerProperties resourceServerProperties,
+      CorsConfigurationSource corsConfigurationSource,
+      ObjectProvider&lt;Converter&lt;Jwt, AbstractAuthenticationToken&gt;&gt; jwtConverterProvider,
+<span class="nc" id="L95">      ObjectProvider&lt;LdaptiveRememberMeServices&gt; rememberMeServices) {</span>
+<span class="nc" id="L96">    this.env = env;</span>
+<span class="nc" id="L97">    this.authenticationProperties = authenticationProperties;</span>
+<span class="nc" id="L98">    this.resourceServerProperties = resourceServerProperties;</span>
+<span class="nc" id="L99">    this.corsConfigurationSource = corsConfigurationSource;</span>
+<span class="nc" id="L100">    this.jwtAuthenticationConverter = jwtConverterProvider</span>
+<span class="nc" id="L101">        .getIfAvailable(JwtAuthenticationConverter::new);</span>
+<span class="nc" id="L102">    this.rememberMeServices = rememberMeServices.getIfAvailable();</span>
+<span class="nc" id="L103">  }</span>
+
+  private AccessDeniedHandler getAccessDeniedHandler() {
+<span class="nc" id="L106">    AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();</span>
+<span class="nc" id="L107">    LinkedHashMap&lt;RequestMatcher, AccessDeniedHandler&gt; handlers = LinkedHashMap</span>
+<span class="nc" id="L108">        .newLinkedHashMap(2);</span>
+<span class="nc" id="L109">    handlers.put(PathPatternRequestMatcher.withDefaults().matcher(API_PATH_PATTERN),</span>
+        accessDeniedHandler);
+<span class="nc" id="L111">    handlers.put(EndpointRequest.toAnyEndpoint(), accessDeniedHandler);</span>
+<span class="nc" id="L112">    AccessDeniedHandlerImpl defaultHandler = new AccessDeniedHandlerImpl();</span>
+<span class="nc" id="L113">    defaultHandler.setErrorPage(&quot;/forbidden&quot;);</span>
+<span class="nc" id="L114">    return new RequestMatcherDelegatingAccessDeniedHandler(handlers, defaultHandler);</span>
+  }
+
+  /**
+   * Filter chain security filter chain.
+   *
+   * @param http the http
+   * @return the security filter chain
+   */
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) {
+<span class="nc" id="L125">    String appName = env.getProperty(&quot;spring.application.name&quot;, &quot;samba-ad-dc-manager&quot;);</span>
+<span class="nc" id="L126">    String[] actuatorReadRoles = authenticationProperties.getActuator().getReadRoles()</span>
+<span class="nc" id="L127">        .toArray(new String[0]);</span>
+<span class="nc" id="L128">    String[] actuatorWriteRoles = authenticationProperties.getActuator().getWriteRoles()</span>
+<span class="nc" id="L129">        .toArray(new String[0]);</span>
+<span class="nc" id="L130">    http</span>
+<span class="nc" id="L131">        .exceptionHandling(customizer -&gt; customizer</span>
+<span class="nc" id="L132">            .accessDeniedHandler(getAccessDeniedHandler()))</span>
+
+<span class="nc" id="L134">        .authorizeHttpRequests(customizer -&gt; customizer</span>
+<span class="nc" id="L135">            .requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;)</span>
+<span class="nc" id="L136">            .permitAll()</span>
+
+<span class="nc" id="L138">            .requestMatchers(</span>
+<span class="nc" id="L139">                EndpointRequest.to(InfoEndpoint.class),</span>
+<span class="nc" id="L140">                EndpointRequest.to(HealthEndpoint.class))</span>
+<span class="nc" id="L141">            .permitAll()</span>
+
+<span class="nc" id="L143">            .requestMatchers(new AndRequestMatcher(</span>
+<span class="nc" id="L144">                EndpointRequest.toAnyEndpoint(),</span>
+<span class="nc" id="L145">                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, &quot;/**&quot;)))</span>
+<span class="nc" id="L146">            .hasAnyAuthority(actuatorReadRoles)</span>
+
+<span class="nc" id="L148">            .requestMatchers(EndpointRequest.toAnyEndpoint())</span>
+<span class="nc" id="L149">            .hasAnyAuthority(actuatorWriteRoles)</span>
+
+<span class="nc" id="L151">            .requestMatchers(PathPatternRequestMatcher.withDefaults()</span>
+<span class="nc" id="L152">                .matcher(HttpMethod.GET, &quot;/api/users/*/avatar&quot;))</span>
+<span class="nc" id="L153">            .permitAll()</span>
+
+<span class="nc" id="L155">            .requestMatchers(API_PATH_PATTERN, &quot;/management/**&quot;)</span>
+<span class="nc" id="L156">            .hasAuthority(&quot;ROLE_ADMIN&quot;)</span>
+
+<span class="nc" id="L158">            .requestMatchers(&quot;/user/**&quot;)</span>
+<span class="nc" id="L159">            .hasAuthority(&quot;ROLE_LOCAL_USER&quot;)</span>
+
+            /*
+            .requestMatchers(&quot;/css/**&quot;).permitAll()
+            .requestMatchers(&quot;/fonts/**&quot;).permitAll()
+            .requestMatchers(&quot;/lib/**&quot;).permitAll()
+
+            .requestMatchers(&quot;/v3/**&quot;).permitAll()
+            .requestMatchers(&quot;/webjars/**&quot;).permitAll()
+            .requestMatchers(&quot;/swagger-ui/**&quot;).permitAll()
+            .requestMatchers(&quot;/swagger-ui.html&quot;).permitAll()
+
+            .requestMatchers(&quot;/login&quot;).permitAll()
+            .requestMatchers(&quot;/logged-out&quot;).permitAll()
+
+            .requestMatchers(&quot;/&quot;).permitAll()
+            .requestMatchers(&quot;/index.html&quot;).permitAll()
+            .requestMatchers(&quot;/passwd&quot;).permitAll()
+            .requestMatchers(&quot;/passwd/**&quot;).permitAll()
+             */
+
+<span class="nc" id="L180">            .anyRequest().permitAll())</span>
+
+<span class="nc" id="L182">        .csrf(customizer -&gt; customizer</span>
+<span class="nc" id="L183">            .ignoringRequestMatchers(RequestMatchers.anyOf(</span>
+<span class="nc" id="L184">                EndpointRequest.toAnyEndpoint(),</span>
+<span class="nc" id="L185">                PathPatternRequestMatcher.withDefaults().matcher(API_PATH_PATTERN))))</span>
+
+<span class="nc" id="L187">        .cors(customizer -&gt; customizer</span>
+<span class="nc" id="L188">            .configurationSource(corsConfigurationSource))</span>
+
+<span class="nc" id="L190">        .headers(configurer -&gt; configurer</span>
+<span class="nc" id="L191">            .frameOptions(FrameOptionsConfig::sameOrigin))</span>
+
+<span class="nc" id="L193">        .sessionManagement(customizer -&gt; customizer</span>
+<span class="nc" id="L194">            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))</span>
+
+<span class="nc" id="L196">        .httpBasic(customizer -&gt; customizer.realmName(appName))</span>
+
+<span class="nc" id="L198">        .formLogin(form -&gt; form</span>
+<span class="nc" id="L199">            .loginPage(&quot;/login&quot;)</span>
+<span class="nc" id="L200">            .defaultSuccessUrl(&quot;/user/profile&quot;))</span>
+
+<span class="nc" id="L202">        .logout(logout -&gt; logout.logoutSuccessUrl(&quot;/index&quot;));</span>
+
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    if (!isEmpty(rememberMeServices)) {</span>
+<span class="nc" id="L205">      http.rememberMe(customizer -&gt; customizer</span>
+<span class="nc" id="L206">          .userDetailsService(rememberMeServices.getUserDetailsService())</span>
+<span class="nc" id="L207">          .rememberMeServices(rememberMeServices));</span>
+    }
+
+<span class="nc bnc" id="L210" title="All 2 branches missed.">    if (!isEmpty(resourceServerProperties.getJwt().getJwkSetUri())) {</span>
+<span class="nc" id="L211">      http</span>
+<span class="nc" id="L212">          .oauth2ResourceServer(configurer -&gt; configurer</span>
+<span class="nc" id="L213">              .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())</span>
+<span class="nc" id="L214">              .jwt(jwtConfigurer -&gt; jwtConfigurer</span>
+
+<span class="nc" id="L216">                  .jwtAuthenticationConverter(jwtAuthenticationConverter)</span>
+<span class="nc" id="L217">                  .jwkSetUri(resourceServerProperties.getJwt().getJwkSetUri())));</span>
+    }
+
+<span class="nc" id="L220">    return http.build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

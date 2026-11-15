@@ -1,0 +1,765 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsEntryType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">DnsEntryType.java</span></div><h1>DnsEntryType.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * The dns record type.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L44">@Schema(name = &quot;DnsEntryType&quot;, description = &quot;The type of a DNS record.&quot;, enumAsRef = true)</span>
+@Getter
+public enum DnsEntryType {
+
+  /**
+   * All dns record types.
+   */
+<span class="pc" id="L51">  ALL(-1, false, false, true, v -&gt; v),</span>
+
+  /**
+   * A dns record type.
+   */
+<span class="fc" id="L56">  A(1, true, true, true, v -&gt; v),</span>
+
+  /**
+   * Ns dns record type.
+   */
+<span class="fc" id="L61">  NS(2, true, true, true, ToSambaToolValueTransformers.FQDN_TRANSFORMER),</span>
+
+  /**
+   * Md dns record type.
+   */
+<span class="pc" id="L66">  MD(3, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Mf dns record type.
+   */
+<span class="pc" id="L71">  MF(4, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Cname dns record type.
+   */
+<span class="fc" id="L76">  CNAME(5, true, true, true, ToSambaToolValueTransformers.FQDN_TRANSFORMER),</span>
+
+  /**
+   * Soa dns record type.
+   */
+<span class="fc" id="L81">  SOA(6, false, true, true, ToSambaToolValueTransformers.SOA_TRANSFORMER),</span>
+
+  /**
+   * Mb dns record type.
+   */
+<span class="pc" id="L86">  MB(7, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Mg dns record type.
+   */
+<span class="pc" id="L91">  MG(8, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Mr dns record type.
+   */
+<span class="pc" id="L96">  MR(9, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Null dns record type.
+   */
+<span class="pc" id="L101">  NULL(10, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Wks dns record type.
+   */
+<span class="pc" id="L106">  WKS(11, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Ptr dns record type.
+   */
+<span class="fc" id="L111">  PTR(12, true, true, true, ToSambaToolValueTransformers.FQDN_TRANSFORMER),</span>
+
+  /**
+   * Hinfo dns record type.
+   */
+<span class="pc" id="L116">  HINFO(13, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Minfo dns record type.
+   */
+<span class="pc" id="L121">  MINFO(14, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Mx dns record type.
+   */
+<span class="fc" id="L126">  MX(15, true, true, true, ToSambaToolValueTransformers.MX_TRANSFORMER),</span>
+
+  /**
+   * Txt dns record type.
+   */
+<span class="fc" id="L131">  TXT(16, true, true, true, ToSambaToolValueTransformers.TXT_TRANSFORMER),</span>
+
+  /**
+   * Rp dns record type.
+   */
+<span class="pc" id="L136">  RP(17, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Afsdb dns record type.
+   */
+<span class="pc" id="L141">  AFSDB(18, false, false, false, v -&gt; v),</span>
+
+  /**
+   * X 25 dns record type.
+   */
+<span class="pc" id="L146">  X25(19, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Isdn dns record type.
+   */
+<span class="pc" id="L151">  ISDN(20, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Rt dns record type.
+   */
+<span class="pc" id="L156">  RT(21, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nsap dns record type.
+   */
+<span class="pc" id="L161">  NSAP(22, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nsap ptr dns record type.
+   */
+<span class="pc" id="L166">  NSAP_PTR(23, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Sig dns record type.
+   */
+<span class="pc" id="L171">  SIG(24, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Key dns record type.
+   */
+<span class="pc" id="L176">  KEY(25, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Px dns record type.
+   */
+<span class="pc" id="L181">  PX(26, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Gpos dns record type.
+   */
+<span class="pc" id="L186">  GPOS(27, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Aaaa dns record type.
+   */
+<span class="pc" id="L191">  AAAA(28, true, true, true, v -&gt; v),</span>
+
+  /**
+   * Loc dns record type.
+   */
+<span class="pc" id="L196">  LOC(29, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nxt dns record type.
+   */
+<span class="pc" id="L201">  NXT(30, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Eid dns record type.
+   */
+<span class="pc" id="L206">  EID(31, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nimloc dns record type.
+   */
+<span class="pc" id="L211">  NIMLOC(32, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Srv dns record type.
+   */
+<span class="fc" id="L216">  SRV(33, true, true, true, ToSambaToolValueTransformers.SRV_TRANSFORMER),</span>
+
+  /**
+   * Atma dns record type.
+   */
+<span class="pc" id="L221">  ATMA(34, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Naptr dns record type.
+   */
+<span class="pc" id="L226">  NAPTR(35, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Kx dns record type.
+   */
+<span class="pc" id="L231">  KX(36, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Cert dns record type.
+   */
+<span class="pc" id="L236">  CERT(37, false, false, false, v -&gt; v),</span>
+
+  /**
+   * A 6 dns record type.
+   */
+<span class="pc" id="L241">  A6(38, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Dname dns record type.
+   */
+<span class="pc" id="L246">  DNAME(39, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Sink dns record type.
+   */
+<span class="pc" id="L251">  SINK(40, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Opt dns record type.
+   */
+<span class="pc" id="L256">  OPT(41, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Apl dns record type.
+   */
+<span class="pc" id="L261">  APL(42, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Ds dns record type.
+   */
+<span class="pc" id="L266">  DS(43, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Sshfp dns record type.
+   */
+<span class="pc" id="L271">  SSHFP(44, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Ipseckey dns record type.
+   */
+<span class="pc" id="L276">  IPSECKEY(45, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Rrsig dns record type.
+   */
+<span class="pc" id="L281">  RRSIG(46, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nsec dns record type.
+   */
+<span class="pc" id="L286">  NSEC(47, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Dnskey dns record type.
+   */
+<span class="pc" id="L291">  DNSKEY(48, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Dhcid dns record type.
+   */
+<span class="pc" id="L296">  DHCID(49, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nsec 3 dns record type.
+   */
+<span class="pc" id="L301">  NSEC3(50, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nsec 3 param dns record type.
+   */
+<span class="pc" id="L306">  NSEC3PARAM(51, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Tlsa dns record type.
+   */
+<span class="pc" id="L311">  TLSA(52, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Hip dns record type.
+   */
+<span class="pc" id="L316">  HIP(55, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Ninfo dns record type.
+   */
+<span class="pc" id="L321">  NINFO(56, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Rkey dns record type.
+   */
+<span class="pc" id="L326">  RKEY(57, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Talink dns record type.
+   */
+<span class="pc" id="L331">  TALINK(58, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Cds dns record type.
+   */
+<span class="pc" id="L336">  CDS(59, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Cdnskey dns record type.
+   */
+<span class="pc" id="L341">  CDNSKEY(60, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Openpgpkey dns record type.
+   */
+<span class="pc" id="L346">  OPENPGPKEY(61, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Csync dns record type.
+   */
+<span class="pc" id="L351">  CSYNC(62, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Spf dns record type.
+   */
+<span class="pc" id="L356">  SPF(99, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Uinfo dns record type.
+   */
+<span class="pc" id="L361">  UINFO(100, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Uid dns record type.
+   */
+<span class="pc" id="L366">  UID(101, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Gid dns record type.
+   */
+<span class="pc" id="L371">  GID(102, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Unspec dns record type.
+   */
+<span class="pc" id="L376">  UNSPEC(103, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Nid dns record type.
+   */
+<span class="pc" id="L381">  NID(104, false, false, false, v -&gt; v),</span>
+
+  /**
+   * L 32 dns record type.
+   */
+<span class="pc" id="L386">  L32(105, false, false, false, v -&gt; v),</span>
+
+  /**
+   * L 64 dns record type.
+   */
+<span class="pc" id="L391">  L64(106, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Lp dns record type.
+   */
+<span class="pc" id="L396">  LP(107, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Eui 48 dns record type.
+   */
+<span class="pc" id="L401">  EUI48(108, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Eui 64 dns record type.
+   */
+<span class="pc" id="L406">  EUI64(109, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Tkey dns record type.
+   */
+<span class="pc" id="L411">  TKEY(249, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Tsig dns record type.
+   */
+<span class="pc" id="L416">  TSIG(250, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Ixfr dns record type.
+   */
+<span class="pc" id="L421">  IXFR(251, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Axfr dns record type.
+   */
+<span class="pc" id="L426">  AXFR(252, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Mailb dns record type.
+   */
+<span class="pc" id="L431">  MAILB(253, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Maila dns record type.
+   */
+<span class="pc" id="L436">  MAILA(254, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Any dns record type.
+   */
+<span class="pc" id="L441">  ANY(255, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Uri dns record type.
+   */
+<span class="pc" id="L446">  URI(256, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Caa dns record type.
+   */
+<span class="pc" id="L451">  CAA(257, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Ta dns record type.
+   */
+<span class="pc" id="L456">  TA(32768, false, false, false, v -&gt; v),</span>
+
+  /**
+   * Dlv dns record type.
+   */
+<span class="pc" id="L461">  DLV(32769, false, false, false, v -&gt; v);</span>
+
+  /**
+   * Internal lookup table to map values to types.
+   */
+<span class="fc" id="L466">  private static final Map&lt;Integer, DnsEntryType&gt; VALUE_TYPE_MAP = new HashMap&lt;&gt;();</span>
+
+  /**
+   * Internal lookup table to map strings to types.
+   */
+<span class="fc" id="L471">  private static final Map&lt;String, DnsEntryType&gt; STRING_TYPE_MAP = new HashMap&lt;&gt;();</span>
+
+  static {
+<span class="fc bfc" id="L474" title="All 2 branches covered.">    for (DnsEntryType t : DnsEntryType.values()) {</span>
+<span class="fc" id="L475">      VALUE_TYPE_MAP.put(t.getValue(), t);</span>
+<span class="fc" id="L476">      STRING_TYPE_MAP.put(t.name(), t);</span>
+    }
+<span class="fc" id="L478">  }</span>
+
+  /**
+   * The value of this dns record type.
+   */
+  private final int value;
+
+  private final boolean addable;
+
+  private final boolean updatable;
+
+  private final boolean queryable;
+
+  private final UnaryOperator&lt;String&gt; toSambaToolValueTransformer;
+
+  DnsEntryType(
+      int value,
+      boolean addable,
+      boolean updatable,
+      boolean queryable,
+<span class="fc" id="L498">      UnaryOperator&lt;String&gt; toSambaToolValueTransformer) {</span>
+<span class="fc" id="L499">    this.value = value;</span>
+<span class="fc" id="L500">    this.addable = addable;</span>
+<span class="fc" id="L501">    this.updatable = updatable;</span>
+<span class="fc" id="L502">    this.queryable = queryable;</span>
+<span class="fc" id="L503">    this.toSambaToolValueTransformer = toSambaToolValueTransformer;</span>
+<span class="fc" id="L504">  }</span>
+
+  @JsonValue
+  @Override
+  public String toString() {
+<span class="fc" id="L509">    return name();</span>
+  }
+
+  /**
+   * Find dns record type by name.
+   *
+   * @param value the name
+   * @return the dns record type
+   */
+  @JsonCreator
+  @Nullable
+  public static DnsEntryType fromValue(@Nullable String value) {
+<span class="fc" id="L521">    return fromValue(value, null);</span>
+  }
+
+  /**
+   * Find dns record type by name.
+   *
+   * @param value the name
+   * @param defaultType the default type
+   * @return the dns record type
+   */
+  @Nullable
+  public static DnsEntryType fromValue(@Nullable String value, @Nullable DnsEntryType defaultType) {
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">    if (value == null) {</span>
+<span class="nc" id="L534">      return defaultType;</span>
+    }
+<span class="fc" id="L536">    return STRING_TYPE_MAP.getOrDefault(value.toUpperCase(), defaultType);</span>
+  }
+
+  /**
+   * Find dns record type by numeric value.
+   *
+   * @param value the numeric value
+   * @param defaultType the default type
+   * @return the dns record type
+   */
+  @Nullable
+  public static DnsEntryType fromValue(int value, @Nullable DnsEntryType defaultType) {
+<span class="nc" id="L548">    return VALUE_TYPE_MAP.getOrDefault(value, defaultType);</span>
+  }
+
+  /**
+   * Gets supported add or delete types.
+   *
+   * @return the supported add or delete types
+   */
+  public static List&lt;DnsEntryType&gt; getSupportedAddOrDeleteTypes() {
+<span class="nc" id="L557">    return Arrays.stream(values())</span>
+<span class="nc" id="L558">        .filter(DnsEntryType::isAddable)</span>
+<span class="nc" id="L559">        .sorted(Comparator.comparing(DnsEntryType::name))</span>
+<span class="nc" id="L560">        .toList();</span>
+  }
+
+  /**
+   * Gets supported update types.
+   *
+   * @param dnsEntry the dns entry
+   * @return the supported update types
+   */
+  public static List&lt;DnsEntryType&gt; getSupportedUpdateTypes(DnsEntry dnsEntry) {
+<span class="nc" id="L570">    return Arrays.stream(values())</span>
+<span class="nc bnc" id="L571" title="All 2 branches missed.">        .filter(type -&gt; SOA.equals(type) ? isSoa(dnsEntry) : type.isUpdatable())</span>
+<span class="nc" id="L572">        .sorted(Comparator.comparing(DnsEntryType::name))</span>
+<span class="nc" id="L573">        .toList();</span>
+  }
+
+  private static boolean isSoa(DnsEntry dnsEntry) {
+<span class="nc bnc" id="L577" title="All 4 branches missed.">    if (isEmpty(dnsEntry) || isEmpty(dnsEntry.getType())) {</span>
+<span class="nc" id="L578">      return false;</span>
+    }
+<span class="nc" id="L580">    return SOA.equals(dnsEntry.getType());</span>
+  }
+
+  /**
+   * The type To samba tool value transformers.
+   */
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  static class ToSambaToolValueTransformers {
+
+    private static final String FQDN_DNS = &quot;ns&quot;;
+
+    private static final String FQDN_MAIL = &quot;email&quot;;
+
+    private static final String SERIAL = &quot;serial&quot;;
+
+    private static final String REFRESH = &quot;refresh&quot;;
+
+    private static final String RETRY = &quot;retry&quot;;
+
+    private static final String EXPIRE = &quot;expire&quot;;
+
+    private static final String MINIMUM_TTL = &quot;minttl&quot;;
+
+    /**
+     * The constant FQDN_TRANSFORMER.
+     */
+<span class="fc" id="L606">    public static final UnaryOperator&lt;String&gt; FQDN_TRANSFORMER = fqdn -&gt; {</span>
+<span class="nc bnc" id="L607" title="All 2 branches missed.">      if (isEmpty(fqdn)) {</span>
+<span class="nc" id="L608">        throw ServiceException.badRequest(&quot;FQDN must be present.&quot;,</span>
+            ErrorCode.EC_DNS_FQDN_MISSING);
+      }
+<span class="nc bnc" id="L611" title="All 2 branches missed.">      if (!fqdn.endsWith(&quot;.&quot;)) {</span>
+<span class="nc" id="L612">        return fqdn + '.';</span>
+      }
+<span class="nc" id="L614">      return fqdn;</span>
+    };
+
+    /**
+     * The constant SOA_TRANSFORMER.
+     */
+<span class="fc" id="L620">    public static final UnaryOperator&lt;String&gt; SOA_TRANSFORMER = soa -&gt; {</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">      if (isEmpty(soa)) {</span>
+<span class="nc" id="L622">        throw ServiceException.badRequest(&quot;SOA value must be present.&quot;,</span>
+            ErrorCode.EC_DNS_SOA_MISSING);
+      }
+      // input: serial=7, refresh=900, retry=600, expire=86400, minttl=3600, ns=ns1.exampleorg., email=hostmaster.example.org.
+      // output: &quot;fqdn_dns fqdn_email serial refresh retry expire minimumttl&quot;
+<span class="nc" id="L627">      return '&quot;'</span>
+<span class="nc" id="L628">          + FQDN_TRANSFORMER.apply(getSoaValue(FQDN_DNS, soa)) + &quot; &quot;</span>
+<span class="nc" id="L629">          + FQDN_TRANSFORMER.apply(getSoaValue(FQDN_MAIL, soa)) + &quot; &quot;</span>
+<span class="nc" id="L630">          + getSoaValue(SERIAL, soa) + &quot; &quot;</span>
+<span class="nc" id="L631">          + getSoaValue(REFRESH, soa) + &quot; &quot;</span>
+<span class="nc" id="L632">          + getSoaValue(RETRY, soa) + &quot; &quot;</span>
+<span class="nc" id="L633">          + getSoaValue(EXPIRE, soa) + &quot; &quot;</span>
+<span class="nc" id="L634">          + getSoaValue(MINIMUM_TTL, soa)</span>
+          + '&quot;';
+    };
+
+    private static String getSoaValue(String name, String input) {
+<span class="nc" id="L639">      int start = input.indexOf(name + &quot;=&quot;);</span>
+<span class="nc bnc" id="L640" title="All 2 branches missed.">      if (start == -1) {</span>
+<span class="nc" id="L641">        throw ServiceException.badRequest(String.format(&quot;SOA entry '%s' was not found.&quot;, name),</span>
+            ErrorCode.EC_DNS_SOA_MISSING + '-' + name);
+      }
+<span class="nc" id="L644">      int end = input.indexOf(',', start);</span>
+<span class="nc bnc" id="L645" title="All 2 branches missed.">      if (end == -1) {</span>
+<span class="nc" id="L646">        end = input.length();</span>
+      }
+<span class="nc" id="L648">      return input.substring(start + name.length() + 1, end);</span>
+    }
+
+    /**
+     * The constant MX_TRANSFORMER.
+     */
+<span class="fc" id="L654">    public static final UnaryOperator&lt;String&gt; MX_TRANSFORMER = mx -&gt; {</span>
+<span class="nc bnc" id="L655" title="All 2 branches missed.">      if (isEmpty(mx)) {</span>
+<span class="nc" id="L656">        throw ServiceException.badRequest(&quot;MX value must be present.&quot;,</span>
+            ErrorCode.EC_DNS_MX_MISSING);
+      }
+      // input: mail.example.org. (preference)
+      String fqdn;
+      String pref;
+<span class="nc" id="L662">      int index = mx.indexOf(' ');</span>
+<span class="nc bnc" id="L663" title="All 2 branches missed.">      if (index &gt; 0) {</span>
+<span class="nc" id="L664">        fqdn = mx.substring(0, index).trim();</span>
+<span class="nc" id="L665">        pref = mx.substring(index + 1).trim();</span>
+<span class="nc bnc" id="L666" title="All 4 branches missed.">        if (pref.startsWith(&quot;(&quot;) &amp;&amp; pref.endsWith(&quot;)&quot;)) {</span>
+<span class="nc" id="L667">          pref = pref.substring(1, pref.length() - 1).trim();</span>
+        }
+      } else {
+<span class="nc" id="L670">        fqdn = mx.trim();</span>
+<span class="nc" id="L671">        pref = &quot;0&quot;;</span>
+      }
+      // output: &quot;fqdn_string preference&quot;
+<span class="nc" id="L674">      return '&quot;'</span>
+<span class="nc" id="L675">          + FQDN_TRANSFORMER.apply(fqdn)</span>
+          + ' '
+          + pref
+          + '&quot;';
+    };
+
+    /**
+     * The constant SRV_TRANSFORMER.
+     */
+<span class="fc" id="L684">    public static final UnaryOperator&lt;String&gt; SRV_TRANSFORMER = srv -&gt; {</span>
+<span class="nc bnc" id="L685" title="All 2 branches missed.">      if (isEmpty(srv)) {</span>
+<span class="nc" id="L686">        throw ServiceException.badRequest(&quot;SRV value must be present.&quot;,</span>
+            ErrorCode.EC_DNS_SRV_MISSING);
+      }
+      // input: foo.example.org. (port, priority, weight)
+      String fqdn;
+      String port;
+      String priority;
+      String weight;
+<span class="nc" id="L694">      int index = srv.indexOf(' ');</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">      if (index &gt; 0) {</span>
+<span class="nc" id="L696">        fqdn = srv.substring(0, index).trim();</span>
+<span class="nc" id="L697">        String tmp = srv.substring(index + 1).trim();</span>
+<span class="nc bnc" id="L698" title="All 4 branches missed.">        if (tmp.startsWith(&quot;(&quot;) &amp;&amp; tmp.endsWith(&quot;)&quot;)) {</span>
+<span class="nc" id="L699">          tmp = tmp.substring(1, tmp.length() - 1).trim();</span>
+        }
+<span class="nc" id="L701">        String[] values = tmp.split(&quot;,&quot;);</span>
+<span class="nc bnc" id="L702" title="All 2 branches missed.">        if (values.length &gt; 0) {</span>
+<span class="nc" id="L703">          port = values[0].trim();</span>
+        } else {
+<span class="nc" id="L705">          port = &quot;0&quot;;</span>
+        }
+<span class="nc bnc" id="L707" title="All 2 branches missed.">        if (values.length &gt; 1) {</span>
+<span class="nc" id="L708">          priority = values[1].trim();</span>
+        } else {
+<span class="nc" id="L710">          priority = &quot;0&quot;;</span>
+        }
+<span class="nc bnc" id="L712" title="All 2 branches missed.">        if (values.length &gt; 2) {</span>
+<span class="nc" id="L713">          weight = values[2].trim();</span>
+        } else {
+<span class="nc" id="L715">          weight = &quot;0&quot;;</span>
+        }
+
+<span class="nc" id="L718">      } else {</span>
+<span class="nc" id="L719">        fqdn = srv.trim();</span>
+<span class="nc" id="L720">        port = &quot;0&quot;;</span>
+<span class="nc" id="L721">        priority = &quot;0&quot;;</span>
+<span class="nc" id="L722">        weight = &quot;0&quot;;</span>
+      }
+      // output: &quot;fqdn_string port priority weight&quot;
+<span class="nc" id="L725">      return '&quot;'</span>
+<span class="nc" id="L726">          + FQDN_TRANSFORMER.apply(fqdn) + ' '</span>
+          + port + ' '
+          + priority + ' '
+          + weight
+          + '&quot;';
+    };
+
+    /**
+     * The constant TXT_TRANSFORMER.
+     */
+<span class="fc" id="L736">    public static final UnaryOperator&lt;String&gt; TXT_TRANSFORMER = txt -&gt; {</span>
+<span class="nc bnc" id="L737" title="All 2 branches missed.">      if (isEmpty(txt)) {</span>
+<span class="nc" id="L738">        throw ServiceException.badRequest(&quot;TXT value must be present.&quot;,</span>
+            ErrorCode.EC_DNS_TXT_MISSING);
+      }
+      // input: &quot;string1&quot;,&quot;string2&quot;,&quot;string3&quot;
+<span class="nc" id="L742">      String parameter = Arrays.stream(txt.split(Pattern.quote(&quot;\&quot;,\&quot;&quot;)))</span>
+<span class="nc" id="L743">          .map(String::trim)</span>
+<span class="nc" id="L744">          .map(txtToken -&gt; {</span>
+<span class="nc bnc" id="L745" title="All 2 branches missed.">            if (txtToken.startsWith(&quot;\&quot;&quot;)) {</span>
+<span class="nc" id="L746">              return txtToken.substring(1).trim();</span>
+            }
+<span class="nc" id="L748">            return txtToken;</span>
+          })
+<span class="nc" id="L750">          .map(txtToken -&gt; {</span>
+<span class="nc bnc" id="L751" title="All 2 branches missed.">            if (txtToken.endsWith(&quot;\&quot;&quot;)) {</span>
+<span class="nc" id="L752">              return txtToken.substring(0, txtToken.length() - 1).trim();</span>
+            }
+<span class="nc" id="L754">            return txtToken;</span>
+          })
+<span class="nc" id="L756">          .map(String::trim)</span>
+<span class="nc" id="L757">          .map(txtToken -&gt; &quot;'&quot; + txtToken + &quot;'&quot;)</span>
+<span class="nc" id="L758">          .collect(Collectors.joining(&quot; &quot;));</span>
+      // output: &quot;'string1' 'string2' ...&quot;
+<span class="nc" id="L760">      return '&quot;' + parameter + '&quot;';</span>
+    };
+
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
