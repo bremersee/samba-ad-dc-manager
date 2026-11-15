@@ -117,7 +117,7 @@
     </snapshotRepository>
     <site>
       <id>bremersee-sites</id>
-      <url>https://nexus.bremersee.org/repository/maven-sites/samba-ad-dc-manager/${project.version}</url>
+      <url>https://bremersee.github.io/samba-ad-dc-manager/${project.version}</url>
     </site>
   </distributionManagement>
 

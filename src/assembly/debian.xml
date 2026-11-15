@@ -43,7 +43,7 @@
             <outputDirectory>var/lib/samba-ad-dc-manager</outputDirectory>
             <destName>samba-ad-dc-manager.jar</destName>
             <filtered>false</filtered>
-            <fileMode>755</fileMode>
+            <fileMode>644</fileMode>
         </file>
     </files>
 </assembly>

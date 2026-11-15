@@ -117,7 +117,7 @@ bremersee:
 
 spring:
   jmx:
-    enabled: true
+    enabled: false
   messages:
     use-code-as-default-message: true
     fallback-to-system-locale: false
@@ -148,9 +148,10 @@ server:
 logging:
   level:
     ROOT: info
-    com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
-    org.bremersee: debug
+    com.netflix.eureka.registry: warn
+    org.bremersee: info
+    org.ldaptive: warn
     org.springframework.cloud.configclient: warn
 
 springdoc:
@@ -346,9 +347,10 @@ spring:
 logging:
   level:
     ROOT: info
-    com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
+    com.netflix.eureka.registry: warn
     org.bremersee: info
+    org.ldaptive: warn
     org.springframework.cloud.configclient: warn
   file:
     name: /var/log/samba-ad-dc-manager/samba-ad-dc-manager.log
