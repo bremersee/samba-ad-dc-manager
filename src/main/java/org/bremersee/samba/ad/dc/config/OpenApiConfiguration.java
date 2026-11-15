@@ -17,7 +17,6 @@
 package org.bremersee.samba.ad.dc.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
@@ -59,28 +58,6 @@ class OpenApiConfiguration {
   }
 
   /**
-   * For basic auth.
-   *
-   * @author Christian Bremer
-   */
-  @Configuration
-  @Profile("!jwt & api")
-  @SecurityScheme(
-      name = "basic-auth",
-      scheme = "basic",
-      type = SecuritySchemeType.HTTP,
-      in = SecuritySchemeIn.HEADER)
-  static class ForBasicAuth {
-
-    /**
-     * Instantiates a new instance for basic auth.
-     */
-    ForBasicAuth() {
-      super();
-    }
-  }
-
-  /**
    * For jwt.
    *
    * @author Christian Bremer
@@ -100,11 +77,6 @@ class OpenApiConfiguration {
           )
       )
   )
-  @SecurityScheme(
-      name = "basic-auth",
-      scheme = "basic",
-      type = SecuritySchemeType.HTTP,
-      in = SecuritySchemeIn.HEADER)
   static class ForJwt {
 
     /**

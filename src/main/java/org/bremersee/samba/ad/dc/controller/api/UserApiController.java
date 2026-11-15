@@ -109,8 +109,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Get user page.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -172,8 +171,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Add user.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -252,8 +250,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Get user.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -320,8 +317,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Update user.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -374,8 +370,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Delete user.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -413,8 +408,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Update user password.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -497,8 +491,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Update user avatar.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -549,8 +542,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Remove user avatar.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -592,8 +584,7 @@ public class UserApiController extends UserAvatarApiController {
   @Operation(
       description = "Checks whether the avatar of the user is present in the active directory.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {

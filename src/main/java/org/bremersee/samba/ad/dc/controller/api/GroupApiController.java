@@ -98,8 +98,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Get group page.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -155,8 +154,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Add group.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -208,8 +206,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Get group.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -280,8 +277,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Update group.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -334,8 +330,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Delete group.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")}
+          @SecurityRequirement(name = "bearer-jwt")}
   )
   @ApiResponses(
       value = {
@@ -376,8 +371,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Get memberships of group.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -455,8 +449,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Get group members.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -537,8 +530,7 @@ public class GroupApiController extends ApiController {
   @Operation(
       description = "Modify group members.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(

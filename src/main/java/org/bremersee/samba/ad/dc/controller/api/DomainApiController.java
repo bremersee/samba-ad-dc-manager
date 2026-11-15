@@ -63,8 +63,7 @@ public class DomainApiController {
   @Operation(
       description = "Get password information.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(

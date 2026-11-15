@@ -71,8 +71,7 @@ public class AdEntryApiController extends ApiController {
   @Operation(
       description = "Get root (base dn) as organizational unit.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -109,8 +108,7 @@ public class AdEntryApiController extends ApiController {
   @Operation(
       description = "Get children of an organizational unit.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(

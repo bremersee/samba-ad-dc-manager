@@ -84,8 +84,7 @@ public class ComputerApiController extends ApiController {
   @Operation(
       description = "Get computer page.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -142,8 +141,7 @@ public class ComputerApiController extends ApiController {
   @Operation(
       description = "Get computer.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -197,8 +195,7 @@ public class ComputerApiController extends ApiController {
   @Operation(
       description = "Update computer.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -257,8 +254,7 @@ public class ComputerApiController extends ApiController {
   @Operation(
       description = "Delete computer.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(

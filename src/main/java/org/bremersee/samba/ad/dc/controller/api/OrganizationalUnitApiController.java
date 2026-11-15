@@ -79,8 +79,7 @@ public class OrganizationalUnitApiController extends ApiController {
   @Operation(
       description = "Get organizational units.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -124,8 +123,7 @@ public class OrganizationalUnitApiController extends ApiController {
   @Operation(
       description = "Add organizational unit.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -172,8 +170,7 @@ public class OrganizationalUnitApiController extends ApiController {
   @Operation(
       description = "Get organizational unit.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -217,8 +214,7 @@ public class OrganizationalUnitApiController extends ApiController {
   @Operation(
       description = "Delete organizational unit.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -261,8 +257,7 @@ public class OrganizationalUnitApiController extends ApiController {
   @Operation(
       description = "Update organizational unit.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(

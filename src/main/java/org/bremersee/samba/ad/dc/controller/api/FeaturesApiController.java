@@ -61,8 +61,7 @@ public class FeaturesApiController extends ApiController {
   @Operation(
       description = "Get features.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
