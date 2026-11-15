@@ -81,7 +81,7 @@ public class DnsEntryEditModel implements Serializable {
   }
 
   /**
-   * To new dns entry dns entry.
+   * To new dns entry.
    *
    * @param zoneName the zone name
    * @return the dns entry

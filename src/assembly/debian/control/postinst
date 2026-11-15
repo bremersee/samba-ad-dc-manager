@@ -28,23 +28,23 @@ if [ $? -eq 1 ]; then
   echo -e "$SUDO_ENTRY" >> "$SUDO_FILE"
 fi
 
-/bin/systemctl enable $DEBIAN_NAME.service
-if [ -e /var/lib/$DEBIAN_NAME/application.yml ] && [ -e /var/lib/$DEBIAN_NAME/application.yml.user ]; then
+if [ -e /var/lib/$DEBIAN_NAME/application.yml ] && [ -e /var/lib/$DEBIAN_NAME/application.yml.do_not_edit ]; then
   cp /var/lib/$DEBIAN_NAME/application.yml /var/lib/$DEBIAN_NAME/application.yml.package
-  cp /var/lib/$DEBIAN_NAME/application.yml.user /var/lib/$DEBIAN_NAME/application.yml
-  rm -f /var/lib/$DEBIAN_NAME/application.yml.user
+  cp /var/lib/$DEBIAN_NAME/application.yml.do_not_edit /var/lib/$DEBIAN_NAME/application.yml
+  rm -f /var/lib/$DEBIAN_NAME/application.yml.do_not_edit
 fi
-if [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml ] && [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml.user ]; then
+if [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml ] && [ -e /var/lib/$DEBIAN_NAME/bootstrap.yml.do_not_edit ]; then
   cp /var/lib/$DEBIAN_NAME/bootstrap.yml /var/lib/$DEBIAN_NAME/bootstrap.yml.package
-  cp /var/lib/$DEBIAN_NAME/bootstrap.yml.user /var/lib/$DEBIAN_NAME/bootstrap.yml
-  rm -f /var/lib/$DEBIAN_NAME/bootstrap.yml.user
+  cp /var/lib/$DEBIAN_NAME/bootstrap.yml.do_not_edit /var/lib/$DEBIAN_NAME/bootstrap.yml
+  rm -f /var/lib/$DEBIAN_NAME/bootstrap.yml.do_not_edit
 fi
-if [ -e /etc/$APP_NAME.conf ] && [ -e /etc/$APP_NAME.conf.user ]; then
+if [ -e /etc/$APP_NAME.conf ] && [ -e /etc/$APP_NAME.conf.do_not_edit ]; then
   cp /etc/$APP_NAME.conf /etc/$APP_NAME.conf.package
-  cp /etc/$APP_NAME.conf.user /etc/$APP_NAME.conf
-  rm -f /etc/$APP_NAME.conf.user
+  cp /etc/$APP_NAME.conf.do_not_edit /etc/$APP_NAME.conf
+  rm -f /etc/$APP_NAME.conf.do_not_edit
 fi
 
+/bin/systemctl enable $DEBIAN_NAME.service
 /bin/systemctl start $DEBIAN_NAME.service
 
 exit 0
