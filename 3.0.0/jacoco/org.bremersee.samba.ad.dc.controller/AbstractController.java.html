@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller</a> &gt; <span class="el_source">AbstractController.java</span></div><h1>AbstractController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+import java.util.Optional;
+import lombok.Getter;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.samba.ad.dc.misc.FeaturesAware;
+import org.bremersee.samba.ad.dc.misc.SortMapperAware;
+import org.bremersee.samba.ad.dc.model.Features;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+/**
+ * The abstract controller.
+ *
+ * @author Christian Bremer
+ */
+public abstract class AbstractController implements SortMapperAware, FeaturesAware {
+
+  /**
+   * The constant PAGE.
+   */
+  public static final String PAGE = &quot;page&quot;;
+
+  /**
+   * The constant PAGE_DEFAULT_INT.
+   */
+  public static final int PAGE_DEFAULT_INT = 0;
+
+  /**
+   * The constant PAGE_DEFAULT.
+   */
+  public static final String PAGE_DEFAULT = &quot;&quot; + PAGE_DEFAULT_INT;
+
+  /**
+   * The constant SIZE.
+   */
+  public static final String SIZE = &quot;size&quot;;
+
+  /**
+   * The constant SIZE_DEFAULT_INT.
+   */
+  public static final int SIZE_DEFAULT_INT = 20;
+
+  /**
+   * The constant SIZE_DEFAULT.
+   */
+  public static final String SIZE_DEFAULT = &quot;&quot; + SIZE_DEFAULT_INT;
+
+  /**
+   * The constant SORT.
+   */
+  public static final String SORT = &quot;sort&quot;;
+
+  /**
+   * The constant DN_SORT.
+   */
+  public static final String DN_SORT = &quot;distinguishedName&quot;;
+
+  /**
+   * The constant COMPUTER_SORT.
+   */
+  public static final String COMPUTER_SORT = &quot;name&quot;;
+
+  /**
+   * The constant DHCP_LEASE_SORT.
+   */
+  public static final String DHCP_LEASE_SORT = &quot;ip&quot;;
+
+  /**
+   * The constant GROUP_SORT.
+   */
+  public static final String GROUP_SORT = &quot;samAccountName&quot;;
+
+  /**
+   * The constant OU_SORT.
+   */
+  public static final String OU_SORT = &quot;nameTree&quot;;
+
+  /**
+   * The constant USER_SORT_LAST_NAME.
+   */
+  public static final String USER_SORT_LAST_NAME = &quot;lastName&quot;;
+
+  /**
+   * The constant USER_SORT_FIRST_NAME.
+   */
+  public static final String USER_SORT_FIRST_NAME = &quot;firstName&quot;;
+
+  /**
+   * The constant USER_SORT_USERNAME.
+   */
+  public static final String USER_SORT_USERNAME = &quot;samAccountName&quot;;
+
+  /**
+   * The constant USER_SORT.
+   */
+  public static final String USER_SORT = USER_SORT_LAST_NAME
+      + &quot;;&quot; + USER_SORT_FIRST_NAME
+      + &quot;;&quot; + USER_SORT_USERNAME;
+
+  /**
+   * The constant QUERY.
+   */
+  public static final String QUERY = &quot;q&quot;;
+
+  /**
+   * The constant QUERY_DEFAULT.
+   */
+  public static final String QUERY_DEFAULT = &quot;&quot;;
+
+  /**
+   * The constant OU.
+   */
+  public static final String OU = &quot;ou&quot;;
+
+  /**
+   * The constant SCOPE.
+   */
+  public static final String SCOPE = &quot;scope&quot;;
+
+  /**
+   * The constant ZONE_NAME.
+   */
+  public static final String ZONE_NAME = &quot;zone-name&quot;;
+
+  /**
+   * The constant ZONE_TYPE.
+   */
+  public static final String ZONE_TYPE = &quot;zone-type&quot;;
+
+  /**
+   * The constant ZONE_TYPE_DEFAULT.
+   */
+  public static final String ZONE_TYPE_DEFAULT = &quot;primary&quot;;
+
+  /**
+   * The constant DNS_ENTRY_NAME.
+   */
+  public static final String DNS_ENTRY_NAME = &quot;name&quot;;
+
+  /**
+   * The constant DNS_ENTRY_TYPE.
+   */
+  public static final String DNS_ENTRY_TYPE = &quot;type&quot;;
+
+  /**
+   * The constant DNS_ENTRY_VALUE.
+   */
+  public static final String DNS_ENTRY_VALUE = &quot;value&quot;;
+
+  /**
+   * The constant DNS_ENTRY_SORT.
+   */
+  public static final String DNS_ENTRY_SORT = DNS_ENTRY_NAME
+      + &quot;;&quot; + DNS_ENTRY_TYPE
+      + &quot;;&quot; + DNS_ENTRY_VALUE;
+
+  /**
+   * --- GETTER ---
+   * Gets features.
+   */
+  @Getter
+  private Features features;
+
+  /**
+   * --- GETTER ---
+   * Gets sort mapper.
+   */
+  @Getter
+  private SortMapper sortMapper;
+
+  /**
+   * Instantiates a new abstract controller.
+   */
+<span class="nc" id="L195">  protected AbstractController() {</span>
+<span class="nc" id="L196">    this.features = Features.builder().build();</span>
+<span class="nc" id="L197">    this.sortMapper = SortMapper.defaultSortMapper();</span>
+<span class="nc" id="L198">  }</span>
+
+  @Override
+  public void setFeatures(Features features) {
+<span class="nc bnc" id="L202" title="All 2 branches missed.">    if (!isEmpty(features)) {</span>
+<span class="nc" id="L203">      this.features = features;</span>
+    }
+<span class="nc" id="L205">  }</span>
+
+  @Override
+  public void setSortMapper(SortMapper sortMapper) {
+<span class="nc bnc" id="L209" title="All 2 branches missed.">    if (!isEmpty(sortMapper)) {</span>
+<span class="nc" id="L210">      this.sortMapper = sortMapper;</span>
+    }
+<span class="nc" id="L212">  }</span>
+
+  /**
+   * Gets base uri.
+   *
+   * @param configuredBaseUri the configured base uri
+   * @return the base uri
+   */
+  protected static String getBaseUri(String configuredBaseUri) {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">    if (!isEmpty(configuredBaseUri)</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        &amp;&amp; (configuredBaseUri.toLowerCase().startsWith(&quot;http://&quot;)</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        || configuredBaseUri.toLowerCase().startsWith(&quot;https://&quot;))) {</span>
+<span class="nc" id="L224">      return configuredBaseUri;</span>
+    }
+<span class="nc" id="L226">    return getBaseUriFromRequestContext()</span>
+<span class="nc" id="L227">        .orElseThrow(() -&gt; new IllegalStateException(</span>
+            &quot;Getting base uri from request context failed.&quot;));
+  }
+
+  private static Optional&lt;String&gt; getBaseUriFromRequestContext() {
+<span class="nc" id="L232">    return Optional.ofNullable(RequestContextHolder.getRequestAttributes())</span>
+<span class="nc" id="L233">        .filter(ServletRequestAttributes.class::isInstance)</span>
+<span class="nc" id="L234">        .map(ServletRequestAttributes.class::cast)</span>
+<span class="nc" id="L235">        .map(ServletRequestAttributes::getRequest)</span>
+<span class="nc" id="L236">        .map(AbstractController::getBaseUri);</span>
+  }
+
+  private static String getBaseUri(HttpServletRequest request) {
+<span class="nc" id="L240">    StringBuilder baseUriBuilder = new StringBuilder(getScheme(request));</span>
+<span class="nc" id="L241">    baseUriBuilder.append(&quot;://&quot;);</span>
+<span class="nc" id="L242">    baseUriBuilder.append(getServerName(request));</span>
+<span class="nc" id="L243">    int port = getPort(request);</span>
+<span class="nc bnc" id="L244" title="All 4 branches missed.">    if (!(port == 80 || port == 443)) {</span>
+<span class="nc" id="L245">      baseUriBuilder.append(':').append(port);</span>
+    }
+<span class="nc" id="L247">    baseUriBuilder.append(request.getContextPath());</span>
+<span class="nc" id="L248">    return baseUriBuilder.toString();</span>
+  }
+
+  private static String getScheme(HttpServletRequest request) {
+<span class="nc" id="L252">    String value = null;</span>
+<span class="nc" id="L253">    Enumeration&lt;String&gt; headerNames = request.getHeaderNames();</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">    while (headerNames.hasMoreElements()) {</span>
+<span class="nc" id="L255">      String headerName = headerNames.nextElement();</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">      if (&quot;X-Forwarded-Proto&quot;.equalsIgnoreCase(headerName)) {</span>
+<span class="nc" id="L257">        value = request.getHeader(headerName);</span>
+<span class="nc" id="L258">        break;</span>
+      }
+<span class="nc" id="L260">    }</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">    if (isEmpty(value)) {</span>
+<span class="nc" id="L262">      value = request.getScheme();</span>
+    }
+<span class="nc bnc" id="L264" title="All 4 branches missed.">    if (&quot;http&quot;.equalsIgnoreCase(value) || &quot;https&quot;.equalsIgnoreCase(value)) {</span>
+<span class="nc" id="L265">      return value;</span>
+    }
+<span class="nc" id="L267">    return &quot;http&quot;;</span>
+  }
+
+  private static String getServerName(HttpServletRequest request) {
+<span class="nc" id="L271">    return request.getServerName();</span>
+  }
+
+  private static int getPort(HttpServletRequest request) {
+<span class="nc" id="L275">    Enumeration&lt;String&gt; headerNames = request.getHeaderNames();</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">    while (headerNames.hasMoreElements()) {</span>
+<span class="nc" id="L277">      String headerName = headerNames.nextElement();</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">      if (&quot;X-Forwarded-Port&quot;.equalsIgnoreCase(headerName)) {</span>
+        try {
+<span class="nc" id="L280">          return Integer.parseInt(request.getHeader(headerName));</span>
+<span class="nc" id="L281">        } catch (RuntimeException ignored) {</span>
+          // ignored
+        }
+      }
+<span class="nc" id="L285">    }</span>
+<span class="nc" id="L286">    return request.getServerPort();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

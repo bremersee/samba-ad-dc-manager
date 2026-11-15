@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainGroupRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">DomainGroupRepositoryImpl.java</span></div><h1>DomainGroupRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.isNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.ad.SecurityIdentifier;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.SubstringFilter;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The domain group repository.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;domainGroupRepository&quot;)
+@Validated
+<span class="fc" id="L59">@Slf4j</span>
+public class DomainGroupRepositoryImpl extends SamAccountRepository
+    implements DomainGroupRepository {
+
+  private final DomainRepository domainRepository;
+
+  private final LdaptiveEntryMapper&lt;DomainGroup&gt; domainGroupLdapMapper;
+
+  /**
+   * Instantiates a new domain group repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param domainRepository the domain repository
+   * @param domainGroupLdapMapper the domain group ldap mapper
+   */
+  public DomainGroupRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      DomainRepository domainRepository,
+      LdaptiveEntryMapper&lt;DomainGroup&gt; domainGroupLdapMapper) {
+<span class="fc" id="L80">    super(properties, ldapOperations);</span>
+<span class="fc" id="L81">    this.domainRepository = domainRepository;</span>
+<span class="fc" id="L82">    this.domainGroupLdapMapper = domainGroupLdapMapper;</span>
+<span class="fc" id="L83">  }</span>
+
+  @Override
+  protected Dn getDefaultOu() {
+<span class="fc" id="L87">    return new Dn(getProperties().getGroup().getDefaultOu());</span>
+  }
+
+  @Override
+  protected String getObjectClassValue() {
+<span class="fc" id="L92">    return AdConstants.OBJECT_CLASS_GROUP;</span>
+  }
+
+  @Override
+  protected String[] getBinaryAttributes() {
+<span class="fc" id="L97">    return domainGroupLdapMapper.getBinaryAttributeNames();</span>
+  }
+
+  @Override
+  protected String[] getReturnAttributes() {
+<span class="fc" id="L102">    return domainGroupLdapMapper.getMappedAttributeNames();</span>
+  }
+
+  private Filter getFindAllFilter(String query) {
+<span class="fc" id="L106">    Filter objectClassFilter = new EqualityFilter(</span>
+<span class="fc" id="L107">        AdConstants.OBJECT_CLASS.getName(),</span>
+<span class="fc" id="L108">        getObjectClassValue());</span>
+<span class="pc bpc" id="L109" title="1 of 4 branches missed.">    if (isNull(query) || query.length() &lt; getProperties().getGroup().getMinQueryLength()) {</span>
+<span class="fc" id="L110">      return objectClassFilter;</span>
+    }
+<span class="fc" id="L112">    Filter orFilter = new OrFilter(</span>
+<span class="fc" id="L113">        new SubstringFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L114">        new SubstringFilter(AdConstants.DESCRIPTION.getName(), null, null, query),</span>
+<span class="fc" id="L115">        new SubstringFilter(AdConstants.MAIL.getName(), null, null, query),</span>
+<span class="fc" id="L116">        new EqualityFilter(AdConstants.GID_NUMBER.getName(), query)</span>
+    );
+<span class="fc" id="L118">    return new AndFilter(objectClassFilter, orFilter);</span>
+  }
+
+  @Override
+  public Stream&lt;DomainGroup&gt; findAll(String query, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L123">    log.debug(&quot;findAll({}, {}, {})&quot;, query, ou, searchScope);</span>
+<span class="fc" id="L124">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L125">    SearchRequest searchRequest = searchAllRequest(</span>
+        ou,
+<span class="fc" id="L127">        getFindAllFilter(query),</span>
+        scope,
+<span class="fc" id="L129">        getReturnAttributes());</span>
+<span class="fc" id="L130">    return getLdapOperations()</span>
+<span class="fc" id="L131">        .findAll(searchRequest, domainGroupLdapMapper)</span>
+<span class="fc" id="L132">        .filter(getIgnoredObjectFilter(ou, scope));</span>
+  }
+
+  @Override
+  public Optional&lt;DomainGroup&gt; findOne(String groupName, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L137">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L138">    SearchRequest searchRequest = searchOneRequest(groupName, ou, scope);</span>
+<span class="fc" id="L139">    return getLdapOperations()</span>
+<span class="fc" id="L140">        .findOne(searchRequest, domainGroupLdapMapper)</span>
+<span class="fc" id="L141">        .filter(getIgnoredObjectFilter(ou, scope));</span>
+  }
+
+  @Override
+  public Optional&lt;DomainGroup&gt; findOneByPrimaryGroupId(Integer primaryGroupId) {
+<span class="fc" id="L146">    log.debug(&quot;findByPrimaryGroupId({})&quot;, primaryGroupId);</span>
+<span class="fc" id="L147">    return Optional.ofNullable(primaryGroupId)</span>
+<span class="fc" id="L148">        .map(id -&gt; domainRepository.getDomainSid() + &quot;-&quot; + id)</span>
+<span class="fc" id="L149">        .flatMap(sid -&gt; {</span>
+<span class="fc" id="L150">          Filter filter = new AndFilter(</span>
+<span class="fc" id="L151">              objectClassFilter(),</span>
+<span class="fc" id="L152">              new EqualityFilter(AdConstants.OBJECT_SID.getName(),</span>
+<span class="fc" id="L153">                  SecurityIdentifier.toBytes(sid)));</span>
+          // SecurityIdentifier.toBytes(sid)
+<span class="fc" id="L155">          SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L156">              .dn(getProperties().getBaseDn())</span>
+<span class="fc" id="L157">              .filter(filter)</span>
+<span class="fc" id="L158">              .scope(SearchScope.SUBTREE)</span>
+<span class="fc" id="L159">              .binaryAttributes(getBinaryAttributes())</span>
+<span class="fc" id="L160">              .returnAttributes(getReturnAttributes())</span>
+<span class="fc" id="L161">              .build();</span>
+<span class="fc" id="L162">          return getLdapOperations()</span>
+<span class="fc" id="L163">              .findOne(searchRequest, domainGroupLdapMapper)</span>
+<span class="fc" id="L164">              .filter(getIgnoredObjectFilter());</span>
+        });
+  }
+
+  @Override
+  public Optional&lt;DomainGroup&gt; findOneByGidNumber(Integer gidNumber) {
+<span class="fc" id="L170">    log.debug(&quot;findByGidNumber({})&quot;, gidNumber);</span>
+<span class="fc" id="L171">    return Optional.ofNullable(gidNumber)</span>
+<span class="fc" id="L172">        .flatMap(gid -&gt; {</span>
+<span class="fc" id="L173">          Filter filter = new AndFilter(</span>
+<span class="fc" id="L174">              objectClassFilter(),</span>
+<span class="fc" id="L175">              new EqualityFilter(AdConstants.GID_NUMBER.getName(), gid.toString()));</span>
+<span class="fc" id="L176">          SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L177">              .dn(getProperties().getBaseDn())</span>
+<span class="fc" id="L178">              .filter(filter)</span>
+<span class="fc" id="L179">              .scope(SearchScope.SUBTREE)</span>
+<span class="fc" id="L180">              .binaryAttributes(getBinaryAttributes())</span>
+<span class="fc" id="L181">              .returnAttributes(getReturnAttributes())</span>
+<span class="fc" id="L182">              .build();</span>
+<span class="fc" id="L183">          return getLdapOperations()</span>
+<span class="fc" id="L184">              .findOne(searchRequest, domainGroupLdapMapper)</span>
+<span class="fc" id="L185">              .filter(getIgnoredObjectFilter());</span>
+        });
+  }
+
+  /**
+   * Exists by gid number boolean.
+   *
+   * @param gidNumber the gid number
+   * @return the boolean
+   */
+  boolean existsByGidNumber(Integer gidNumber) {
+<span class="fc" id="L196">    log.debug(&quot;existsByGidNumber({})&quot;, gidNumber);</span>
+<span class="fc" id="L197">    return Optional.ofNullable(gidNumber)</span>
+<span class="fc" id="L198">        .map(gid -&gt; {</span>
+<span class="fc" id="L199">          Filter filter = new AndFilter(</span>
+<span class="fc" id="L200">              objectClassFilter(),</span>
+<span class="fc" id="L201">              new EqualityFilter(AdConstants.GID_NUMBER.getName(), gid.toString()));</span>
+<span class="fc" id="L202">          SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L203">              .dn(getProperties().getBaseDn())</span>
+<span class="fc" id="L204">              .filter(filter)</span>
+<span class="fc" id="L205">              .scope(SearchScope.SUBTREE)</span>
+<span class="fc" id="L206">              .returnAttributes(AdConstants.GID_NUMBER.getName())</span>
+<span class="fc" id="L207">              .build();</span>
+<span class="fc" id="L208">          return getLdapOperations()</span>
+<span class="fc" id="L209">              .findOne(searchRequest)</span>
+<span class="fc" id="L210">              .filter(getIgnoredEntryFilter())</span>
+<span class="fc" id="L211">              .isPresent();</span>
+        })
+<span class="fc" id="L213">        .orElse(false);</span>
+  }
+
+  @Override
+  public DomainGroup add(DomainGroup domainGroup, Dn ou) {
+<span class="fc" id="L218">    DomainGroup group = domainGroup</span>
+<span class="fc" id="L219">        .withDistinguishedName(&quot;&quot;)</span>
+<span class="fc" id="L220">        .withCreated(null)</span>
+<span class="fc" id="L221">        .withModified(null)</span>
+<span class="fc" id="L222">        .withSid(null)</span>
+<span class="fc" id="L223">        .withCriticalSystemObject(false)</span>
+<span class="fc" id="L224">        .withMemberships(List.of())</span>
+<span class="fc" id="L225">        .withMembers(List.of());</span>
+<span class="fc" id="L226">    validateSamAccountName(group);</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">    if (samAccountExists(group)) {</span>
+<span class="fc" id="L228">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="fc" id="L229">          DomainGroup.class.getSimpleName(),</span>
+<span class="fc" id="L230">          group.getSamAccountName(),</span>
+          EC_SAM_ACCOUNT_ALREADY_EXISTS);
+    }
+<span class="fc bfc" id="L233" title="All 2 branches covered.">    if (existsByGidNumber(group.getGidNumber())) {</span>
+<span class="fc" id="L234">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="fc" id="L235">          DomainGroup.class.getSimpleName() + &quot;.gidNumber&quot;,</span>
+<span class="fc" id="L236">          group.getGidNumber(),</span>
+          EC_GID_NUMBER_ALREADY_EXISTS);
+    }
+<span class="fc" id="L239">    Dn dn = new Dn(new RDn(new NameValue(AdConstants.CN.getName(), group.getSamAccountName())));</span>
+<span class="fc" id="L240">    dn.add(validateParentDn(ou, this::getDefaultOu));</span>
+<span class="fc" id="L241">    String dnStr = DnTool.toString(dn);</span>
+<span class="fc" id="L242">    return getLdapOperations().save(group.withDistinguishedName(dnStr), domainGroupLdapMapper);</span>
+  }
+
+  @Override
+  public DomainGroup update(String name, DomainGroup domainGroup, Dn newOu) {
+<span class="fc" id="L247">    log.debug(&quot;update({}, {}, {})&quot;, name, domainGroup.getSamAccountName(), newOu);</span>
+<span class="fc" id="L248">    validateSamAccountName(domainGroup);</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">    if (!name.equalsIgnoreCase(domainGroup.getSamAccountName())</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        &amp;&amp; samAccountNameExists(domainGroup.getSamAccountName())) {</span>
+<span class="nc" id="L251">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L252">          DomainGroup.class.getSimpleName(),</span>
+<span class="nc" id="L253">          domainGroup.getSamAccountName(),</span>
+          EC_SAM_ACCOUNT_ALREADY_EXISTS);
+    }
+<span class="fc" id="L256">    DomainGroup existingGroup = findOne(name, null, null)</span>
+<span class="pc" id="L257">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L258">            DomainGroup.class.getSimpleName(),</span>
+<span class="nc" id="L259">            domainGroup.getSamAccountName(),</span>
+            EC_SAM_ACCOUNT_NOT_FOUND));
+<span class="fc" id="L261">    DomainGroup group = domainGroup</span>
+<span class="fc" id="L262">        .withDistinguishedName(existingGroup.getDistinguishedName())</span>
+<span class="fc" id="L263">        .withCreated(existingGroup.getCreated())</span>
+<span class="fc" id="L264">        .withModified(OffsetDateTime.now(ZoneOffset.UTC))</span>
+<span class="fc" id="L265">        .withSid(existingGroup.getSid())</span>
+<span class="fc" id="L266">        .withCriticalSystemObject(existingGroup.isCriticalSystemObject())</span>
+<span class="fc" id="L267">        .withGroupType(existingGroup.getGroupType())</span>
+<span class="fc" id="L268">        .withMemberships(existingGroup.getMemberships())</span>
+<span class="fc" id="L269">        .withMembers(existingGroup.getMembers());</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">    if (!isEmpty(group.getGidNumber())</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">        &amp;&amp; !Objects.equals(group.getGidNumber(), existingGroup.getGidNumber())</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">        &amp;&amp; existsByGidNumber(group.getGidNumber())) {</span>
+<span class="nc" id="L273">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L274">          DomainGroup.class.getSimpleName() + &quot;.gidNumber&quot;,</span>
+<span class="nc" id="L275">          group.getGidNumber(),</span>
+          EC_GID_NUMBER_ALREADY_EXISTS);
+    }
+<span class="fc" id="L278">    Dn oldDn = existingGroup.getDn();</span>
+<span class="fc" id="L279">    Dn newDn = new Dn(new RDn(new NameValue(</span>
+<span class="fc" id="L280">        oldDn.getRDn().getNameValue().getName(),</span>
+<span class="fc" id="L281">        group.getSamAccountName())));</span>
+<span class="fc" id="L282">    newDn.add(validateParentDn(newOu, oldDn::getParent));</span>
+<span class="pc bpc" id="L283" title="2 of 4 branches missed.">    if (!newDn.isSame(oldDn) &amp;&amp; dnExistsWithAnyObjectClass(newDn.format())) {</span>
+<span class="nc" id="L284">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L285">          DomainGroup.class.getSimpleName(),</span>
+<span class="nc" id="L286">          getDnTool().removeBaseDn(newDn),</span>
+          EC_DN_ALREADY_EXISTS);
+    }
+<span class="fc" id="L289">    moveAndRename(oldDn, newDn);</span>
+<span class="fc" id="L290">    String newDnStr = DnTool.toString(newDn);</span>
+<span class="fc" id="L291">    return getLdapOperations().save(group.withDistinguishedName(newDnStr), domainGroupLdapMapper);</span>
+  }
+
+  @Override
+  public boolean delete(String name) {
+<span class="fc" id="L296">    log.debug(&quot;delete({})&quot;, name);</span>
+<span class="fc" id="L297">    return findOne(name, null, null)</span>
+<span class="fc" id="L298">        .map(group -&gt; {</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">          if (group.isCriticalSystemObject()) {</span>
+<span class="nc" id="L300">            throw ServiceException.badRequest(</span>
+<span class="nc" id="L301">                String.format(</span>
+                    &quot;'%s' is a system group. Deletion failed.&quot;,
+<span class="nc" id="L303">                    group.getSamAccountName()),</span>
+                EC_ILLEGAL_SYSTEM_ENTITY_OPERATION);
+          }
+<span class="fc" id="L306">          getLdapOperations().delete(DeleteRequest.builder()</span>
+<span class="fc" id="L307">              .dn(group.getDistinguishedName())</span>
+<span class="fc" id="L308">              .build());</span>
+<span class="fc" id="L309">          return true;</span>
+        })
+<span class="fc" id="L311">        .orElse(false);</span>
+  }
+
+  @Override
+  public DomainGroup save(DomainGroup group) {
+<span class="fc" id="L316">    return getLdapOperations().save(group, domainGroupLdapMapper);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

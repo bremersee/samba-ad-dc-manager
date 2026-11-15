@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnitEditController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">OrganizationalUnitEditController.java</span></div><h1>OrganizationalUnitEditController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.OrganizationalUnitEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The organizational unit edit controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class OrganizationalUnitEditController extends UiController
+    implements PageableComponent, RedirectComponent {
+
+  private static final String NEW_NAME = &quot;newName&quot;;
+
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new organizational unit edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public OrganizationalUnitEditController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L76">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L77">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L78">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L82">    return OU_SORT;</span>
+  }
+
+  /**
+   * Add organizational units.
+   *
+   * @param ouDn the ou dn
+   * @return the list
+   */
+  @ModelAttribute(&quot;ous&quot;)
+  public List&lt;OrganizationalUnit&gt; addOrganizationalUnits(
+      @RequestParam(value = &quot;name&quot;, required = false) Dn ouDn) {
+<span class="nc" id="L94">    Stream&lt;OrganizationalUnit&gt; baseStream = Stream.of(organizationalUnitService.getBase());</span>
+<span class="nc" id="L95">    Stream&lt;OrganizationalUnit&gt; otherParentsStream = organizationalUnitService</span>
+<span class="nc" id="L96">        .getOrganizationalUnits()</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        .filter(ou -&gt; !ou.isSystemOu())</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        .filter(ou -&gt; !DnTool.isSameDn(ou.getDn(), ouDn));</span>
+<span class="nc" id="L99">    return Stream.concat(baseStream, otherParentsStream).toList();</span>
+  }
+
+  /**
+   * Display organizational unit edit view.
+   *
+   * @param ouDn the ou dn
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/organizational-unit-edit&quot;)
+  public String displayOrganizationalUnitEdit(
+      @RequestParam(value = &quot;name&quot;, required = false) Dn ouDn,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L116">    getLogger().debug(&quot;displayOrganizationalUnitEdit({})&quot;, ouDn);</span>
+<span class="nc" id="L117">    String name = Optional.ofNullable(ouDn)</span>
+<span class="nc" id="L118">        .map(Dn::getRDn)</span>
+<span class="nc" id="L119">        .map(RDn::getNameValue)</span>
+<span class="nc" id="L120">        .map(NameValue::getStringValue)</span>
+<span class="nc" id="L121">        .orElse(&quot;null&quot;);</span>
+
+<span class="nc" id="L123">    return Optional.ofNullable(ouDn)</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        .filter(dn -&gt; !dn.isEmpty())</span>
+<span class="nc" id="L125">        .flatMap(organizationalUnitService::getOrganizationalUnit)</span>
+<span class="nc" id="L126">        .map(ou -&gt; {</span>
+<span class="nc" id="L127">          model.addAttribute(&quot;organizationalUnit&quot;, ou);</span>
+<span class="nc" id="L128">          OrganizationalUnitEditModel editModel = OrganizationalUnitEditModelMapper.INSTANCE</span>
+<span class="nc" id="L129">              .map(ou);</span>
+<span class="nc" id="L130">          model.put(&quot;editModel&quot;, editModel);</span>
+<span class="nc" id="L131">          return &quot;management/organizational-unit-edit&quot;;</span>
+        })
+<span class="nc" id="L133">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes, &quot;Organizational Unit&quot;, &quot;organizational-unit.not-found&quot;, name,
+            PAGE_AND_OU_PARAMS, &quot;organizational-units&quot;));
+  }
+
+  /**
+   * Update organizational unit.
+   *
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/organizational-unit-edit&quot;)
+  public String updateOrganizationalUnit(
+      @ModelAttribute(name = &quot;editModel&quot;) OrganizationalUnitEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L154">    getLogger().debug(&quot;editOrganizationalUnit({})&quot;, editModel);</span>
+
+<span class="nc" id="L156">    String name = Optional.ofNullable(editModel.getOu())</span>
+<span class="nc" id="L157">        .map(Dn::new)</span>
+<span class="nc" id="L158">        .map(Dn::getRDn)</span>
+<span class="nc" id="L159">        .map(RDn::getNameValue)</span>
+<span class="nc" id="L160">        .map(NameValue::getStringValue)</span>
+<span class="nc" id="L161">        .orElse(&quot;null&quot;);</span>
+
+<span class="nc" id="L163">    return Optional.ofNullable(editModel.getOu())</span>
+<span class="nc" id="L164">        .map(Dn::new)</span>
+<span class="nc" id="L165">        .flatMap(organizationalUnitService::getOrganizationalUnit)</span>
+<span class="nc" id="L166">        .map(ou -&gt; updateOrganizationalUnit(</span>
+            ou, editModel, model, bindingResult, redirectAttributes))
+<span class="nc" id="L168">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes, &quot;Organizational Unit&quot;, &quot;organizational-unit.not-found&quot;, name,
+            PAGE_AND_OU_PARAMS, &quot;organizational-units&quot;));
+  }
+
+  private String updateOrganizationalUnit(
+      OrganizationalUnit ou,
+      OrganizationalUnitEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L180">    OrganizationalUnit newOu = OrganizationalUnitEditModelMapper.INSTANCE.merge(editModel, ou);</span>
+    OrganizationalUnit updatedOu;
+    try {
+<span class="nc" id="L183">      updatedOu = organizationalUnitService.update(newOu, editModel.getParentOuDn());</span>
+
+<span class="nc" id="L185">    } catch (ServiceException e) {</span>
+<span class="nc" id="L186">      handleException(bindingResult, e);</span>
+<span class="nc" id="L187">      getLogger().debug(&quot;Updating organizational unit failed. Some fields were invalid.&quot;);</span>
+<span class="nc" id="L188">      return &quot;management/organizational-unit-edit&quot;;</span>
+<span class="nc" id="L189">    }</span>
+
+<span class="nc" id="L191">    model.clear();</span>
+<span class="nc" id="L192">    String newName = updatedOu.getName();</span>
+<span class="nc" id="L193">    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,</span>
+<span class="nc" id="L194">        String.format(&quot;Organizational unit '%s' was successfully updated.&quot;, newName),</span>
+        &quot;organization-unit-edit.success&quot;, newName);
+<span class="nc" id="L196">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L198">    Map&lt;String, Object&gt; parameters = getParameterMap();</span>
+<span class="nc" id="L199">    String redirect = getRedirectUri(</span>
+        &quot;organizational-unit-edit?name={{name}}&quot;,
+        PAGE_AND_OU_PARAMS,
+<span class="nc" id="L202">        putToParameterMap(parameters, &quot;name&quot;, updatedOu.getDistinguishedName()));</span>
+<span class="nc" id="L203">    logRedirectTo(&quot;Organizational unit successfully added.&quot;, redirect);</span>
+<span class="nc" id="L204">    return redirect;</span>
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L209">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L210">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L211">    Assert.isTrue(bindTarget instanceof OrganizationalUnitEditModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L212">    String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L213" title="All 5 branches missed.">    switch (errorCode) {</span>
+      case EC_OU_NAME_REQUIRED: {
+<span class="nc" id="L215">        bindingResult.rejectValue(NEW_NAME, &quot;ec.ou-name.required&quot;,</span>
+            &quot;Name of organizational unit is required.&quot;);
+<span class="nc" id="L217">        break;</span>
+      }
+      case EC_ILLEGAL_OU_NAME: {
+<span class="nc" id="L220">        bindingResult.rejectValue(NEW_NAME, &quot;ec.ou-name.illegal&quot;,</span>
+            &quot;Name of organizational unit contains illegal characters.&quot;);
+<span class="nc" id="L222">        break;</span>
+      }
+      case EC_OU_ALREADY_EXISTS: {
+<span class="nc" id="L225">        bindingResult.rejectValue(NEW_NAME, &quot;ec.ou.already-exists&quot;,</span>
+            &quot;Organizational unit already exists.&quot;);
+<span class="nc" id="L227">        bindingResult.rejectValue(&quot;parentOu&quot;, &quot;ec.ou.already-exists&quot;,</span>
+            &quot;Organizational unit already exists.&quot;);
+<span class="nc" id="L229">        break;</span>
+      }
+      case EC_ILLEGAL_SYSTEM_ENTITY_OPERATION: {
+<span class="nc" id="L232">        bindingResult.rejectValue(NEW_NAME, &quot;organization-unit-edit.illegal-operation&quot;,</span>
+            &quot;Organizational unit is a critical system object. Moving and renaming is not permitted.&quot;);
+<span class="nc" id="L234">        bindingResult.rejectValue(&quot;parentOu&quot;, &quot;organization-unit-edit.illegal-operation&quot;,</span>
+            &quot;Organizational unit is a critical system object. Moving and renaming is not permitted.&quot;);
+<span class="nc" id="L236">        break;</span>
+      }
+      default: {
+<span class="nc" id="L239">        getLogger().error(&quot;Adding group failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L240">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L243">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

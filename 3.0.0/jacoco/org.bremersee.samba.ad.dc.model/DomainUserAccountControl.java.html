@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainUserAccountControl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">DomainUserAccountControl.java</span></div><h1>DomainUserAccountControl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
+import java.util.Optional;
+import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The domain user account control.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;Domain user's account control.&quot;)
+@Value.Style(
+    visibility = ImplementationVisibility.PUBLIC,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableDomainUserAccountControl.class)
+@JsonDeserialize(as = ImmutableDomainUserAccountControl.class)
+public interface DomainUserAccountControl extends Serializable {
+
+  /**
+   * Is normal account boolean.
+   *
+   * @return the boolean
+   */
+  @Schema(
+      description = &quot;Specifies whether the account of the domain user is a normal one or not.&quot;,
+      defaultValue = &quot;true&quot;)
+  @JsonProperty(value = &quot;normalAccount&quot;, defaultValue = &quot;true&quot;)
+  @Value.Default
+  default boolean isNormalAccount() {
+<span class="fc" id="L62">    return true;</span>
+  }
+
+  /**
+   * Is enabled boolean.
+   *
+   * @return the boolean
+   */
+  @Schema(
+      description = &quot;Specifies whether the domain user is enabled or not.&quot;,
+      defaultValue = &quot;true&quot;)
+  @JsonProperty(value = &quot;enabled&quot;, defaultValue = &quot;true&quot;)
+  @Value.Default
+  default boolean isEnabled() {
+<span class="fc" id="L76">    return true;</span>
+  }
+
+  /**
+   * Is password expiration enabled boolean.
+   *
+   * @return the boolean
+   */
+  @Schema(
+      description = &quot;Specifies whether the password expiration is enabled or not.&quot;,
+      defaultValue = &quot;false&quot;)
+  @JsonProperty(value = &quot;passwordExpirationEnabled&quot;, defaultValue = &quot;false&quot;)
+  @Value.Default
+  default boolean isPasswordExpirationEnabled() {
+<span class="fc" id="L90">    return false;</span>
+  }
+
+  /**
+   * Gets user account control.
+   *
+   * @return the user account control
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default UserAccountControl getUserAccountControl() {
+<span class="fc" id="L102">    UserAccountControl userAccountControl = new UserAccountControl();</span>
+<span class="fc" id="L103">    userAccountControl.setNormalAccount(isNormalAccount());</span>
+<span class="fc" id="L104">    userAccountControl.setEnabled(isEnabled());</span>
+<span class="fc" id="L105">    userAccountControl.setPasswordExpirationEnabled(isPasswordExpirationEnabled());</span>
+<span class="fc" id="L106">    return userAccountControl;</span>
+  }
+
+  /**
+   * Default account control domain user account control.
+   *
+   * @return the domain user account control
+   */
+  static DomainUserAccountControl defaultAccountControl() {
+<span class="fc" id="L115">    return builder().build();</span>
+  }
+
+  /**
+   * From domain user account control.
+   *
+   * @param userAccountControl the user account control
+   * @return the domain user account control
+   */
+  static DomainUserAccountControl from(UserAccountControl userAccountControl) {
+<span class="fc" id="L125">    return Optional.ofNullable(userAccountControl)</span>
+<span class="fc" id="L126">        .map(accountControl -&gt; builder()</span>
+<span class="fc" id="L127">            .normalAccount(accountControl.isNormalAccount())</span>
+<span class="fc" id="L128">            .enabled(accountControl.isEnabled())</span>
+<span class="fc" id="L129">            .passwordExpirationEnabled(accountControl.isPasswordExpirationEnabled())</span>
+<span class="fc" id="L130">            .build())</span>
+<span class="fc" id="L131">        .orElseGet(DomainUserAccountControl::defaultAccountControl);</span>
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static ImmutableDomainUserAccountControl.Builder builder() {
+<span class="fc" id="L140">    return ImmutableDomainUserAccountControl.builder();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

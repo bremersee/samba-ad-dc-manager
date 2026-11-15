@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AesCryptoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.service</a> &gt; <span class="el_source">AesCryptoService.java</span></div><h1>AesCryptoService.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.nio.charset.StandardCharsets;
+import org.bremersee.samba.ad.dc.model.AesEncValue;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.encrypt.AesCbcBytesEncryptor;
+import org.springframework.security.crypto.keygen.KeyGenerators;
+import tools.jackson.databind.json.JsonMapper;
+
+/**
+ * The type Aes crypto service.
+ *
+ * @param &lt;S&gt; the type parameter
+ */
+public abstract class AesCryptoService&lt;S&gt; implements CryptoService&lt;S, AesEncValue&gt; {
+
+  private final String secret;
+
+  private final JsonMapper jsonMapper;
+
+  /**
+   * Instantiates a new Aes crypto service.
+   *
+   * @param secret the secret
+   */
+  protected AesCryptoService(String secret) {
+<span class="nc" id="L45">    this(secret, null);</span>
+<span class="nc" id="L46">  }</span>
+
+  /**
+   * Instantiates a new aes crypto service.
+   *
+   * @param secret the secret
+   * @param jsonMapperBuilder the json mapper builder
+   */
+<span class="nc" id="L54">  protected AesCryptoService(String secret, JsonMapper.Builder jsonMapperBuilder) {</span>
+<span class="nc" id="L55">    this.secret = secret;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    this.jsonMapper = isEmpty(jsonMapperBuilder) ? createJsonMapper() : jsonMapperBuilder.build();</span>
+<span class="nc" id="L57">  }</span>
+
+  private static JsonMapper createJsonMapper() {
+<span class="nc" id="L60">    return JsonMapper.builder().build();</span>
+  }
+
+  @Override
+  public AesEncValue encrypt(S source) {
+<span class="nc" id="L65">    String json = toJson(source);</span>
+<span class="nc" id="L66">    String salt = newSalt();</span>
+<span class="nc" id="L67">    byte[] encryptedBytes = AesCbcBytesEncryptor</span>
+<span class="nc" id="L68">        .withPassword(secret, salt)</span>
+<span class="nc" id="L69">        .build()</span>
+<span class="nc" id="L70">        .encrypt(json.getBytes(StandardCharsets.UTF_8));</span>
+<span class="nc" id="L71">    String encValue = new String(Hex.encode(encryptedBytes));</span>
+<span class="nc" id="L72">    return new AesEncValue(encValue, salt);</span>
+  }
+
+  @Override
+  public S decrypt(AesEncValue encryptedValue) {
+<span class="nc" id="L77">    String salt = encryptedValue.salt();</span>
+<span class="nc" id="L78">    byte[] encryptedBytes = encryptedValue.encryptedValue().getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L79">    byte[] decryptedBytes = AesCbcBytesEncryptor</span>
+<span class="nc" id="L80">        .withPassword(secret, salt)</span>
+<span class="nc" id="L81">        .build()</span>
+<span class="nc" id="L82">        .decrypt(encryptedBytes);</span>
+<span class="nc" id="L83">    String hex = new String(decryptedBytes, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L84">    byte[] json = Hex.decode(hex);</span>
+<span class="nc" id="L85">    return fromJson(json);</span>
+  }
+
+  private String newSalt() {
+<span class="nc" id="L89">    return KeyGenerators.string().generateKey();</span>
+  }
+
+  private String toJson(S source) {
+<span class="nc" id="L93">    return jsonMapper.writeValueAsString(source);</span>
+  }
+
+  private S fromJson(byte[] json) {
+<span class="nc" id="L97">    return jsonMapper.readValue(json, getSourceClass());</span>
+  }
+
+  /**
+   * Gets source class.
+   *
+   * @return the source class
+   */
+  protected abstract Class&lt;S&gt; getSourceClass();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

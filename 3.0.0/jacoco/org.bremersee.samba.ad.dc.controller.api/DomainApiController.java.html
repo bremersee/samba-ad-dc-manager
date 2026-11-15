@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainApiController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.api</a> &gt; <span class="el_source">DomainApiController.java</span></div><h1>DomainApiController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.api;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.bremersee.exception.model.RestApiException;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * The domain api controller.
+ */
+@Profile(&quot;api&quot;)
+@RestController
+@RequestMapping(path = &quot;/api/domain&quot;)
+@Tag(name = &quot;ad-domain-manager&quot;, description = &quot;RESTful api for domain.&quot;)
+@Validated
+public class DomainApiController {
+
+  private final DomainService domainService;
+
+  /**
+   * Instantiates a new domain api controller.
+   *
+   * @param domainService the domain service
+   */
+<span class="nc" id="L54">  public DomainApiController(DomainService domainService) {</span>
+<span class="nc" id="L55">    this.domainService = domainService;</span>
+<span class="nc" id="L56">  }</span>
+
+  /**
+   * Gets password information.
+   *
+   * @return the password information
+   */
+  @Operation(
+      description = &quot;Get password information.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;),
+          @SecurityRequirement(name = &quot;basic-auth&quot;)
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = &quot;/password-information&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;PasswordInformation&gt; getPasswordInformation() {
+<span class="nc" id="L89">    return ResponseEntity.ok(domainService.getPasswordInformation());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

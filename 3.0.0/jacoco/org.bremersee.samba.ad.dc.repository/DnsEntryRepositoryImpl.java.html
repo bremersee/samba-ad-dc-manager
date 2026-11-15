@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsEntryRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">DnsEntryRepositoryImpl.java</span></div><h1>DnsEntryRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.repository.mapper.AdEntryLdapMapper;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.dn.Dn;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The dns entry repository implementation.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;dnsEntryRepository&quot;)
+@Validated
+<span class="fc" id="L45">@Slf4j</span>
+public class DnsEntryRepositoryImpl extends AdRepository implements DnsEntryRepository {
+
+  private final AdEntryLdapMapper adEntryMapper;
+
+  private final DomainRepository domainRepository;
+
+  private final DnsZoneRepository dnsZoneRepository;
+
+  private final SambaToolDns dnsTool;
+
+  /**
+   * Instantiates a new dns entry repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param domainRepository the domain repository
+   * @param dnsZoneRepository the dns zone repository
+   * @param dnsTool the dns tool
+   */
+  public DnsEntryRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      DomainRepository domainRepository,
+      DnsZoneRepository dnsZoneRepository,
+      SambaToolDns dnsTool) {
+<span class="fc" id="L71">    super(properties, ldapOperations);</span>
+<span class="fc" id="L72">    this.domainRepository = domainRepository;</span>
+<span class="fc" id="L73">    this.dnsZoneRepository = dnsZoneRepository;</span>
+<span class="fc" id="L74">    this.dnsTool = dnsTool;</span>
+<span class="fc" id="L75">    this.adEntryMapper = new AdEntryLdapMapper();</span>
+<span class="fc" id="L76">  }</span>
+
+  @Cacheable(value = &quot;dnsEntryListCache&quot;, key = &quot;{ #p0 }&quot;)
+  @Override
+  public List&lt;DnsEntry&gt; getDnsEntries(String zoneName) {
+<span class="fc" id="L81">    log.debug(&quot;findDnsEntries({})&quot;, zoneName);</span>
+<span class="fc" id="L82">    validateExistence(zoneName);</span>
+<span class="fc" id="L83">    return dnsTool.getDnsEntries(getHostName(), zoneName);</span>
+  }
+
+  @Override
+  public DnsEntry addCommonAttributes(DnsEntry entry) {
+<span class="fc" id="L88">    Dn dn = new Dn(&quot;DC=&quot; + entry.getName());</span>
+<span class="fc" id="L89">    dn.add(dnsZoneRepository.getDnsZone(entry.getZoneName()).getDn());</span>
+<span class="fc" id="L90">    String[] returnAttributes = adEntryMapper.getMappedAttributeNames();</span>
+<span class="fc" id="L91">    SearchRequest searchRequest = SearchRequest</span>
+<span class="fc" id="L92">        .objectScopeSearchRequest(dn.format(), returnAttributes);</span>
+<span class="fc" id="L93">    return getLdapOperations().findOne(searchRequest)</span>
+<span class="fc" id="L94">        .map(ldapEntry -&gt; DnsEntry.builder()</span>
+<span class="fc" id="L95">            .from(entry)</span>
+<span class="fc" id="L96">            .from(adEntryMapper.map(ldapEntry))</span>
+<span class="fc" id="L97">            .build())</span>
+<span class="fc" id="L98">        .orElse(entry);</span>
+  }
+
+  @CacheEvict(value = &quot;dnsEntryListCache&quot;, allEntries = true)
+  @Override
+  public void addDnsEntry(DnsEntry entry) {
+<span class="fc" id="L104">    log.debug(&quot;addDnsEntry({})&quot;, entry);</span>
+<span class="fc" id="L105">    validateDnsZoneName(entry);</span>
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">    if (isEmpty(entry.getType()) || !entry.getType().isAddable()) {</span>
+<span class="fc" id="L107">      throw getDnsTypeNotSupportedException(entry);</span>
+    }
+<span class="fc" id="L109">    dnsTool.addDnsEntry(getHostName(), entry);</span>
+<span class="fc" id="L110">  }</span>
+
+  @CacheEvict(value = &quot;dnsEntryListCache&quot;, allEntries = true)
+  @Override
+  public void updateDnsEntry(DnsEntry entry, String newValue) {
+<span class="fc" id="L115">    log.debug(&quot;updateDnsEntry {}, {}&quot;, entry, newValue);</span>
+<span class="fc" id="L116">    validateDnsZoneName(entry);</span>
+<span class="pc bpc" id="L117" title="1 of 4 branches missed.">    if (isEmpty(entry.getType()) || !entry.getType().isUpdatable()) {</span>
+<span class="fc" id="L118">      throw getDnsTypeNotSupportedException(entry);</span>
+    }
+<span class="fc" id="L120">    dnsTool.updateDnsEntry(getHostName(), entry, newValue);</span>
+<span class="fc" id="L121">  }</span>
+
+  @CacheEvict(value = &quot;dnsEntryListCache&quot;, allEntries = true)
+  @Override
+  public void deleteDnsEntry(DnsEntry entry) {
+<span class="fc" id="L126">    validateDnsZoneName(entry);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">    if (entry.isConflict()) {</span>
+<span class="fc" id="L128">      deleteDnsEntryConflict(entry);</span>
+<span class="fc" id="L129">      return;</span>
+    }
+<span class="fc" id="L131">    log.debug(&quot;deleteDnsEntry({})&quot;, entry);</span>
+<span class="pc bpc" id="L132" title="1 of 4 branches missed.">    if (isEmpty(entry.getType()) || !entry.getType().isAddable()) {</span>
+<span class="fc" id="L133">      throw getDnsTypeNotSupportedException(entry);</span>
+    }
+<span class="fc" id="L135">    dnsTool.deleteDnsEntry(getHostName(), entry);</span>
+<span class="fc" id="L136">  }</span>
+
+  private void deleteDnsEntryConflict(DnsEntry entry) {
+<span class="fc" id="L139">    log.debug(&quot;deleteDnsEntryConflict({})&quot;, entry);</span>
+<span class="fc" id="L140">    Dn dn = new Dn(&quot;DC=&quot; + entry.getName());</span>
+<span class="fc" id="L141">    dn.add(dnsZoneRepository.getDnsZone(entry.getZoneName()).getDn());</span>
+<span class="fc" id="L142">    getLdapOperations().delete(DeleteRequest.builder()</span>
+<span class="fc" id="L143">        .dn(dn.format())</span>
+<span class="fc" id="L144">        .build());</span>
+<span class="fc" id="L145">  }</span>
+
+  private String getHostName() {
+<span class="fc" id="L148">    return domainRepository.getHostName();</span>
+  }
+
+  private void validateDnsZoneName(DnsEntry dnsEntry) {
+<span class="fc bfc" id="L152" title="All 2 branches covered.">    if (isEmpty(dnsEntry.getZoneName())) {</span>
+<span class="fc" id="L153">      throw ServiceException</span>
+<span class="fc" id="L154">          .badRequest(&quot;DNS zone name is required.&quot;, ErrorCode.EC_DNS_ZONE_REQUIRED);</span>
+    }
+<span class="fc" id="L156">    validateExistence(dnsEntry.getZoneName());</span>
+<span class="fc" id="L157">  }</span>
+
+  private void validateExistence(String zoneName) {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">    if (dnsTool.findDnsZone(getHostName(), zoneName).isEmpty()) {</span>
+<span class="fc" id="L161">      throw ServiceException.notFoundWithErrorCode(</span>
+<span class="fc" id="L162">          DnsZone.class.getSimpleName(),</span>
+          zoneName,
+          ErrorCode.EC_DNS_ZONE_NOT_FOUND);
+    }
+<span class="fc" id="L166">  }</span>
+
+  private ServiceException getDnsTypeNotSupportedException(DnsEntry entry) {
+<span class="fc" id="L169">    return ServiceException.badRequest(</span>
+<span class="fc" id="L170">        String.format(&quot;Dns entry type '%s' is not supported.&quot;, entry.getType()),</span>
+        ErrorCode.EC_ILLEGAL_DNS_ENTRY_TYPE);
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

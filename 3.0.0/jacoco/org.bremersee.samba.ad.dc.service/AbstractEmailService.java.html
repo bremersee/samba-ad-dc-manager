@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractEmailService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.service</a> &gt; <span class="el_source">AbstractEmailService.java</span></div><h1>AbstractEmailService.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.Getter;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
+import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.spring.security.core.NormalizedPrincipal;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.MessageSource;
+import org.springframework.context.event.EventListener;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+/**
+ * The abstract email service.
+ *
+ * @author Christian Bremer
+ */
+@Getter(AccessLevel.PROTECTED)
+public abstract class AbstractEmailService {
+
+  private final ApplicationProperties properties;
+
+  private final MessageSource messageSource;
+
+  private final TemplateEngine templateEngine;
+
+  private final List&lt;TemplateEngineContextSupplier&gt; contextSuppliers;
+
+  private final JavaMailSender javaMailSender;
+
+  /**
+   * Instantiates a new abstract email service.
+   *
+   * @param properties the properties
+   * @param messageSource the message source
+   * @param templateEngine the template engine
+   * @param contextSuppliers the context suppliers
+   * @param javaMailSender the java mail sender
+   */
+  protected AbstractEmailService(ApplicationProperties properties, MessageSource messageSource,
+      TemplateEngine templateEngine, List&lt;TemplateEngineContextSupplier&gt; contextSuppliers,
+<span class="nc" id="L70">      JavaMailSender javaMailSender) {</span>
+<span class="nc" id="L71">    this.properties = properties;</span>
+<span class="nc" id="L72">    this.messageSource = messageSource;</span>
+<span class="nc" id="L73">    this.templateEngine = templateEngine;</span>
+<span class="nc" id="L74">    this.contextSuppliers = contextSuppliers;</span>
+<span class="nc" id="L75">    this.javaMailSender = javaMailSender;</span>
+<span class="nc" id="L76">  }</span>
+
+  /**
+   * Init.
+   */
+  @EventListener(ApplicationReadyEvent.class)
+  public void init() {
+<span class="nc" id="L83">    String sender = getProperties().getEmail().getSender();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">    if (isEmpty(sender)) {</span>
+<span class="nc" id="L85">      throw new IllegalStateException(&quot;Email sender is not configured.&quot;);</span>
+    }
+<span class="nc" id="L87">    Pattern emailPattern = getProperties().getEmail().getEmailRegexFlags()</span>
+<span class="nc" id="L88">        .compile(getProperties().getEmail().getEmailRegex());</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (!emailPattern.matcher(sender).matches()) {</span>
+<span class="nc" id="L90">      throw new IllegalStateException(&quot;Email sender is not a valid email address.&quot;);</span>
+    }
+<span class="nc" id="L92">  }</span>
+
+  /**
+   * Create context.
+   *
+   * @param user the user
+   * @param baseUri the base uri
+   * @return the context
+   */
+  protected Context createContext(DomainUser user, String baseUri) {
+<span class="nc" id="L102">    Context ctx = new Context(user.getLocale());</span>
+<span class="nc" id="L103">    contextSuppliers.forEach(contextSupplier -&gt; contextSupplier</span>
+<span class="nc" id="L104">        .getTemplateEngineContext().forEach(ctx::setVariable));</span>
+<span class="nc" id="L105">    ctx.setVariable(&quot;user&quot;, user);</span>
+<span class="nc" id="L106">    ctx.setVariable(&quot;properties&quot;, properties);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">    ctx.setVariable(&quot;baseUri&quot;, isEmpty(baseUri) ? &quot;&quot; : baseUri);</span>
+    // only for invitation
+<span class="nc" id="L109">    ctx.setVariable(&quot;regards&quot;, getEmailRegards());</span>
+<span class="nc" id="L110">    ctx.setVariable(&quot;defaultLoginPage&quot;, getDefaultLoginPage(baseUri));</span>
+<span class="nc" id="L111">    return ctx;</span>
+  }
+
+  /**
+   * Gets default login page.
+   *
+   * @param baseUri the base uri
+   * @return the default login page
+   */
+  protected DefaultLoginPage getDefaultLoginPage(String baseUri) {
+<span class="nc" id="L121">    DefaultLoginPage loginPage = getProperties().getUser().getDefaultLoginPage();</span>
+<span class="nc bnc" id="L122" title="All 4 branches missed.">    if (!isEmpty(loginPage.getUrl()) &amp;&amp; !&quot;#&quot;.equals(loginPage.getUrl())) {</span>
+<span class="nc" id="L123">      return loginPage;</span>
+    }
+<span class="nc" id="L125">    DefaultLoginPage fallback = new DefaultLoginPage();</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">    fallback.setUrl(isEmpty(baseUri) ? &quot;#&quot; : baseUri + &quot;/login&quot;);</span>
+<span class="nc" id="L127">    fallback.setUsingNetbiosDomainPrefix(false);</span>
+<span class="nc" id="L128">    return fallback;</span>
+  }
+
+  /**
+   * Gets email regards.
+   *
+   * @return the email regards
+   */
+  protected String getEmailRegards() {
+<span class="nc" id="L137">    return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())</span>
+<span class="nc" id="L138">        .filter(Authentication::isAuthenticated)</span>
+<span class="nc" id="L139">        .map(Authentication::getPrincipal)</span>
+<span class="nc" id="L140">        .filter(Principal.class::isInstance)</span>
+<span class="nc" id="L141">        .map(Principal.class::cast)</span>
+<span class="nc" id="L142">        .map(this::getEmailRegards)</span>
+<span class="nc" id="L143">        .orElse(&quot;Your domain administrator&quot;);</span>
+  }
+
+  private String getEmailRegards(Principal principal) {
+<span class="nc" id="L147">    StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">    if (principal instanceof NormalizedPrincipal normalizedPrincipal) {</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">      if (!isEmpty(normalizedPrincipal.getFirstName())) {</span>
+<span class="nc" id="L150">        sb.append(normalizedPrincipal.getFirstName());</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (!isEmpty(normalizedPrincipal.getLastName())) {</span>
+<span class="nc" id="L152">          sb.append(&quot; &quot;);</span>
+        }
+      }
+<span class="nc bnc" id="L155" title="All 2 branches missed.">      if (!isEmpty(normalizedPrincipal.getLastName())) {</span>
+<span class="nc" id="L156">        sb.append(normalizedPrincipal.getLastName());</span>
+      }
+    }
+<span class="nc bnc" id="L159" title="All 2 branches missed.">    if (!sb.isEmpty()) {</span>
+<span class="nc" id="L160">      return sb.toString();</span>
+    }
+<span class="nc" id="L162">    return principal.getName();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

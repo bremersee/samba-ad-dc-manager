@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Features.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">Features.java</span></div><h1>Features.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Default;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The information about features.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;Information about features.&quot;)
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;,
+    passAnnotations = {
+        Schema.class
+    })
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableFeatures.class)
+@JsonDeserialize(as = ImmutableFeatures.class)
+public interface Features extends Serializable {
+
+  /**
+   * Determines whether mail is enabled.
+   *
+   * @return the boolean
+   */
+  @Default
+  default boolean isMailEnabled() {
+<span class="nc" id="L56">    return false;</span>
+  }
+
+  /**
+   * Determines whether dhcp is enabled.
+   *
+   * @return the boolean
+   */
+  @Default
+  default boolean isDhcpEnabled() {
+<span class="nc" id="L66">    return false;</span>
+  }
+
+  /**
+   * Determines whether remember me is enabled.
+   *
+   * @return the boolean
+   */
+  @Default
+  default boolean isRememberMeEnabled() {
+<span class="nc" id="L76">    return false;</span>
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+<span class="nc" id="L85">    return new Builder();</span>
+  }
+
+  /**
+   * The immutable builder.
+   */
+  class Builder extends ImmutableFeatures.Builder {
+
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+<span class="nc" id="L97">      super();</span>
+<span class="nc" id="L98">    }</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
