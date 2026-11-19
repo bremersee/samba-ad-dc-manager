@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserEditController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">UserEditController.java</span></div><h1>UserEditController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.UserEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.UserEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The user edit controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class UserEditController extends UiController implements PageableComponent,
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
+
+  private static final String SAM_ACCOUNT_NAME = &quot;samAccountName&quot;;
+
+  private final DomainUserService domainUserService;
+
+  private final DomainGroupService domainGroupService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new user edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public UserEditController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainUserService domainUserService,
+      DomainGroupService domainGroupService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L93">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L94">    this.domainUserService = domainUserService;</span>
+<span class="nc" id="L95">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L96">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L97">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L101">    return USER_SORT;</span>
+  }
+
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
+  @ModelAttribute(&quot;rfc2307Enabled&quot;)
+  public boolean isRfc2307Enabled() {
+<span class="nc" id="L111">    return getDomainService().isRfc2307Enabled();</span>
+  }
+
+  /**
+   * Determines whether avatar exists or not.
+   *
+   * @param userName the username
+   * @return {@code true} if avatar, otherwise {@code false}
+   */
+  @ModelAttribute(&quot;avatarExists&quot;)
+  public boolean avatarExists(@RequestParam(value = &quot;user&quot;, required = false) String userName) {
+<span class="nc" id="L122">    return Optional.ofNullable(userName)</span>
+<span class="nc" id="L123">        .map(user -&gt; domainUserService.existsAvatarInActiveDirectory(user, null, null))</span>
+<span class="nc" id="L124">        .orElse(false);</span>
+  }
+
+  /**
+   * Display user edit view.
+   *
+   * @param userName the username
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/user-edit&quot;)
+  public String displayUserEdit(
+      @RequestParam(value = &quot;user&quot;, required = false) String userName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L145">    return Optional.ofNullable(userName)</span>
+<span class="nc" id="L146">        .flatMap(name -&gt; domainUserService.getUser(userName, ou, searchScope))</span>
+<span class="nc" id="L147">        .map(user -&gt; {</span>
+<span class="nc" id="L148">          model.addAttribute(&quot;user&quot;, user);</span>
+<span class="nc" id="L149">          List&lt;DomainGroup&gt; groups = domainGroupService.getMemberships(userName, ou, searchScope)</span>
+<span class="nc" id="L150">              .toList();</span>
+<span class="nc" id="L151">          model.addAttribute(&quot;groups&quot;, groups);</span>
+<span class="nc" id="L152">          UserEditModel editModel = UserEditModelMapper.INSTANCE.map(user);</span>
+<span class="nc" id="L153">          model.addAttribute(&quot;editModel&quot;, editModel);</span>
+<span class="nc" id="L154">          return &quot;management/user-edit&quot;;</span>
+        })
+<span class="nc" id="L156">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes, &quot;User&quot;, &quot;user.not-found&quot;, userName, PAGE_AND_OU_PARAMS, &quot;users&quot;));
+  }
+
+  /**
+   * Update user.
+   *
+   * @param oldSamAccountName the old sam account name
+   * @param previousSamAccountName the previous sam account name
+   * @param previousFirstName the previous first name
+   * @param previousLastName the previous last name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/user-edit&quot;)
+  public String updateUser(
+      @RequestParam(value = &quot;user&quot;, required = false) String oldSamAccountName,
+      @RequestParam(value = &quot;previousSamAccountName&quot;, required = false) String previousSamAccountName,
+      @RequestParam(value = &quot;previousFirstName&quot;, required = false) String previousFirstName,
+      @RequestParam(value = &quot;previousLastName&quot;, required = false) String previousLastName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      @ModelAttribute(name = &quot;editModel&quot;) UserEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L188">    getLogger().debug(&quot;updateUser({})&quot;, editModel);</span>
+
+<span class="nc bnc" id="L190" title="All 2 branches missed.">    if (editModel.isRenameNamesAutomatically()) {</span>
+<span class="nc" id="L191">      replaceNames(editModel, previousSamAccountName, editModel.getSamAccountName());</span>
+<span class="nc" id="L192">      replaceNames(editModel, previousFirstName, editModel.getFirstName());</span>
+<span class="nc" id="L193">      replaceNames(editModel, previousLastName, editModel.getLastName());</span>
+    }
+
+<span class="nc" id="L196">    return Optional.ofNullable(oldSamAccountName)</span>
+<span class="nc" id="L197">        .or(() -&gt; Optional.ofNullable(editModel.getSamAccountName()))</span>
+<span class="nc" id="L198">        .flatMap(oldName -&gt; domainUserService.getUser(oldName, ou, searchScope))</span>
+<span class="nc" id="L199">        .map(existingUser -&gt; updateUser(</span>
+            existingUser, editModel, model, bindingResult, redirectAttributes))
+<span class="nc" id="L201">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes, &quot;User&quot;, &quot;user.not-found&quot;, oldSamAccountName, PAGE_AND_OU_PARAMS,
+            &quot;users&quot;));
+  }
+
+  private String updateUser(
+      DomainUser existingUser,
+      UserEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L213">    String oldSamAccountName = existingUser.getSamAccountName();</span>
+<span class="nc" id="L214">    DomainUser newUser = UserEditModelMapper.INSTANCE.merge(editModel, existingUser);</span>
+    try {
+<span class="nc" id="L216">      Dn newOu = editModel.getNewOuDn()</span>
+<span class="nc" id="L217">          .map(ou -&gt; getDnTool().addBaseDn(ou))</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">          .filter(ou -&gt; !DnTool.isSameDn(ou, existingUser.getDn().getParent()))</span>
+<span class="nc" id="L219">          .orElse(null);</span>
+<span class="nc" id="L220">      DomainUser updatedUser = domainUserService.updateUser(oldSamAccountName, newUser, newOu);</span>
+<span class="nc" id="L221">      updateAvatar(bindingResult, editModel);</span>
+
+<span class="nc" id="L223">      model.clear();</span>
+<span class="nc" id="L224">      String defaultMsg = String</span>
+<span class="nc" id="L225">          .format(&quot;User '%s' was successfully updated.&quot;, updatedUser.getName());</span>
+<span class="nc" id="L226">      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,</span>
+<span class="nc" id="L227">          &quot;user-edit.success&quot;, updatedUser.getName());</span>
+<span class="nc" id="L228">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L230">      Map&lt;String, Object&gt; parameters = getParameterMap(updatedUser.getDn().getParent());</span>
+<span class="nc" id="L231">      String redirect = getRedirectUri(&quot;user-edit?user={{user.samAccountName}}&quot;,</span>
+<span class="nc" id="L232">          PAGE_AND_OU_PARAMS, putToParameterMap(parameters, &quot;user&quot;, updatedUser));</span>
+<span class="nc" id="L233">      logRedirectTo(&quot;User successfully updated.&quot;, redirect);</span>
+<span class="nc" id="L234">      return redirect;</span>
+
+<span class="nc" id="L236">    } catch (ServiceException e) {</span>
+<span class="nc" id="L237">      handleException(bindingResult, e);</span>
+<span class="nc" id="L238">      getLogger().debug(&quot;Updating user failed. Some fields were invalid.&quot;);</span>
+<span class="nc" id="L239">      String newSamAccountName = newUser.getSamAccountName();</span>
+<span class="nc" id="L240">      DomainUser partialUpdatedUser = domainUserService</span>
+<span class="nc" id="L241">          .getUser(oldSamAccountName, null, null)</span>
+<span class="nc" id="L242">          .or(() -&gt; domainUserService.getUser(newSamAccountName, null, null))</span>
+<span class="nc" id="L243">          .orElse(existingUser);</span>
+<span class="nc" id="L244">      model.addAttribute(&quot;user&quot;, partialUpdatedUser);</span>
+<span class="nc" id="L245">      boolean avatarExists = domainUserService</span>
+<span class="nc" id="L246">          .existsAvatarInActiveDirectory(</span>
+<span class="nc" id="L247">              partialUpdatedUser.getSamAccountName(),</span>
+<span class="nc" id="L248">              partialUpdatedUser.getDn().getParent(),</span>
+              TreeSearchScope.ONELEVEL);
+<span class="nc" id="L250">      model.addAttribute(&quot;avatarExists&quot;, avatarExists);</span>
+<span class="nc" id="L251">      List&lt;DomainGroup&gt; groups = domainGroupService</span>
+<span class="nc" id="L252">          .getMemberships(</span>
+<span class="nc" id="L253">              partialUpdatedUser.getSamAccountName(),</span>
+<span class="nc" id="L254">              partialUpdatedUser.getDn().getParent(),</span>
+              TreeSearchScope.ONELEVEL)
+<span class="nc" id="L256">          .toList();</span>
+<span class="nc" id="L257">      model.addAttribute(&quot;groups&quot;, groups);</span>
+<span class="nc" id="L258">      return &quot;management/user-edit&quot;;</span>
+    }
+  }
+
+  private void replaceNames(UserEditModel userEditRequest, String oldName, String newName) {
+<span class="nc bnc" id="L263" title="All 4 branches missed.">    if (isEmpty(userEditRequest) || isEmpty(oldName)) {</span>
+<span class="nc" id="L264">      return;</span>
+    }
+<span class="nc bnc" id="L266" title="All 2 branches missed.">    String replacement = isEmpty(newName) ? &quot;&quot; : newName;</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getDisplayName())) {</span>
+<span class="nc" id="L268">      userEditRequest.setDisplayName(</span>
+<span class="nc" id="L269">          userEditRequest.getDisplayName().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L271" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getGecos())) {</span>
+<span class="nc" id="L272">      userEditRequest.setGecos(userEditRequest.getGecos().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L274" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getHomeDirectory())) {</span>
+<span class="nc" id="L275">      userEditRequest.setHomeDirectory(</span>
+<span class="nc" id="L276">          userEditRequest.getHomeDirectory().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L278" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getProfilePath())) {</span>
+<span class="nc" id="L279">      userEditRequest.setProfilePath(</span>
+<span class="nc" id="L280">          userEditRequest.getProfilePath().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L282" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getScriptPath())) {</span>
+<span class="nc" id="L283">      userEditRequest.setScriptPath(</span>
+<span class="nc" id="L284">          userEditRequest.getScriptPath().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L286" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getUid())) {</span>
+<span class="nc" id="L287">      userEditRequest.setUid(userEditRequest.getUid().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L289" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getUnixHomeDirectory())) {</span>
+<span class="nc" id="L290">      userEditRequest.setUnixHomeDirectory(</span>
+<span class="nc" id="L291">          userEditRequest.getUnixHomeDirectory().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc bnc" id="L293" title="All 2 branches missed.">    if (!isEmpty(userEditRequest.getUserPrincipalName())) {</span>
+<span class="nc" id="L294">      userEditRequest.setUserPrincipalName(</span>
+<span class="nc" id="L295">          userEditRequest.getUserPrincipalName().replace(oldName, replacement).trim());</span>
+    }
+<span class="nc" id="L297">  }</span>
+
+  private void updateAvatar(BindingResult bindingResult, UserEditModel userEditRequest) {
+<span class="nc bnc" id="L300" title="All 2 branches missed.">    if (userEditRequest.isRemoveAvatar()) {</span>
+<span class="nc" id="L301">      domainUserService.removeUserAvatar(userEditRequest.getSamAccountName());</span>
+<span class="nc bnc" id="L302" title="All 4 branches missed.">    } else if (!isEmpty(userEditRequest.getAvatar()) &amp;&amp; !userEditRequest.getAvatar().isEmpty()) {</span>
+<span class="nc" id="L303">      MultipartFile file = userEditRequest.getAvatar();</span>
+<span class="nc" id="L304">      try (InputStream in = file.getInputStream()) {</span>
+<span class="nc" id="L305">        domainUserService.updateUserAvatar(userEditRequest.getSamAccountName(), in);</span>
+<span class="nc" id="L306">      } catch (IOException e) {</span>
+<span class="nc" id="L307">        getLogger().error(&quot;updateAvatar({})&quot;, userEditRequest, e);</span>
+<span class="nc" id="L308">        bindingResult.rejectValue(&quot;avatar&quot;, &quot;user-edit.avatar.failure&quot;, &quot;Uploading avatar failed.&quot;);</span>
+<span class="nc" id="L309">      }</span>
+    }
+<span class="nc" id="L311">  }</span>
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L315">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L316">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L317">    Assert.isTrue(bindTarget instanceof UserEditModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L318">    String errorCode = requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L319" title="All 13 branches missed.">    switch (errorCode) {</span>
+      case EC_SAM_ACCOUNT_NAME_REQUIRED: {
+<span class="nc" id="L321">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.required&quot;,</span>
+            &quot;Username is required.&quot;);
+<span class="nc" id="L323">        break;</span>
+      }
+      case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
+<span class="nc" id="L326">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.already-exists&quot;,</span>
+            &quot;Username already exists.&quot;);
+<span class="nc" id="L328">        break;</span>
+      }
+      case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
+<span class="nc" id="L331">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.illegal&quot;,</span>
+            &quot;Username contains illegal characters.&quot;);
+<span class="nc" id="L333">        break;</span>
+      }
+      case EC_EMAIL_INVALID: {
+<span class="nc" id="L336">        bindingResult.rejectValue(&quot;email&quot;, &quot;common.email.invalid&quot;,</span>
+            &quot;Email is invalid.&quot;);
+<span class="nc" id="L338">        break;</span>
+      }
+      case EC_ILLEGAL_FIRST_NAME: {
+<span class="nc" id="L341">        bindingResult.rejectValue(&quot;firstName&quot;, &quot;user.first-name.illegal&quot;,</span>
+            &quot;First name contains illegal characters.&quot;);
+<span class="nc" id="L343">        break;</span>
+      }
+      case EC_ILLEGAL_LAST_NAME: {
+<span class="nc" id="L346">        bindingResult.rejectValue(&quot;lastName&quot;, &quot;user.last-name.illegal&quot;,</span>
+            &quot;Last name contains illegal characters.&quot;);
+<span class="nc" id="L348">        break;</span>
+      }
+      case EC_PRINCIPAL_ALREADY_EXISTS: {
+<span class="nc" id="L351">        bindingResult.rejectValue(&quot;userPrincipalName&quot;, &quot;user.principal-name.already-exists&quot;,</span>
+            &quot;User principal name already exists.&quot;);
+<span class="nc" id="L353">        break;</span>
+      }
+      case EC_UID_ALREADY_EXISTS: {
+<span class="nc" id="L356">        bindingResult.rejectValue(&quot;uid&quot;, &quot;user.uid.already-exists&quot;,</span>
+            &quot;User's unix uid already exists.&quot;);
+<span class="nc" id="L358">        break;</span>
+      }
+      case EC_UID_NUMBER_ALREADY_EXISTS: {
+<span class="nc" id="L361">        bindingResult.rejectValue(&quot;uidNumber&quot;, &quot;user.uid-number.already-exists&quot;,</span>
+            &quot;User's unix uid number already exists.&quot;);
+<span class="nc" id="L363">        break;</span>
+      }
+      case EC_DN_ALREADY_EXISTS: {
+<span class="nc" id="L366">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.already-exists&quot;,</span>
+            &quot;Distinguished name already exists.&quot;);
+<span class="nc" id="L368">        break;</span>
+      }
+      case EC_EMPTY_OU_RDN: {
+<span class="nc" id="L371">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;ec.ou.required&quot;,</span>
+            &quot;Organizational unit is empty.&quot;);
+<span class="nc" id="L373">        break;</span>
+      }
+      case EC_OU_NOT_FOUND: {
+<span class="nc" id="L376">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;ec.ou.not-found&quot;,</span>
+            &quot;Organizational unit was not found.&quot;);
+<span class="nc" id="L378">        break;</span>
+      }
+      default: {
+<span class="nc" id="L381">        getLogger().error(&quot;Editing user failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L382">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L385">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

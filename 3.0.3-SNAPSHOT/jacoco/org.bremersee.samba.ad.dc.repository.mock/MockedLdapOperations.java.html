@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MockedLdapOperations.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mock</a> &gt; <span class="el_source">MockedLdapOperations.java</span></div><h1>MockedLdapOperations.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mock;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
+import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveErrorHandler;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.ldaptive.AddRequest;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.AttributeModification.Type;
+import org.ldaptive.BindRequest;
+import org.ldaptive.CompareRequest;
+import org.ldaptive.ConnectionFactory;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.LdapAttribute;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.ModifyDnRequest;
+import org.ldaptive.ModifyRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchResponse;
+import org.ldaptive.extended.ExtendedRequest;
+import org.ldaptive.extended.ExtendedResponse;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+/**
+ * The mocked ldap operations.
+ *
+ * @author Christian Bremer
+ */
+@Primary
+@Component
+@Profile(&quot;mock&quot;)
+class MockedLdapOperations implements LdaptiveOperations {
+
+<span class="nc" id="L57">  private static final Object LOCK = new Object();</span>
+
+  private final SambaStore store;
+
+  /**
+   * Instantiates a new mocked ldap operations.
+   *
+   * @param store the store
+   */
+<span class="nc" id="L66">  MockedLdapOperations(SambaStore store) {</span>
+<span class="nc" id="L67">    this.store = store;</span>
+<span class="nc" id="L68">  }</span>
+
+  @Override
+  public ConnectionFactory getConnectionFactory() {
+<span class="nc" id="L72">    throw new UnsupportedOperationException(&quot;getConnectionFactory() is not implemented.&quot;);</span>
+  }
+
+  @Override
+  public LdaptiveOperations copy() {
+<span class="nc" id="L77">    return copy(null);</span>
+  }
+
+  @Override
+  public LdaptiveOperations copy(LdaptiveErrorHandler errorHandler) {
+<span class="nc" id="L82">    return this;</span>
+  }
+
+  @Override
+  public void add(AddRequest addRequest) {
+<span class="nc" id="L87">    throw new UnsupportedOperationException(&quot;add(AddRequest) is not implemented.&quot;);</span>
+  }
+
+  @Override
+  public boolean bind(BindRequest request) {
+<span class="nc" id="L92">    throw new UnsupportedOperationException(&quot;bind(BindRequest) is not implemented.&quot;);</span>
+  }
+
+  @Override
+  public boolean compare(CompareRequest request) {
+<span class="nc" id="L97">    throw new UnsupportedOperationException(&quot;compare(CompareRequest) is not implemented.&quot;);</span>
+  }
+
+  @Override
+  public void delete(DeleteRequest request) {
+<span class="nc" id="L102">    synchronized (LOCK) {</span>
+<span class="nc" id="L103">      store.remove(request.getDn());</span>
+<span class="nc" id="L104">    }</span>
+<span class="nc" id="L105">  }</span>
+
+  @Override
+  public ExtendedResponse executeExtension(ExtendedRequest request) {
+<span class="nc" id="L109">    throw new UnsupportedOperationException(</span>
+        &quot;executeExtension(ExtendedRequest request) is not implemented.&quot;);
+  }
+
+  @Override
+  public void modify(ModifyRequest request) {
+<span class="nc" id="L115">    synchronized (LOCK) {</span>
+<span class="nc" id="L116">      store.findByDn(request.getDn())</span>
+<span class="nc" id="L117">          .ifPresent(node -&gt; modify(node, request.getModifications()));</span>
+<span class="nc" id="L118">    }</span>
+<span class="nc" id="L119">  }</span>
+
+  private void modify(LdapEntry entry, AttributeModification[] modifications) {
+<span class="nc bnc" id="L122" title="All 2 branches missed.">    if (!isEmpty(modifications)) {</span>
+<span class="nc" id="L123">      synchronized (LOCK) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        for (AttributeModification modification : modifications) {</span>
+<span class="nc" id="L125">          modify(entry, modification);</span>
+        }
+<span class="nc" id="L127">      }</span>
+    }
+<span class="nc" id="L129">  }</span>
+
+  private void modify(LdapEntry entry, AttributeModification modification) {
+<span class="nc" id="L132">    LdapAttribute attr = modification.getAttribute();</span>
+<span class="nc" id="L133">    Type type = modification.getOperation();</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">    if (Type.ADD.equals(type) || Type.REPLACE.equals(type)) {</span>
+<span class="nc" id="L135">      addAttribute(entry, attr);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">      if (AdConstants.USER_UNICODE_PWD.getName().equalsIgnoreCase(attr.getName())) {</span>
+<span class="nc" id="L137">        AdConstants.USER_PWD_LAST_SET.setValue(entry, OffsetDateTime.now(ZoneOffset.UTC));</span>
+      }
+<span class="nc bnc" id="L139" title="All 2 branches missed.">    } else if (Type.DELETE.equals(type)) {</span>
+<span class="nc" id="L140">      removeAttribute(entry, attr);</span>
+    }
+<span class="nc" id="L142">  }</span>
+
+  private void removeAttribute(LdapEntry entry, LdapAttribute attr) {
+<span class="nc bnc" id="L145" title="All 2 branches missed.">    if (entry.hasAttribute(attr.getName())) {</span>
+<span class="nc" id="L146">      entry.removeAttribute(attr.getName());</span>
+    }
+<span class="nc" id="L148">  }</span>
+
+  private void addAttribute(LdapEntry entry, LdapAttribute attr) {
+<span class="nc" id="L151">    removeAttribute(entry, attr);</span>
+<span class="nc" id="L152">    entry.addAttributes(attr);</span>
+<span class="nc" id="L153">  }</span>
+
+  @Override
+  public void modifyDn(ModifyDnRequest request) {
+<span class="nc" id="L157">    synchronized (LOCK) {</span>
+<span class="nc" id="L158">      store.modifyDn(request);</span>
+<span class="nc" id="L159">    }</span>
+<span class="nc" id="L160">  }</span>
+
+  @Override
+  public SearchResponse search(SearchRequest request) {
+<span class="nc" id="L164">    synchronized (LOCK) {</span>
+<span class="nc" id="L165">      return SearchResponse.builder()</span>
+<span class="nc" id="L166">          .entry(store.find(request))</span>
+<span class="nc" id="L167">          .build();</span>
+    }
+  }
+
+  @Override
+  public boolean exists(String dn) {
+<span class="nc" id="L173">    synchronized (LOCK) {</span>
+<span class="nc" id="L174">      return store.findByDn(dn).isPresent();</span>
+    }
+  }
+
+  @Override
+  public &lt;T&gt; T save(T domainObject, LdaptiveEntryMapper&lt;T&gt; entryMapper) {
+<span class="nc" id="L180">    synchronized (LOCK) {</span>
+<span class="nc" id="L181">      String dn = entryMapper.mapDn(domainObject);</span>
+<span class="nc" id="L182">      return store.findByDn(dn)</span>
+<span class="nc" id="L183">          .map(node -&gt; {</span>
+<span class="nc" id="L184">            entryMapper.map(domainObject, node);</span>
+<span class="nc" id="L185">            AdConstants.WHEN_CHANGED.setValue(node, OffsetDateTime.now(ZoneOffset.UTC));</span>
+<span class="nc" id="L186">            return entryMapper.map(node);</span>
+          })
+<span class="nc" id="L188">          .orElseGet(() -&gt; {</span>
+<span class="nc" id="L189">            LdapEntry entry = new LdapEntry();</span>
+<span class="nc" id="L190">            entry.setDn(entryMapper.mapDn(domainObject));</span>
+<span class="nc" id="L191">            AdConstants.OBJECT_CLASS.setValues(entry,</span>
+<span class="nc" id="L192">                Arrays.asList(entryMapper.getObjectClasses()));</span>
+<span class="nc" id="L193">            entryMapper.map(domainObject, entry);</span>
+<span class="nc" id="L194">            store.getEntryFactory().setDefaultValues(entry);</span>
+<span class="nc" id="L195">            store.add(entry);</span>
+<span class="nc" id="L196">            return entryMapper.map(entry);</span>
+          });
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

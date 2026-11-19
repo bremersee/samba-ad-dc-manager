@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui.model</a> &gt; <span class="el_source">UserModel.java</span></div><h1>UserModel.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.model;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.ldaptive.dn.Dn;
+
+/**
+ * The abstract user model.
+ *
+ * @author Christian Bremer
+ */
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
+abstract class UserModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The new organizational unit.
+   */
+  private String newOu;
+
+  /**
+   * The sam account name.
+   */
+  private String samAccountName;
+
+  /**
+   * The user principal name.
+   */
+  private String userPrincipalName;
+
+  /**
+   * The enabled flag.
+   */
+<span class="nc" id="L66">  private boolean enabled = true;</span>
+
+  /**
+   * The password expiration enabled flag.
+   */
+<span class="nc" id="L71">  private boolean passwordExpirationEnabled = false;</span>
+
+  /**
+   * The no-expiry flag.
+   */
+<span class="nc" id="L76">  private boolean noExpiry = true;</span>
+
+  /**
+   * The date-time of account expiration.
+   */
+  private OffsetDateTime accountExpires;
+
+  /**
+   * User's first name.
+   */
+  private String firstName;
+
+  /**
+   * User's last name.
+   */
+  private String lastName;
+
+  /**
+   * User's display name.
+   */
+  private String displayName;
+
+  /**
+   * User's initials.
+   */
+  private String initials;
+
+  /**
+   * User's preferred language. ISO 639-1 language codes. The combinations like de-DE and en-US with
+   * ISO-639 and ISO-3166 also work.
+   */
+  private String preferredLanguage;
+
+  /**
+   * User's email address.
+   */
+  private String email;
+
+  /**
+   * User's mobile phone number.
+   */
+  private String mobile;
+
+  /**
+   * User's telephone number.
+   */
+  private String telephoneNumber;
+
+  /**
+   * A description of the user.
+   */
+  private String description;
+
+  /**
+   * User's home directory path.
+   */
+  private String homeDirectory;
+
+  /**
+   * User's home drive letter.
+   */
+  private String homeDrive;
+
+  /**
+   * User's profile path.
+   */
+  private String profilePath;
+
+  /**
+   * User's logon script path.
+   */
+  private String scriptPath;
+
+  /**
+   * User's company.
+   */
+  private String company;
+
+  /**
+   * User's job title.
+   */
+  private String title;
+
+  /**
+   * User's department.
+   */
+  private String department;
+
+  /**
+   * User's office location.
+   */
+  private String physicalDeliveryOfficeName;
+
+  /**
+   * User's Unix/RFC2307 username.
+   */
+  private String uid;
+
+  /**
+   * User's Unix/RFC2307 numeric UID.
+   */
+  private Integer uidNumber;
+
+  /**
+   * User's Unix/RFC2307 primary GID number.
+   */
+  private Integer gidNumber;
+
+  /**
+   * User's Unix/RFC2307 login shell.
+   */
+  private String loginShell;
+
+  /**
+   * User's Unix/RFC2307 home directory.
+   */
+  private String unixHomeDirectory;
+
+  /**
+   * User's Unix/RFC2307 GECOS field.
+   */
+  private String gecos;
+
+  /**
+   * User's Unix/RFC2307 NIS domain.
+   */
+  private String nisDomain;
+
+  /**
+   * Instantiates a new user model.
+   */
+  UserModel() {
+<span class="nc" id="L208">    super();</span>
+<span class="nc" id="L209">  }</span>
+
+  /**
+   * Gets distinguished name of new parent organizational unit.
+   *
+   * @return the new ou dn
+   */
+  public Optional&lt;Dn&gt; getNewOuDn() {
+<span class="nc" id="L217">    return Optional.ofNullable(newOu)</span>
+<span class="nc" id="L218">        .filter(DnTool::isValidDn)</span>
+<span class="nc" id="L219">        .map(Dn::new);</span>
+  }
+
+  /**
+   * Gets account expires.
+   *
+   * @return the account expires
+   */
+  public OffsetDateTime getAccountExpires() {
+<span class="nc bnc" id="L228" title="All 2 branches missed.">    if (noExpiry) {</span>
+<span class="nc" id="L229">      return null;</span>
+    }
+<span class="nc" id="L231">    return accountExpires;</span>
+  }
+
+  /**
+   * Gets account expires iso formatted.
+   *
+   * @return the account expires iso
+   */
+  public String getAccountExpiresIso() {
+    OffsetDateTime dateTime;
+<span class="nc bnc" id="L241" title="All 2 branches missed.">    if (isEmpty(accountExpires)) {</span>
+<span class="nc" id="L242">      dateTime = OffsetDateTime.now(ZoneOffset.UTC);</span>
+    } else {
+<span class="nc" id="L244">      dateTime = accountExpires.withOffsetSameInstant(ZoneOffset.UTC);</span>
+    }
+<span class="nc" id="L246">    return dateTime.format(DateTimeFormatter.ISO_DATE_TIME);</span>
+  }
+
+  /**
+   * Sets account expires iso formatted.
+   *
+   * @param accountExpiresIso the account expires iso
+   */
+  public void setAccountExpiresIso(String accountExpiresIso) {
+<span class="nc bnc" id="L255" title="All 2 branches missed.">    if (isEmpty(accountExpiresIso)) {</span>
+<span class="nc" id="L256">      this.accountExpires = null;</span>
+<span class="nc" id="L257">      return;</span>
+    }
+<span class="nc" id="L259">    this.accountExpires = OffsetDateTime.parse(accountExpiresIso, DateTimeFormatter.ISO_DATE_TIME);</span>
+<span class="nc" id="L260">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

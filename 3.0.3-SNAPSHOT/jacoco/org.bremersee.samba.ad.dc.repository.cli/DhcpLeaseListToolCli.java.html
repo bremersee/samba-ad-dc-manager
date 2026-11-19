@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DhcpLeaseListToolCli.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.cli</a> &gt; <span class="el_source">DhcpLeaseListToolCli.java</span></div><h1>DhcpLeaseListToolCli.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.cli;
+
+import static java.util.Objects.nonNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.DhcpLease;
+import org.bremersee.samba.ad.dc.repository.DhcpLeaseListTool;
+import org.bremersee.samba.ad.dc.repository.cli.parser.DhcpLeaseParser;
+import org.springframework.stereotype.Component;
+
+/**
+ * The dhcp lease list tool cli.
+ *
+ * @author Christian Bremer
+ */
+@Component
+<span class="fc" id="L37">@Slf4j</span>
+class DhcpLeaseListToolCli extends CommandExecutor implements DhcpLeaseListTool {
+
+  private DhcpLeaseParser parser;
+
+  /**
+   * Instantiates a new dhcp lease list tool cli.
+   *
+   * @param properties the properties
+   */
+  DhcpLeaseListToolCli(ApplicationProperties properties) {
+<span class="fc" id="L48">    super(properties);</span>
+<span class="fc" id="L49">    parser = DhcpLeaseParser.defaultParser();</span>
+<span class="fc" id="L50">    log.info(&quot;Dhcp lease list tool is using binary {}&quot;,</span>
+<span class="fc" id="L51">        properties.getCli().getDhcpLeaseListBinary());</span>
+<span class="fc" id="L52">  }</span>
+
+  /**
+   * Sets parser.
+   *
+   * @param parser the parser
+   */
+  public void setParser(DhcpLeaseParser parser) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">    if (nonNull(parser)) {</span>
+<span class="fc" id="L61">      this.parser = parser;</span>
+    }
+<span class="fc" id="L63">  }</span>
+
+  @Override
+  public List&lt;DhcpLease&gt; findActive() {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">    if (isEmpty(getProperties().getCli().getDhcpLeaseListBinary())) {</span>
+<span class="fc" id="L68">      log.warn(&quot;DhcpLeaseListBinary is not set. Returning an empty dhcp lease list.&quot;);</span>
+<span class="fc" id="L69">      return List.of();</span>
+    }
+<span class="fc" id="L71">    List&lt;String&gt; commands = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L72">    commands.add(getProperties().getCli().getDhcpLeaseListBinary());</span>
+<span class="fc" id="L73">    commands.add(&quot;--parsable&quot;);</span>
+<span class="fc" id="L74">    return executeAndGet(commands, parser);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

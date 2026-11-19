@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdEntryLdapMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mapper</a> &gt; <span class="el_source">AdEntryLdapMapper.java</span></div><h1>AdEntryLdapMapper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mapper;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Set;
+import lombok.Getter;
+import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.AdEntryIntermediate;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.LdapEntry;
+import org.springframework.util.Assert;
+
+/**
+ * The base active directory ldap entry mapper.
+ *
+ * @author Christian Bremer
+ */
+public class AdEntryLdapMapper extends LdaptiveEntryImmutableMapper&lt;AdEntry&gt; {
+
+  /**
+   * --- GETTER --- Gets the unmodifiable set of mapped attributes.
+   *
+   * @return the unmodifiable set of mapped attributes
+   */
+  @Getter
+  @SuppressWarnings(&quot;JavadocDeclaration&quot;)
+  private final Set&lt;LdaptiveAttribute&lt;?&gt;&gt; mappedAttributes;
+
+  /**
+   * Instantiates a new base active directory ldap entry mapper.
+   */
+<span class="fc" id="L51">  public AdEntryLdapMapper() {</span>
+<span class="fc" id="L52">    mappedAttributes = Set.of(</span>
+        AdConstants.OBJECT_CLASS,
+        AdConstants.DN,
+        AdConstants.WHEN_CREATED,
+        AdConstants.WHEN_CHANGED
+    );
+<span class="fc" id="L58">  }</span>
+
+  @Override
+  public String[] getObjectClasses() {
+<span class="fc" id="L62">    return new String[0];</span>
+  }
+
+  @Override
+  public String[] getMappedAttributeNames() {
+<span class="fc" id="L67">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L68">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L69">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+<span class="fc" id="L74">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L75">        .filter(LdaptiveAttribute::isBinary)</span>
+<span class="fc" id="L76">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L77">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String mapDn(AdEntry domainObject) {
+<span class="fc" id="L82">    Assert.hasText(domainObject.getDistinguishedName(),</span>
+        &quot;Distinguished name of ad entry is required.&quot;);
+<span class="fc" id="L84">    return domainObject.getDistinguishedName();</span>
+  }
+
+  @Override
+  public AdEntry map(LdapEntry source) {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (isEmpty(source)) {</span>
+<span class="fc" id="L90">      return null;</span>
+    }
+<span class="fc" id="L92">    var builder = AdEntryIntermediate.builder();</span>
+<span class="fc" id="L93">    builder.distinguishedName(source.getDn());</span>
+<span class="fc" id="L94">    AdConstants.WHEN_CREATED</span>
+<span class="fc" id="L95">        .getValue(source)</span>
+<span class="fc" id="L96">        .ifPresent(builder::created);</span>
+<span class="fc" id="L97">    AdConstants.WHEN_CHANGED</span>
+<span class="fc" id="L98">        .getValue(source)</span>
+<span class="fc" id="L99">        .ifPresent(builder::modified);</span>
+<span class="fc" id="L100">    return builder.build();</span>
+  }
+
+  @Override
+  public AttributeModification[] mapAndComputeModifications(AdEntry source, LdapEntry destination) {
+<span class="fc" id="L105">    return new AttributeModification[0];</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

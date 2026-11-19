@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsZoneCreateController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">DnsZoneCreateController.java</span></div><h1>DnsZoneCreateController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The dns zone create controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+<span class="nc" id="L40">@Slf4j</span>
+public class DnsZoneCreateController extends UiController {
+
+  private final DnsService dnsService;
+
+  /**
+   * Instantiates a new dns zone create controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
+  public DnsZoneCreateController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+<span class="nc" id="L58">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L59">    this.dnsService = dnsService;</span>
+<span class="nc" id="L60">  }</span>
+
+  /**
+   * Display create zone view.
+   *
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/dns-zone-create&quot;)
+  public String displayCreateZone() {
+<span class="nc" id="L69">    return &quot;management/dns-zone-create&quot;;</span>
+  }
+
+  /**
+   * Create zone.
+   *
+   * @param name the name
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/dns-zone-create&quot;)
+  public String createZone(
+      @RequestParam(name = &quot;name&quot;) String name,
+      RedirectAttributes redirectAttributes) {
+
+    try {
+<span class="nc" id="L85">      DnsZone zone = dnsService.createDnsZone(name);</span>
+<span class="nc" id="L86">      String msg = String.format(&quot;Dns zone '%s' was successfully created.&quot;,</span>
+<span class="nc" id="L87">          zone.getName());</span>
+<span class="nc" id="L88">      RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.SUCCESS, msg,</span>
+<span class="nc" id="L89">          &quot;dns-zone-create.success&quot;, zone.getName());</span>
+<span class="nc" id="L90">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);</span>
+<span class="nc" id="L91">      return &quot;redirect:dns-zones&quot;;</span>
+
+<span class="nc" id="L93">    } catch (ServiceException e) {</span>
+
+<span class="nc" id="L95">      String msg = String.format(&quot;Creation of dns zone '%s' failed.&quot;, name);</span>
+<span class="nc" id="L96">      log.error(msg, e);</span>
+<span class="nc" id="L97">      RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,</span>
+          &quot;dns-zone-create.failure&quot;, name);
+<span class="nc" id="L99">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);</span>
+<span class="nc" id="L100">      return &quot;redirect:dns-zones&quot;;</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

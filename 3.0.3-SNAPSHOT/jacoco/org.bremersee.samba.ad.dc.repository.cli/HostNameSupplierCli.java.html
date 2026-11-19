@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HostNameSupplierCli.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.cli</a> &gt; <span class="el_source">HostNameSupplierCli.java</span></div><h1>HostNameSupplierCli.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.cli;
+
+import static java.util.Objects.nonNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.repository.HostNameSupplier;
+import org.bremersee.samba.ad.dc.repository.cli.parser.HostNameParser;
+import org.springframework.stereotype.Component;
+
+/**
+ * The host name supplier cli.
+ *
+ * @author Christian Bremer
+ */
+@Component
+<span class="fc" id="L38">@Slf4j</span>
+public class HostNameSupplierCli extends CommandExecutor implements HostNameSupplier {
+
+  private HostNameParser parser;
+
+  /**
+   * Instantiates a new host name supplier cli.
+   *
+   * @param properties the properties
+   */
+  public HostNameSupplierCli(ApplicationProperties properties) {
+<span class="fc" id="L49">    super(properties);</span>
+<span class="fc" id="L50">    parser = HostNameParser.defaultParser();</span>
+<span class="fc" id="L51">    log.info(&quot;Hostname supplier is using binary {}&quot;, properties.getCli().getHostnameBinary());</span>
+<span class="fc" id="L52">  }</span>
+
+  /**
+   * Sets parser.
+   *
+   * @param parser the parser
+   */
+  public void setParser(HostNameParser parser) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">    if (nonNull(parser)) {</span>
+<span class="fc" id="L61">      this.parser = parser;</span>
+    }
+<span class="fc" id="L63">  }</span>
+
+  @Override
+  public String getHostName() {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">    if (isEmpty(getProperties().getCli().getHostnameBinary())) {</span>
+<span class="fc" id="L68">      log.warn(&quot;HostnameBinary is not set. Returning 'localhost'.&quot;);</span>
+<span class="fc" id="L69">      return &quot;localhost&quot;;</span>
+    }
+<span class="fc" id="L71">    List&lt;String&gt; commands = new ArrayList&lt;&gt;(2);</span>
+<span class="fc" id="L72">    commands.add(getProperties().getCli().getHostnameBinary());</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (!isEmpty(getProperties().getCli().getHostnameOptions())) {</span>
+<span class="fc" id="L74">      commands.add(getProperties().getCli().getHostnameOptions());</span>
+    }
+<span class="fc" id="L76">    return executeAndGet(commands, parser)</span>
+<span class="pc" id="L77">        .orElseThrow(() -&gt; ServiceException.internalServerError(</span>
+            &quot;Getting hostname failed.&quot;,
+            ErrorCode.EC_GETTING_HOSTNAME_FAILED));
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

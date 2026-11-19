@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FeatureDetectionConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.config</a> &gt; <span class="el_source">FeatureDetectionConfiguration.java</span></div><h1>FeatureDetectionConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.config;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.List;
+import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.samba.ad.dc.misc.FeaturesAware;
+import org.bremersee.samba.ad.dc.model.Features;
+import org.bremersee.samba.ad.dc.repository.DhcpLeaseListTool;
+import org.bremersee.spring.security.ldaptive.authentication.LdaptiveRememberMeServices;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.mail.autoconfigure.MailProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.mail.javamail.JavaMailSender;
+
+/**
+ * The feature detection configuration.
+ *
+ * @author Christian Bremer
+ */
+@Configuration
+@EnableConfigurationProperties({
+    MailProperties.class
+})
+<span class="nc" id="L45">@Slf4j</span>
+class FeatureDetectionConfiguration {
+
+  private final ApplicationProperties applicationProperties;
+
+  private final MailProperties mailProperties;
+
+  private final DhcpLeaseListTool dhcpLeaseListTool;
+
+  private final JavaMailSender javaMailSender;
+
+  private final LdaptiveRememberMeServices rememberMeServices;
+
+  /**
+   * Instantiates a new feature detection configuration.
+   *
+   * @param applicationProperties the application properties
+   * @param mailProperties the mail properties
+   * @param dhcpLeaseListTool the dhcp lease list tool
+   * @param javaMailSender the java mail sender
+   * @param rememberMeServices the remember me services
+   */
+  FeatureDetectionConfiguration(
+      ApplicationProperties applicationProperties,
+      MailProperties mailProperties,
+      DhcpLeaseListTool dhcpLeaseListTool,
+      ObjectProvider&lt;JavaMailSender&gt; javaMailSender,
+<span class="nc" id="L72">      ObjectProvider&lt;LdaptiveRememberMeServices&gt; rememberMeServices) {</span>
+<span class="nc" id="L73">    this.applicationProperties = applicationProperties;</span>
+<span class="nc" id="L74">    this.mailProperties = mailProperties;</span>
+<span class="nc" id="L75">    this.dhcpLeaseListTool = dhcpLeaseListTool;</span>
+<span class="nc" id="L76">    this.javaMailSender = javaMailSender.getIfAvailable();</span>
+<span class="nc" id="L77">    this.rememberMeServices = rememberMeServices.getIfAvailable();</span>
+<span class="nc" id="L78">  }</span>
+
+  /**
+   * Creates features description.
+   *
+   * @return the features
+   */
+  @Bean(name = &quot;sambaAdDcMangerFeatures&quot;)
+  @Primary
+  public Features features() {
+<span class="nc" id="L88">    Features features = Features.builder()</span>
+<span class="nc" id="L89">        .dhcpEnabled(isDhcpEnabled())</span>
+<span class="nc" id="L90">        .mailEnabled(isMailEnabled())</span>
+<span class="nc" id="L91">        .rememberMeEnabled(isRememberMeEnabled())</span>
+<span class="nc" id="L92">        .build();</span>
+<span class="nc" id="L93">    log.info(&quot;Features: {}&quot;, features);</span>
+<span class="nc" id="L94">    return features;</span>
+  }
+
+  private boolean isDhcpEnabled() {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">    if (isEmpty(applicationProperties.getCli().getDhcpLeaseListBinary())) {</span>
+<span class="nc" id="L99">      return false;</span>
+    }
+    try {
+<span class="nc" id="L102">      dhcpLeaseListTool.findActive();</span>
+<span class="nc" id="L103">      return true;</span>
+<span class="nc" id="L104">    } catch (RuntimeException e) {</span>
+<span class="nc" id="L105">      return false;</span>
+    }
+  }
+
+  private boolean isMailEnabled() {
+<span class="nc" id="L110">    String sender = applicationProperties.getEmail().getSender();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">    if (isEmpty(sender)) {</span>
+<span class="nc" id="L112">      log.info(&quot;Mail sender is not configured.&quot;);</span>
+<span class="nc" id="L113">      return false;</span>
+    }
+<span class="nc" id="L115">    Pattern emailPattern = applicationProperties.getEmail().getEmailRegexFlags()</span>
+<span class="nc" id="L116">        .compile(applicationProperties.getEmail().getEmailRegex());</span>
+<span class="nc" id="L117">    boolean matches = emailPattern.matcher(sender).matches();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    if (!matches) {</span>
+<span class="nc" id="L119">      log.info(&quot;Mail sender is not a valid e-mail address.&quot;);</span>
+    }
+<span class="nc bnc" id="L121" title="All 2 branches missed.">    return matches</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        &amp;&amp; !isEmpty(mailProperties.getHost())</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        &amp;&amp; !isEmpty(javaMailSender);</span>
+  }
+
+  private boolean isRememberMeEnabled() {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    return !isEmpty(rememberMeServices);</span>
+  }
+
+  /**
+   * The features aware configuration.
+   *
+   * @author Christian Bremer
+   */
+  @Configuration
+  static class FeaturesAwareConfiguration {
+
+    /**
+     * Instantiates a new features aware configuration.
+     *
+     * @param features the features
+     * @param components the components
+     */
+<span class="nc" id="L144">    FeaturesAwareConfiguration(Features features, List&lt;FeaturesAware&gt; components) {</span>
+<span class="nc" id="L145">      log.info(&quot;Setting features on {} component(s).&quot;, components.size());</span>
+<span class="nc" id="L146">      components.forEach(component -&gt; component.setFeatures(features));</span>
+<span class="nc" id="L147">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
