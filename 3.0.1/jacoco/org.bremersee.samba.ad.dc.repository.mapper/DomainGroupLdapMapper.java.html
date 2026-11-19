@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainGroupLdapMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mapper</a> &gt; <span class="el_source">DomainGroupLdapMapper.java</span></div><h1>DomainGroupLdapMapper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mapper;
+
+import static java.util.Objects.isNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import lombok.Getter;
+import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupType;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+/**
+ * The domain group ldap mapper.
+ *
+ * @author Christian Bremer
+ */
+@Component
+public class DomainGroupLdapMapper extends LdaptiveEntryImmutableMapper&lt;DomainGroup&gt;
+    implements AdEntryLdapMapperDelegate&lt;DomainGroup&gt; {
+
+  private final SamAccountLdapMapper samAccountLdapMapper;
+
+  private final Supplier&lt;Boolean&gt; rfc2307EnabledSupplier;
+
+  /**
+   * --- GETTER ---
+   * Gets the unmodifiable set of mapped attributes.
+   *
+   * @return the unmodifiable set of mapped attributes
+   */
+  @Getter
+  private final Set&lt;LdaptiveAttribute&lt;?&gt;&gt; mappedAttributes;
+
+  /**
+   * Instantiates a new domain group ldap mapper.
+   *
+   * @param domainRepository the domain repository
+   */
+<span class="fc" id="L69">  public DomainGroupLdapMapper(DomainRepository domainRepository) {</span>
+<span class="fc" id="L70">    samAccountLdapMapper = new SamAccountLdapMapper();</span>
+<span class="fc" id="L71">    rfc2307EnabledSupplier = domainRepository::isRfc2307Enabled;</span>
+<span class="fc" id="L72">    mappedAttributes = initMappedAttributesOfDomainGroup();</span>
+<span class="fc" id="L73">  }</span>
+
+  private Set&lt;LdaptiveAttribute&lt;?&gt;&gt; initMappedAttributesOfDomainGroup() {
+<span class="fc" id="L76">    var attributeNames = new LinkedHashSet&lt;&gt;(samAccountLdapMapper.getMappedAttributes());</span>
+<span class="fc" id="L77">    attributeNames.add(AdConstants.GROUP_TYPE);</span>
+<span class="fc" id="L78">    attributeNames.add(AdConstants.DESCRIPTION);</span>
+<span class="fc" id="L79">    attributeNames.add(AdConstants.GID_NUMBER);</span>
+<span class="fc" id="L80">    attributeNames.add(AdConstants.MAIL);</span>
+<span class="fc" id="L81">    attributeNames.add(AdConstants.GROUP_MEMBER);</span>
+<span class="fc" id="L82">    attributeNames.add(AdConstants.NIS_DOMAIN);</span>
+<span class="fc" id="L83">    return Collections.unmodifiableSet(attributeNames);</span>
+  }
+
+  @Override
+  public String[] getObjectClasses() {
+<span class="fc" id="L88">    return new String[]{</span>
+        AdConstants.OBJECT_CLASS_GROUP,
+        &quot;top&quot;
+    };
+  }
+
+  @Override
+  public String[] getMappedAttributeNames() {
+<span class="fc" id="L96">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L97">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L98">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+<span class="fc" id="L103">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L104">        .filter(LdaptiveAttribute::isBinary)</span>
+<span class="fc" id="L105">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L106">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String mapDn(DomainGroup domainObject) {
+<span class="fc" id="L111">    Assert.hasText(domainObject.getDistinguishedName(),</span>
+        &quot;Distinguished name of domain group is required.&quot;);
+<span class="fc" id="L113">    return domainObject.getDistinguishedName();</span>
+  }
+
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+<span class="fc" id="L118">    return Stream.ofNullable(ldapEntry)</span>
+<span class="fc" id="L119">        .flatMap(entry -&gt; AdConstants.OBJECT_CLASS.getValues(ldapEntry))</span>
+<span class="fc" id="L120">        .anyMatch(AdConstants.OBJECT_CLASS_GROUP::equalsIgnoreCase);</span>
+  }
+
+  @Override
+  public DomainGroup map(LdapEntry source) {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (!canMap(source)) {</span>
+<span class="fc" id="L126">      return null;</span>
+    }
+<span class="fc" id="L128">    var builder = DomainGroup.builder()</span>
+<span class="fc" id="L129">        .from(samAccountLdapMapper.map(source));</span>
+<span class="fc" id="L130">    AdConstants.GROUP_TYPE</span>
+<span class="fc" id="L131">        .getValue(source)</span>
+<span class="fc" id="L132">        .ifPresent(groupTypeValue -&gt; builder</span>
+<span class="fc" id="L133">            .groupType(DomainGroupType.from(groupTypeValue)));</span>
+<span class="fc" id="L134">    AdConstants.DESCRIPTION</span>
+<span class="fc" id="L135">        .getValue(source)</span>
+<span class="fc" id="L136">        .ifPresent(builder::description);</span>
+<span class="fc" id="L137">    AdConstants.GID_NUMBER</span>
+<span class="fc" id="L138">        .getValue(source)</span>
+<span class="fc" id="L139">        .ifPresent(builder::gidNumber);</span>
+<span class="fc" id="L140">    AdConstants.MAIL</span>
+<span class="fc" id="L141">        .getValue(source)</span>
+<span class="fc" id="L142">        .ifPresent(builder::email);</span>
+<span class="fc" id="L143">    builder.members(AdConstants.GROUP_MEMBER</span>
+<span class="fc" id="L144">        .getValues(source)</span>
+<span class="fc" id="L145">        .map(dn -&gt; dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))</span>
+<span class="fc" id="L146">        .toList());</span>
+<span class="fc" id="L147">    AdConstants.NIS_DOMAIN</span>
+<span class="fc" id="L148">        .getValue(source)</span>
+<span class="fc" id="L149">        .ifPresent(builder::nisDomain);</span>
+<span class="fc" id="L150">    return builder.build();</span>
+  }
+
+  @Override
+  public AttributeModification[] mapAndComputeModifications(
+      DomainGroup source,
+      LdapEntry destination) {
+
+<span class="fc bfc" id="L158" title="All 4 branches covered.">    if (isNull(source) || isNull(destination)) {</span>
+<span class="fc" id="L159">      return new AttributeModification[0];</span>
+    }
+<span class="fc" id="L161">    var modifications = new ArrayList&lt;&gt;(Arrays.asList(samAccountLdapMapper</span>
+<span class="fc" id="L162">        .mapAndComputeModifications(source, destination)));</span>
+<span class="fc" id="L163">    AdConstants.DESCRIPTION</span>
+<span class="fc" id="L164">        .setValue(destination, source.getDescription())</span>
+<span class="fc" id="L165">        .ifPresent(modifications::add);</span>
+<span class="fc" id="L166">    AdConstants.GROUP_TYPE</span>
+<span class="fc" id="L167">        .setValue(destination, source.getGroupType().getValue(), (e, n) -&gt; isNull(e))</span>
+<span class="fc" id="L168">        .ifPresent(modifications::add);</span>
+<span class="fc" id="L169">    AdConstants.MAIL</span>
+<span class="fc" id="L170">        .setValue(destination, source.getEmail())</span>
+<span class="fc" id="L171">        .ifPresent(modifications::add);</span>
+<span class="fc" id="L172">    AdConstants.GROUP_MEMBER</span>
+<span class="fc" id="L173">        .setValues(destination, source.getMembers().stream().map(Dn::new).toList())</span>
+<span class="fc" id="L174">        .ifPresent(modifications::add);</span>
+
+<span class="fc bfc" id="L176" title="All 2 branches covered.">    if (Boolean.TRUE.equals(rfc2307EnabledSupplier.get())) {</span>
+<span class="fc" id="L177">      AdConstants.GID_NUMBER</span>
+<span class="fc" id="L178">          .setValue(destination, source.getGidNumber())</span>
+<span class="fc" id="L179">          .ifPresent(modifications::add);</span>
+<span class="fc" id="L180">      AdConstants.NIS_DOMAIN</span>
+<span class="fc" id="L181">          .setValue(destination, source.getNisDomain())</span>
+<span class="fc" id="L182">          .ifPresent(modifications::add);</span>
+<span class="fc" id="L183">      AdConstants.NIS_NAME</span>
+<span class="fc" id="L184">          .setValue(destination, source.getSamAccountName())</span>
+<span class="fc" id="L185">          .ifPresent(modifications::add);</span>
+    }
+
+<span class="fc" id="L188">    return modifications.toArray(AttributeModification[]::new);</span>
+  }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

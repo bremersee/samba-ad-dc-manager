@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnitAddController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">OrganizationalUnitAddController.java</span></div><h1>OrganizationalUnitAddController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.OrganizationalUnitAddModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The organizational unit add controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class OrganizationalUnitAddController extends UiController
+    implements PageableComponent, RedirectComponent {
+
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new organizational unit add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public OrganizationalUnitAddController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L68">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L69">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L70">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L74">    return OU_SORT;</span>
+  }
+
+  /**
+   * Add organizational units.
+   *
+   * @return the list
+   */
+  @ModelAttribute(&quot;ous&quot;)
+  public List&lt;OrganizationalUnit&gt; addOrganizationalUnits() {
+<span class="nc" id="L84">    Stream&lt;OrganizationalUnit&gt; baseStream = Stream.of(organizationalUnitService.getBase());</span>
+<span class="nc" id="L85">    Stream&lt;OrganizationalUnit&gt; otherParentsStream = organizationalUnitService</span>
+<span class="nc" id="L86">        .getOrganizationalUnits()</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        .filter(ou -&gt; !ou.isSystemOu());</span>
+<span class="nc" id="L88">    return Stream.concat(baseStream, otherParentsStream).toList();</span>
+  }
+
+  /**
+   * Display organizational unit add view.
+   *
+   * @param model the model
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/organizational-unit-add&quot;)
+  public String displayOrganizationalUnitAdd(ModelMap model) {
+<span class="nc" id="L99">    getLogger().debug(&quot;displayOrganizationalUnitAdd()&quot;);</span>
+<span class="nc" id="L100">    OrganizationalUnitAddModel addModel = new OrganizationalUnitAddModel();</span>
+<span class="nc" id="L101">    addModel.setParentOu(DnTool.toString(getDnTool().getBaseDn()));</span>
+<span class="nc" id="L102">    model.addAttribute(&quot;addModel&quot;, addModel);</span>
+<span class="nc" id="L103">    return &quot;management/organizational-unit-add&quot;;</span>
+  }
+
+  /**
+   * Add organizational unit.
+   *
+   * @param addModel the add model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/organizational-unit-add&quot;)
+  public String addOrganizationalUnit(
+      @ModelAttribute(name = &quot;addModel&quot;) OrganizationalUnitAddModel addModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L122">    getLogger().debug(&quot;addOrganizationalUnit({})&quot;, addModel);</span>
+
+<span class="nc" id="L124">    OrganizationalUnit organizationalUnit = OrganizationalUnit.builder()</span>
+<span class="nc" id="L125">        .name(addModel.getName())</span>
+<span class="nc" id="L126">        .description(addModel.getDescription())</span>
+<span class="nc" id="L127">        .build();</span>
+
+    OrganizationalUnit addedOu;
+    try {
+<span class="nc" id="L131">      addedOu = organizationalUnitService.add(organizationalUnit, addModel.getParentOuDn());</span>
+
+<span class="nc" id="L133">    } catch (ServiceException e) {</span>
+<span class="nc" id="L134">      handleException(bindingResult, e);</span>
+<span class="nc" id="L135">      getLogger().debug(&quot;Adding organizational unit failed. Some fields were invalid.&quot;);</span>
+<span class="nc" id="L136">      return &quot;management/organizational-unit-add&quot;;</span>
+<span class="nc" id="L137">    }</span>
+
+<span class="nc" id="L139">    model.clear();</span>
+<span class="nc" id="L140">    String name = addedOu.getName();</span>
+<span class="nc" id="L141">    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,</span>
+<span class="nc" id="L142">        String.format(&quot;Organizational unit '%s' was successfully added.&quot;, name),</span>
+        &quot;organization-unit-add.success&quot;, name);
+<span class="nc" id="L144">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L146">    Map&lt;String, Object&gt; parameters = getParameterMap();</span>
+<span class="nc" id="L147">    String redirect = getRedirectUri(</span>
+        &quot;organizational-unit-edit?name={{name}}&quot;,
+        PAGE_AND_OU_PARAMS,
+<span class="nc" id="L150">        putToParameterMap(parameters, &quot;name&quot;, addedOu.getDistinguishedName()));</span>
+<span class="nc" id="L151">    logRedirectTo(&quot;Organizational unit successfully added.&quot;, redirect);</span>
+<span class="nc" id="L152">    return redirect;</span>
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L157">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L158">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L159">    Assert.isTrue(bindTarget instanceof OrganizationalUnitAddModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L160">    String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">    switch (errorCode) {</span>
+      case EC_OU_NAME_REQUIRED: {
+<span class="nc" id="L163">        bindingResult.rejectValue(&quot;name&quot;, &quot;ec.ou-name.required&quot;,</span>
+            &quot;Name of organizational unit is required.&quot;);
+<span class="nc" id="L165">        break;</span>
+      }
+      case EC_ILLEGAL_OU_NAME: {
+<span class="nc" id="L168">        bindingResult.rejectValue(&quot;name&quot;, &quot;ec.ou-name.illegal&quot;,</span>
+            &quot;Name of organizational unit contains illegal characters.&quot;);
+<span class="nc" id="L170">        break;</span>
+      }
+      case EC_OU_ALREADY_EXISTS: {
+<span class="nc" id="L173">        bindingResult.rejectValue(&quot;name&quot;, &quot;ec.ou.already-exists&quot;,</span>
+            &quot;Organizational unit already exists.&quot;);
+<span class="nc" id="L175">        break;</span>
+      }
+      default: {
+<span class="nc" id="L178">        getLogger().error(&quot;Adding group failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L179">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L182">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

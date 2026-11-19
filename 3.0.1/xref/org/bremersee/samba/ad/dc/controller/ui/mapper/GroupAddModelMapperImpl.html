@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>GroupAddModelMapperImpl xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../apidocs/org/bremersee/samba/ad/dc/controller/ui/mapper/GroupAddModelMapperImpl.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> org.bremersee.samba.ad.dc.controller.ui.mapper;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> javax.annotation.processing.Generated;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> org.bremersee.samba.ad.dc.controller.ui.model.GroupAddModel;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> org.bremersee.samba.ad.dc.model.DomainGroup;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> org.bremersee.samba.ad.dc.model.ImmutableDomainGroup;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   @Generated(
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>       value = <span class="jxr_string">"org.mapstruct.ap.MappingProcessor"</span>,
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>      date = <span class="jxr_string">"2026-11-19T01:37:53+0100"</span>,
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>      comments = <span class="jxr_string">"version: 1.6.3, compiler: javac, environment: Java 21.0.13 (Debian)"</span>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  )
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="GroupAddModelMapperImpl" href="../../../../../../../../org/bremersee/samba/ad/dc/controller/ui/mapper/GroupAddModelMapperImpl.html#GroupAddModelMapperImpl">GroupAddModelMapperImpl</a> <strong class="jxr_keyword">implements</strong> <a name="GroupAddModelMapper" href="../../../../../../../../org/bremersee/samba/ad/dc/controller/ui/mapper/GroupAddModelMapper.html#GroupAddModelMapper">GroupAddModelMapper</a> {
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>      @Override
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      <strong class="jxr_keyword">public</strong> DomainGroup map(<a name="GroupAddModel" href="../../../../../../../../org/bremersee/samba/ad/dc/controller/ui/model/GroupAddModel.html#GroupAddModel">GroupAddModel</a> source) {
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>          <strong class="jxr_keyword">if</strong> ( source == <strong class="jxr_keyword">null</strong> ) {
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          }
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          ImmutableDomainGroup.Builder domainGroup = DomainGroup.builder();
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          domainGroup.groupType( source.getSelectedGroupType() );
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          domainGroup.samAccountName( source.getSamAccountName() );
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          domainGroup.description( source.getDescription() );
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          domainGroup.email( source.getEmail() );
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          domainGroup.gidNumber( source.getGidNumber() );
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          domainGroup.nisDomain( source.getNisDomain() );
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">return</strong> domainGroup.build();
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2025–2026 <a href="https://bremersee.org">bremersee.org</a></div>
+</body>
+</html>

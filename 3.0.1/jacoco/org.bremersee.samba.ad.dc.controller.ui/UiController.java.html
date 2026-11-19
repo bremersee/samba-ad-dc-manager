@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UiController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">UiController.java</span></div><h1>UiController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.controller.DnToolProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.LoggerProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.MessageProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The base ui controller.
+ *
+ * @author Christian Bremer
+ */
+@Getter
+public abstract class UiController extends AbstractController implements LoggerProvider,
+    DnToolProvider, MessageProvider, RedirectComponent, ErrorCode {
+
+  /**
+   * The constant COMPUTER.
+   */
+  protected static final String COMPUTER = &quot;computer&quot;;
+
+  /**
+   * The constant COMPUTERS.
+   */
+  protected static final String COMPUTERS = &quot;computers&quot;;
+
+  /**
+   * The constant GROUP.
+   */
+  protected static final String GROUP = &quot;group&quot;;
+
+  /**
+   * The constant GROUPS.
+   */
+  protected static final String GROUPS = &quot;groups&quot;;
+
+  /**
+   * The constant SAM_ACCOUNT_NAME.
+   */
+  protected static final String SAM_ACCOUNT_NAME = &quot;samAccountName&quot;;
+
+  private final Logger logger;
+
+  private final ApplicationProperties properties;
+
+  private final DnTool dnTool;
+
+  private final LocaleResolver localeResolver;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final DomainService domainService;
+
+  @Setter
+  private MessageSource messageSource;
+
+  /**
+   * Instantiates a new Ui controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   */
+  protected UiController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+<span class="nc" id="L102">      DomainService domainService) {</span>
+<span class="nc" id="L103">    this.logger = LoggerFactory.getLogger(getClass());</span>
+<span class="nc" id="L104">    this.properties = properties;</span>
+<span class="nc" id="L105">    this.dnTool = new DefaultDnTool(properties);</span>
+<span class="nc" id="L106">    this.localeResolver = localeResolver;</span>
+<span class="nc" id="L107">    this.domainService = domainService;</span>
+<span class="nc" id="L108">  }</span>
+
+  @ModelAttribute(&quot;properties&quot;)
+  @Override
+  public ApplicationProperties getProperties() {
+<span class="nc" id="L113">    return properties;</span>
+  }
+
+  /**
+   * Gets domain info.
+   *
+   * @return the domain info
+   */
+  @ModelAttribute(&quot;domainInfo&quot;)
+  public DomainInfo getDomainInfo() {
+<span class="nc" id="L123">    return getDomainService().getDomainInfo();</span>
+  }
+
+  /**
+   * Gets company url.
+   *
+   * @return the company url
+   */
+  @ModelAttribute(&quot;companyUrl&quot;)
+  public String getCompanyUrl() {
+<span class="nc" id="L133">    String companyUrl = getProperties().getCompanyUrl();</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">    if (isEmpty(companyUrl) || &quot;#&quot;.equals(companyUrl)) {</span>
+<span class="nc" id="L135">      return getBaseUri();</span>
+    }
+<span class="nc" id="L137">    return companyUrl;</span>
+  }
+
+  /**
+   * Gets base uri.
+   *
+   * @return the base uri
+   */
+  protected String getBaseUri() {
+<span class="nc" id="L146">    return getBaseUri(getProperties().getEmail().getBaseUri());</span>
+  }
+
+  /**
+   * Entity not found redirect string.
+   *
+   * @param redirectAttributes the redirect attributes
+   * @param entityType the entity type
+   * @param i18nCode the 18 n code
+   * @param entityName the entity name
+   * @param parameterTemplate the parameter template
+   * @param redirect the redirect
+   * @return the string
+   */
+  protected String entityNotFoundRedirect(
+      RedirectAttributes redirectAttributes,
+      String entityType,
+      String i18nCode,
+      String entityName,
+      String parameterTemplate,
+      String redirect) {
+
+<span class="nc" id="L168">    String msg = String.format(&quot;%s '%s' was not found.&quot;, entityType, entityName);</span>
+<span class="nc" id="L169">    RedirectMessage redirectMessage = getRedirectMessage(RedirectMessageType.WARNING, msg,</span>
+<span class="nc" id="L170">        i18nCode, String.valueOf(entityName));</span>
+<span class="nc" id="L171">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);</span>
+<span class="nc" id="L172">    String redirectUri = getRedirectUri(redirect, parameterTemplate, getParameterMap());</span>
+<span class="nc" id="L173">    logRedirectTo(msg, redirectUri);</span>
+<span class="nc" id="L174">    return redirectUri;</span>
+  }
+
+  /**
+   * Log redirect to.
+   *
+   * @param msg the msg
+   * @param redirect the redirect
+   */
+  protected void logRedirectTo(String msg, String redirect) {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">    if (isEmpty(msg)) {</span>
+<span class="nc" id="L185">      getLogger().debug(&quot;Redirecting to {}&quot;, redirect);</span>
+    } else {
+<span class="nc" id="L187">      getLogger().debug(&quot;{} Redirecting to {}&quot;, msg, redirect);</span>
+    }
+<span class="nc" id="L189">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

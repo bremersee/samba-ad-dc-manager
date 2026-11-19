@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserAddModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui.model</a> &gt; <span class="el_source">UserAddModel.java</span></div><h1>UserAddModel.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.model;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.bremersee.samba.ad.dc.config.DomainUserProperties;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
+
+/**
+ * The user add model.
+ *
+ * @author Christian Bremer
+ */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(exclude = {&quot;password&quot;}, callSuper = true)
+public class UserAddModel extends UserModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The use username as common name flag.
+   */
+<span class="nc" id="L47">  private boolean useUsernameAsCn = true;</span>
+
+  /**
+   * User's password.
+   */
+  private String password;
+
+  /**
+   * The send email flag.
+   */
+  private boolean sendEmail;
+
+  /**
+   * Instantiates a new user add model.
+   */
+  public UserAddModel() {
+<span class="nc" id="L63">    super();</span>
+<span class="nc" id="L64">  }</span>
+
+  /**
+   * Instantiates a new user add model.
+   *
+   * @param properties the properties
+   * @param passwordInformation the password information
+   * @param isRfc2307Enabled is rfc 2307 enabled
+   */
+  public UserAddModel(
+      DomainUserProperties properties,
+      PasswordInformation passwordInformation,
+<span class="nc" id="L76">      boolean isRfc2307Enabled) {</span>
+<span class="nc" id="L77">    int passwordAgeInDays = passwordInformation.getMaximumPasswordAgeInDays();</span>
+<span class="nc" id="L78">    setAccountExpires(OffsetDateTime.now(ZoneOffset.UTC).plusDays(passwordAgeInDays));</span>
+<span class="nc" id="L79">    setUseUsernameAsCn(properties.isUseUsernameAsCn());</span>
+<span class="nc" id="L80">    setCompany(properties.getDefaultCompany());</span>
+<span class="nc" id="L81">    setDisplayName(properties.getDefaultDisplayName());</span>
+<span class="nc" id="L82">    setEmail(properties.getDefaultEmail());</span>
+<span class="nc" id="L83">    setUserPrincipalName(properties.getDefaultUserPrincipalName());</span>
+<span class="nc" id="L84">    setHomeDirectory(properties.getDefaultHomeDirectory());</span>
+<span class="nc" id="L85">    setHomeDrive(properties.getDefaultHomeDrive());</span>
+<span class="nc" id="L86">    setPreferredLanguage(properties.getDefaultLanguage());</span>
+<span class="nc" id="L87">    setProfilePath(properties.getDefaultProfilePath());</span>
+<span class="nc" id="L88">    setScriptPath(properties.getDefaultScriptPath());</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (isRfc2307Enabled) {</span>
+<span class="nc" id="L90">      setGecos(properties.getDefaultGecos());</span>
+<span class="nc" id="L91">      setGidNumber(properties.getDefaultGidNumber());</span>
+<span class="nc" id="L92">      setLoginShell(properties.getDefaultLoginShell());</span>
+<span class="nc" id="L93">      setNisDomain(properties.getDefaultNisDomain());</span>
+<span class="nc" id="L94">      setUid(properties.getDefaultUid());</span>
+<span class="nc" id="L95">      setUnixHomeDirectory(properties.getDefaultUnixHomeDirectory());</span>
+    }
+<span class="nc" id="L97">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

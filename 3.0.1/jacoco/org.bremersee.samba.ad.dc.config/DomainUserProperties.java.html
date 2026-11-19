@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainUserProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.config</a> &gt; <span class="el_source">DomainUserProperties.java</span></div><h1>DomainUserProperties.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.config;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.Duration;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * The domain user properties.
+ *
+ * @author Christian Bremer
+ */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class DomainUserProperties extends SamAccountProperties implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The constant DEFAULT_USER_OU.
+   */
+  public static final String DEFAULT_USER_OU = &quot;CN=Users&quot;;
+
+  /**
+   * Specifies whether the username should be used for attribute 'cn' or firstname and lastname.
+   */
+<span class="fc" id="L52">  private boolean useUsernameAsCn = true;</span>
+
+<span class="fc" id="L54">  private Duration invitationLifetime = Duration.ofDays(30L);</span>
+
+<span class="fc" id="L56">  private Duration passwordResetRequestLifetime = Duration.ofDays(7L);</span>
+
+<span class="fc" id="L58">  private Duration changeEmailRequestLifetime = Duration.ofDays(7L);</span>
+
+<span class="fc" id="L60">  private boolean userAbleToChangeEmail = true;</span>
+
+<span class="fc" id="L62">  private boolean initialsDisplayed = true;</span>
+
+<span class="fc" id="L64">  private boolean mobilePhoneNumberDisplayed = true;</span>
+
+<span class="fc" id="L66">  private boolean telephoneNumberDisplayed = true;</span>
+
+<span class="fc" id="L68">  private boolean companyDisplayed = true;</span>
+
+  private String defaultCompany;
+
+<span class="fc" id="L72">  private boolean jobTitleDisplayed = true;</span>
+
+<span class="fc" id="L74">  private boolean departmentDisplayed = true;</span>
+
+<span class="fc" id="L76">  private boolean physicalDeliveryOfficeNameDisplayed = true;</span>
+
+<span class="fc" id="L78">  private String defaultDisplayName = &quot;{{user.firstName}} {{user.lastName}}&quot;;</span>
+
+<span class="fc" id="L80">  private String defaultEmail = &quot;{{user.samAccountName}}@{{domain.domainInfo.domain}}&quot;;</span>
+
+<span class="fc" id="L82">  private String defaultUserPrincipalName = &quot;{{user.samAccountName}}@{{domain.domainInfo.domain}}&quot;;</span>
+
+<span class="fc" id="L84">  private String defaultGecos = &quot;{{user.firstName}} {{user.lastName}}&quot;;</span>
+
+  private Integer defaultGidNumber; // = 100; // = Domain Users
+
+<span class="fc" id="L88">  private boolean homeDirectoryDisplayed = true;</span>
+
+  private String defaultHomeDirectory;
+
+<span class="fc" id="L92">  private boolean homeDriveDisplayed = true;</span>
+
+  private String defaultHomeDrive;
+
+<span class="fc" id="L96">  private String defaultLoginShell = &quot;/bin/bash&quot;;</span>
+
+  private String defaultNisDomain;
+
+<span class="fc" id="L100">  private String defaultLanguage = &quot;de-DE&quot;;</span>
+
+<span class="fc" id="L102">  private boolean profilePathDisplayed = true;</span>
+
+  private String defaultProfilePath;
+
+<span class="fc" id="L106">  private boolean scriptPathDisplayed = true;</span>
+
+  private String defaultScriptPath;
+
+<span class="fc" id="L110">  private String defaultUid = &quot;{{user.samAccountName}}&quot;;</span>
+
+<span class="fc" id="L112">  private String defaultUnixHomeDirectory = &quot;/home/{{user.samAccountName}}&quot;;</span>
+
+<span class="fc" id="L114">  private DefaultLoginPage defaultLoginPage = new DefaultLoginPage();</span>
+
+<span class="fc" id="L116">  private String gravatarUrl = &quot;https://www.gravatar.com/avatar/{hash}?d={default}&amp;s={size}&quot;;</span>
+
+  /**
+   * Instantiates a new Domain user properties.
+   */
+<span class="fc" id="L121">  public DomainUserProperties() {</span>
+<span class="fc" id="L122">    setDefaultOu(DEFAULT_USER_OU);</span>
+<span class="fc" id="L123">  }</span>
+
+  /**
+   * The default login page.
+   *
+   * @author Christian Bremer
+   */
+  @Data
+  public static class DefaultLoginPage implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private String url;
+
+    private String name;
+
+<span class="fc" id="L140">    private boolean usingNetbiosDomainPrefix = true;</span>
+
+    /**
+     * Instantiates a new default login page.
+     */
+    public DefaultLoginPage() {
+<span class="fc" id="L146">      super();</span>
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
+    public String getName() {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">      if (isEmpty(name)) {</span>
+<span class="nc" id="L156">        return url;</span>
+      }
+<span class="nc" id="L158">      return name;</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

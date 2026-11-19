@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TreeSearchScope.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">TreeSearchScope.java</span></div><h1>TreeSearchScope.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.isNull;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+
+/**
+ * The tree search scope.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L31">@Schema(enumAsRef = true)</span>
+@Getter
+public enum TreeSearchScope implements Translatable {
+
+  /**
+   * One level search scope.
+   */
+<span class="fc" id="L38">  ONELEVEL(&quot;one-level&quot;, &quot;search-scope.one-level.label&quot;, &quot;One Level&quot;),</span>
+
+  /**
+   * Subtree tree search scope.
+   */
+<span class="fc" id="L43">  SUBTREE(&quot;subtree&quot;, &quot;search-scope.subtree.label&quot;, &quot;Subtree&quot;);</span>
+
+  private final String parameterValue;
+
+  private final String i18nCode;
+
+  private final String defaultDisplayName;
+
+<span class="fc" id="L51">  TreeSearchScope(String parameterValue, String i18nCode, String defaultDisplayName) {</span>
+<span class="fc" id="L52">    this.parameterValue = parameterValue;</span>
+<span class="fc" id="L53">    this.i18nCode = i18nCode;</span>
+<span class="fc" id="L54">    this.defaultDisplayName = defaultDisplayName;</span>
+<span class="fc" id="L55">  }</span>
+
+  /**
+   * Gets parameter value.
+   *
+   * @return the parameter value
+   */
+  @JsonValue
+  public String getParameterValue() {
+<span class="nc" id="L64">    return parameterValue;</span>
+  }
+
+  /**
+   * From value tree search scope.
+   *
+   * @param value the value
+   * @return the tree search scope
+   */
+  @JsonCreator
+  public static TreeSearchScope fromValue(String value) {
+<span class="nc bnc" id="L75" title="All 4 branches missed.">    if (isNull(value) || value.isEmpty()) {</span>
+<span class="nc" id="L76">      return null;</span>
+    }
+<span class="nc bnc" id="L78" title="All 2 branches missed.">    for (TreeSearchScope scope : values()) {</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">      if (scope.parameterValue.equalsIgnoreCase(value) || scope.name().equalsIgnoreCase(value)) {</span>
+<span class="nc" id="L80">        return scope;</span>
+      }
+    }
+<span class="nc" id="L83">    return null;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

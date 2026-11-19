@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserAddController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">UserAddController.java</span></div><h1>UserAddController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.config.DomainUserProperties;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.UserAddModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.UserAddModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.FieldTemplateComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.TemplateEngine;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The user add controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class UserAddController extends UiController
+    implements PageableComponent, RedirectComponent, FieldTemplateComponent,
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
+
+  private static final String ADD_USER_VIEW = &quot;management/user-add&quot;;
+
+  private static final String EMAIL = &quot;email&quot;;
+
+  private final DomainUserService domainUserService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  @Getter
+  private final TemplateEngine templateEngine;
+
+  private final ApplicationEventPublisher eventPublisher;
+
+  /**
+   * Instantiates a new user add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param organizationalUnitService the organizational unit service
+   * @param templateEngine the template engine
+   * @param eventPublisher the event publisher
+   */
+  public UserAddController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainUserService domainUserService,
+      OrganizationalUnitService organizationalUnitService,
+      TemplateEngine templateEngine,
+      ApplicationEventPublisher eventPublisher) {
+<span class="nc" id="L101">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L102">    this.domainUserService = domainUserService;</span>
+<span class="nc" id="L103">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L104">    this.templateEngine = templateEngine;</span>
+<span class="nc" id="L105">    this.eventPublisher = eventPublisher;</span>
+<span class="nc" id="L106">  }</span>
+
+  /**
+   * Gets password pattern.
+   *
+   * @return the password pattern
+   */
+  @ModelAttribute(&quot;passwordPattern&quot;)
+  public String getPasswordPattern() {
+<span class="nc" id="L115">    return getDomainService().getPasswordInformation().getPasswordRegex();</span>
+  }
+
+  /**
+   * Gets password description.
+   *
+   * @return the password description
+   */
+  @ModelAttribute(&quot;passwordDescription&quot;)
+  public String getPasswordDescription() {
+<span class="nc" id="L125">    return getDomainService().getPasswordInformation()</span>
+<span class="nc" id="L126">        .getPasswordDescription(getMessageSource(), getResolvedLocale());</span>
+  }
+
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
+  @ModelAttribute(&quot;rfc2307Enabled&quot;)
+  public boolean isRfc2307Enabled() {
+<span class="nc" id="L136">    return getDomainService().isRfc2307Enabled();</span>
+  }
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L141">    return USER_SORT;</span>
+  }
+
+  /**
+   * Display user add string.
+   *
+   * @param ou the ou
+   * @param model the model
+   * @return the string
+   */
+  @GetMapping(path = &quot;/management/user-add&quot;)
+  public String displayUserAdd(
+      @RequestParam(name = OU, required = false) Dn ou,
+      ModelMap model) {
+
+<span class="nc" id="L156">    getLogger().debug(&quot;displayUserAdd({})&quot;, ou);</span>
+<span class="nc" id="L157">    UserAddModel addModel = newUserAddModel(ou);</span>
+<span class="nc" id="L158">    model.addAttribute(&quot;addModel&quot;, addModel);</span>
+<span class="nc" id="L159">    return ADD_USER_VIEW;</span>
+  }
+
+  /**
+   * Add user string.
+   *
+   * @param addModel the add model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
+  @PostMapping(path = &quot;/management/user-add&quot;)
+  public String addUser(
+      @ModelAttribute(name = &quot;addModel&quot;) UserAddModel addModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L178">    getLogger().debug(&quot;addUser({})&quot;, addModel);</span>
+
+<span class="nc" id="L180">    processTemplates(bindingResult, addModel);</span>
+
+<span class="nc bnc" id="L182" title="All 4 branches missed.">    if (addModel.isSendEmail() &amp;&amp; isEmpty(addModel.getEmail())) {</span>
+<span class="nc" id="L183">      bindingResult.rejectValue(EMAIL, &quot;user-add.send-invitation.email-required&quot;,</span>
+          &quot;If you want to send an invitation email, you have to enter an email address.&quot;);
+    }
+<span class="nc bnc" id="L186" title="All 2 branches missed.">    if (addModel.isSendEmail()) {</span>
+<span class="nc" id="L187">      addModel.setPassword(null);</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">    } else if (isEmpty(addModel.getPassword())) {</span>
+<span class="nc" id="L189">      bindingResult.rejectValue(&quot;password&quot;, &quot;user.password.required&quot;,</span>
+          &quot;Password is required.&quot;);
+    }
+<span class="nc bnc" id="L192" title="All 2 branches missed.">    if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L193">      getLogger().debug(&quot;Adding user failed. Some fields were invalid.&quot;);</span>
+<span class="nc" id="L194">      return ADD_USER_VIEW;</span>
+    }
+
+<span class="nc" id="L197">    DomainUser addedUser = addUser(bindingResult, addModel);</span>
+
+<span class="nc bnc" id="L199" title="All 2 branches missed.">    if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L200">      getLogger().debug(&quot;Adding user failed. Some fields were invalid.&quot;);</span>
+<span class="nc" id="L201">      return ADD_USER_VIEW;</span>
+    }
+
+<span class="nc" id="L204">    model.clear();</span>
+<span class="nc" id="L205">    String msg = String.format(&quot;User '%s' was successfully added.&quot;, addedUser.getName());</span>
+<span class="nc" id="L206">    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,</span>
+<span class="nc" id="L207">        &quot;user-add.success&quot;, addedUser.getName());</span>
+<span class="nc" id="L208">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L210">    Map&lt;String, Object&gt; parameters = getParameterMap(addedUser.getDn().getParent());</span>
+<span class="nc" id="L211">    String redirect = getRedirectUri(&quot;user-edit?user={{user.samAccountName}}&quot;,</span>
+<span class="nc" id="L212">        PAGE_AND_OU_PARAMS, putToParameterMap(parameters, &quot;user&quot;, addedUser));</span>
+<span class="nc" id="L213">    logRedirectTo(&quot;User successfully added.&quot;, redirect);</span>
+<span class="nc" id="L214">    return redirect;</span>
+  }
+
+  private DomainUser addUser(
+      BindingResult bindingResult,
+      UserAddModel addModel) {
+
+<span class="nc" id="L221">    DomainUser user = UserAddModelMapper.INSTANCE.map(addModel);</span>
+<span class="nc" id="L222">    String password = addModel.getPassword();</span>
+<span class="nc" id="L223">    Dn ou = addModel.getNewOuDn()</span>
+<span class="nc" id="L224">        .orElseGet(() -&gt; getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()));</span>
+<span class="nc" id="L225">    boolean useUsernameAsCn = addModel.isUseUsernameAsCn();</span>
+    try {
+<span class="nc" id="L227">      DomainUser addedUser = domainUserService.addUser(user, password, ou, useUsernameAsCn);</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">      if (addModel.isSendEmail()) {</span>
+<span class="nc" id="L229">        eventPublisher.publishEvent(new InvitationEvent(addedUser, getBaseUri()));</span>
+      }
+<span class="nc" id="L231">      return addedUser;</span>
+
+<span class="nc" id="L233">    } catch (ServiceException e) {</span>
+<span class="nc" id="L234">      handleException(bindingResult, e);</span>
+    }
+<span class="nc" id="L236">    return user;</span>
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L241">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L242">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L243">    Assert.isTrue(bindTarget instanceof UserAddModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L244">    UserAddModel addModel = (UserAddModel) bindTarget;</span>
+<span class="nc" id="L245">    String errorCode = requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L246" title="All 13 branches missed.">    switch (errorCode) {</span>
+      case EC_SAM_ACCOUNT_NAME_REQUIRED: {
+<span class="nc" id="L248">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.required&quot;,</span>
+            &quot;Username is required.&quot;);
+<span class="nc" id="L250">        break;</span>
+      }
+      case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
+<span class="nc" id="L253">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.illegal&quot;,</span>
+            &quot;Username contains illegal characters.&quot;);
+<span class="nc" id="L255">        replaceInvalidValuesWithDefaults(addModel);</span>
+<span class="nc" id="L256">        break;</span>
+      }
+      case EC_ILLEGAL_FIRST_NAME: {
+<span class="nc" id="L259">        bindingResult.rejectValue(&quot;firstName&quot;, &quot;user.first-name.illegal&quot;,</span>
+            &quot;First name contains illegal characters.&quot;);
+<span class="nc" id="L261">        replaceInvalidValuesWithDefaults(addModel);</span>
+<span class="nc" id="L262">        break;</span>
+      }
+      case EC_ILLEGAL_LAST_NAME: {
+<span class="nc" id="L265">        bindingResult.rejectValue(&quot;lastName&quot;, &quot;user.last-name.illegal&quot;,</span>
+            &quot;Last name contains illegal characters.&quot;);
+<span class="nc" id="L267">        replaceInvalidValuesWithDefaults(addModel);</span>
+<span class="nc" id="L268">        break;</span>
+      }
+      case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
+<span class="nc" id="L271">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;user.username.already-exists&quot;,</span>
+            &quot;Username already exists.&quot;);
+<span class="nc" id="L273">        replaceInvalidValuesWithDefaults(addModel);</span>
+<span class="nc" id="L274">        break;</span>
+      }
+      case EC_PRINCIPAL_ALREADY_EXISTS: {
+<span class="nc" id="L277">        bindingResult.rejectValue(&quot;userPrincipalName&quot;, &quot;user.principal-name.already-exists&quot;,</span>
+            &quot;User principal name already exists.&quot;);
+<span class="nc" id="L279">        break;</span>
+      }
+      case EC_UID_ALREADY_EXISTS: {
+<span class="nc" id="L282">        bindingResult.rejectValue(&quot;uid&quot;, &quot;user.uid.already-exists&quot;,</span>
+            &quot;User's unix uid already exists.&quot;);
+<span class="nc" id="L284">        break;</span>
+      }
+      case EC_UID_NUMBER_ALREADY_EXISTS: {
+<span class="nc" id="L287">        bindingResult.rejectValue(&quot;uidNumber&quot;, &quot;user.uid-number.already-exists&quot;,</span>
+            &quot;User's unix uid number already exists.&quot;);
+<span class="nc" id="L289">        break;</span>
+      }
+      case EC_EMAIL_INVALID: {
+<span class="nc" id="L292">        bindingResult.rejectValue(EMAIL, &quot;common.email.invalid&quot;,</span>
+            &quot;Email is invalid.&quot;);
+<span class="nc" id="L294">        break;</span>
+      }
+      case EC_PASSWORD_RESTRICTIONS: {
+<span class="nc" id="L297">        bindingResult.rejectValue(&quot;password&quot;, &quot;user.password.restrictions&quot;,</span>
+            &quot;Password restrictions are not met.&quot;);
+<span class="nc" id="L299">        break;</span>
+      }
+      case EC_EMPTY_OU_RDN: {
+<span class="nc" id="L302">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;ec.ou.required&quot;,</span>
+            &quot;Organizational unit is empty.&quot;);
+<span class="nc" id="L304">        break;</span>
+      }
+      case EC_OU_NOT_FOUND: {
+<span class="nc" id="L307">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;ec.ou.not-found&quot;,</span>
+            &quot;Organizational unit was not found.&quot;);
+<span class="nc" id="L309">        break;</span>
+      }
+      default: {
+<span class="nc" id="L312">        getLogger().error(&quot;Adding user failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L313">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L316">  }</span>
+
+  private UserAddModel newUserAddModel(Dn ou) {
+<span class="nc" id="L319">    UserAddModel addRequest = new UserAddModel(</span>
+<span class="nc" id="L320">        getProperties().getUser(),</span>
+<span class="nc" id="L321">        getDomainService().getPasswordInformation(),</span>
+<span class="nc" id="L322">        isRfc2307Enabled());</span>
+<span class="nc" id="L323">    addRequest.setNewOu(Optional.ofNullable(ou)</span>
+<span class="nc" id="L324">        .filter(DnTool::isValidDn)</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">        .filter(dn -&gt; !dn.isSame(getDnTool().getBaseDn()))</span>
+<span class="nc" id="L326">        .orElseGet(() -&gt; getDnTool().addBaseDn(getProperties().getUser().getDefaultOu()))</span>
+<span class="nc" id="L327">        .format());</span>
+<span class="nc" id="L328">    return addRequest;</span>
+  }
+
+  private void processTemplates(BindingResult bindingResult, UserAddModel addRequest) {
+<span class="nc" id="L332">    Map&lt;String, Object&gt; map = Map.of(&quot;user&quot;, addRequest);</span>
+
+<span class="nc" id="L334">    String value = processTemplatedField(bindingResult, &quot;company&quot;, addRequest.getCompany(), map);</span>
+<span class="nc" id="L335">    addRequest.setCompany(value);</span>
+
+<span class="nc" id="L337">    value = processTemplatedField(bindingResult, &quot;department&quot;, addRequest.getDepartment(), map);</span>
+<span class="nc" id="L338">    addRequest.setDepartment(value);</span>
+
+<span class="nc" id="L340">    value = processTemplatedField(bindingResult, &quot;description&quot;, addRequest.getDescription(), map);</span>
+<span class="nc" id="L341">    addRequest.setDescription(value);</span>
+
+<span class="nc" id="L343">    value = processTemplatedField(bindingResult, &quot;displayName&quot;, addRequest.getDisplayName(), map);</span>
+<span class="nc" id="L344">    addRequest.setDisplayName(value);</span>
+
+<span class="nc" id="L346">    value = processTemplatedField(bindingResult, EMAIL, addRequest.getEmail(), map);</span>
+<span class="nc" id="L347">    addRequest.setEmail(value);</span>
+
+<span class="nc" id="L349">    value = processTemplatedField(bindingResult, &quot;userPrincipalName&quot;, addRequest.getEmail(), map);</span>
+<span class="nc" id="L350">    addRequest.setUserPrincipalName(value);</span>
+
+<span class="nc" id="L352">    value = processTemplatedField(bindingResult, &quot;gecos&quot;, addRequest.getGecos(), map);</span>
+<span class="nc" id="L353">    addRequest.setGecos(value);</span>
+
+<span class="nc" id="L355">    value = processTemplatedField(bindingResult, &quot;homeDirectory&quot;, addRequest.getHomeDirectory(),</span>
+        map);
+<span class="nc" id="L357">    addRequest.setHomeDirectory(value);</span>
+
+<span class="nc" id="L359">    value = processTemplatedField(bindingResult, &quot;loginShell&quot;, addRequest.getLoginShell(), map);</span>
+<span class="nc" id="L360">    addRequest.setLoginShell(value);</span>
+
+<span class="nc" id="L362">    value = processTemplatedField(bindingResult, &quot;nisDomain&quot;, addRequest.getNisDomain(), map);</span>
+<span class="nc" id="L363">    addRequest.setNisDomain(value);</span>
+
+<span class="nc" id="L365">    value = processTemplatedField(bindingResult, &quot;physicalDeliveryOfficeName&quot;,</span>
+<span class="nc" id="L366">        addRequest.getPhysicalDeliveryOfficeName(), map);</span>
+<span class="nc" id="L367">    addRequest.setPhysicalDeliveryOfficeName(value);</span>
+
+<span class="nc" id="L369">    value = processTemplatedField(bindingResult, &quot;preferredLanguage&quot;,</span>
+<span class="nc" id="L370">        addRequest.getPreferredLanguage(),</span>
+        map);
+<span class="nc" id="L372">    addRequest.setPreferredLanguage(value);</span>
+
+<span class="nc" id="L374">    value = processTemplatedField(bindingResult, &quot;profilePath&quot;, addRequest.getProfilePath(), map);</span>
+<span class="nc" id="L375">    addRequest.setProfilePath(value);</span>
+
+<span class="nc" id="L377">    value = processTemplatedField(bindingResult, &quot;scriptPath&quot;, addRequest.getScriptPath(), map);</span>
+<span class="nc" id="L378">    addRequest.setScriptPath(value);</span>
+
+<span class="nc" id="L380">    value = processTemplatedField(bindingResult, &quot;uid&quot;, addRequest.getUid(), map);</span>
+<span class="nc" id="L381">    addRequest.setUid(value);</span>
+
+<span class="nc" id="L383">    value = processTemplatedField(bindingResult, &quot;unixHomeDirectory&quot;,</span>
+<span class="nc" id="L384">        addRequest.getUnixHomeDirectory(),</span>
+        map);
+<span class="nc" id="L386">    addRequest.setUnixHomeDirectory(value);</span>
+<span class="nc" id="L387">  }</span>
+
+  private void replaceInvalidValuesWithDefaults(UserAddModel addRequest) {
+
+<span class="nc bnc" id="L391" title="All 2 branches missed.">    if (isEmpty(addRequest)) {</span>
+<span class="nc" id="L392">      return;</span>
+    }
+<span class="nc" id="L394">    List&lt;String&gt; values = List.of(</span>
+<span class="nc" id="L395">        addRequest.getSamAccountName(),</span>
+<span class="nc" id="L396">        addRequest.getFirstName(),</span>
+<span class="nc" id="L397">        addRequest.getLastName()</span>
+    );
+<span class="nc" id="L399">    values.forEach(value -&gt; replaceInvalidValueWithDefaults(value, addRequest));</span>
+<span class="nc" id="L400">  }</span>
+
+  private void replaceInvalidValueWithDefaults(
+      String value,
+      UserAddModel addRequest) {
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">    if (isEmpty(value)) {</span>
+<span class="nc" id="L407">      return;</span>
+    }
+
+<span class="nc" id="L410">    DomainUserProperties properties = getProperties().getUser();</span>
+<span class="nc" id="L411">    String lowerValue = value.toLowerCase();</span>
+<span class="nc" id="L412">    reset(lowerValue, addRequest.getDisplayName(),</span>
+<span class="nc" id="L413">        () -&gt; addRequest.setDisplayName(properties.getDefaultDisplayName()));</span>
+<span class="nc" id="L414">    reset(lowerValue, addRequest.getEmail(),</span>
+<span class="nc" id="L415">        () -&gt; addRequest.setEmail(properties.getDefaultEmail()));</span>
+<span class="nc" id="L416">    reset(lowerValue, addRequest.getUserPrincipalName(),</span>
+<span class="nc" id="L417">        () -&gt; addRequest.setUserPrincipalName(properties.getDefaultUserPrincipalName()));</span>
+<span class="nc" id="L418">    reset(lowerValue, addRequest.getHomeDirectory(),</span>
+<span class="nc" id="L419">        () -&gt; addRequest.setHomeDirectory(properties.getDefaultHomeDirectory()));</span>
+<span class="nc" id="L420">    reset(lowerValue, addRequest.getScriptPath(),</span>
+<span class="nc" id="L421">        () -&gt; addRequest.setScriptPath(properties.getDefaultScriptPath()));</span>
+
+<span class="nc bnc" id="L423" title="All 2 branches missed.">    if (isRfc2307Enabled()) {</span>
+<span class="nc" id="L424">      reset(lowerValue, addRequest.getGecos(),</span>
+<span class="nc" id="L425">          () -&gt; addRequest.setGecos(properties.getDefaultGecos()));</span>
+<span class="nc" id="L426">      reset(lowerValue, addRequest.getLoginShell(),</span>
+<span class="nc" id="L427">          () -&gt; addRequest.setLoginShell(properties.getDefaultLoginShell()));</span>
+<span class="nc" id="L428">      reset(lowerValue, addRequest.getUid(), () -&gt; addRequest.setUid(properties.getDefaultUid()));</span>
+<span class="nc" id="L429">      reset(lowerValue, addRequest.getUnixHomeDirectory(),</span>
+<span class="nc" id="L430">          () -&gt; addRequest.setUnixHomeDirectory(properties.getDefaultUnixHomeDirectory()));</span>
+    }
+<span class="nc" id="L432">  }</span>
+
+  private void reset(String lowerValue, String value, Runnable reset) {
+<span class="nc bnc" id="L435" title="All 2 branches missed.">    if (containsUsername(lowerValue, value)) {</span>
+<span class="nc" id="L436">      reset.run();</span>
+    }
+<span class="nc" id="L438">  }</span>
+
+  private boolean containsUsername(String lowerValue, String value) {
+<span class="nc bnc" id="L441" title="All 4 branches missed.">    return !isEmpty(value) &amp;&amp; value.toLowerCase().contains(lowerValue);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

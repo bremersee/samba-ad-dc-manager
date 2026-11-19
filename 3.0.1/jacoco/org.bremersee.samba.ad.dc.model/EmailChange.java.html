@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailChange.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">EmailChange.java</span></div><h1>EmailChange.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The email change.
+ *
+ * @author Christian Bremer
+ */
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableEmailChange.class)
+@JsonDeserialize(as = ImmutableEmailChange.class)
+public interface EmailChange extends Serializable {
+
+  /**
+   * Gets username.
+   *
+   * @return the username
+   */
+  @JsonProperty(value = &quot;username&quot;, required = true)
+  String getUsername();
+
+  /**
+   * Gets old email.
+   *
+   * @return the old email
+   */
+  @JsonProperty(value = &quot;oldEmail&quot;, required = true)
+  String getOldEmail();
+
+  /**
+   * Gets new email.
+   *
+   * @return the new email
+   */
+  @JsonProperty(value = &quot;newEmail&quot;, required = true)
+  String getNewEmail();
+
+  /**
+   * Gets request date time.
+   *
+   * @return the request date time
+   */
+  @JsonProperty(value = &quot;requested&quot;, required = true)
+  @Value.Default
+  default OffsetDateTime getRequestDateTime() {
+<span class="nc" id="L78">    return OffsetDateTime.now(ZoneOffset.UTC);</span>
+  }
+
+  /**
+   * Of email change.
+   *
+   * @param domainUser the domain user
+   * @param newEmail the new email
+   * @return the email change
+   */
+  static EmailChange of(DomainUser domainUser, String newEmail) {
+<span class="nc" id="L89">    return builder()</span>
+<span class="nc" id="L90">        .username(domainUser.getSamAccountName())</span>
+<span class="nc" id="L91">        .oldEmail(domainUser.getEmail())</span>
+<span class="nc" id="L92">        .newEmail(newEmail)</span>
+<span class="nc" id="L93">        .build();</span>
+  }
+
+  /**
+   * Builder builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+<span class="nc" id="L102">    return new Builder();</span>
+  }
+
+  /**
+   * The builder.
+   *
+   * @author Christian Bremer
+   */
+  class Builder extends ImmutableEmailChange.Builder {
+
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+<span class="nc" id="L116">      super();</span>
+<span class="nc" id="L117">    }</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupAddController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">GroupAddController.java</span></div><h1>GroupAddController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static java.util.Objects.requireNonNullElse;
+
+import java.util.Map;
+import java.util.Optional;
+import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupAddModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.GroupAddModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DomainGroupTypesComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The group add controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class GroupAddController extends UiController
+    implements PageableComponent, RedirectComponent, DomainGroupTypesComponent,
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
+
+  private final DomainGroupService domainGroupService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new group add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public GroupAddController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainGroupService domainGroupService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L82">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L83">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L84">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L85">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L89">    return GROUP_SORT;</span>
+  }
+
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
+  @ModelAttribute(&quot;rfc2307Enabled&quot;)
+  public boolean isRfc2307Enabled() {
+<span class="nc" id="L99">    return getDomainService().isRfc2307Enabled();</span>
+  }
+
+  /**
+   * Display group add view.
+   *
+   * @param ou the ou
+   * @param model the model
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/group-add&quot;)
+  public String displayGroupAdd(
+      @RequestParam(name = OU, required = false) Dn ou,
+      ModelMap model) {
+
+<span class="nc" id="L114">    getLogger().debug(&quot;displayGroupAdd({})&quot;, ou);</span>
+<span class="nc" id="L115">    Dn ouDn = Optional.ofNullable(ou)</span>
+<span class="nc" id="L116">        .filter(DnTool::isValidDn)</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        .filter(dn -&gt; !dn.isSame(getDnTool().getBaseDn()))</span>
+<span class="nc" id="L118">        .orElseGet(() -&gt; getDnTool().addBaseDn(getProperties().getGroup().getDefaultOu()));</span>
+<span class="nc" id="L119">    GroupAddModel addModel = new GroupAddModel(ouDn.format());</span>
+<span class="nc" id="L120">    model.addAttribute(&quot;addModel&quot;, addModel);</span>
+<span class="nc" id="L121">    return &quot;management/group-add&quot;;</span>
+  }
+
+  /**
+   * Add group.
+   *
+   * @param addModel the add model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/group-add&quot;)
+  public String addGroup(
+      @ModelAttribute(name = &quot;addModel&quot;) GroupAddModel addModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L140">    getLogger().debug(&quot;addGroup({})&quot;, addModel);</span>
+
+<span class="nc" id="L142">    DomainGroup addedGroup = addGroup(bindingResult, addModel);</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">    if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L145">      getLogger().debug(&quot;Adding group failed. Some fields were invalid.&quot;);</span>
+<span class="nc" id="L146">      return &quot;management/group-add&quot;;</span>
+    }
+
+<span class="nc" id="L149">    model.clear();</span>
+<span class="nc" id="L150">    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS,</span>
+<span class="nc" id="L151">        String.format(&quot;Group '%s' was successfully added.&quot;, addedGroup.getSamAccountName()),</span>
+<span class="nc" id="L152">        &quot;group-add.success&quot;, addedGroup.getSamAccountName());</span>
+<span class="nc" id="L153">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L155">    Map&lt;String, Object&gt; parameters = getParameterMap(addedGroup.getDn().getParent());</span>
+<span class="nc" id="L156">    String redirect = getRedirectUri(&quot;group-edit?name={{group.samAccountName}}&quot;,</span>
+<span class="nc" id="L157">        PAGE_AND_OU_PARAMS, putToParameterMap(parameters, &quot;group&quot;, addedGroup));</span>
+<span class="nc" id="L158">    logRedirectTo(&quot;Group successfully added.&quot;, redirect);</span>
+<span class="nc" id="L159">    return redirect;</span>
+  }
+
+  private DomainGroup addGroup(
+      BindingResult bindingResult,
+      GroupAddModel addModel) {
+
+<span class="nc" id="L166">    DomainGroup group = GroupAddModelMapper.INSTANCE.map(addModel);</span>
+<span class="nc" id="L167">    Dn ou = Optional.ofNullable(addModel.getNewOuDn())</span>
+<span class="nc" id="L168">        .orElseGet(() -&gt; new Dn(getProperties().getGroup().getDefaultOu()));</span>
+
+    try {
+<span class="nc" id="L171">      return domainGroupService.addGroup(group, ou);</span>
+
+<span class="nc" id="L173">    } catch (ServiceException e) {</span>
+<span class="nc" id="L174">      handleException(bindingResult, e);</span>
+    }
+<span class="nc" id="L176">    return group;</span>
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L181">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L182">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L183">    Assert.isTrue(bindTarget instanceof GroupAddModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L184">    String errorCode = requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L185" title="All 8 branches missed.">    switch (errorCode) {</span>
+      case EC_SAM_ACCOUNT_NAME_REQUIRED: {
+<span class="nc" id="L187">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.required&quot;,</span>
+            &quot;Group name is required.&quot;);
+<span class="nc" id="L189">        break;</span>
+      }
+      case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
+<span class="nc" id="L192">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.illegal&quot;,</span>
+            &quot;Group name contains illegal characters.&quot;);
+<span class="nc" id="L194">        break;</span>
+      }
+      case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
+<span class="nc" id="L197">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.already-exists&quot;,</span>
+            &quot;Group name already exists.&quot;);
+<span class="nc" id="L199">        break;</span>
+      }
+      case EC_GID_NUMBER_ALREADY_EXISTS: {
+<span class="nc" id="L202">        bindingResult.rejectValue(&quot;gidNumber&quot;, &quot;group.gid-number.already-exists&quot;,</span>
+            &quot;Unix GID number already exists.&quot;);
+<span class="nc" id="L204">        break;</span>
+      }
+      case EC_EMAIL_INVALID: {
+<span class="nc" id="L207">        bindingResult.rejectValue(&quot;email&quot;, &quot;common.email.invalid&quot;,</span>
+            &quot;Email is invalid.&quot;);
+<span class="nc" id="L209">        break;</span>
+      }
+      case EC_EMPTY_OU_RDN: {
+<span class="nc" id="L212">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;common.ou.required&quot;,</span>
+            &quot;Organizational unit is empty.&quot;);
+<span class="nc" id="L214">        break;</span>
+      }
+      case EC_OU_NOT_FOUND: {
+<span class="nc" id="L217">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;common.ou.not-found&quot;,</span>
+            &quot;Organizational unit was not found.&quot;);
+<span class="nc" id="L219">        break;</span>
+      }
+      default: {
+<span class="nc" id="L222">        getLogger().error(&quot;Adding group failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L223">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L226">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
