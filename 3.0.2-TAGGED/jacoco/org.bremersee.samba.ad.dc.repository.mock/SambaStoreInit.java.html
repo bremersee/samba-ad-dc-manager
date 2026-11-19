@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SambaStoreInit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mock</a> &gt; <span class="el_source">SambaStoreInit.java</span></div><h1>SambaStoreInit.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mock;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.config.MockProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.dn.Dn;
+
+/**
+ * The samba store initialization.
+ *
+ * @author Christian Bremer
+ */
+class SambaStoreInit {
+
+  private static final String ZONE_NAME = &quot;samdom.example.org&quot;;
+
+  private static final String ZONE_FQDN = &quot;DomainDnsZones.&quot; + ZONE_NAME;
+
+  private static final String MSDCS_ZONE_NAME = &quot;_msdcs.&quot; + ZONE_NAME;
+
+  private static final String REVERSE_ZONE = &quot;1.168.192.in-addr.arpa&quot;;
+
+  private static final String DNS_ZONE_UPDATE_SECURE = &quot;DNS_ZONE_UPDATE_SECURE&quot;;
+
+  private static final String SOA_VALUE = &quot;, refresh=900, retry=600, expire=86400, minttl=3600, &quot;
+      + &quot;ns=dc1.samdom.example.org., email=hostmaster.samdom.example.org.&quot;;
+
+  private static final String SOA_FLAGS = &quot;600000f0&quot;;
+
+  private final SambaStore store;
+
+  private final LdapEntryFactory entryFactory;
+
+  /**
+   * Instantiates a new samba store initialization.
+   *
+   * @param store the store
+   */
+<span class="nc" id="L66">  SambaStoreInit(SambaStore store) {</span>
+<span class="nc" id="L67">    this.store = store;</span>
+<span class="nc" id="L68">    this.entryFactory = store.getEntryFactory();</span>
+<span class="nc" id="L69">  }</span>
+
+  /**
+   * Init.
+   */
+  void init() {
+<span class="nc" id="L75">    store.add(createComputersOu());</span>
+<span class="nc" id="L76">    store.add(createUsersOu());</span>
+<span class="nc" id="L77">    store.add(createDomainControllersOu());</span>
+<span class="nc" id="L78">    store.add(createGroupAllowedRodcPasswordReplication());</span>
+<span class="nc" id="L79">    store.add(createGroupCertPublisher());</span>
+<span class="nc" id="L80">    store.add(createGroupDeniedRodcPasswordReplication());</span>
+<span class="nc" id="L81">    store.add(createGroupDomainAdmins());</span>
+<span class="nc" id="L82">    store.add(createGroupDomainComputers());</span>
+<span class="nc" id="L83">    store.add(createGroupDomainControllers());</span>
+<span class="nc" id="L84">    store.add(createGroupDomainGuests());</span>
+<span class="nc" id="L85">    store.add(createGroupDomainUsers());</span>
+<span class="nc" id="L86">    store.add(createGroupEnterpriseAdmins());</span>
+<span class="nc" id="L87">    store.add(createGroupEnterpriseReadOnlyDomainControllers());</span>
+<span class="nc" id="L88">    store.add(createGroupGroupPolicyCreatorOwners());</span>
+<span class="nc" id="L89">    store.add(createGroupRasAndIasServers());</span>
+<span class="nc" id="L90">    store.add(createGroupReadOnlyDomainControllers());</span>
+<span class="nc" id="L91">    store.add(createGroupSchemaAdmins());</span>
+<span class="nc" id="L92">    store.add(createAdministrator());</span>
+<span class="nc" id="L93">    store.add(createKrbtgt());</span>
+<span class="nc" id="L94">    store.add(createDomainController());</span>
+<span class="nc" id="L95">    store.add(createDhcpdUser());</span>
+<span class="nc" id="L96">    store.add(createGroupDnsAdmins());</span>
+<span class="nc" id="L97">    store.add(createGroupDnsUpdateProxy());</span>
+<span class="nc" id="L98">    store.add(createComputerData());</span>
+<span class="nc" id="L99">    store.getDns().put(createSamdomDnsZone(), createSamdomDnsEntries());</span>
+<span class="nc" id="L100">    store.getDns().put(createSamdomReverseDnsZone(), createSamdomReverseDnsEntries());</span>
+<span class="nc" id="L101">    store.getDns().put(createMsdcsDnsZone(), createMsdcsDnsEntries());</span>
+<span class="nc" id="L102">  }</span>
+
+  private Dn getComputersDn() {
+<span class="nc" id="L105">    return Dn.builder().add(&quot;CN=Computers&quot;).add(store.getDnTool().getBaseDn()).build();</span>
+  }
+
+  private Dn getDomainControllersDn() {
+<span class="nc" id="L109">    return Dn.builder().add(&quot;OU=Domain Controllers&quot;).add(store.getDnTool().getBaseDn()).build();</span>
+  }
+
+  private Dn getUsersDn() {
+<span class="nc" id="L113">    return Dn.builder().add(&quot;CN=Users&quot;).add(store.getDnTool().getBaseDn()).build();</span>
+  }
+
+  private Dn getAdministratorDn() {
+<span class="nc" id="L117">    return Dn.builder().add(&quot;CN=&quot; + MockProperties.ADMIN_NAME).add(getUsersDn()).build();</span>
+  }
+
+  private LdapEntry createComputersOu() {
+<span class="nc" id="L121">    String rdn = getComputersDn().getRDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);</span>
+<span class="nc" id="L122">    LdapEntry entry = entryFactory.newEntry(rdn, store.getDnTool().getBaseDn());</span>
+<span class="nc" id="L123">    AdConstants.OBJECT_CLASS.setValues(entry, List.of(</span>
+        &quot;container&quot;, &quot;top&quot;
+    ));
+<span class="nc" id="L126">    AdConstants.CN.setValue(entry, &quot;Computers&quot;);</span>
+<span class="nc" id="L127">    AdConstants.NAME.setValue(entry, &quot;Computers&quot;);</span>
+<span class="nc" id="L128">    AdConstants.DESCRIPTION</span>
+<span class="nc" id="L129">        .setValue(entry, &quot;Default container for upgraded computer accounts&quot;);</span>
+<span class="nc" id="L130">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, true);</span>
+<span class="nc" id="L131">    return entry;</span>
+  }
+
+  private LdapEntry createUsersOu() {
+<span class="nc" id="L135">    String rdn = getUsersDn().getRDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);</span>
+<span class="nc" id="L136">    LdapEntry entry = entryFactory.newEntry(rdn, store.getDnTool().getBaseDn());</span>
+<span class="nc" id="L137">    AdConstants.OBJECT_CLASS.setValues(entry, List.of(</span>
+        &quot;container&quot;, &quot;top&quot;
+    ));
+<span class="nc" id="L140">    AdConstants.CN.setValue(entry, &quot;Users&quot;);</span>
+<span class="nc" id="L141">    AdConstants.NAME.setValue(entry, &quot;Users&quot;);</span>
+<span class="nc" id="L142">    AdConstants.DESCRIPTION.setValue(entry, &quot;Default container for upgraded user accounts&quot;);</span>
+<span class="nc" id="L143">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, true);</span>
+<span class="nc" id="L144">    return entry;</span>
+  }
+
+  private LdapEntry createDomainControllersOu() {
+<span class="nc" id="L148">    String name = getDomainControllersDn().getRDn().getNameValue().getStringValue();</span>
+<span class="nc" id="L149">    LdapEntry entry = entryFactory</span>
+<span class="nc" id="L150">        .newOrganizationalUnitEntry(name, store.getDnTool().getBaseDn());</span>
+<span class="nc" id="L151">    AdConstants.DESCRIPTION.setValue(entry, &quot;Default container for upgraded user accounts&quot;);</span>
+<span class="nc" id="L152">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, true);</span>
+<span class="nc" id="L153">    return entry;</span>
+  }
+
+  private LdapEntry createGroupAllowedRodcPasswordReplication() {
+<span class="nc" id="L157">    LdapEntry entry = entryFactory.newGroupEntry(</span>
+        &quot;Allowed RODC Password Replication Group&quot;,
+<span class="nc" id="L159">        getUsersDn(),</span>
+        -2147483644,
+<span class="nc" id="L161">        store.getSid(571));</span>
+<span class="nc" id="L162">    AdConstants.DESCRIPTION.setValue(entry, &quot;Members in this group can have their passwords &quot;</span>
+        + &quot;replicated to all read-only domain controllers in the domain&quot;);
+<span class="nc" id="L164">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, true);</span>
+<span class="nc" id="L165">    return entry;</span>
+  }
+
+  private LdapEntry createGroupCertPublisher() {
+<span class="nc" id="L169">    LdapEntry entry = entryFactory.newGroupEntry(</span>
+        &quot;Cert Publishers&quot;,
+<span class="nc" id="L171">        getUsersDn(),</span>
+        -2147483644,
+<span class="nc" id="L173">        store.getSid(517));</span>
+<span class="nc" id="L174">    AdConstants.DESCRIPTION.setValue(entry, &quot;Members of this group are permitted to publish &quot;</span>
+        + &quot;certificates to the directory&quot;);
+<span class="nc" id="L176">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, true);</span>
+<span class="nc" id="L177">    return entry;</span>
+  }
+
+  private LdapEntry createGroupDeniedRodcPasswordReplication() {
+<span class="nc" id="L181">    LdapEntry entry = entryFactory.newGroupEntry(</span>
+        &quot;Denied RODC Password Replication Group&quot;,
+<span class="nc" id="L183">        getUsersDn(),</span>
+        -2147483644,
+<span class="nc" id="L185">        store.getSid(572));</span>
+<span class="nc" id="L186">    AdConstants.DESCRIPTION.setValue(entry, &quot;Members in this group cannot have their &quot;</span>
+        + &quot;passwords replicated to any read-only domain controllers in the domain&quot;);
+<span class="nc" id="L188">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(entry, true);</span>
+<span class="nc" id="L189">    AdConstants.GROUP_MEMBER.setValues(entry, List.of(</span>
+<span class="nc" id="L190">        Dn.builder().add(&quot;CN=krbtgt&quot;).add(getUsersDn()).build()</span>
+    ));
+<span class="nc" id="L192">    return entry;</span>
+  }
+
+  private LdapEntry createGroupDomainAdmins() {
+<span class="nc" id="L196">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Domain Admins&quot;,
+<span class="nc" id="L198">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L200">        store.getSid(512));</span>
+<span class="nc" id="L201">    AdConstants.DESCRIPTION.setValue(node, &quot;Designated administrators of the domain&quot;);</span>
+<span class="nc" id="L202">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L203">    AdConstants.GROUP_MEMBER.setValues(node, List.of(</span>
+<span class="nc" id="L204">        getAdministratorDn()</span>
+    ));
+<span class="nc" id="L206">    return node;</span>
+  }
+
+  private LdapEntry createGroupDomainComputers() {
+<span class="nc" id="L210">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Domain Computers&quot;,
+<span class="nc" id="L212">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L214">        store.getSid(515));</span>
+<span class="nc" id="L215">    AdConstants.DESCRIPTION.setValue(node, &quot;All workstations and servers joined to the domain&quot;);</span>
+<span class="nc" id="L216">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L217">    return node;</span>
+  }
+
+  private LdapEntry createGroupDomainControllers() {
+<span class="nc" id="L221">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Domain Controllers&quot;,
+<span class="nc" id="L223">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L225">        store.getSid(516));</span>
+<span class="nc" id="L226">    AdConstants.DESCRIPTION.setValue(node, &quot;All domain controllers in the domain&quot;);</span>
+<span class="nc" id="L227">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L228">    return node;</span>
+  }
+
+  private LdapEntry createGroupDomainGuests() {
+<span class="nc" id="L232">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Domain Guests&quot;,
+<span class="nc" id="L234">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L236">        store.getSid(514));</span>
+<span class="nc" id="L237">    AdConstants.DESCRIPTION.setValue(node, &quot;All domain guests&quot;);</span>
+<span class="nc" id="L238">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L239">    return node;</span>
+  }
+
+  private LdapEntry createGroupDomainUsers() {
+<span class="nc" id="L243">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Domain Users&quot;,
+<span class="nc" id="L245">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L247">        store.getSid(513));</span>
+<span class="nc" id="L248">    AdConstants.DESCRIPTION.setValue(node, &quot;All domain users&quot;);</span>
+<span class="nc" id="L249">    AdConstants.GID_NUMBER.setValue(node, 100);</span>
+<span class="nc" id="L250">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L251">    return node;</span>
+  }
+
+  private LdapEntry createGroupEnterpriseAdmins() {
+<span class="nc" id="L255">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Enterprise Admins&quot;,
+<span class="nc" id="L257">        getUsersDn(),</span>
+        -2147483640,
+<span class="nc" id="L259">        store.getSid(519));</span>
+<span class="nc" id="L260">    AdConstants.DESCRIPTION.setValue(node, &quot;Designated administrators of the enterprise&quot;);</span>
+<span class="nc" id="L261">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L262">    AdConstants.GROUP_MEMBER.setValues(node, List.of(</span>
+<span class="nc" id="L263">        getAdministratorDn()</span>
+    ));
+<span class="nc" id="L265">    return node;</span>
+  }
+
+  private LdapEntry createGroupEnterpriseReadOnlyDomainControllers() {
+<span class="nc" id="L269">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Enterprise Read-only Domain Controllers&quot;,
+<span class="nc" id="L271">        getUsersDn(),</span>
+        -2147483640,
+<span class="nc" id="L273">        store.getSid(498));</span>
+<span class="nc" id="L274">    AdConstants.DESCRIPTION.setValue(node, &quot;Members of this group are Read-Only Domain &quot;</span>
+        + &quot;Controllers in the enterprise&quot;);
+<span class="nc" id="L276">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L277">    return node;</span>
+  }
+
+  private LdapEntry createGroupGroupPolicyCreatorOwners() {
+<span class="nc" id="L281">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Group Policy Creator Owners&quot;,
+<span class="nc" id="L283">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L285">        store.getSid(520));</span>
+<span class="nc" id="L286">    AdConstants.DESCRIPTION.setValue(node, &quot;Members in this group can modify group policy &quot;</span>
+        + &quot;for the domain&quot;);
+<span class="nc" id="L288">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L289">    AdConstants.GROUP_MEMBER.setValues(node, List.of(</span>
+<span class="nc" id="L290">        getAdministratorDn()</span>
+    ));
+<span class="nc" id="L292">    return node;</span>
+  }
+
+  private LdapEntry createGroupRasAndIasServers() {
+<span class="nc" id="L296">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;RAS and IAS Servers&quot;,
+<span class="nc" id="L298">        getUsersDn(),</span>
+        -2147483644,
+<span class="nc" id="L300">        store.getSid(553));</span>
+<span class="nc" id="L301">    AdConstants.DESCRIPTION.setValue(node, &quot;Servers in this group can access remote access &quot;</span>
+        + &quot;properties of users&quot;);
+<span class="nc" id="L303">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L304">    return node;</span>
+  }
+
+  private LdapEntry createGroupReadOnlyDomainControllers() {
+<span class="nc" id="L308">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Read-only Domain Controllers&quot;,
+<span class="nc" id="L310">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L312">        store.getSid(521));</span>
+<span class="nc" id="L313">    AdConstants.DESCRIPTION.setValue(node,</span>
+        &quot;Members of this group are Read-Only Domain Controllers in the domain&quot;);
+<span class="nc" id="L315">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L316">    return node;</span>
+  }
+
+  private LdapEntry createGroupSchemaAdmins() {
+<span class="nc" id="L320">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;Schema Admins&quot;,
+<span class="nc" id="L322">        getUsersDn(),</span>
+        -2147483640,
+<span class="nc" id="L324">        store.getSid(518));</span>
+<span class="nc" id="L325">    AdConstants.DESCRIPTION.setValue(node, &quot;Designated administrators of the schema&quot;);</span>
+<span class="nc" id="L326">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L327">    AdConstants.GROUP_MEMBER.setValues(node, List.of(</span>
+<span class="nc" id="L328">        getAdministratorDn()</span>
+    ));
+<span class="nc" id="L330">    return node;</span>
+  }
+
+  private LdapEntry createAdministrator() {
+<span class="nc" id="L334">    LdapEntry node = entryFactory.newUserEntry(</span>
+<span class="nc" id="L335">        getAdministratorDn().getRDn().getNameValue().getStringValue(),</span>
+<span class="nc" id="L336">        getUsersDn(),</span>
+<span class="nc" id="L337">        513,</span>
+<span class="nc" id="L338">        store.getSid(500));</span>
+<span class="nc" id="L339">    AdConstants.DESCRIPTION.setValue(node, &quot;Built-in account for administering the &quot;</span>
+        + &quot;computer/domain&quot;);
+<span class="nc" id="L341">    AdConstants.USER_GIVEN_NAME.setValue(node, &quot;Demo Admin&quot;);</span>
+<span class="nc" id="L342">    AdConstants.USER_SN.setValue(node, &quot;of Samba AD DC&quot;);</span>
+<span class="nc" id="L343">    AdConstants.USER_DISPLAY_NAME.setValue(node, &quot;Domain Administrator&quot;);</span>
+<span class="nc" id="L344">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L345">    AdConstants.MEMBER_OF_GROUP.setValues(node, List.of(</span>
+<span class="nc" id="L346">        Dn.builder().add(&quot;CN=Domain Admins&quot;).add(getUsersDn()).build(),</span>
+<span class="nc" id="L347">        Dn.builder().add(&quot;CN=Enterprise Admins&quot;).add(getUsersDn()).build(),</span>
+<span class="nc" id="L348">        Dn.builder().add(&quot;CN=Group Policy Creator Owners&quot;).add(getUsersDn()).build(),</span>
+<span class="nc" id="L349">        Dn.builder().add(&quot;CN=Schema Admins&quot;).add(getUsersDn()).build()</span>
+    ));
+<span class="nc" id="L351">    return node;</span>
+  }
+
+  private LdapEntry createKrbtgt() {
+<span class="nc" id="L355">    LdapEntry node = entryFactory.newUserEntry(</span>
+        &quot;krbtgt&quot;,
+<span class="nc" id="L357">        getUsersDn(),</span>
+<span class="nc" id="L358">        513,</span>
+<span class="nc" id="L359">        store.getNextSid());</span>
+<span class="nc" id="L360">    AdConstants.DESCRIPTION.setValue(node, &quot;Key Distribution Center Service Account&quot;);</span>
+<span class="nc" id="L361">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L362">    AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(node, new UserAccountControl(514));</span>
+<span class="nc" id="L363">    AdConstants.MEMBER_OF_GROUP.setValues(node, List.of(</span>
+<span class="nc" id="L364">        Dn.builder().add(&quot;CN=Denied RODC Password Replication Group&quot;).add(getUsersDn()).build()</span>
+    ));
+<span class="nc" id="L366">    return node;</span>
+  }
+
+  private LdapEntry createDomainController() {
+<span class="nc" id="L370">    LdapEntry node = entryFactory.newComputerEntry(</span>
+        &quot;DC1&quot;,
+<span class="nc" id="L372">        getDomainControllersDn(),</span>
+        516,
+<span class="nc" id="L374">        store.getNextSid());</span>
+<span class="nc" id="L375">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT.setValue(node, true);</span>
+<span class="nc" id="L376">    AdConstants.COMPUTER_DNS_HOST_NAME.setValue(node, &quot;DC1.&quot; + store.getDomainInfo().getDomain());</span>
+<span class="nc" id="L377">    AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(node, new UserAccountControl(532480));</span>
+<span class="nc" id="L378">    String host = &quot;HOST/dc1&quot;;</span>
+<span class="nc" id="L379">    String ldap = &quot;ldap/dc1&quot;;</span>
+<span class="nc" id="L380">    AdConstants.COMPUTER_SERVICE_PRINCIPAL_NAME.setValues(node, List.of(</span>
+<span class="nc" id="L381">        &quot;GC/DC1.&quot; + store.getDomainInfo().getDomain() + '/' + store.getDomainInfo().getDomain(),</span>
+        &quot;HOST/DC1&quot;,
+<span class="nc" id="L383">        host + store.getDomainInfo().getDomain(),</span>
+<span class="nc" id="L384">        host + store.getDomainInfo().getDomain() + '/' + store.getDomainInfo().getNetbiosDomain(),</span>
+<span class="nc" id="L385">        host + store.getDomainInfo().getDomain() + '/' + store.getDomainInfo().getDomain(),</span>
+        &quot;ldap/DC1&quot;,
+<span class="nc" id="L387">        ldap + store.getDomainInfo().getDomain(),</span>
+<span class="nc" id="L388">        ldap + store.getDomainInfo().getDomain() + &quot;/DomainDnsZones.&quot; + store.getDomainInfo()</span>
+<span class="nc" id="L389">            .getDomain(),</span>
+<span class="nc" id="L390">        ldap + store.getDomainInfo().getDomain() + '/' + store.getDomainInfo().getNetbiosDomain(),</span>
+<span class="nc" id="L391">        ldap + store.getDomainInfo().getDomain() + '/' + store.getDomainInfo().getDomain(),</span>
+<span class="nc" id="L392">        ldap + store.getDomainInfo().getDomain() + &quot;/ForestDnsZones.&quot;</span>
+<span class="nc" id="L393">            + store.getDomainInfo().getDomain(),</span>
+        &quot;RestrictedKrbHost/DC1&quot;,
+<span class="nc" id="L395">        &quot;RestrictedKrbHost/dc1.&quot; + store.getDomainInfo().getDomain()</span>
+    ));
+<span class="nc" id="L397">    return node;</span>
+  }
+
+  private LdapEntry createDhcpdUser() {
+<span class="nc" id="L401">    LdapEntry node = entryFactory.newUserEntry(</span>
+        &quot;dhcpduser&quot;,
+<span class="nc" id="L403">        getUsersDn(),</span>
+<span class="nc" id="L404">        513,</span>
+<span class="nc" id="L405">        store.getNextSid());</span>
+<span class="nc" id="L406">    AdConstants.MEMBER_OF_GROUP.setValues(node, List.of(</span>
+<span class="nc" id="L407">        Dn.builder().add(&quot;CN=DnsAdmins&quot;).add(getUsersDn()).build()</span>
+    ));
+<span class="nc" id="L409">    return node;</span>
+  }
+
+  private LdapEntry createGroupDnsAdmins() {
+<span class="nc" id="L413">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;DnsAdmins&quot;,
+<span class="nc" id="L415">        getUsersDn(),</span>
+        -2147483644,
+<span class="nc" id="L417">        store.getNextSid());</span>
+<span class="nc" id="L418">    AdConstants.DESCRIPTION.setValue(node, &quot;DNS Administrators Group&quot;);</span>
+<span class="nc" id="L419">    AdConstants.GROUP_MEMBER.setValues(node, List.of(</span>
+<span class="nc" id="L420">        Dn.builder().add(&quot;CN=dhcpduser&quot;).add(getUsersDn()).build()</span>
+    ));
+<span class="nc" id="L422">    return node;</span>
+  }
+
+  private LdapEntry createGroupDnsUpdateProxy() {
+<span class="nc" id="L426">    LdapEntry node = entryFactory.newGroupEntry(</span>
+        &quot;DnsUpdateProxy&quot;,
+<span class="nc" id="L428">        getUsersDn(),</span>
+        -2147483646,
+<span class="nc" id="L430">        store.getNextSid());</span>
+<span class="nc" id="L431">    AdConstants.DESCRIPTION.setValue(node, &quot;DNS clients who are permitted to perform &quot;</span>
+        + &quot;dynamic updates on behalf of some other clients (such as DHCP servers).&quot;);
+<span class="nc" id="L433">    return node;</span>
+  }
+
+  private LdapEntry createComputerData() {
+<span class="nc" id="L437">    LdapEntry node = entryFactory.newComputerEntry(</span>
+        &quot;DATA&quot;,
+<span class="nc" id="L439">        getComputersDn(),</span>
+        515,
+<span class="nc" id="L441">        store.getNextSid());</span>
+<span class="nc" id="L442">    AdConstants.COMPUTER_DNS_HOST_NAME.setValue(node, &quot;data.&quot; + store.getDomainInfo().getDomain());</span>
+<span class="nc" id="L443">    AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(node, new UserAccountControl(4096));</span>
+<span class="nc" id="L444">    AdConstants.COMPUTER_SERVICE_PRINCIPAL_NAME.setValues(node, List.of(</span>
+        &quot;HOST/DATA&quot;,
+<span class="nc" id="L446">        &quot;HOST/DATA.&quot; + store.getDomainInfo().getDomain(),</span>
+        &quot;nfs/data&quot;,
+<span class="nc" id="L448">        &quot;nfs/data.&quot; + store.getDomainInfo().getDomain()</span>
+    ));
+<span class="nc" id="L450">    return node;</span>
+  }
+
+  private List&lt;DnsEntry&gt; createSamdomDnsEntries() {
+<span class="nc" id="L454">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L455">    List&lt;DnsEntry&gt; entries = new CopyOnWriteArrayList&lt;&gt;();</span>
+<span class="nc" id="L456">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L457">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L458">        .created(now)</span>
+<span class="nc" id="L459">        .modified(now)</span>
+<span class="nc" id="L460">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L461">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L462">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L463">        .value(&quot;192.168.1.2&quot;)</span>
+<span class="nc" id="L464">        .serial(100)</span>
+<span class="nc" id="L465">        .ttlSeconds(3600)</span>
+<span class="nc" id="L466">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L467">        .build());</span>
+<span class="nc" id="L468">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L469">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L470">        .created(now)</span>
+<span class="nc" id="L471">        .modified(now)</span>
+<span class="nc" id="L472">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L473">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L474">        .type(DnsEntryType.NS)</span>
+<span class="nc" id="L475">        .value(&quot;dc1.&quot; + ZONE_NAME + &quot;.&quot;)</span>
+<span class="nc" id="L476">        .serial(101)</span>
+<span class="nc" id="L477">        .ttlSeconds(3600)</span>
+<span class="nc" id="L478">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L479">        .build());</span>
+<span class="nc" id="L480">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L481">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L482">        .created(now)</span>
+<span class="nc" id="L483">        .modified(now)</span>
+<span class="nc" id="L484">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L485">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L486">        .type(DnsEntryType.SOA)</span>
+<span class="nc" id="L487">        .value(&quot;serial=102&quot; + SOA_VALUE)</span>
+<span class="nc" id="L488">        .serial(102)</span>
+<span class="nc" id="L489">        .ttlSeconds(3600)</span>
+<span class="nc" id="L490">        .flags(SOA_FLAGS)</span>
+<span class="nc" id="L491">        .build());</span>
+<span class="nc" id="L492">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L493">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L494">        .created(now)</span>
+<span class="nc" id="L495">        .modified(now)</span>
+<span class="nc" id="L496">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L497">        .name(&quot;gateway&quot;)</span>
+<span class="nc" id="L498">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L499">        .value(&quot;192.168.1.1&quot;)</span>
+<span class="nc" id="L500">        .serial(102)</span>
+<span class="nc" id="L501">        .ttlSeconds(3600)</span>
+<span class="nc" id="L502">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L503">        .build());</span>
+<span class="nc" id="L504">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L505">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L506">        .created(now)</span>
+<span class="nc" id="L507">        .modified(now)</span>
+<span class="nc" id="L508">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L509">        .name(&quot;dc1&quot;)</span>
+<span class="nc" id="L510">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L511">        .value(&quot;192.168.1.2&quot;)</span>
+<span class="nc" id="L512">        .serial(103)</span>
+<span class="nc" id="L513">        .ttlSeconds(3600)</span>
+<span class="nc" id="L514">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L515">        .build());</span>
+<span class="nc" id="L516">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L517">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L518">        .created(now)</span>
+<span class="nc" id="L519">        .modified(now)</span>
+<span class="nc" id="L520">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L521">        .name(&quot;nas&quot;)</span>
+<span class="nc" id="L522">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L523">        .value(&quot;192.168.1.3&quot;)</span>
+<span class="nc" id="L524">        .serial(104)</span>
+<span class="nc" id="L525">        .ttlSeconds(3600)</span>
+<span class="nc" id="L526">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L527">        .build());</span>
+<span class="nc" id="L528">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L529">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L530">        .created(now)</span>
+<span class="nc" id="L531">        .modified(now)</span>
+<span class="nc" id="L532">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L533">        .name(&quot;Mercury&quot;)</span>
+<span class="nc" id="L534">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L535">        .value(&quot;192.168.1.101&quot;)</span>
+<span class="nc" id="L536">        .serial(105)</span>
+<span class="nc" id="L537">        .ttlSeconds(3600)</span>
+<span class="nc" id="L538">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L539">        .build());</span>
+<span class="nc" id="L540">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L541">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L542">        .created(now)</span>
+<span class="nc" id="L543">        .modified(now)</span>
+<span class="nc" id="L544">        .zoneName(ZONE_NAME)</span>
+<span class="nc" id="L545">        .name(&quot;Saturn&quot;)</span>
+<span class="nc" id="L546">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L547">        .value(&quot;192.168.1.102&quot;)</span>
+<span class="nc" id="L548">        .serial(106)</span>
+<span class="nc" id="L549">        .ttlSeconds(3600)</span>
+<span class="nc" id="L550">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L551">        .build());</span>
+<span class="nc" id="L552">    return entries;</span>
+  }
+
+  private DnsZone createSamdomReverseDnsZone() {
+<span class="nc" id="L556">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L557">    return DnsZone.builder()</span>
+<span class="nc" id="L558">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L559">        .created(now)</span>
+<span class="nc" id="L560">        .modified(now)</span>
+<span class="nc" id="L561">        .name(REVERSE_ZONE)</span>
+<span class="nc" id="L562">        .zoneType(DnsZoneType.PRIMARY.name())</span>
+<span class="nc" id="L563">        .reverseZone(true)</span>
+<span class="nc" id="L564">        .fqdn(ZONE_FQDN)</span>
+<span class="nc" id="L565">        .allowUpdate(DNS_ZONE_UPDATE_SECURE)</span>
+<span class="nc" id="L566">        .paused(Boolean.FALSE)</span>
+<span class="nc" id="L567">        .shutdown(Boolean.FALSE)</span>
+<span class="nc" id="L568">        .autoCreated(Boolean.FALSE)</span>
+<span class="nc" id="L569">        .useDatabase(Boolean.TRUE)</span>
+<span class="nc" id="L570">        .dataFile(&quot;None&quot;)</span>
+<span class="nc" id="L571">        .useWins(Boolean.FALSE)</span>
+<span class="nc" id="L572">        .useNbstat(Boolean.FALSE)</span>
+<span class="nc" id="L573">        .aging(Boolean.FALSE)</span>
+<span class="nc" id="L574">        .queuedForBackgroundLoad(Boolean.FALSE)</span>
+<span class="nc" id="L575">        .backgroundLoadInProgress(Boolean.FALSE)</span>
+<span class="nc" id="L576">        .readOnlyZone(Boolean.FALSE)</span>
+<span class="nc" id="L577">        .build();</span>
+  }
+
+  private List&lt;DnsEntry&gt; createSamdomReverseDnsEntries() {
+<span class="nc" id="L581">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L582">    List&lt;DnsEntry&gt; entries = new CopyOnWriteArrayList&lt;&gt;();</span>
+<span class="nc" id="L583">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L584">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L585">        .created(now)</span>
+<span class="nc" id="L586">        .modified(now)</span>
+<span class="nc" id="L587">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L588">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L589">        .type(DnsEntryType.NS)</span>
+<span class="nc" id="L590">        .value(&quot;dc1.&quot; + ZONE_NAME + &quot;.&quot;)</span>
+<span class="nc" id="L591">        .serial(200)</span>
+<span class="nc" id="L592">        .ttlSeconds(3600)</span>
+<span class="nc" id="L593">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L594">        .build());</span>
+<span class="nc" id="L595">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L596">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L597">        .created(now)</span>
+<span class="nc" id="L598">        .modified(now)</span>
+<span class="nc" id="L599">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L600">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L601">        .type(DnsEntryType.SOA)</span>
+<span class="nc" id="L602">        .value(&quot;serial=201&quot; + SOA_VALUE)</span>
+<span class="nc" id="L603">        .serial(201)</span>
+<span class="nc" id="L604">        .ttlSeconds(3600)</span>
+<span class="nc" id="L605">        .flags(SOA_FLAGS)</span>
+<span class="nc" id="L606">        .build());</span>
+<span class="nc" id="L607">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L608">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L609">        .created(now)</span>
+<span class="nc" id="L610">        .modified(now)</span>
+<span class="nc" id="L611">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L612">        .name(&quot;1&quot;)</span>
+<span class="nc" id="L613">        .type(DnsEntryType.PTR)</span>
+<span class="nc" id="L614">        .value(&quot;gateway.&quot; + ZONE_NAME)</span>
+<span class="nc" id="L615">        .serial(202)</span>
+<span class="nc" id="L616">        .ttlSeconds(3600)</span>
+<span class="nc" id="L617">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L618">        .build());</span>
+<span class="nc" id="L619">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L620">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L621">        .created(now)</span>
+<span class="nc" id="L622">        .modified(now)</span>
+<span class="nc" id="L623">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L624">        .name(&quot;2&quot;)</span>
+<span class="nc" id="L625">        .type(DnsEntryType.PTR)</span>
+<span class="nc" id="L626">        .value(&quot;dc1.&quot; + ZONE_NAME)</span>
+<span class="nc" id="L627">        .serial(203)</span>
+<span class="nc" id="L628">        .ttlSeconds(3600)</span>
+<span class="nc" id="L629">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L630">        .build());</span>
+<span class="nc" id="L631">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L632">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L633">        .created(now)</span>
+<span class="nc" id="L634">        .modified(now)</span>
+<span class="nc" id="L635">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L636">        .name(&quot;3&quot;)</span>
+<span class="nc" id="L637">        .type(DnsEntryType.PTR)</span>
+<span class="nc" id="L638">        .value(&quot;nas.&quot; + ZONE_NAME)</span>
+<span class="nc" id="L639">        .serial(204)</span>
+<span class="nc" id="L640">        .ttlSeconds(3600)</span>
+<span class="nc" id="L641">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L642">        .build());</span>
+<span class="nc" id="L643">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L644">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L645">        .created(now)</span>
+<span class="nc" id="L646">        .modified(now)</span>
+<span class="nc" id="L647">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L648">        .name(&quot;101&quot;)</span>
+<span class="nc" id="L649">        .type(DnsEntryType.PTR)</span>
+<span class="nc" id="L650">        .value(&quot;Mercury.&quot; + ZONE_NAME)</span>
+<span class="nc" id="L651">        .serial(205)</span>
+<span class="nc" id="L652">        .ttlSeconds(3600)</span>
+<span class="nc" id="L653">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L654">        .build());</span>
+<span class="nc" id="L655">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L656">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L657">        .created(now)</span>
+<span class="nc" id="L658">        .modified(now)</span>
+<span class="nc" id="L659">        .zoneName(REVERSE_ZONE)</span>
+<span class="nc" id="L660">        .name(&quot;102&quot;)</span>
+<span class="nc" id="L661">        .type(DnsEntryType.PTR)</span>
+<span class="nc" id="L662">        .value(&quot;Saturn.&quot; + ZONE_NAME)</span>
+<span class="nc" id="L663">        .serial(206)</span>
+<span class="nc" id="L664">        .ttlSeconds(3600)</span>
+<span class="nc" id="L665">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L666">        .build());</span>
+<span class="nc" id="L667">    return entries;</span>
+  }
+
+  private DnsZone createSamdomDnsZone() {
+<span class="nc" id="L671">    return createDnsZone(ZONE_NAME);</span>
+  }
+
+  private DnsZone createDnsZone(String zoneName) {
+<span class="nc" id="L675">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L676">    return DnsZone.builder()</span>
+<span class="nc" id="L677">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L678">        .created(now)</span>
+<span class="nc" id="L679">        .modified(now)</span>
+<span class="nc" id="L680">        .name(zoneName)</span>
+<span class="nc" id="L681">        .zoneType(DnsZoneType.PRIMARY.name())</span>
+<span class="nc" id="L682">        .reverseZone(false)</span>
+<span class="nc" id="L683">        .fqdn(ZONE_FQDN)</span>
+<span class="nc" id="L684">        .allowUpdate(DNS_ZONE_UPDATE_SECURE)</span>
+<span class="nc" id="L685">        .paused(Boolean.FALSE)</span>
+<span class="nc" id="L686">        .shutdown(Boolean.FALSE)</span>
+<span class="nc" id="L687">        .autoCreated(Boolean.FALSE)</span>
+<span class="nc" id="L688">        .useDatabase(Boolean.TRUE)</span>
+<span class="nc" id="L689">        .dataFile(&quot;None&quot;)</span>
+<span class="nc" id="L690">        .useWins(Boolean.FALSE)</span>
+<span class="nc" id="L691">        .useNbstat(Boolean.FALSE)</span>
+<span class="nc" id="L692">        .aging(Boolean.FALSE)</span>
+<span class="nc" id="L693">        .queuedForBackgroundLoad(Boolean.FALSE)</span>
+<span class="nc" id="L694">        .backgroundLoadInProgress(Boolean.FALSE)</span>
+<span class="nc" id="L695">        .readOnlyZone(Boolean.FALSE)</span>
+<span class="nc" id="L696">        .build();</span>
+  }
+
+  private DnsZone createMsdcsDnsZone() {
+<span class="nc" id="L700">    return createDnsZone(MSDCS_ZONE_NAME);</span>
+  }
+
+  private List&lt;DnsEntry&gt; createMsdcsDnsEntries() {
+<span class="nc" id="L704">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L705">    List&lt;DnsEntry&gt; entries = new CopyOnWriteArrayList&lt;&gt;();</span>
+<span class="nc" id="L706">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L707">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L708">        .created(now)</span>
+<span class="nc" id="L709">        .modified(now)</span>
+<span class="nc" id="L710">        .zoneName(MSDCS_ZONE_NAME)</span>
+<span class="nc" id="L711">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L712">        .type(DnsEntryType.NS)</span>
+<span class="nc" id="L713">        .value(&quot;dc1.&quot; + ZONE_NAME + &quot;.&quot;)</span>
+<span class="nc" id="L714">        .serial(300)</span>
+<span class="nc" id="L715">        .ttlSeconds(3600)</span>
+<span class="nc" id="L716">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L717">        .build());</span>
+<span class="nc" id="L718">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L719">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L720">        .created(now)</span>
+<span class="nc" id="L721">        .modified(now)</span>
+<span class="nc" id="L722">        .zoneName(MSDCS_ZONE_NAME)</span>
+<span class="nc" id="L723">        .name(&quot;@&quot;)</span>
+<span class="nc" id="L724">        .type(DnsEntryType.SOA)</span>
+<span class="nc" id="L725">        .value(&quot;serial=301&quot; + SOA_VALUE)</span>
+<span class="nc" id="L726">        .serial(301)</span>
+<span class="nc" id="L727">        .ttlSeconds(3600)</span>
+<span class="nc" id="L728">        .flags(SOA_FLAGS)</span>
+<span class="nc" id="L729">        .build());</span>
+<span class="nc" id="L730">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L731">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L732">        .created(now)</span>
+<span class="nc" id="L733">        .modified(now)</span>
+<span class="nc" id="L734">        .zoneName(MSDCS_ZONE_NAME)</span>
+<span class="nc" id="L735">        .name(&quot;gateway&quot;)</span>
+<span class="nc" id="L736">        .type(DnsEntryType.A)</span>
+<span class="nc" id="L737">        .value(&quot;192.168.1.1&quot;)</span>
+<span class="nc" id="L738">        .serial(302)</span>
+<span class="nc" id="L739">        .ttlSeconds(3600)</span>
+<span class="nc" id="L740">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L741">        .build());</span>
+<span class="nc" id="L742">    entries.add(DnsEntry.builder()</span>
+<span class="nc" id="L743">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L744">        .created(now)</span>
+<span class="nc" id="L745">        .modified(now)</span>
+<span class="nc" id="L746">        .zoneName(MSDCS_ZONE_NAME)</span>
+<span class="nc" id="L747">        .name(UUID.randomUUID().toString())</span>
+<span class="nc" id="L748">        .type(DnsEntryType.CNAME)</span>
+<span class="nc" id="L749">        .value(&quot;dc1.&quot; + ZONE_NAME + &quot;.&quot;)</span>
+<span class="nc" id="L750">        .serial(303)</span>
+<span class="nc" id="L751">        .ttlSeconds(3600)</span>
+<span class="nc" id="L752">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L753">        .build());</span>
+<span class="nc" id="L754">    return entries;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

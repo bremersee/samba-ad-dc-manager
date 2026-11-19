@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RedirectComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui.shared</a> &gt; <span class="el_source">RedirectComponent.java</span></div><h1>RedirectComponent.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.shared;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import com.samskivert.mustache.Mustache;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotEmpty;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import org.bremersee.ldaptive.converter.StringToDnConverter;
+import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.jspecify.annotations.Nullable;
+import org.ldaptive.dn.Dn;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+/**
+ * The redirect component.
+ *
+ * @author Christian Bremer
+ */
+public interface RedirectComponent extends LoggerProvider {
+
+  /**
+   * The constant PAGE_PARAMS.
+   */
+  String PAGE_PARAMS = AbstractController.PAGE + &quot;={{&quot; + AbstractController.PAGE + &quot;}}&quot;
+      + &quot;&amp;&quot; + AbstractController.SIZE + &quot;={{&quot; + AbstractController.SIZE + &quot;}}&quot;
+      + &quot;&amp;&quot; + AbstractController.SORT + &quot;={{&quot; + AbstractController.SORT + &quot;}}&quot;
+      + &quot;&amp;&quot; + AbstractController.QUERY + &quot;={{&quot; + AbstractController.QUERY + &quot;}}&quot;;
+
+  /**
+   * The constant PAGE_AND_OU_PARAMS.
+   */
+  String PAGE_AND_OU_PARAMS = PAGE_PARAMS
+      + &quot;&amp;&quot; + AbstractController.OU + &quot;={{&quot; + AbstractController.OU + &quot;}}&quot;
+      + &quot;&amp;&quot; + AbstractController.SCOPE + &quot;={{&quot; + AbstractController.SCOPE + &quot;}}&quot;;
+
+  /**
+   * The constant PAGE_AND_ZONE_TYPE_PARAMS.
+   */
+  String PAGE_AND_ZONE_TYPE_PARAMS = PAGE_PARAMS
+      + &quot;&amp;&quot; + AbstractController.ZONE_TYPE + &quot;={{&quot; + AbstractController.ZONE_TYPE + &quot;}}&quot;;
+
+  /**
+   * The constant PAGE_AND_ZONE_NAME_PARAMS.
+   */
+  String PAGE_AND_ZONE_NAME_PARAMS = PAGE_AND_ZONE_TYPE_PARAMS
+      + &quot;&amp;&quot; + AbstractController.ZONE_NAME + &quot;={{&quot; + AbstractController.ZONE_NAME + &quot;}}&quot;;
+
+  /**
+   * The constant PAGE_AND_DNS_ENTRY_PARAMS.
+   */
+  String PAGE_AND_DNS_ENTRY_PARAMS = PAGE_AND_ZONE_NAME_PARAMS
+      + &quot;&amp;name={{name}}&quot;
+      + &quot;&amp;type={{type}}&quot;
+      + &quot;&amp;value={{value}}&quot;;
+
+  /**
+   * Gets parameter map.
+   *
+   * @param ou the organization unit
+   * @return the parameter map
+   */
+  default Map&lt;String, Object&gt; getParameterMap(Dn ou) {
+<span class="nc" id="L87">    return Map.of(</span>
+<span class="nc" id="L88">        AbstractController.PAGE, findPageParameterValue(),</span>
+<span class="nc" id="L89">        AbstractController.SIZE, findSizeParameterValue(),</span>
+<span class="nc" id="L90">        AbstractController.SORT, findParameterValue(AbstractController.SORT).orElse(&quot;&quot;),</span>
+<span class="nc" id="L91">        AbstractController.QUERY, findParameterValue(AbstractController.QUERY).orElse(&quot;&quot;),</span>
+<span class="nc" id="L92">        AbstractController.OU, Optional.ofNullable(ou)</span>
+<span class="nc" id="L93">            .or(this::findOuParameterValue)</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            .filter(dn -&gt; !dn.isEmpty())</span>
+<span class="nc" id="L95">            .map(Dn::format)</span>
+<span class="nc" id="L96">            .orElse(&quot;&quot;),</span>
+<span class="nc" id="L97">        AbstractController.SCOPE, findScopeParameterValue()</span>
+<span class="nc" id="L98">            .map(TreeSearchScope::getParameterValue)</span>
+<span class="nc" id="L99">            .orElse(&quot;&quot;),</span>
+<span class="nc" id="L100">        AbstractController.ZONE_TYPE, findZoneTypeParameterValue().orElse(&quot;&quot;),</span>
+<span class="nc" id="L101">        AbstractController.ZONE_NAME, findParameterValue(AbstractController.ZONE_NAME)</span>
+<span class="nc" id="L102">            .orElse(&quot;&quot;)</span>
+    );
+  }
+
+  /**
+   * Gets parameter map.
+   *
+   * @return the parameter map
+   */
+  default Map&lt;String, Object&gt; getParameterMap() {
+<span class="nc" id="L112">    return getParameterMap(null);</span>
+  }
+
+  /**
+   * Put to parameter map.
+   *
+   * @param map the map
+   * @param key the key
+   * @param value the value
+   * @return the map
+   */
+  default Map&lt;String, Object&gt; putToParameterMap(Map&lt;String, Object&gt; map, String key, Object value) {
+<span class="nc" id="L124">    Map&lt;String, Object&gt; result = new HashMap&lt;&gt;(map);</span>
+<span class="nc" id="L125">    result.put(key, value);</span>
+<span class="nc" id="L126">    return result;</span>
+  }
+
+  /**
+   * Find http servlet request.
+   *
+   * @return the optional http servlet request
+   */
+  default Optional&lt;HttpServletRequest&gt; findHttpServletRequest() {
+<span class="nc" id="L135">    return Optional.ofNullable(RequestContextHolder.getRequestAttributes())</span>
+<span class="nc" id="L136">        .filter(ServletRequestAttributes.class::isInstance)</span>
+<span class="nc" id="L137">        .map(ServletRequestAttributes.class::cast)</span>
+<span class="nc" id="L138">        .map(ServletRequestAttributes::getRequest);</span>
+  }
+
+  /**
+   * Find parameter value.
+   *
+   * @param parameterName the parameter name
+   * @return the optional parameter value
+   */
+  default Optional&lt;String&gt; findParameterValue(String parameterName) {
+<span class="nc" id="L148">    return findHttpServletRequest()</span>
+<span class="nc" id="L149">        .map(req -&gt; req.getParameter(parameterName));</span>
+  }
+
+  /**
+   * Find page number parameter value.
+   *
+   * @return the page number value
+   */
+  default int findPageParameterValue() {
+<span class="nc" id="L158">    return findParameterValue(AbstractController.PAGE)</span>
+<span class="nc" id="L159">        .map(value -&gt; {</span>
+          try {
+<span class="nc" id="L161">            return Integer.parseInt(value);</span>
+<span class="nc" id="L162">          } catch (NumberFormatException e) {</span>
+<span class="nc" id="L163">            return null;</span>
+          }
+        })
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        .filter(value -&gt; value &gt;= 0)</span>
+<span class="nc" id="L167">        .orElse(AbstractController.PAGE_DEFAULT_INT);</span>
+  }
+
+  /**
+   * Find page size parameter value.
+   *
+   * @return the page size value
+   */
+  default int findSizeParameterValue() {
+<span class="nc" id="L176">    return findParameterValue(AbstractController.SIZE)</span>
+<span class="nc" id="L177">        .map(value -&gt; {</span>
+          try {
+<span class="nc" id="L179">            return Integer.parseInt(value);</span>
+<span class="nc" id="L180">          } catch (NumberFormatException e) {</span>
+<span class="nc" id="L181">            return null;</span>
+          }
+        })
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        .filter(value -&gt; value &gt;= 1)</span>
+<span class="nc" id="L185">        .orElse(AbstractController.SIZE_DEFAULT_INT);</span>
+  }
+
+  /**
+   * Find organizational unit parameter value.
+   *
+   * @return the optional distinguished name of the organizational unit
+   */
+  default Optional&lt;Dn&gt; findOuParameterValue() {
+<span class="nc" id="L194">    return findParameterValue(AbstractController.OU)</span>
+<span class="nc" id="L195">        .map(dn -&gt; new StringToDnConverter().convert(dn));</span>
+  }
+
+  /**
+   * Find search scope parameter value.
+   *
+   * @return the optional search scope parameter value
+   */
+  default Optional&lt;TreeSearchScope&gt; findScopeParameterValue() {
+<span class="nc" id="L204">    return findParameterValue(AbstractController.SCOPE)</span>
+<span class="nc" id="L205">        .map(TreeSearchScope::fromValue);</span>
+  }
+
+  /**
+   * Find zone type parameter value.
+   *
+   * @return the optional zone type parameter value
+   */
+  default Optional&lt;String&gt; findZoneTypeParameterValue() {
+<span class="nc" id="L214">    return findParameterValue(AbstractController.ZONE_TYPE);</span>
+  }
+
+  /**
+   * Gets redirect uri.
+   *
+   * @param path the path
+   * @param mustacheTemplate the mustache template
+   * @param parameters the parameters
+   * @return the redirect uri
+   */
+  default String getRedirectUri(
+      @NotEmpty String path,
+      @Nullable String mustacheTemplate,
+      @Nullable Map&lt;String, Object&gt; parameters) {
+
+<span class="nc" id="L230">    String template = mustacheTemplate;</span>
+<span class="nc" id="L231">    StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">    if (!path.toLowerCase().startsWith(&quot;redirect:&quot;)) {</span>
+<span class="nc" id="L233">      sb.append(&quot;redirect:&quot;);</span>
+    }
+<span class="nc" id="L235">    sb.append(path);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">    if (!isEmpty(template)) {</span>
+<span class="nc bnc" id="L237" title="All 4 branches missed.">      if (template.startsWith(&quot;?&quot;) || template.startsWith(&quot;&amp;&quot;)) {</span>
+<span class="nc" id="L238">        template = template.substring(1);</span>
+      }
+<span class="nc bnc" id="L240" title="All 2 branches missed.">      if (path.contains(&quot;?&quot;)) {</span>
+<span class="nc" id="L241">        sb.append(&quot;&amp;&quot;);</span>
+      } else {
+<span class="nc" id="L243">        sb.append(&quot;?&quot;);</span>
+      }
+<span class="nc" id="L245">      sb.append(template);</span>
+    }
+<span class="nc" id="L247">    template = sb.toString();</span>
+    String redirect = Mustache
+<span class="nc" id="L249">        .compiler()</span>
+<span class="nc" id="L250">        .withEscaper(raw -&gt; URLEncoder.encode(raw, StandardCharsets.UTF_8))</span>
+<span class="nc" id="L251">        .defaultValue(&quot;&quot;)</span>
+<span class="nc" id="L252">        .compile(template)</span>
+<span class="nc" id="L253">        .execute(Objects.requireNonNullElseGet(parameters, Map::of));</span>
+<span class="nc" id="L254">    getLogger().debug(&quot;Redirect URI: {}&quot;, redirect);</span>
+<span class="nc" id="L255">    return redirect;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
