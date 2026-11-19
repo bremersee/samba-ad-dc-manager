@@ -13,7 +13,7 @@
 
   <artifactId>samba-ad-dc-manager</artifactId>
   <!-- increment debian epoch version for a release! -->
-  <version>3.0.2-SNAPSHOT</version>
+  <version>3.0.2-SNAPSHOT</version> <!--> -TAGGED for releases-->
   <packaging>jar</packaging>
 
   <name>Samba AD DC Manager</name>
@@ -31,7 +31,7 @@
     <!-- [epoch:]upstream-version[-debian-revision] -->
     <!--suppress UnresolvedMavenProperty -->
     <debVersion>
-      1:${project.version}-${maven.build.timestamp}+${buildNumber}
+      ${project.version}-${maven.build.timestamp}+${buildNumber}
     </debVersion>
     <debBaseName>
       samba-ad-dc-manager_${debVersion}_all
