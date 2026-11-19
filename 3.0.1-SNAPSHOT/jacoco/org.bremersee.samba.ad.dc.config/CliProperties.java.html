@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CliProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.config</a> &gt; <span class="el_source">CliProperties.java</span></div><h1>CliProperties.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.config;
+
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * The cli properties.
+ *
+ * @author Christian Bremer
+ */
+@Getter
+@Setter
+@ToString(exclude = {&quot;sambaToolCredentialsOptions&quot;})
+@EqualsAndHashCode
+public class CliProperties implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L40">  private String execDir = System.getProperty(&quot;java.io.tmpdir&quot;);</span>
+
+<span class="fc" id="L42">  private String hostnameBinary = &quot;/usr/bin/hostname&quot;;</span>
+
+  private String hostnameOptions; // maybe '--fqdn'
+
+<span class="fc" id="L46">  private String sambaToolBinary = &quot;/usr/bin/samba-tool&quot;;</span>
+
+  private String sambaToolCredentialsOptions;
+
+<span class="fc" id="L50">  private String dhcpLeaseListBinary = &quot;/usr/sbin/dhcp-lease-list&quot;;</span>
+
+<span class="fc" id="L52">  private SudoProperties sudo = new SudoProperties();</span>
+
+<span class="fc" id="L54">  private SshProperties ssh = new SshProperties();</span>
+
+  /**
+   * Instantiates new cli properties.
+   */
+  public CliProperties() {
+<span class="fc" id="L60">    super();</span>
+<span class="fc" id="L61">  }</span>
+
+  /**
+   * The sudo properties.
+   *
+   * @author Christian Bremer
+   */
+  @Getter
+  @Setter
+  @ToString
+  @EqualsAndHashCode
+  public static class SudoProperties implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L77">    private boolean usingSudo = true;</span>
+
+<span class="fc" id="L79">    private String sudoCommand = &quot;/usr/bin/sudo&quot;;</span>
+
+    /**
+     * Instantiates new sudo properties.
+     */
+    public SudoProperties() {
+<span class="fc" id="L85">      super();</span>
+<span class="fc" id="L86">    }</span>
+  }
+
+  /**
+   * The ssh properties.
+   *
+   * @author Christian Bremer
+   */
+  @Getter
+  @Setter
+  @ToString
+  @EqualsAndHashCode
+  public static class SshProperties implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L103">    private boolean usingSsh = false;</span>
+
+    /**
+     * The ssh command like {@code /usr/bin/ssh root@hostname}.
+     */
+    private String sshCommand;
+
+    /**
+     * Instantiates new ssh properties.
+     */
+    public SshProperties() {
+<span class="fc" id="L114">      super();</span>
+<span class="fc" id="L115">    }</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

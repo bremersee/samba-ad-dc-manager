@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SambaToolDnsCli.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.cli</a> &gt; <span class="el_source">SambaToolDnsCli.java</span></div><h1>SambaToolDnsCli.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.cli;
+
+import static java.util.Objects.nonNull;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.repository.SambaToolDns;
+import org.bremersee.samba.ad.dc.repository.cli.parser.DnsEntriesParser;
+import org.bremersee.samba.ad.dc.repository.cli.parser.DnsZoneListParser;
+import org.bremersee.samba.ad.dc.repository.cli.parser.DnsZoneParser;
+import org.bremersee.samba.ad.dc.repository.cli.validator.DnsEntryAddValidator;
+import org.bremersee.samba.ad.dc.repository.cli.validator.DnsEntryDeleteValidator;
+import org.bremersee.samba.ad.dc.repository.cli.validator.DnsEntryUpdateValidator;
+import org.bremersee.samba.ad.dc.repository.cli.validator.DnsZoneCreateValidator;
+import org.bremersee.samba.ad.dc.repository.cli.validator.DnsZoneDeleteValidator;
+import org.springframework.stereotype.Component;
+
+/**
+ * The samba tool dns cli.
+ *
+ * @author Christian Bremer
+ */
+@Component
+class SambaToolDnsCli extends SambaToolCli implements SambaToolDns {
+
+  private DnsZoneListParser zoneListParser;
+
+  private DnsZoneParser zoneParser;
+
+  private Function&lt;String, DnsEntriesParser&gt; dnsEntriesParserFn;
+
+  /**
+   * Instantiates a new samba tool dns cli.
+   *
+   * @param properties the properties
+   */
+  SambaToolDnsCli(ApplicationProperties properties) {
+<span class="fc" id="L60">    super(properties);</span>
+<span class="fc" id="L61">    zoneListParser = DnsZoneListParser.defaultParser();</span>
+<span class="fc" id="L62">    zoneParser = DnsZoneParser.defaultParser();</span>
+<span class="pc" id="L63">    dnsEntriesParserFn = zoneName -&gt; DnsEntriesParser</span>
+<span class="nc" id="L64">        .defaultParser(zoneName, ZONE_ENTRIES_NODE_NAME);</span>
+<span class="fc" id="L65">  }</span>
+
+  /**
+   * Sets zone list parser.
+   *
+   * @param zoneListParser the zone list parser
+   */
+  public void setZoneListParser(DnsZoneListParser zoneListParser) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (nonNull(zoneListParser)) {</span>
+<span class="fc" id="L74">      this.zoneListParser = zoneListParser;</span>
+    }
+<span class="fc" id="L76">  }</span>
+
+  /**
+   * Sets zone parser.
+   *
+   * @param zoneParser the zone parser
+   */
+  public void setZoneParser(DnsZoneParser zoneParser) {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    if (nonNull(zoneParser)) {</span>
+<span class="fc" id="L85">      this.zoneParser = zoneParser;</span>
+    }
+<span class="fc" id="L87">  }</span>
+
+  /**
+   * Sets dns entries parser function.
+   *
+   * @param dnsEntriesParserFn the dns entries parser function
+   */
+  public void setDnsEntriesParserFn(Function&lt;String, DnsEntriesParser&gt; dnsEntriesParserFn) {
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">    if (nonNull(dnsEntriesParserFn)) {</span>
+<span class="fc" id="L96">      this.dnsEntriesParserFn = dnsEntriesParserFn;</span>
+    }
+<span class="fc" id="L98">  }</span>
+
+  @Override
+  protected String getSubCommand() {
+<span class="fc" id="L102">    return &quot;dns&quot;;</span>
+  }
+
+  @Override
+  protected boolean needsSambaToolCredentials() {
+<span class="fc" id="L107">    return true;</span>
+  }
+
+  @Override
+  public List&lt;String&gt; getDnsZoneNames(String hostName, DnsZoneType zoneType) {
+<span class="fc" id="L112">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L113">    commands.add(&quot;zonelist&quot;);</span>
+<span class="fc" id="L114">    commands.add(hostName);</span>
+<span class="fc" id="L115">    commands.add(&quot;--&quot; + zoneType.getParameterValue());</span>
+<span class="fc" id="L116">    return executeAndGet(commands, zoneListParser);</span>
+  }
+
+  @Override
+  public Optional&lt;DnsZone&gt; findDnsZone(String hostName, String zoneName) {
+<span class="fc" id="L121">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L122">    commands.add(&quot;zoneinfo&quot;);</span>
+<span class="fc" id="L123">    commands.add(hostName);</span>
+<span class="fc" id="L124">    commands.add(zoneName);</span>
+<span class="fc" id="L125">    return executeAndGet(commands, zoneParser);</span>
+  }
+
+  @Override
+  public void createDnsZone(String hostName, String zoneName) {
+<span class="fc" id="L130">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L131">    commands.add(&quot;zonecreate&quot;);</span>
+<span class="fc" id="L132">    commands.add(hostName);</span>
+<span class="fc" id="L133">    commands.add(zoneName);</span>
+<span class="fc" id="L134">    execute(commands, new DnsZoneCreateValidator(zoneName));</span>
+<span class="fc" id="L135">  }</span>
+
+  @Override
+  public void deleteDnsZone(String hostName, String zoneName) {
+<span class="fc" id="L139">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L140">    commands.add(&quot;zonedelete&quot;);</span>
+<span class="fc" id="L141">    commands.add(hostName);</span>
+<span class="fc" id="L142">    commands.add(zoneName);</span>
+<span class="fc" id="L143">    execute(commands, new DnsZoneDeleteValidator(zoneName));</span>
+<span class="fc" id="L144">  }</span>
+
+  @Override
+  public List&lt;DnsEntry&gt; getDnsEntries(String hostName, String zoneName) {
+<span class="fc" id="L148">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L149">    commands.add(&quot;query&quot;);</span>
+<span class="fc" id="L150">    commands.add(hostName);</span>
+<span class="fc" id="L151">    commands.add(zoneName);</span>
+<span class="fc" id="L152">    commands.add(ZONE_ENTRIES_NODE_NAME);</span>
+<span class="fc" id="L153">    commands.add(DnsEntryType.ALL.name());</span>
+<span class="fc" id="L154">    return executeAndGet(commands, dnsEntriesParserFn.apply(zoneName))</span>
+<span class="fc" id="L155">        .toList();</span>
+  }
+
+  @Override
+  public void addDnsEntry(String hostName, DnsEntry entry) {
+<span class="fc" id="L160">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L161">    commands.add(&quot;add&quot;);</span>
+<span class="fc" id="L162">    commands.add(hostName);</span>
+<span class="fc" id="L163">    commands.add(entry.getZoneName());</span>
+<span class="fc" id="L164">    commands.add(entry.getName());</span>
+<span class="fc" id="L165">    commands.add(entry.getType().name());</span>
+<span class="fc" id="L166">    commands.add(entry.getType().getToSambaToolValueTransformer().apply(entry.getValue()));</span>
+<span class="fc" id="L167">    execute(commands, new DnsEntryAddValidator());</span>
+<span class="fc" id="L168">  }</span>
+
+  @Override
+  public void updateDnsEntry(String hostName, DnsEntry entry, String newValue) {
+<span class="fc" id="L172">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L173">    commands.add(&quot;update&quot;);</span>
+<span class="fc" id="L174">    commands.add(hostName);</span>
+<span class="fc" id="L175">    commands.add(entry.getZoneName());</span>
+<span class="fc" id="L176">    commands.add(entry.getName());</span>
+<span class="fc" id="L177">    commands.add(entry.getType().name());</span>
+<span class="fc" id="L178">    commands.add(entry.getType().getToSambaToolValueTransformer().apply(entry.getValue()));</span>
+<span class="fc" id="L179">    commands.add(entry.getType().getToSambaToolValueTransformer().apply(newValue));</span>
+<span class="fc" id="L180">    execute(commands, new DnsEntryUpdateValidator());</span>
+<span class="fc" id="L181">  }</span>
+
+  @Override
+  public void deleteDnsEntry(String hostName, DnsEntry entry) {
+<span class="fc" id="L185">    List&lt;String&gt; commands = getCommands();</span>
+<span class="fc" id="L186">    commands.add(&quot;delete&quot;);</span>
+<span class="fc" id="L187">    commands.add(hostName);</span>
+<span class="fc" id="L188">    commands.add(entry.getZoneName());</span>
+<span class="fc" id="L189">    commands.add(entry.getName());</span>
+<span class="fc" id="L190">    commands.add(entry.getType().name());</span>
+<span class="fc" id="L191">    commands.add(entry.getType().getToSambaToolValueTransformer().apply(entry.getValue()));</span>
+<span class="fc" id="L192">    execute(commands, new DnsEntryDeleteValidator());</span>
+<span class="fc" id="L193">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainUserRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">DomainUserRepositoryImpl.java</span></div><h1>DomainUserRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.AbstractLdaptiveErrorHandler;
+import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveException;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.AttributeModification.Type;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.LdapException;
+import org.ldaptive.ModifyRequest;
+import org.ldaptive.ResultCode;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.NotFilter;
+import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.SubstringFilter;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The domain user repository.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;domainUserRepository&quot;)
+@Validated
+<span class="fc" id="L69">@Slf4j</span>
+public class DomainUserRepositoryImpl extends SamAccountRepository
+    implements DomainUserRepository {
+
+  private final DomainRepository domainRepository;
+
+  private final LdaptiveEntryMapper&lt;DomainUser&gt; domainUserLdapMapper;
+
+  /**
+   * Instantiates a new domain user repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param domainRepository the domain repository
+   * @param domainUserLdapMapper the domain user ldap mapper
+   */
+  public DomainUserRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      DomainRepository domainRepository,
+      LdaptiveEntryMapper&lt;DomainUser&gt; domainUserLdapMapper) {
+<span class="fc" id="L90">    super(properties, ldapOperations);</span>
+<span class="fc" id="L91">    this.domainRepository = domainRepository;</span>
+<span class="fc" id="L92">    this.domainUserLdapMapper = domainUserLdapMapper;</span>
+<span class="fc" id="L93">  }</span>
+
+  @Override
+  protected Dn getDefaultOu() {
+<span class="fc" id="L97">    return new Dn(getProperties().getUser().getDefaultOu());</span>
+  }
+
+  @Override
+  protected String getObjectClassValue() {
+<span class="fc" id="L102">    return AdConstants.OBJECT_CLASS_USER;</span>
+  }
+
+  @Override
+  protected String[] getBinaryAttributes() {
+<span class="fc" id="L107">    return domainUserLdapMapper.getBinaryAttributeNames();</span>
+  }
+
+  @Override
+  protected String[] getReturnAttributes() {
+<span class="fc" id="L112">    return domainUserLdapMapper.getMappedAttributeNames();</span>
+  }
+
+  @Override
+  protected Filter objectClassFilter() {
+<span class="fc" id="L117">    Filter objectClassFilter = new EqualityFilter(</span>
+<span class="fc" id="L118">        AdConstants.OBJECT_CLASS.getName(), getObjectClassValue());</span>
+<span class="fc" id="L119">    Filter noComputerFilter = new NotFilter(</span>
+<span class="fc" id="L120">        new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_COMPUTER));</span>
+<span class="fc" id="L121">    return new AndFilter(objectClassFilter, noComputerFilter);</span>
+  }
+
+  @Override
+  protected Filter findOneFilter(String uniqueName) {
+<span class="fc" id="L126">    Filter samAccountNameFilter = super.findOneFilter(uniqueName);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">    if (getEmailPattern().matcher(uniqueName).matches()) {</span>
+<span class="nc" id="L128">      Filter emailFilter = new EqualityFilter(AdConstants.MAIL.getName(), uniqueName);</span>
+<span class="nc" id="L129">      Filter principalFilter = new EqualityFilter(</span>
+<span class="nc" id="L130">          AdConstants.USER_PRINCIPAL_NAME.getName(),</span>
+          uniqueName);
+<span class="nc" id="L132">      return new OrFilter(samAccountNameFilter, emailFilter, principalFilter);</span>
+    }
+<span class="fc" id="L134">    return samAccountNameFilter;</span>
+  }
+
+  private Filter getFindAllFilter(String query) {
+<span class="fc" id="L138">    Filter objectClassFilter = objectClassFilter();</span>
+<span class="pc bpc" id="L139" title="1 of 4 branches missed.">    if (isNull(query) || query.length() &lt; getProperties().getUser().getMinQueryLength()) {</span>
+<span class="fc" id="L140">      return objectClassFilter;</span>
+    }
+<span class="fc" id="L142">    Filter orFilter = new OrFilter(</span>
+<span class="fc" id="L143">        new SubstringFilter(AdConstants.USER_COMPANY.getName(), null, null, query),</span>
+<span class="fc" id="L144">        new SubstringFilter(AdConstants.USER_DEPARTMENT.getName(), null, null, query),</span>
+<span class="fc" id="L145">        new SubstringFilter(AdConstants.DESCRIPTION.getName(), null, null, query),</span>
+<span class="fc" id="L146">        new SubstringFilter(AdConstants.USER_DISPLAY_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L147">        new EqualityFilter(AdConstants.GID_NUMBER.getName(), query),</span>
+<span class="fc" id="L148">        new SubstringFilter(AdConstants.USER_GIVEN_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L149">        new SubstringFilter(AdConstants.MAIL.getName(), null, null, query),</span>
+<span class="fc" id="L150">        new SubstringFilter(AdConstants.USER_MOBILE.getName(), null, null, query),</span>
+<span class="fc" id="L151">        new SubstringFilter(AdConstants.USER_OFFICE_NAME.getName(), null, null,</span>
+            query),
+<span class="fc" id="L153">        new SubstringFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L154">        new SubstringFilter(AdConstants.USER_SN.getName(), null, null, query),</span>
+<span class="fc" id="L155">        new SubstringFilter(AdConstants.USER_TELEPHONE_NUMBER.getName(), null, null, query),</span>
+<span class="fc" id="L156">        new EqualityFilter(AdConstants.USER_UID_NUMBER.getName(), query)</span>
+    );
+<span class="fc" id="L158">    return new AndFilter(objectClassFilter, orFilter);</span>
+  }
+
+  @Override
+  public Stream&lt;DomainUser&gt; findAll(String query, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L163">    log.debug(&quot;findAll({}, {}, {})&quot;, query, ou, searchScope);</span>
+<span class="fc" id="L164">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L165">    SearchRequest searchRequest = searchAllRequest(</span>
+        ou,
+<span class="fc" id="L167">        getFindAllFilter(query),</span>
+        scope,
+<span class="fc" id="L169">        getReturnAttributes());</span>
+<span class="fc" id="L170">    return getLdapOperations()</span>
+<span class="fc" id="L171">        .findAll(searchRequest, domainUserLdapMapper)</span>
+<span class="fc" id="L172">        .filter(getIgnoredObjectFilter(ou, scope));</span>
+  }
+
+  @Override
+  public Optional&lt;DomainUser&gt; findOne(String userName, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L177">    log.debug(&quot;findOne({})&quot;, userName);</span>
+<span class="fc" id="L178">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L179">    SearchRequest searchRequest = searchOneRequest(userName, ou, scope);</span>
+<span class="fc" id="L180">    return getLdapOperations()</span>
+<span class="fc" id="L181">        .findOne(searchRequest, domainUserLdapMapper)</span>
+<span class="fc" id="L182">        .filter(getIgnoredObjectFilter(ou, scope));</span>
+  }
+
+  @Override
+  public Optional&lt;DomainUser&gt; findOneByPrincipalName(String principalName) {
+<span class="fc" id="L187">    log.debug(&quot;findOneByPrincipalName({})&quot;, principalName);</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">    if (isEmpty(principalName)) {</span>
+<span class="fc" id="L189">      return Optional.empty();</span>
+    }
+<span class="fc" id="L191">    return findOneByFilter(</span>
+<span class="fc" id="L192">        new EqualityFilter(AdConstants.USER_PRINCIPAL_NAME.getName(),</span>
+            principalName));
+  }
+
+  @Override
+  public Optional&lt;DomainUser&gt; findOneByUid(String uid) {
+<span class="fc" id="L198">    log.debug(&quot;findOneByUid({})&quot;, uid);</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">    if (isEmpty(uid)) {</span>
+<span class="fc" id="L200">      return Optional.empty();</span>
+    }
+<span class="fc" id="L202">    Filter filter = new OrFilter(</span>
+<span class="fc" id="L203">        new EqualityFilter(AdConstants.USER_UID.getName(), uid),</span>
+<span class="fc" id="L204">        new EqualityFilter(AdConstants.NIS_NAME.getName(), uid));</span>
+<span class="fc" id="L205">    return findOneByFilter(filter);</span>
+  }
+
+  @Override
+  public Optional&lt;DomainUser&gt; findOneByUidNumber(Integer uidNumber) {
+<span class="fc" id="L210">    log.debug(&quot;findOneByUidNumber({})&quot;, uidNumber);</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">    if (isEmpty(uidNumber)) {</span>
+<span class="fc" id="L212">      return Optional.empty();</span>
+    }
+<span class="fc" id="L214">    return findOneByFilter(</span>
+<span class="fc" id="L215">        new EqualityFilter(AdConstants.USER_UID_NUMBER.getName(), uidNumber.toString()));</span>
+  }
+
+  private Optional&lt;DomainUser&gt; findOneByFilter(Filter filter) {
+<span class="fc" id="L219">    SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L220">        .dn(getProperties().getBaseDn())</span>
+<span class="fc" id="L221">        .filter(new AndFilter(objectClassFilter(), filter))</span>
+<span class="fc" id="L222">        .scope(SearchScope.SUBTREE)</span>
+<span class="fc" id="L223">        .binaryAttributes(getBinaryAttributes())</span>
+<span class="fc" id="L224">        .returnAttributes(getReturnAttributes())</span>
+<span class="fc" id="L225">        .build();</span>
+<span class="fc" id="L226">    return getLdapOperations()</span>
+<span class="fc" id="L227">        .findOne(searchRequest, domainUserLdapMapper)</span>
+<span class="fc" id="L228">        .filter(getIgnoredObjectFilter());</span>
+  }
+
+  /**
+   * Exists by principal name boolean.
+   *
+   * @param principalName the principal name
+   * @return the boolean
+   */
+  public boolean existsByPrincipalName(String principalName) {
+<span class="fc" id="L238">    log.debug(&quot;existsByPrincipalName({})&quot;, principalName);</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">    if (isEmpty(principalName)) {</span>
+<span class="fc" id="L240">      return false;</span>
+    }
+<span class="fc" id="L242">    return existsByFilter(</span>
+<span class="fc" id="L243">        new EqualityFilter(AdConstants.USER_PRINCIPAL_NAME.getName(),</span>
+            principalName));
+  }
+
+  /**
+   * Exists by uid boolean.
+   *
+   * @param uid the uid
+   * @return the boolean
+   */
+  public boolean existsByUid(String uid) {
+<span class="fc" id="L254">    log.debug(&quot;existsByUid({})&quot;, uid);</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">    if (isEmpty(uid)) {</span>
+<span class="fc" id="L256">      return false;</span>
+    }
+<span class="fc" id="L258">    Filter filter = new OrFilter(</span>
+<span class="fc" id="L259">        new EqualityFilter(AdConstants.USER_UID.getName(), uid),</span>
+<span class="fc" id="L260">        new EqualityFilter(AdConstants.NIS_NAME.getName(), uid));</span>
+<span class="fc" id="L261">    return existsByFilter(filter);</span>
+  }
+
+  /**
+   * Exists by uid number boolean.
+   *
+   * @param uidNumber the uid number
+   * @return the boolean
+   */
+  public boolean existsByUidNumber(Integer uidNumber) {
+<span class="fc" id="L271">    log.debug(&quot;existsByUidNumber({})&quot;, uidNumber);</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">    if (isEmpty(uidNumber)) {</span>
+<span class="fc" id="L273">      return false;</span>
+    }
+<span class="fc" id="L275">    return existsByFilter(</span>
+<span class="fc" id="L276">        new EqualityFilter(AdConstants.USER_UID_NUMBER.getName(), uidNumber.toString()));</span>
+  }
+
+  private boolean existsByFilter(Filter filter) {
+<span class="fc" id="L280">    SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L281">        .dn(getProperties().getBaseDn())</span>
+<span class="fc" id="L282">        .filter(new AndFilter(objectClassFilter(), filter))</span>
+<span class="fc" id="L283">        .scope(SearchScope.SUBTREE)</span>
+<span class="fc" id="L284">        .returnAttributes(AdConstants.OBJECT_CLASS.getName())</span>
+<span class="fc" id="L285">        .build();</span>
+<span class="fc" id="L286">    return getLdapOperations()</span>
+<span class="fc" id="L287">        .findOne(searchRequest)</span>
+<span class="fc" id="L288">        .filter(getIgnoredEntryFilter())</span>
+<span class="fc" id="L289">        .isPresent();</span>
+  }
+
+  private RDn getRdn(DomainUser user, Boolean useUsernameAsCn) {
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">    boolean useUsername = requireNonNullElse(</span>
+<span class="fc" id="L294">        useUsernameAsCn, getProperties().getUser().isUseUsernameAsCn())</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">        || isEmpty(user.getFirstName())</span>
+<span class="pc bnc" id="L296" title="All 2 branches missed.">        || isEmpty(user.getLastName());</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">    String cn = useUsername</span>
+<span class="fc" id="L298">        ? user.getSamAccountName()</span>
+<span class="pc" id="L299">        : user.getFirstName() + ' ' + user.getLastName();</span>
+<span class="fc" id="L300">    return new RDn(new NameValue(AdConstants.CN.getName(), cn));</span>
+  }
+
+  private RDn getRdn(DomainUser oldUser, DomainUser newUser) {
+<span class="fc" id="L304">    RDn oldRdn = oldUser.getDn().getRDn();</span>
+<span class="fc" id="L305">    boolean useUsername = oldUser.getSamAccountName()</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">        .equalsIgnoreCase(oldRdn.getNameValue().getStringValue())</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        || isEmpty(newUser.getFirstName())</span>
+<span class="pc bnc" id="L308" title="All 2 branches missed.">        || isEmpty(newUser.getLastName());</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">    String cn = useUsername</span>
+<span class="fc" id="L310">        ? newUser.getSamAccountName()</span>
+<span class="pc" id="L311">        : newUser.getFirstName() + ' ' + oldUser.getLastName();</span>
+<span class="fc" id="L312">    return new RDn(new NameValue(oldRdn.getNameValue().getName(), cn));</span>
+  }
+
+  @Override
+  public DomainUser add(
+      DomainUser domainUser,
+      String clearPassword,
+      Dn ou,
+      Boolean useUsernameAsCn) {
+
+<span class="fc" id="L322">    log.debug(&quot;add({}, {}, {}, {})&quot;, domainUser.getSamAccountName(),</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">        isEmpty(clearPassword) ? &quot;null&quot; : &quot;****&quot;, ou, useUsernameAsCn);</span>
+
+<span class="fc" id="L325">    DomainUser user = domainUser</span>
+<span class="fc" id="L326">        .withDistinguishedName(&quot;&quot;)</span>
+<span class="fc" id="L327">        .withCreated(null)</span>
+<span class="fc" id="L328">        .withModified(null)</span>
+<span class="fc" id="L329">        .withSid(null)</span>
+<span class="fc" id="L330">        .withCriticalSystemObject(false)</span>
+<span class="fc" id="L331">        .withPrimaryGroupId(null)</span>
+<span class="fc" id="L332">        .withMemberships(List.of());</span>
+
+<span class="fc" id="L334">    validateNewSamAccountName(user);</span>
+<span class="fc" id="L335">    validateEmail(user.getEmail());</span>
+
+<span class="fc" id="L337">    String defaultPrincipalName = Optional.ofNullable(user.getUserPrincipalName())</span>
+<span class="pc bnc" id="L338" title="All 2 branches missed.">        .filter(name -&gt; !isEmpty(name))</span>
+<span class="fc" id="L339">        .orElseGet(() -&gt; user.getSamAccountName()</span>
+<span class="fc" id="L340">            + '@' + domainRepository.getDomainInfo().getDomain());</span>
+<span class="pc bpc" id="L341" title="2 of 4 branches missed.">    if (samAccountExists(user) || existsByPrincipalName(defaultPrincipalName)) {</span>
+<span class="nc" id="L342">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L343">          DomainUser.class.getSimpleName(),</span>
+<span class="nc" id="L344">          user.getSamAccountName(),</span>
+          EC_SAM_ACCOUNT_ALREADY_EXISTS);
+    }
+<span class="fc" id="L347">    Pattern passwordPattern = domainRepository.getPasswordInformation().getPasswordPattern();</span>
+<span class="pc bpc" id="L348" title="2 of 4 branches missed.">    if (!isEmpty(clearPassword) &amp;&amp; !passwordPattern.matcher(clearPassword).matches()) {</span>
+<span class="nc" id="L349">      throw ServiceException.badRequest(</span>
+<span class="nc" id="L350">          String.format(</span>
+              &quot;The password of user '%s' does not meet the complexity criteria!&quot;,
+<span class="nc" id="L352">              user.getSamAccountName()),</span>
+          EC_PASSWORD_RESTRICTIONS);
+    }
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">    if (existsByUid(user.getUid())) {</span>
+<span class="nc" id="L356">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L357">          DomainUser.class.getSimpleName() + &quot;.uid&quot;,</span>
+<span class="nc" id="L358">          user.getUid(),</span>
+          EC_UID_ALREADY_EXISTS);
+    }
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">    if (existsByUidNumber(user.getUidNumber())) {</span>
+<span class="nc" id="L362">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L363">          DomainUser.class.getSimpleName() + &quot;.uidNumber&quot;,</span>
+<span class="nc" id="L364">          user.getUidNumber(),</span>
+          EC_UID_NUMBER_ALREADY_EXISTS);
+    }
+<span class="fc" id="L367">    Dn dn = new Dn(getRdn(user, useUsernameAsCn));</span>
+<span class="fc" id="L368">    dn.add(validateParentDn(ou, this::getDefaultOu));</span>
+<span class="fc" id="L369">    String dnStr = DnTool.toString(dn);</span>
+<span class="fc" id="L370">    DomainUser addedUser = getLdapOperations()</span>
+<span class="fc" id="L371">        .save(user.withDistinguishedName(dnStr), domainUserLdapMapper);</span>
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">    if (!isEmpty(clearPassword)) {</span>
+<span class="fc" id="L373">      doSavePassword(addedUser.getDistinguishedName(), clearPassword);</span>
+    }
+<span class="fc" id="L375">    return addedUser;</span>
+  }
+
+  @Override
+  public DomainUser update(String userName, DomainUser domainUser, Dn newOu) {
+
+<span class="fc" id="L381">    log.debug(&quot;update({}, {}, {})&quot;, userName, domainUser.getSamAccountName(), newOu);</span>
+
+<span class="pc bpc" id="L383" title="1 of 2 branches missed.">    if (!userName.equals(domainUser.getSamAccountName())) {</span>
+<span class="fc" id="L384">      validateNewSamAccountName(domainUser);</span>
+    }
+<span class="fc" id="L386">    validateEmail(domainUser.getEmail());</span>
+
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">    if (!userName.equalsIgnoreCase(domainUser.getSamAccountName())</span>
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">        &amp;&amp; samAccountNameExists(domainUser.getSamAccountName())) {</span>
+<span class="nc" id="L390">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L391">          DomainUser.class.getSimpleName(),</span>
+<span class="nc" id="L392">          domainUser.getSamAccountName(),</span>
+          EC_SAM_ACCOUNT_ALREADY_EXISTS);
+    }
+<span class="fc" id="L395">    DomainUser existingDomainUser = findOne(userName, null, null)</span>
+<span class="pc" id="L396">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L397">            DomainUser.class.getSimpleName(),</span>
+<span class="nc" id="L398">            domainUser.getSamAccountName(),</span>
+            EC_SAM_ACCOUNT_NOT_FOUND));
+<span class="fc" id="L400">    DomainUser user = domainUser</span>
+<span class="fc" id="L401">        .withDistinguishedName(existingDomainUser.getDistinguishedName())</span>
+<span class="fc" id="L402">        .withCreated(existingDomainUser.getCreated())</span>
+<span class="fc" id="L403">        .withModified(OffsetDateTime.now(ZoneOffset.UTC))</span>
+<span class="fc" id="L404">        .withSid(existingDomainUser.getSid())</span>
+<span class="fc" id="L405">        .withCriticalSystemObject(existingDomainUser.isCriticalSystemObject())</span>
+<span class="fc" id="L406">        .withMemberships(existingDomainUser.getMemberships());</span>
+<span class="pc bpc" id="L407" title="1 of 2 branches missed.">    if (!isEmpty(user.getUserPrincipalName())</span>
+<span class="nc" id="L408">        &amp;&amp; !user.getUserPrincipalName()</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        .equalsIgnoreCase(existingDomainUser.getUserPrincipalName())</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        &amp;&amp; existsByPrincipalName(user.getUserPrincipalName())) {</span>
+<span class="nc" id="L411">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L412">          DomainUser.class.getSimpleName() + &quot;.userPrincipalName&quot;,</span>
+<span class="nc" id="L413">          user.getUserPrincipalName(),</span>
+          EC_PRINCIPAL_ALREADY_EXISTS);
+    }
+<span class="pc bpc" id="L416" title="1 of 2 branches missed.">    if (!isEmpty(user.getUid())</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">        &amp;&amp; !user.getUid().equalsIgnoreCase(existingDomainUser.getUid())</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">        &amp;&amp; existsByUid(user.getUid())) {</span>
+<span class="nc" id="L419">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L420">          DomainUser.class.getSimpleName() + &quot;.uid&quot;,</span>
+<span class="nc" id="L421">          user.getUid(),</span>
+          EC_UID_ALREADY_EXISTS);
+    }
+<span class="pc bpc" id="L424" title="1 of 2 branches missed.">    if (!isEmpty(user.getUidNumber())</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">        &amp;&amp; !Objects.equals(user.getUidNumber(), existingDomainUser.getUidNumber())</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">        &amp;&amp; existsByUidNumber(user.getUidNumber())) {</span>
+<span class="nc" id="L427">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L428">          DomainUser.class.getSimpleName() + &quot;.uidNumber&quot;,</span>
+<span class="nc" id="L429">          user.getUidNumber(),</span>
+          EC_UID_NUMBER_ALREADY_EXISTS);
+    }
+<span class="fc" id="L432">    Dn oldDn = new Dn(existingDomainUser.getDistinguishedName());</span>
+<span class="fc" id="L433">    Dn newDn = new Dn(getRdn(existingDomainUser, user));</span>
+<span class="fc" id="L434">    newDn.add(validateParentDn(newOu, oldDn::getParent));</span>
+<span class="pc bpc" id="L435" title="2 of 4 branches missed.">    if (!oldDn.isSame(newDn) &amp;&amp; dnExistsWithAnyObjectClass(newDn.format())) {</span>
+<span class="nc" id="L436">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L437">          DomainUser.class.getSimpleName(),</span>
+<span class="nc" id="L438">          getDnTool().removeBaseDn(newDn),</span>
+          EC_DN_ALREADY_EXISTS);
+    }
+<span class="fc" id="L441">    moveAndRename(oldDn, newDn);</span>
+<span class="fc" id="L442">    String newDnStr = DnTool.toString(newDn);</span>
+<span class="fc" id="L443">    return getLdapOperations()</span>
+<span class="fc" id="L444">        .save(user.withDistinguishedName(newDnStr), domainUserLdapMapper);</span>
+  }
+
+  @Override
+  public void savePassword(String userName, String newPassword) {
+<span class="fc" id="L449">    log.debug(&quot;savePassword({}, ****)&quot;, userName);</span>
+<span class="fc" id="L450">    findDnOfSamAccountName(userName).ifPresentOrElse(</span>
+<span class="fc" id="L451">        dn -&gt; doSavePassword(dn, newPassword),</span>
+        () -&gt; {
+<span class="nc" id="L453">          throw ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L454">              DomainUser.class.getSimpleName(),</span>
+              userName,
+              EC_SAM_ACCOUNT_NOT_FOUND);
+        });
+<span class="fc" id="L458">  }</span>
+
+  /**
+   * Do save password.
+   *
+   * @param dn the dn
+   * @param newPassword the new password
+   */
+  void doSavePassword(String dn, String newPassword) {
+<span class="fc" id="L467">    AttributeModification attributeModification = new AttributeModification(</span>
+        Type.REPLACE,
+<span class="fc" id="L469">        AdConstants.USER_UNICODE_PWD.createAttribute(newPassword));</span>
+<span class="fc" id="L470">    ModifyRequest modifyRequest = ModifyRequest.builder()</span>
+<span class="fc" id="L471">        .dn(dn)</span>
+<span class="fc" id="L472">        .modifications(attributeModification)</span>
+<span class="fc" id="L473">        .build();</span>
+<span class="fc" id="L474">    getLdapOperations()</span>
+<span class="fc" id="L475">        .copy(new AbstractLdaptiveErrorHandler() {</span>
+          @Override
+          public LdaptiveException map(LdapException ldapException) {
+            HttpStatus httpStatus;
+            String errorCode;
+<span class="nc bnc" id="L480" title="All 2 branches missed.">            if (ldapException.getResultCode() == ResultCode.CONSTRAINT_VIOLATION</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">                &amp;&amp; ldapException.getMessage().contains(&quot;check_password_restrictions&quot;)) {</span>
+<span class="nc" id="L482">              httpStatus = HttpStatus.BAD_REQUEST;</span>
+<span class="nc" id="L483">              errorCode = &quot;check_password_restrictions&quot;;</span>
+            } else {
+<span class="nc bnc" id="L485" title="All 2 branches missed.">              httpStatus = ldapException.getResultCode() == ResultCode.NO_SUCH_OBJECT</span>
+<span class="nc" id="L486">                  ? HttpStatus.NOT_FOUND</span>
+<span class="nc" id="L487">                  : HttpStatus.INTERNAL_SERVER_ERROR;</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">              errorCode = httpStatus == HttpStatus.NOT_FOUND</span>
+<span class="nc" id="L489">                  ? EC_SAM_ACCOUNT_NOT_FOUND</span>
+<span class="nc" id="L490">                  : EC_SAVING_PASSWORD_FAILED;</span>
+            }
+<span class="nc" id="L492">            return LdaptiveException.builder()</span>
+<span class="nc" id="L493">                .httpStatus(httpStatus.value())</span>
+<span class="nc" id="L494">                .errorCode(errorCode)</span>
+<span class="nc" id="L495">                .cause(ldapException)</span>
+<span class="nc" id="L496">                .build();</span>
+          }
+        })
+<span class="fc" id="L499">        .modify(modifyRequest);</span>
+<span class="fc" id="L500">  }</span>
+
+  @Override
+  public boolean delete(String userName) {
+<span class="fc" id="L504">    log.debug(&quot;delete({})&quot;, userName);</span>
+<span class="fc" id="L505">    return findOne(userName, null, null)</span>
+<span class="fc" id="L506">        .map(user -&gt; {</span>
+<span class="pc bpc" id="L507" title="1 of 2 branches missed.">          if (user.isCriticalSystemObject()) {</span>
+<span class="nc" id="L508">            throw ServiceException.badRequest(</span>
+<span class="nc" id="L509">                String.format(</span>
+                    &quot;User '%s' is a system account. Deletion failed.&quot;,
+<span class="nc" id="L511">                    user.getSamAccountName()),</span>
+                EC_ILLEGAL_SYSTEM_ENTITY_OPERATION);
+          }
+<span class="fc" id="L514">          getLdapOperations().delete(DeleteRequest.builder()</span>
+<span class="fc" id="L515">              .dn(user.getDistinguishedName())</span>
+<span class="fc" id="L516">              .build());</span>
+<span class="fc" id="L517">          return true;</span>
+        })
+<span class="fc" id="L519">        .orElse(false);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

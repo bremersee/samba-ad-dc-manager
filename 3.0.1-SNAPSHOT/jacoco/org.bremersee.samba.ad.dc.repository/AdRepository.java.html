@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">AdRepository.java</span></div><h1>AdRepository.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.nonNull;
+import static org.bremersee.exception.ServiceException.badRequest;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DistinguishedNameProvider;
+import org.ldaptive.LdapAttribute;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.ModifyDnRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.PresenceFilter;
+import org.springframework.util.Assert;
+
+/**
+ * The common repository.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L53">@Slf4j</span>
+public abstract class AdRepository implements ErrorCode {
+
+<span class="fc" id="L56">  private static final Dn[] IGNORED_DN = {</span>
+      new Dn(&quot;CN=Builtin&quot;),
+      new Dn(&quot;CN=Configuration&quot;),
+      new Dn(&quot;CN=Infrastructure&quot;),
+      new Dn(&quot;CN=LostAndFound&quot;),
+      new Dn(&quot;CN=NTDS Quotas&quot;),
+  };
+
+  @Getter(AccessLevel.PROTECTED)
+  private final ApplicationProperties properties;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final DnTool dnTool;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final LdaptiveOperations ldapOperations;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final Predicate&lt;String&gt; ignoredDnFilter;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final Predicate&lt;LdapEntry&gt; ignoredEntryFilter;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final Predicate&lt;DistinguishedNameProvider&gt; ignoredObjectFilter;
+
+  /**
+   * Instantiates a new common repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   */
+  protected AdRepository(
+      ApplicationProperties properties,
+<span class="fc" id="L90">      LdaptiveOperations ldapOperations) {</span>
+
+<span class="fc" id="L92">    Assert.notNull(properties, &quot;Domain controller properties must be present.&quot;);</span>
+<span class="fc" id="L93">    this.properties = properties;</span>
+<span class="fc" id="L94">    this.dnTool = new DefaultDnTool(properties);</span>
+<span class="fc" id="L95">    this.ldapOperations = ldapOperations;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">    this.ignoredDnFilter = dn -&gt; !DnTool.isValidDn(dn) || Arrays</span>
+<span class="fc" id="L97">        .stream(IGNORED_DN)</span>
+<span class="fc" id="L98">        .map(this.dnTool::addBaseDn)</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        .noneMatch(ignoredDn -&gt; ignoredDn.isAncestor(new Dn(dn)));</span>
+<span class="fc" id="L100">    this.ignoredEntryFilter = entry -&gt; ignoredDnFilter.test(entry.getDn());</span>
+<span class="fc" id="L101">    this.ignoredObjectFilter = distinguishedNameProvider -&gt; ignoredDnFilter</span>
+<span class="fc" id="L102">        .test(distinguishedNameProvider.getDistinguishedName());</span>
+<span class="fc" id="L103">  }</span>
+
+  private boolean isIgnoredDnFilterRequired(Dn ou, SearchScope scope) {
+<span class="fc bfc" id="L106" title="All 4 branches covered.">    if (nonNull(scope) &amp;&amp; scope != SearchScope.SUBTREE) {</span>
+<span class="fc" id="L107">      return false;</span>
+    }
+<span class="fc" id="L109">    return DnTool.isSameDn(dnTool.getBaseDn(), dnTool.addBaseDn(ou));</span>
+  }
+
+  /**
+   * Gets ignored entry filter.
+   *
+   * @param ou the ou
+   * @param scope the scope
+   * @return the ignored entry filter
+   */
+  protected Predicate&lt;LdapEntry&gt; getIgnoredEntryFilter(Dn ou, SearchScope scope) {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">    if (isIgnoredDnFilterRequired(ou, scope)) {</span>
+<span class="fc" id="L121">      return getIgnoredEntryFilter();</span>
+    }
+<span class="fc" id="L123">    return entry -&gt; true;</span>
+  }
+
+  /**
+   * Gets ignored object filter.
+   *
+   * @param ou the ou
+   * @param scope the scope
+   * @return the ignored object filter
+   */
+  protected Predicate&lt;DistinguishedNameProvider&gt; getIgnoredObjectFilter(Dn ou, SearchScope scope) {
+<span class="fc bfc" id="L134" title="All 2 branches covered.">    if (isIgnoredDnFilterRequired(ou, scope)) {</span>
+<span class="fc" id="L135">      return getIgnoredObjectFilter();</span>
+    }
+<span class="fc" id="L137">    return distinguishedNameProvider -&gt; true;</span>
+  }
+
+  /**
+   * Dn exists with any object class boolean.
+   *
+   * @param dn the dn
+   * @param objectClasses the object classes
+   * @return the boolean
+   */
+  protected boolean dnExistsWithAnyObjectClass(String dn, String... objectClasses) {
+<span class="fc" id="L148">    log.debug(&quot;dnExistsWithAnyObjectClass({}, {})&quot;, dn, objectClasses);</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">    if (!DnTool.isValidDn(dn)) {</span>
+<span class="nc" id="L150">      log.debug(&quot;Dn '{}' does not exist&quot;, dn);</span>
+<span class="nc" id="L151">      return false;</span>
+    }
+<span class="fc" id="L153">    SearchRequest searchRequest = SearchRequest.objectScopeSearchRequest(</span>
+        dn,
+<span class="fc" id="L155">        new String[]{AdConstants.OBJECT_CLASS.getName()},</span>
+<span class="fc" id="L156">        new PresenceFilter(AdConstants.OBJECT_CLASS.getName()));</span>
+<span class="fc" id="L157">    log.debug(&quot;dnExistsWithAnyObjectClass, searchRequest = {}&quot;, searchRequest);</span>
+<span class="fc" id="L158">    return getLdapOperations().findOne(searchRequest)</span>
+<span class="fc" id="L159">        .filter(getIgnoredEntryFilter())</span>
+<span class="fc" id="L160">        .map(ldapEntry -&gt; {</span>
+<span class="fc" id="L161">          log.info(&quot;dnExistsWithAnyObjectClass found entry = {}&quot;, ldapEntry.getDn());</span>
+<span class="fc" id="L162">          Set&lt;String&gt; wantedObjectClasses = Stream.ofNullable(objectClasses)</span>
+<span class="fc" id="L163">              .flatMap(Arrays::stream)</span>
+<span class="pc bnc" id="L164" title="All 2 branches missed.">              .filter(cls -&gt; !isEmpty(cls))</span>
+<span class="fc" id="L165">              .map(String::toLowerCase)</span>
+<span class="fc" id="L166">              .collect(Collectors.toSet());</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">          if (wantedObjectClasses.isEmpty()) {</span>
+<span class="fc" id="L168">            return true;</span>
+          }
+<span class="nc" id="L170">          return Stream</span>
+<span class="nc" id="L171">              .ofNullable(ldapEntry.getAttribute(AdConstants.OBJECT_CLASS.getName()))</span>
+<span class="nc" id="L172">              .map(LdapAttribute::getStringValues)</span>
+<span class="nc" id="L173">              .flatMap(Collection::stream)</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">              .filter(cls -&gt; !isEmpty(cls))</span>
+<span class="nc" id="L175">              .map(String::toLowerCase)</span>
+<span class="nc" id="L176">              .anyMatch(wantedObjectClasses::contains);</span>
+        })
+<span class="fc" id="L178">        .orElse(false);</span>
+  }
+
+  /**
+   * Validate parent dn dn.
+   *
+   * @param parentDn the parent dn
+   * @param defaultParentDn the default parent dn
+   * @return the dn
+   */
+  protected Dn validateParentDn(Dn parentDn, Supplier&lt;Dn&gt; defaultParentDn) {
+<span class="pc bpc" id="L189" title="2 of 4 branches missed.">    Dn validatedDn = isEmpty(parentDn) || parentDn.isEmpty() ? defaultParentDn.get() : parentDn;</span>
+<span class="pc bpc" id="L190" title="2 of 4 branches missed.">    if (isEmpty(validatedDn) || validatedDn.isEmpty()) {</span>
+<span class="nc" id="L191">      throw badRequest(&quot;Parent dn cannot be empty.&quot;, EC_EMPTY_OU_RDN);</span>
+    }
+<span class="fc" id="L193">    Dn dn = getDnTool().addBaseDn(validatedDn);</span>
+<span class="fc" id="L194">    return getLdapOperations().findOne(SearchRequest.builder()</span>
+<span class="fc" id="L195">            .dn(dn.format())</span>
+<span class="fc" id="L196">            .filter(new PresenceFilter(AdConstants.OBJECT_CLASS.getName()))</span>
+<span class="fc" id="L197">            .scope(SearchScope.OBJECT)</span>
+<span class="fc" id="L198">            .returnAttributes(AdConstants.DN.getName())</span>
+<span class="fc" id="L199">            .sizeLimit(1)</span>
+<span class="fc" id="L200">            .build())</span>
+<span class="fc" id="L201">        .flatMap(AdConstants.DN::getValue)</span>
+<span class="fc" id="L202">        .orElseThrow(() -&gt; badRequest(</span>
+<span class="fc" id="L203">            String.format(&quot;Parent dn '%s' does not exist.&quot;, DnTool.toString(dn)),</span>
+            EC_OU_NOT_FOUND));
+  }
+
+  /**
+   * Move and rename.
+   *
+   * @param existingDn the existing dn
+   * @param wantedDn the wanted dn
+   */
+  protected void moveAndRename(Dn existingDn, Dn wantedDn) {
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">    if (!existingDn.isSame(wantedDn)) {</span>
+<span class="fc" id="L215">      ModifyDnRequest.Builder reqBuilder = ModifyDnRequest.builder()</span>
+<span class="fc" id="L216">          .oldDN(existingDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))</span>
+<span class="fc" id="L217">          .newRDN(wantedDn.getRDn().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER))</span>
+<span class="fc" id="L218">          .delete(true);</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">      if (!existingDn.getParent().isSame(wantedDn.getParent())) {</span>
+<span class="fc" id="L220">        reqBuilder.superior(wantedDn.getParent().format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER));</span>
+      }
+<span class="fc" id="L222">      getLdapOperations().modifyDn(reqBuilder.build());</span>
+    }
+<span class="fc" id="L224">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
