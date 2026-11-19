@@ -12,8 +12,8 @@
   </parent>
 
   <artifactId>samba-ad-dc-manager</artifactId>
-  <!-- increment debian epoch version for a release! -->
-  <version>3.0.2-TAGGED</version> <!--> -TAGGED for releases-->
+  <!--> Use -STABLE for releases, so that dpkg knows, that there is a newer version. -->
+  <version>3.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Samba AD DC Manager</name>
