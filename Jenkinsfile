@@ -12,8 +12,8 @@ pipeline {
     BUILD_API = true
     DEPLOY_TO_DEBIAN_REPO = true
     COPY_TO_DC1 = false
-    APT_INSTALL_ON_DC1 = true
-    APT_INSTALL_ON_DC2 = true
+    APT_INSTALL_ON_DC1 = false
+    APT_INSTALL_ON_DC2 = false
     CLEAN = true
   }
   tools {

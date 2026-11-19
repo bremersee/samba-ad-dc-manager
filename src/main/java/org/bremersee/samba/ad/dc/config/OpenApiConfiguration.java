@@ -17,7 +17,6 @@
 package org.bremersee.samba.ad.dc.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
@@ -40,7 +39,7 @@ import org.springframework.context.annotation.Profile;
         title = "Samba AD DC Manager API",
         summary = "The Samba AD DC Manager API",
         description = "RESTful service for Samba AD DC Manager.",
-        version = "3.0.0",
+        version = "3.0.1",
         license = @License(
             name = "Apache 2.0",
             url = "https://www.apache.org/licenses/LICENSE-2.0.html"
@@ -56,28 +55,6 @@ class OpenApiConfiguration {
    */
   OpenApiConfiguration() {
     super();
-  }
-
-  /**
-   * For basic auth.
-   *
-   * @author Christian Bremer
-   */
-  @Configuration
-  @Profile("!jwt & api")
-  @SecurityScheme(
-      name = "basic-auth",
-      scheme = "basic",
-      type = SecuritySchemeType.HTTP,
-      in = SecuritySchemeIn.HEADER)
-  static class ForBasicAuth {
-
-    /**
-     * Instantiates a new instance for basic auth.
-     */
-    ForBasicAuth() {
-      super();
-    }
   }
 
   /**
@@ -100,11 +77,6 @@ class OpenApiConfiguration {
           )
       )
   )
-  @SecurityScheme(
-      name = "basic-auth",
-      scheme = "basic",
-      type = SecuritySchemeType.HTTP,
-      in = SecuritySchemeIn.HEADER)
   static class ForJwt {
 
     /**

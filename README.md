@@ -4,4 +4,4 @@
 
 Management application for Samba AD DC
 
-[Maven-Site](https://bremersee.github.io/samba-ad-dc-manager/3.0.0/index.html)
+[Maven-Site](https://bremersee.github.io/samba-ad-dc-manager/3.0.1/index.html)

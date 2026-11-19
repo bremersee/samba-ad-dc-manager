@@ -12,7 +12,8 @@
   </parent>
 
   <artifactId>samba-ad-dc-manager</artifactId>
-  <version>3.0.0</version>
+  <!-- Set debian version, too! -->
+  <version>3.0.1</version>
   <packaging>jar</packaging>
 
   <name>Samba AD DC Manager</name>
@@ -27,9 +28,11 @@
 
     <start-class>org.bremersee.samba.ad.dc.Application</start-class>
 
+    <version>3.0.1</version>
+    <versionPostfix></versionPostfix>
     <!--suppress UnresolvedMavenProperty -->
     <debVersion>
-      ${project.version}-${maven.build.timestamp}+${buildNumber}
+      ${version}-${maven.build.timestamp}+${buildNumber}${versionPostfix}
     </debVersion>
     <debBaseName>
       samba-ad-dc-manager_${debVersion}_all

@@ -83,8 +83,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Get DNS zones.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -127,8 +126,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Add DNS zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -165,8 +163,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Get DNS zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -206,8 +203,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Delete DNS zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -248,8 +244,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Get dns entries of a zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -300,8 +295,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Add DNS entry to a zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -352,8 +346,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Get DNS entry of a zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -423,8 +416,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Update DNS entry of a zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -488,8 +480,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Delete DNS entry of a zone.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(
@@ -549,8 +540,7 @@ public class DnsApiController extends ApiController {
   @Operation(
       description = "Get dhcp leases.",
       security = {
-          @SecurityRequirement(name = "bearer-jwt"),
-          @SecurityRequirement(name = "basic-auth")
+          @SecurityRequirement(name = "bearer-jwt")
       }
   )
   @ApiResponses(

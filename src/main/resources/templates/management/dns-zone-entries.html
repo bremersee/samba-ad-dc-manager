@@ -119,20 +119,20 @@
                        th:placeholder="#{common.search.placeholder}"
                        th:value="${q}">
                 <span class="input-group-text">
-                <a id="searchInputSubmit" href="#" title="Search" th:title="#{common.search.label}">
-                  <span class="glyphicon glyphicon-search text-primary" aria-hidden="true"></span>
-                </a>
-              </span>
+                  <a id="searchInputSubmit" href="#" title="Search" th:title="#{common.search.label}">
+                    <span class="glyphicon glyphicon-search text-primary" aria-hidden="true"></span>
+                  </a>
+                </span>
                 <span class="input-group-text" th:if="${not #strings.isEmpty(q)}">
-                <a id="searchInputReset" href="#" title="Reset search" class="show-spinner"
-                   th:title="#{common.search.reset}"
-                   th:href="@{${currentPage}(zone-name=${zoneName},zone-type=${zoneType},page=0,size=${size},sort=${sort})}"
-                   th:classappend="${#strings.isEmpty(q)} ? 'disabled' : ''"
-                   th:disabled="${#strings.isEmpty(q)}"
-                   th:aria-disabled="${#strings.isEmpty(q)}">
-                  <span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
-                </a>
-              </span>
+                  <a id="searchInputReset" href="#" title="Reset search" class="show-spinner"
+                     th:title="#{common.search.reset}"
+                     th:href="@{${currentPage}(zone-name=${zoneName},zone-type=${zoneType},page=0,size=${size},sort=${sort})}"
+                     th:classappend="${#strings.isEmpty(q)} ? 'disabled' : ''"
+                     th:disabled="${#strings.isEmpty(q)}"
+                     th:aria-disabled="${#strings.isEmpty(q)}">
+                    <span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
+                  </a>
+                </span>
               </div>
             </div>
           </div>
@@ -240,7 +240,8 @@
   </div>
 
 </main>
-<script type="text/javascript">
+<!--suppress ThymeleafObsoleteInlineAttributeInspection -->
+<script type="text/javascript" th:inline="javascript">
   //<![CDATA[
   "use strict";
   $(document).ready(function () {
@@ -256,7 +257,7 @@
     $('a.show-spinner').on('click', function () {
       loadingSpinnerModal.show();
     });
-    $( globalThis ).on('pageshow', function () {
+    $(globalThis).on('pageshow', function () {
       loadingSpinnerModal.hide();
     });
 
@@ -273,6 +274,7 @@
             + "&q=" + encodeURIComponent(searchInput.val());
       }
     }
+
     searchInput.on('keypress', function (e) {
       if (e.which === 13) {
         search();
