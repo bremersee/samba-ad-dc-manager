@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnitServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.service</a> &gt; <span class="el_source">OrganizationalUnitServiceImpl.java</span></div><h1>OrganizationalUnitServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.Getter;
+import org.bremersee.comparator.ValueComparator;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.pagebuilder.PageBuilder;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.ModelConstants;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.model.comparator.AdEntryTypeComparator;
+import org.bremersee.samba.ad.dc.repository.OrganizationalUnitRepository;
+import org.ldaptive.dn.Dn;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The organizational unit service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Service
+@Validated
+public class OrganizationalUnitServiceImpl implements OrganizationalUnitService, ErrorCode {
+
+  private final ApplicationProperties properties;
+
+  private final SortMapper sortMapper;
+
+  private final OrganizationalUnitRepository repository;
+
+  @Getter
+  private final OrganizationalUnit base;
+
+  /**
+   * Instantiates a new organizational unit service.
+   *
+   * @param properties the properties
+   * @param sortMapper the sort mapper
+   * @param repository the repository
+   */
+  public OrganizationalUnitServiceImpl(
+      ApplicationProperties properties,
+      SortMapper sortMapper,
+<span class="nc" id="L72">      OrganizationalUnitRepository repository) {</span>
+<span class="nc" id="L73">    this.properties = properties;</span>
+<span class="nc" id="L74">    this.sortMapper = sortMapper;</span>
+<span class="nc" id="L75">    this.repository = repository;</span>
+<span class="nc" id="L76">    this.base = OrganizationalUnit.builder()</span>
+<span class="nc" id="L77">        .distinguishedName(properties.getBaseDn())</span>
+<span class="nc" id="L78">        .created(OffsetDateTime.now(ZoneOffset.UTC))</span>
+<span class="nc" id="L79">        .modified(OffsetDateTime.now(ZoneOffset.UTC))</span>
+<span class="nc" id="L80">        .name(&quot;Base&quot;)</span>
+<span class="nc" id="L81">        .description(&quot;Base of Active Directory&quot;)</span>
+<span class="nc" id="L82">        .systemOu(true)</span>
+<span class="nc" id="L83">        .build();</span>
+<span class="nc" id="L84">  }</span>
+
+  /**
+   * Contains boolean.
+   *
+   * @param ou the ou
+   * @param query the query
+   * @return the boolean
+   */
+  boolean contains(OrganizationalUnit ou, String query) {
+<span class="nc bnc" id="L94" title="All 4 branches missed.">    if (!isEmpty(ou.getName()) &amp;&amp; ou.getName().toLowerCase().contains(query)) {</span>
+<span class="nc" id="L95">      return true;</span>
+    }
+<span class="nc bnc" id="L97" title="All 4 branches missed.">    return !isEmpty(ou.getDescription()) &amp;&amp; ou.getDescription().toLowerCase().contains(query);</span>
+  }
+
+  @Override
+  public Page&lt;OrganizationalUnit&gt; getOrganizationalUnits(Pageable pageable, String query) {
+<span class="nc" id="L102">    Stream&lt;OrganizationalUnit&gt; ous = getOrganizationalUnitsWithSystemOus();</span>
+<span class="nc bnc" id="L103" title="All 4 branches missed.">    if (isEmpty(query) || query.length() &lt;= 2) {</span>
+<span class="nc" id="L104">      return new PageBuilder&lt;OrganizationalUnit, OrganizationalUnit&gt;()</span>
+<span class="nc" id="L105">          .sourceEntries(ous)</span>
+<span class="nc" id="L106">          .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="nc" id="L107">          .build();</span>
+    }
+<span class="nc" id="L109">    String lowerQuery = query.toLowerCase();</span>
+<span class="nc" id="L110">    return new PageBuilder&lt;OrganizationalUnit, OrganizationalUnit&gt;()</span>
+<span class="nc" id="L111">        .sourceEntries(ous.filter(ou -&gt; contains(ou, lowerQuery)))</span>
+<span class="nc" id="L112">        .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="nc" id="L113">        .build();</span>
+  }
+
+  @Override
+  public Stream&lt;OrganizationalUnit&gt; getOrganizationalUnits() {
+<span class="nc" id="L118">    return repository.findCustomOus().sorted(Comparator.comparing(OrganizationalUnit::getNameTree));</span>
+  }
+
+  @Override
+  public Stream&lt;OrganizationalUnit&gt; getOrganizationalUnitsWithSystemOus() {
+<span class="nc" id="L123">    return repository.findAll()</span>
+<span class="nc" id="L124">        .sorted(Comparator.comparing(OrganizationalUnit::getNameTree));</span>
+  }
+
+  @Override
+  public Stream&lt;OrganizationalUnit&gt; getOrganizationalUnitsWithSystemOusAndBase() {
+<span class="nc" id="L129">    return Stream.concat(Stream.of(base), getOrganizationalUnitsWithSystemOus());</span>
+  }
+
+  @Override
+  public Optional&lt;OrganizationalUnit&gt; getOrganizationalUnit(Dn ou) {
+<span class="nc" id="L134">    return Optional.ofNullable(ou)</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        .filter(dn -&gt; !dn.isEmpty())</span>
+<span class="nc" id="L136">        .flatMap(repository::findOne)</span>
+<span class="nc" id="L137">        .or(() -&gt; Optional.ofNullable(ou)</span>
+<span class="nc" id="L138">            .filter(dn -&gt; DnTool.isSameDn(dn, properties.getBaseDn()))</span>
+<span class="nc" id="L139">            .map(dn -&gt; base));</span>
+  }
+
+  @Override
+  public boolean organisationUnitExists(Dn ou) {
+<span class="nc bnc" id="L144" title="All 4 branches missed.">    if (isEmpty(ou) || ou.isEmpty()) {</span>
+<span class="nc" id="L145">      return false;</span>
+    }
+<span class="nc bnc" id="L147" title="All 2 branches missed.">    if (DnTool.isSameDn(ou, properties.getBaseDn())) {</span>
+<span class="nc" id="L148">      return true;</span>
+    }
+<span class="nc" id="L150">    return repository.exists(ou);</span>
+  }
+
+  @Override
+  public boolean hasChildren(Dn ou) {
+<span class="nc" id="L155">    return repository.hasChildren(ou);</span>
+  }
+
+  @Override
+  public Page&lt;AdEntry&gt; getChildren(Dn ou, Pageable pageable) {
+<span class="nc" id="L160">    return new PageBuilder&lt;AdEntry, AdEntry&gt;()</span>
+<span class="nc" id="L161">        .sourceEntries(repository.getChildren(ou))</span>
+<span class="nc" id="L162">        .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="nc" id="L163">        .targetSortFn(sortOrder -&gt; {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">          if (ModelConstants.DISCRIMINATOR.equalsIgnoreCase(sortOrder.getField())) {</span>
+<span class="nc" id="L165">            return new AdEntryTypeComparator();</span>
+          }
+<span class="nc" id="L167">          return new ValueComparator(sortOrder);</span>
+        })
+<span class="nc" id="L169">        .build();</span>
+  }
+
+  @Override
+  public OrganizationalUnit add(OrganizationalUnit organizationalUnit, Dn parentOu) {
+<span class="nc" id="L174">    return repository.add(organizationalUnit, parentOu);</span>
+  }
+
+  @Override
+  public OrganizationalUnit update(OrganizationalUnit organizationalUnit, Dn newParentOu) {
+<span class="nc" id="L179">    return repository.update(organizationalUnit, newParentOu);</span>
+  }
+
+  @Override
+  public boolean delete(Dn ou) {
+<span class="nc" id="L184">    return repository.delete(ou);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

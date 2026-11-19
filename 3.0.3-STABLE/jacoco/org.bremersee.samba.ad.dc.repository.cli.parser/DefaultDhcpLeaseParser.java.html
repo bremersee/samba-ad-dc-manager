@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultDhcpLeaseParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.cli.parser</a> &gt; <span class="el_source">DefaultDhcpLeaseParser.java</span></div><h1>DefaultDhcpLeaseParser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.cli.parser;
+
+import static java.util.Objects.requireNonNullElseGet;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import org.bremersee.samba.ad.dc.model.DhcpLease;
+import org.bremersee.samba.ad.dc.repository.cli.AbstractCommandExecutorResponseParser;
+import org.springframework.util.StringUtils;
+
+/**
+ * The default dhcp lease parser.
+ *
+ * @author Christian Bremer
+ */
+class DefaultDhcpLeaseParser extends AbstractCommandExecutorResponseParser&lt;List&lt;DhcpLease&gt;&gt;
+    implements DhcpLeaseParser {
+
+  private final BinaryOperator&lt;String&gt; unknownHostConverter;
+
+  /**
+   * Instantiates a new default parser.
+   */
+  DefaultDhcpLeaseParser() {
+<span class="fc" id="L51">    this(null);</span>
+<span class="fc" id="L52">  }</span>
+
+  /**
+   * Instantiates a new default parser.
+   *
+   * &lt;p&gt;The unknown host converter converts the unknown host name
+   * {@link DhcpLeaseParser#HOSTNAME_UNKNOWN} into another host name. The parameters of the function
+   * are MAC and IP.
+   *
+   * @param unknownHostConverter the unknown host converter
+   */
+<span class="fc" id="L63">  DefaultDhcpLeaseParser(BinaryOperator&lt;String&gt; unknownHostConverter) {</span>
+<span class="fc" id="L64">    this.unknownHostConverter = requireNonNullElseGet(unknownHostConverter,</span>
+        DefaultUnknownHostConverter::new);
+<span class="fc" id="L66">  }</span>
+
+  @Override
+  protected List&lt;DhcpLease&gt; getDefaultValue() {
+<span class="fc" id="L70">    return List.of();</span>
+  }
+
+  @Override
+  protected List&lt;DhcpLease&gt; doParse(BufferedReader reader) throws IOException {
+<span class="fc" id="L75">    List&lt;DhcpLease&gt; leases = new ArrayList&lt;&gt;();</span>
+    String line;
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L78">      line = line.trim();</span>
+<span class="fc" id="L79">      String mac = findDhcpLeasePart(line, MAC, IP);</span>
+<span class="fc" id="L80">      String ip = findDhcpLeasePart(line, IP, HOSTNAME);</span>
+<span class="fc" id="L81">      String hostname = findDhcpLeasePart(line, HOSTNAME, BEGIN);</span>
+<span class="pc bpc" id="L82" title="1 of 4 branches missed.">      if (HOSTNAME_UNKNOWN.equalsIgnoreCase(hostname) &amp;&amp; ip != null) {</span>
+<span class="fc" id="L83">        hostname = unknownHostConverter.apply(mac, ip);</span>
+      }
+<span class="fc" id="L85">      String begin = findDhcpLeasePart(line, BEGIN, END);</span>
+<span class="fc" id="L86">      String end = findDhcpLeasePart(line, END, MANUFACTURER);</span>
+<span class="fc" id="L87">      String manufacturer = findDhcpLeasePart(line, MANUFACTURER, null);</span>
+<span class="pc bpc" id="L88" title="5 of 10 branches missed.">      if (mac != null &amp;&amp; ip != null &amp;&amp; hostname != null &amp;&amp; begin != null &amp;&amp; end != null) {</span>
+<span class="fc" id="L89">        leases.add(DhcpLease.builder()</span>
+<span class="fc" id="L90">            .mac(mac.replace(&quot;-&quot;, &quot;:&quot;).trim().toLowerCase())</span>
+<span class="fc" id="L91">            .ip(ip)</span>
+<span class="fc" id="L92">            .hostname(hostname)</span>
+<span class="fc" id="L93">            .begin(parseDhcpLeaseTime(begin))</span>
+<span class="fc" id="L94">            .end(parseDhcpLeaseTime(end))</span>
+<span class="fc" id="L95">            .manufacturer(manufacturer)</span>
+<span class="fc" id="L96">            .build());</span>
+      }
+<span class="fc" id="L98">    }</span>
+<span class="fc" id="L99">    return leases;</span>
+  }
+
+  private String findDhcpLeasePart(String line, String field, String nextField) {
+<span class="pc bpc" id="L103" title="2 of 4 branches missed.">    if (!StringUtils.hasText(line) || !StringUtils.hasText(field)) {</span>
+<span class="nc" id="L104">      return null;</span>
+    }
+<span class="fc" id="L106">    int start = line.indexOf(field);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">    if (start &lt; 0) {</span>
+<span class="nc" id="L108">      return null;</span>
+    }
+<span class="fc" id="L110">    start = start + field.length();</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">    int end = StringUtils.hasText(nextField)</span>
+<span class="fc" id="L112">        ? line.indexOf(nextField, start)</span>
+<span class="fc" id="L113">        : line.length();</span>
+<span class="pc bpc" id="L114" title="1 of 4 branches missed.">    if (end &lt; 0 || end &lt;= start) {</span>
+<span class="fc" id="L115">      return null;</span>
+    }
+<span class="fc" id="L117">    return line.substring(start, end).trim();</span>
+  }
+
+  private OffsetDateTime parseDhcpLeaseTime(String time) {
+<span class="fc" id="L121">    return Optional.ofNullable(time)</span>
+<span class="fc" id="L122">        .filter(Predicate.not(String::isBlank))</span>
+<span class="fc" id="L123">        .map(timeStr -&gt; LocalDateTime</span>
+<span class="fc" id="L124">            .parse(timeStr, DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;)))</span>
+        // As of https://linux.die.net/man/5/dhcpd.leases the time zone is always UTC
+<span class="fc" id="L126">        .map(localDateTime -&gt; OffsetDateTime.of(localDateTime, ZoneOffset.UTC))</span>
+<span class="fc" id="L127">        .orElse(null);</span>
+  }
+
+  /**
+   * The default unknown host converter.
+   *
+   * @author Christian Bremer
+   */
+  static class DefaultUnknownHostConverter implements BinaryOperator&lt;String&gt; {
+
+<span class="fc" id="L137">    private static final Pattern IPV4_PATTERN = Pattern.compile(</span>
+        &quot;^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$&quot;);
+
+    /**
+     * Instantiates a new default unknown host converter.
+     */
+    DefaultUnknownHostConverter() {
+<span class="fc" id="L144">      super();</span>
+<span class="fc" id="L145">    }</span>
+
+    @Override
+    public String apply(String mac, String ip) {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">      if (IPV4_PATTERN.matcher(ip).matches()) {</span>
+<span class="fc" id="L150">        return &quot;dhcp-&quot; + ip.replace('.', '-');</span>
+      }
+<span class="nc" id="L152">      return HOSTNAME_UNKNOWN;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

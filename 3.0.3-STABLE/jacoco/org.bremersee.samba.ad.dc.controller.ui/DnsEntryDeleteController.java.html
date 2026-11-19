@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsEntryDeleteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">DnsEntryDeleteController.java</span></div><h1>DnsEntryDeleteController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The dns entry delete controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+<span class="nc" id="L48">@Slf4j</span>
+public class DnsEntryDeleteController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
+
+  private final DnsService dnsService;
+
+  /**
+   * Instantiates a new dns entry delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
+  public DnsEntryDeleteController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+<span class="nc" id="L67">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L68">    this.dnsService = dnsService;</span>
+<span class="nc" id="L69">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L73">    return DNS_ENTRY_SORT;</span>
+  }
+
+  /**
+   * Display delete dns entry view.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param model the model
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/dns-entry-delete&quot;)
+  public String displayDeleteDnsEntry(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
+      ModelMap model) {
+
+<span class="nc" id="L94">    log.debug(&quot;displayDeleteDnsEntry({}, {}, {}, {})&quot;, zoneName, name, type, value);</span>
+<span class="nc" id="L95">    DnsEntry dnsEntry = DnsEntry.builder()</span>
+<span class="nc" id="L96">        .zoneName(zoneName)</span>
+<span class="nc" id="L97">        .name(name)</span>
+<span class="nc" id="L98">        .type(type)</span>
+<span class="nc" id="L99">        .value(value)</span>
+<span class="nc" id="L100">        .build();</span>
+<span class="nc" id="L101">    model.addAttribute(&quot;dnsEntry&quot;, dnsEntry);</span>
+<span class="nc" id="L102">    DnsEntryDeleteModel deleteModel = new DnsEntryDeleteModel();</span>
+<span class="nc" id="L103">    boolean mayHaveReverseEntry = mayHaveReverseEntry(dnsEntry);</span>
+<span class="nc" id="L104">    model.addAttribute(&quot;mayHaveReverseEntry&quot;, mayHaveReverseEntry);</span>
+<span class="nc" id="L105">    deleteModel.setDeleteReverseEntry(mayHaveReverseEntry);</span>
+<span class="nc" id="L106">    model.addAttribute(&quot;dnsEntryDeleteModel&quot;, deleteModel);</span>
+<span class="nc" id="L107">    return &quot;management/dns-entry-delete&quot;;</span>
+  }
+
+  /**
+   * Delete dns entry.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/dns-entry-delete&quot;)
+  public String deleteDnsEntry(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      @RequestParam(name = &quot;name&quot;) String name,
+      @RequestParam(name = &quot;type&quot;) DnsEntryType type,
+      @RequestParam(name = &quot;value&quot;) String value,
+      @ModelAttribute(name = &quot;dnsEntryDeleteModel&quot;) DnsEntryDeleteModel deleteModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L134">    log.debug(&quot;deleteDnsEntry({}, {}, {}, {}, {})&quot;, zoneName, name, type, value, deleteModel);</span>
+
+<span class="nc" id="L136">    DnsEntry dnsEntry = DnsEntry.builder()</span>
+<span class="nc" id="L137">        .zoneName(zoneName)</span>
+<span class="nc" id="L138">        .name(name)</span>
+<span class="nc" id="L139">        .type(type)</span>
+<span class="nc" id="L140">        .value(value)</span>
+<span class="nc" id="L141">        .build();</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">    if (!name.equalsIgnoreCase(deleteModel.getVerificationName())) {</span>
+<span class="nc" id="L143">      bindingResult.rejectValue(&quot;verificationName&quot;, &quot;dns-entry-delete.name-does-not-match&quot;,</span>
+          &quot;The name doesn't match.&quot;);
+<span class="nc" id="L145">      model.addAttribute(&quot;dnsEntry&quot;, dnsEntry);</span>
+<span class="nc" id="L146">      model.addAttribute(&quot;mayHaveReverseEntry&quot;, mayHaveReverseEntry(dnsEntry));</span>
+<span class="nc" id="L147">      return &quot;management/dns-entry-delete&quot;;</span>
+    }
+
+<span class="nc" id="L150">    model.clear();</span>
+    try {
+<span class="nc" id="L152">      dnsService.deleteDnsEntry(dnsEntry);</span>
+
+<span class="nc bnc" id="L154" title="All 4 branches missed.">      if (deleteModel.isDeleteReverseEntry() &amp;&amp; (DnsEntryType.A.equals(type)</span>
+<span class="nc bnc" id="L155" title="All 4 branches missed.">          || DnsEntryType.AAAA.equals(type) || DnsEntryType.PTR.equals(type))) {</span>
+<span class="nc" id="L156">        dnsService.findReverseDnsEntry(dnsEntry)</span>
+<span class="nc" id="L157">            .ifPresent(dnsService::deleteDnsEntry);</span>
+      }
+
+<span class="nc" id="L160">      String msg = String.format(&quot;Dns entry '%s' was successfully deleted.&quot;, name);</span>
+<span class="nc" id="L161">      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,</span>
+          &quot;dns-entry-delete.success&quot;, name);
+<span class="nc" id="L163">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L165">    } catch (ServiceException e) {</span>
+
+<span class="nc" id="L167">      String msg = String.format(&quot;Deletion of dns entry '%s' failed.&quot;, name);</span>
+<span class="nc" id="L168">      log.error(msg, e);</span>
+<span class="nc" id="L169">      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,</span>
+          &quot;dns-entry-delete.failure&quot;, name);
+<span class="nc" id="L171">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+<span class="nc" id="L172">    }</span>
+
+<span class="nc" id="L174">    Map&lt;String, Object&gt; parameters = getParameterMap();</span>
+<span class="nc" id="L175">    String redirect = getRedirectUri(&quot;dns-zone-entries&quot;,</span>
+        PAGE_AND_ZONE_NAME_PARAMS, parameters);
+<span class="nc" id="L177">    logRedirectTo(&quot;Dns deletion redirect.&quot;, redirect);</span>
+<span class="nc" id="L178">    return redirect;</span>
+  }
+
+  private boolean mayHaveReverseEntry(DnsEntry dnsEntry) {
+<span class="nc bnc" id="L182" title="All 2 branches missed.">    return DnsEntryType.A.equals(dnsEntry.getType())</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        || DnsEntryType.AAAA.equals(dnsEntry.getType())</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        || DnsEntryType.PTR.equals(dnsEntry.getType());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainUser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">DomainUser.java</span></div><h1>DomainUser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The domain user.
+ *
+ * @author Christian Bremer
+ */
+@Schema(name = ModelConstants.USER, description = &quot;The domain user.&quot;)
+@Value.Style(
+    visibility = ImplementationVisibility.PUBLIC,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonTypeName(ModelConstants.USER)
+@JsonSerialize(as = ImmutableDomainUser.class)
+@JsonDeserialize(as = ImmutableDomainUser.class)
+public interface DomainUser extends SamAccount, NisDomainMember {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+<span class="fc" id="L64">    return AdEntryType.USER;</span>
+  }
+
+  /**
+   * With distinguished name domain user.
+   *
+   * @param distinguishedName the distinguished name
+   * @return the domain user
+   */
+  @Override
+  default DomainUser withDistinguishedName(String distinguishedName) {
+<span class="nc" id="L75">    return builder()</span>
+<span class="nc" id="L76">        .from(this)</span>
+<span class="nc" id="L77">        .distinguishedName(requireNonNullElse(distinguishedName, &quot;&quot;))</span>
+<span class="nc" id="L78">        .build();</span>
+  }
+
+  @Schema(description = &quot;The creation date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
+  @Override
+  default DomainUser withCreated(OffsetDateTime created) {
+<span class="nc" id="L88">    return builder()</span>
+<span class="nc" id="L89">        .from(this)</span>
+<span class="nc" id="L90">        .created(created)</span>
+<span class="nc" id="L91">        .build();</span>
+  }
+
+  @Schema(description = &quot;The last modification date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
+  @Override
+  default DomainUser withModified(OffsetDateTime modified) {
+<span class="nc" id="L101">    return builder()</span>
+<span class="nc" id="L102">        .from(this)</span>
+<span class="nc" id="L103">        .modified(modified)</span>
+<span class="nc" id="L104">        .build();</span>
+  }
+
+  @Schema(description = &quot;The SID of the sam account.&quot;)
+  @Nullable
+  @Override
+  Sid getSid();
+
+  @Override
+  default DomainUser withSid(Sid sid) {
+<span class="nc" id="L114">    return builder()</span>
+<span class="nc" id="L115">        .from(this)</span>
+<span class="nc" id="L116">        .sid(sid)</span>
+<span class="nc" id="L117">        .build();</span>
+  }
+
+  @Override
+  default DomainUser withCriticalSystemObject(boolean criticalSystemObject) {
+<span class="nc" id="L122">    return builder()</span>
+<span class="nc" id="L123">        .from(this)</span>
+<span class="nc" id="L124">        .criticalSystemObject(criticalSystemObject)</span>
+<span class="nc" id="L125">        .build();</span>
+  }
+
+  @Override
+  default DomainUser withPrimaryGroupId(Integer primaryGroupId) {
+<span class="nc" id="L130">    return builder()</span>
+<span class="nc" id="L131">        .from(this)</span>
+<span class="nc" id="L132">        .primaryGroupId(primaryGroupId)</span>
+<span class="nc" id="L133">        .build();</span>
+  }
+
+  @Override
+  default DomainUser withMemberships(Iterable&lt;String&gt; memberships) {
+<span class="nc" id="L138">    return builder()</span>
+<span class="nc" id="L139">        .from(this)</span>
+<span class="nc" id="L140">        .memberships(Objects.requireNonNullElseGet(memberships, List::of))</span>
+<span class="nc" id="L141">        .build();</span>
+  }
+
+  /**
+   * Gets account control.
+   *
+   * @return the account control
+   */
+  @Schema(description = &quot;User's account control.&quot;, requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = &quot;accountControl&quot;, required = true)
+  @Value.Default
+  default DomainUserAccountControl getAccountControl() {
+<span class="fc" id="L153">    return DomainUserAccountControl.defaultAccountControl();</span>
+  }
+
+  /**
+   * Gets account expires.
+   *
+   * @return the account expires
+   */
+  @Nullable
+  OffsetDateTime getAccountExpires();
+
+  /**
+   * User's company.
+   *
+   * @return the company
+   */
+  @Nullable
+  String getCompany();
+
+  /**
+   * User's department.
+   *
+   * @return the department
+   */
+  @Nullable
+  String getDepartment();
+
+  /**
+   * A description of the user.
+   *
+   * @return the description
+   */
+  @Nullable
+  String getDescription();
+
+  /**
+   * User's display name.
+   *
+   * @return the display name
+   */
+  @Nullable
+  String getDisplayName();
+
+  /**
+   * With email.
+   *
+   * @param email the email
+   * @return the domain user
+   */
+  default DomainUser withEmail(String email) {
+<span class="nc" id="L203">    return builder()</span>
+<span class="nc" id="L204">        .from(this)</span>
+<span class="nc" id="L205">        .email(email)</span>
+<span class="nc" id="L206">        .build();</span>
+  }
+
+  /**
+   * User's email address.
+   *
+   * @return the email
+   */
+  @Nullable
+  String getEmail();
+
+  /**
+   * User's first name.
+   *
+   * @return the first name
+   */
+  @Nullable
+  String getFirstName();
+
+  /**
+   * User's Unix/RFC2307 GECOS field.
+   *
+   * @return the gecos
+   */
+  @Nullable
+  String getGecos();
+
+  /**
+   * User's Unix/RFC2307 primary GID number.
+   *
+   * @return the gid number
+   */
+  @Nullable
+  Integer getGidNumber();
+
+  /**
+   * User's home directory path.
+   *
+   * @return the home directory
+   */
+  @Nullable
+  String getHomeDirectory();
+
+  /**
+   * User's home drive letter.
+   *
+   * @return the home drive
+   */
+  @Nullable
+  String getHomeDrive();
+
+  /**
+   * User's initials.
+   *
+   * @return the initials
+   */
+  @Nullable
+  String getInitials();
+
+  /**
+   * User's last logon time.
+   *
+   * @return the last logon
+   */
+  @Nullable
+  OffsetDateTime getLastLogon();
+
+  /**
+   * User's last name.
+   *
+   * @return the last name
+   */
+  @Nullable
+  String getLastName();
+
+  /**
+   * Gets locale.
+   *
+   * @return the locale
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default Locale getLocale() {
+<span class="fc" id="L290">    return getLocale(Locale.GERMANY);</span>
+  }
+
+  /**
+   * Gets locale.
+   *
+   * @param defaultLocale the default locale
+   * @return the locale
+   */
+  default Locale getLocale(Locale defaultLocale) {
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">    if (isEmpty(getPreferredLanguage())) {</span>
+<span class="nc" id="L301">      return defaultLocale;</span>
+    }
+<span class="fc" id="L303">    Locale locale = Locale.forLanguageTag(getPreferredLanguage());</span>
+<span class="pc bpc" id="L304" title="2 of 4 branches missed.">    if (isEmpty(locale) || locale.getLanguage().isEmpty()) {</span>
+<span class="nc" id="L305">      return defaultLocale;</span>
+    }
+<span class="fc" id="L307">    return locale;</span>
+  }
+
+  /**
+   * User's Unix/RFC2307 login shell.
+   *
+   * @return the login shell
+   */
+  @Nullable
+  String getLoginShell();
+
+  /**
+   * User's logon count.
+   *
+   * @return the logon count
+   */
+  @Nullable
+  Integer getLogonCount();
+
+  /**
+   * Determines whether the user has logged on at least once.
+   *
+   * @return the boolean
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default boolean isLogonDone() {
+<span class="pc bpc" id="L335" title="3 of 4 branches missed.">    return getLogonCount() != null &amp;&amp; getLogonCount() &gt; 0;</span>
+  }
+
+  /**
+   * User's mobile phone number.
+   *
+   * @return the mobile
+   */
+  @Nullable
+  String getMobile();
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default String getName() {
+<span class="pc bpc" id="L351" title="3 of 4 branches missed.">    if (!isEmpty(getFirstName()) &amp;&amp; !isEmpty(getLastName())) {</span>
+<span class="nc" id="L352">      return getFirstName() + &quot; &quot; + getLastName();</span>
+    }
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">    if (!isEmpty(getDisplayName())) {</span>
+<span class="nc" id="L355">      return getDisplayName();</span>
+    }
+<span class="fc" id="L357">    return getSamAccountName();</span>
+  }
+
+  /**
+   * User's Unix/RFC2307 NIS domain.
+   */
+  @Nullable
+  @Override
+  String getNisDomain();
+
+  /**
+   * Timestamp of the last password change.
+   *
+   * @return the password last set
+   */
+  @Nullable
+  OffsetDateTime getPasswordLastSet();
+
+  /**
+   * User's office location.
+   *
+   * @return the physical delivery office name
+   */
+  @Nullable
+  String getPhysicalDeliveryOfficeName();
+
+  /**
+   * User's preferred language. ISO 639-1 language codes. The combinations like de-DE and en-US with
+   * ISO-639 and ISO-3166 also work.
+   *
+   * @return the preferred language
+   */
+  @Schema(description = &quot;User's preferred language. ISO 639-1 language codes. The combinations &quot;
+      + &quot;like de-DE and en-US with ISO-639 and ISO-3166 also work.&quot;, defaultValue = &quot;de-DE&quot;)
+  @JsonProperty(value = &quot;preferredLanguage&quot;, defaultValue = &quot;de-DE&quot;)
+  @Value.Default
+  default String getPreferredLanguage() {
+<span class="fc" id="L394">    return &quot;de-DE&quot;;</span>
+  }
+
+  @Schema(description = &quot;The primary group ID of the user.&quot;)
+  @JsonProperty(value = &quot;primaryGroupId&quot;)
+  @Nullable
+  @Override
+  Integer getPrimaryGroupId();
+
+  /**
+   * User's profile path.
+   *
+   * @return the profile path
+   */
+  @Nullable
+  String getProfilePath();
+
+  /**
+   * User's logon script path.
+   *
+   * @return the script path
+   */
+  @Nullable
+  String getScriptPath();
+
+  /**
+   * User's telephone number.
+   *
+   * @return the telephone number
+   */
+  @Nullable
+  String getTelephoneNumber();
+
+  /**
+   * User's job title.
+   *
+   * @return the title
+   */
+  @Nullable
+  String getTitle();
+
+  /**
+   * User's Unix/RFC2307 username.
+   *
+   * @return the uid
+   */
+  @Nullable
+  String getUid();
+
+  /**
+   * User's Unix/RFC2307 numeric UID.
+   *
+   * @return the uid number
+   */
+  @Nullable
+  Integer getUidNumber();
+
+  /**
+   * User's Unix/RFC2307 home directory.
+   *
+   * @return the unix home directory
+   */
+  @Nullable
+  String getUnixHomeDirectory();
+
+  /**
+   * User's principal name.
+   *
+   * @return the user principal name
+   */
+  @Nullable
+  String getUserPrincipalName();
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static ImmutableDomainUser.Builder builder() {
+<span class="fc" id="L473">    return ImmutableDomainUser.builder();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

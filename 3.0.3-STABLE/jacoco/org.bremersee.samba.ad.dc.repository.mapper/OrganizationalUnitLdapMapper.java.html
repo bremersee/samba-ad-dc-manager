@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnitLdapMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mapper</a> &gt; <span class="el_source">OrganizationalUnitLdapMapper.java</span></div><h1>OrganizationalUnitLdapMapper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mapper;
+
+import static java.util.Objects.isNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import lombok.Getter;
+import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.LdapEntry;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+/**
+ * The organizational unit ldap mapper.
+ *
+ * @author Christian Bremer
+ */
+@Component
+public class OrganizationalUnitLdapMapper extends LdaptiveEntryImmutableMapper&lt;OrganizationalUnit&gt;
+    implements AdEntryLdapMapperDelegate&lt;OrganizationalUnit&gt; {
+
+  private final DnTool dnTool;
+
+  private final AdEntryLdapMapper adEntryLdapMapper;
+
+  /**
+   * --- GETTER ---
+   * Gets the unmodifiable set of mapped attributes.
+   *
+   * @return the unmodifiable set of mapped attributes
+   */
+  @Getter
+  private final Set&lt;LdaptiveAttribute&lt;?&gt;&gt; mappedAttributes;
+
+  /**
+   * Instantiates a new organizational unit ldap mapper.
+   *
+   * @param properties the properties
+   */
+<span class="fc" id="L67">  public OrganizationalUnitLdapMapper(ApplicationProperties properties) {</span>
+<span class="fc" id="L68">    dnTool = new DefaultDnTool(properties);</span>
+<span class="fc" id="L69">    adEntryLdapMapper = new AdEntryLdapMapper();</span>
+<span class="fc" id="L70">    mappedAttributes = initMappedAttributesOfOrganizationalUnit();</span>
+<span class="fc" id="L71">  }</span>
+
+  private Set&lt;LdaptiveAttribute&lt;?&gt;&gt; initMappedAttributesOfOrganizationalUnit() {
+<span class="fc" id="L74">    var attributeNames = new LinkedHashSet&lt;&gt;(adEntryLdapMapper.getMappedAttributes());</span>
+<span class="fc" id="L75">    attributeNames.add(AdConstants.DESCRIPTION);</span>
+<span class="fc" id="L76">    attributeNames.add(AdConstants.IS_CRITICAL_SYSTEM_OBJECT);</span>
+<span class="fc" id="L77">    attributeNames.add(AdConstants.NAME);</span>
+<span class="fc" id="L78">    return Collections.unmodifiableSet(attributeNames);</span>
+  }
+
+  @Override
+  public String[] getObjectClasses() {
+<span class="fc" id="L83">    return new String[]{</span>
+        AdConstants.OBJECT_CLASS_OU,
+        &quot;top&quot;
+    };
+  }
+
+  @Override
+  public String[] getMappedAttributeNames() {
+<span class="fc" id="L91">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L92">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L93">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+<span class="fc" id="L98">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L99">        .filter(LdaptiveAttribute::isBinary)</span>
+<span class="fc" id="L100">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L101">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String mapDn(OrganizationalUnit domainObject) {
+<span class="fc" id="L106">    Assert.hasText(domainObject.getDistinguishedName(),</span>
+        &quot;Distinguished name of organizational unit is required.&quot;);
+<span class="fc" id="L108">    return domainObject.getDistinguishedName();</span>
+  }
+
+  @Override
+  public OrganizationalUnit map(LdapEntry source) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">    if (!canMap(source)) {</span>
+<span class="fc" id="L114">      return null;</span>
+    }
+<span class="fc" id="L116">    var builder = OrganizationalUnit.builder()</span>
+<span class="fc" id="L117">        .from(adEntryLdapMapper.map(source));</span>
+<span class="fc" id="L118">    AdConstants.DESCRIPTION</span>
+<span class="fc" id="L119">        .getValue(source)</span>
+<span class="fc" id="L120">        .ifPresent(builder::description);</span>
+<span class="fc" id="L121">    AdConstants.IS_CRITICAL_SYSTEM_OBJECT</span>
+<span class="fc" id="L122">        .getValue(source, false)</span>
+<span class="fc" id="L123">        .ifPresent(builder::systemOu);</span>
+<span class="fc" id="L124">    AdConstants.NAME</span>
+<span class="fc" id="L125">        .getValue(source)</span>
+<span class="fc" id="L126">        .ifPresent(builder::name);</span>
+<span class="fc" id="L127">    return builder.build();</span>
+  }
+
+  @Override
+  public AttributeModification[] mapAndComputeModifications(
+      OrganizationalUnit source,
+      LdapEntry destination) {
+
+<span class="pc bpc" id="L135" title="1 of 4 branches missed.">    if (isNull(source) || isNull(destination)) {</span>
+<span class="fc" id="L136">      return new AttributeModification[0];</span>
+    }
+<span class="fc" id="L138">    var modifications = new ArrayList&lt;&gt;(Arrays.asList(adEntryLdapMapper</span>
+<span class="fc" id="L139">        .mapAndComputeModifications(source, destination)));</span>
+<span class="fc" id="L140">    AdConstants.DESCRIPTION</span>
+<span class="fc" id="L141">        .setValue(destination, source.getDescription())</span>
+<span class="fc" id="L142">        .ifPresent(modifications::add);</span>
+<span class="fc" id="L143">    AdConstants.NAME</span>
+<span class="fc" id="L144">        .setValue(destination, source.getName(), (e, n) -&gt; isNull(e))</span>
+<span class="fc" id="L145">        .ifPresent(modifications::add);</span>
+<span class="fc" id="L146">    return modifications.toArray(AttributeModification[]::new);</span>
+  }
+
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">    if (isEmpty(ldapEntry)) {</span>
+<span class="fc" id="L152">      return false;</span>
+    }
+<span class="fc bfc" id="L154" title="All 2 branches covered.">    return isOrganizationalUnit(ldapEntry)</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        || isUsersContainer(ldapEntry)</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        || isComputersContainer(ldapEntry);</span>
+  }
+
+  private boolean isComputersContainer(LdapEntry ldapEntry) {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">    return isContainer(ldapEntry)</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">        &amp;&amp; DnTool.isSameDn(dnTool.addBaseDn(AdConstants.BASE_DN_COMPUTERS), ldapEntry.getDn());</span>
+  }
+
+  private boolean isUsersContainer(LdapEntry ldapEntry) {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">    return isContainer(ldapEntry)</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        &amp;&amp; DnTool.isSameDn(dnTool.addBaseDn(AdConstants.BASE_DN_USERS), ldapEntry.getDn());</span>
+  }
+
+  private boolean isContainer(LdapEntry ldapEntry) {
+<span class="fc" id="L170">    return AdConstants.OBJECT_CLASS</span>
+<span class="fc" id="L171">        .getValues(ldapEntry)</span>
+<span class="fc" id="L172">        .anyMatch(AdConstants.OBJECT_CLASS_CONTAINER::equalsIgnoreCase);</span>
+  }
+
+  private boolean isOrganizationalUnit(LdapEntry ldapEntry) {
+<span class="fc" id="L176">    return AdConstants.OBJECT_CLASS</span>
+<span class="fc" id="L177">        .getValues(ldapEntry)</span>
+<span class="fc" id="L178">        .anyMatch(AdConstants.OBJECT_CLASS_OU::equalsIgnoreCase);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

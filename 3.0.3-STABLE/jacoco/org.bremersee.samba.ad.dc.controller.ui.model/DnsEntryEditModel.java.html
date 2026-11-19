@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsEntryEditModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui.model</a> &gt; <span class="el_source">DnsEntryEditModel.java</span></div><h1>DnsEntryEditModel.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.model;
+
+import static java.util.Objects.nonNull;
+
+import java.io.Serial;
+import java.io.Serializable;
+import lombok.Data;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+
+/**
+ * The dns entry edit model.
+ *
+ * @author Christian Bremer
+ */
+@Data
+public class DnsEntryEditModel implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  private String newName;
+
+  private DnsEntryType newType;
+
+  private String newValue;
+
+  private boolean updateReverseEntry;
+
+  private String newNameOfReverseEntry;
+
+  private String newValueOfReverseEntry;
+
+  /**
+   * Instantiates a new dns entry edit model.
+   */
+  public DnsEntryEditModel() {
+<span class="nc" id="L54">    super();</span>
+<span class="nc" id="L55">  }</span>
+
+  /**
+   * Instantiates a new dns entry edit model.
+   *
+   * @param dnsEntry the dns entry
+   */
+  public DnsEntryEditModel(DnsEntry dnsEntry) {
+<span class="nc" id="L63">    this(dnsEntry, null);</span>
+<span class="nc" id="L64">  }</span>
+
+  /**
+   * Instantiates a new dns entry edit model.
+   *
+   * @param dnsEntry the dns entry
+   * @param reverseDnsEntry the reverse dns entry
+   */
+<span class="nc" id="L72">  public DnsEntryEditModel(DnsEntry dnsEntry, DnsEntry reverseDnsEntry) {</span>
+<span class="nc" id="L73">    this.newName = dnsEntry.getName();</span>
+<span class="nc" id="L74">    this.newType = dnsEntry.getType();</span>
+<span class="nc" id="L75">    this.newValue = dnsEntry.getValue();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">    if (nonNull(reverseDnsEntry)) {</span>
+<span class="nc" id="L77">      this.updateReverseEntry = true;</span>
+<span class="nc" id="L78">      this.newNameOfReverseEntry = reverseDnsEntry.getName();</span>
+<span class="nc" id="L79">      this.newValueOfReverseEntry = reverseDnsEntry.getValue();</span>
+    }
+<span class="nc" id="L81">  }</span>
+
+  /**
+   * To new dns entry.
+   *
+   * @param zoneName the zone name
+   * @return the dns entry
+   */
+  public DnsEntry toNewDnsEntry(String zoneName) {
+<span class="nc" id="L90">    return DnsEntry.builder()</span>
+<span class="nc" id="L91">        .zoneName(zoneName)</span>
+<span class="nc" id="L92">        .name(newName)</span>
+<span class="nc" id="L93">        .type(newType)</span>
+<span class="nc" id="L94">        .value(newValue)</span>
+<span class="nc" id="L95">        .build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

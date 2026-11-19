@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupApiController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.api</a> &gt; <span class="el_source">GroupApiController.java</span></div><h1>GroupApiController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.api;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.bremersee.comparator.ComparatorBuilder;
+import org.bremersee.exception.model.RestApiException;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupIdentifier;
+import org.bremersee.samba.ad.dc.model.DomainGroupMember;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberModifications;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberPage;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
+import org.bremersee.samba.ad.dc.model.DomainGroupPage;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.ldaptive.dn.Dn;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springdoc.core.converters.models.SortAsQueryParam;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * The group api controller.
+ */
+@Profile(&quot;api&quot;)
+@RestController
+@RequestMapping(path = &quot;/api/groups&quot;)
+@Tag(name = &quot;ad-group-manager&quot;, description = &quot;RESTful api for groups.&quot;)
+@Validated
+public class GroupApiController extends ApiController {
+
+  private final DomainGroupService domainGroupService;
+
+  /**
+   * Instantiates a new group api controller.
+   *
+   * @param domainGroupService the domain group service
+   */
+<span class="nc" id="L84">  public GroupApiController(DomainGroupService domainGroupService) {</span>
+<span class="nc" id="L85">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L86">  }</span>
+
+  /**
+   * Gets groups.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @return the groups
+   */
+  @PageableAsQueryParam
+  @Operation(
+      description = &quot;Get group page.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainGroupPage&gt; getGroups(
+
+      @Parameter(hidden = true)
+      @PageableDefault(size = SIZE_DEFAULT_INT, sort = GROUP_SORT) Pageable pageable,
+
+      @Parameter(name = QUERY, description = &quot;A search term.&quot;)
+      @RequestParam(name = QUERY, required = false)
+      String query,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Users'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope) {
+
+<span class="nc" id="L142">    Page&lt;DomainGroup&gt; groupPage = domainGroupService</span>
+<span class="nc" id="L143">        .getGroups(pageable, query, ou, scope);</span>
+<span class="nc" id="L144">    return ResponseEntity.ok(new DomainGroupPage(groupPage));</span>
+  }
+
+  /**
+   * Add group response entity.
+   *
+   * @param group the group
+   * @param ou the ou
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Add group.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;409&quot;, description = &quot;Already exists&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainGroup&gt; addGroup(
+      @RequestBody DomainGroup group,
+
+      @Parameter(name = OU,
+          description = &quot;Add group to organizational unit (like 'CN=Groups').&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou) {
+
+<span class="nc" id="L194">    return ResponseEntity.ok(domainGroupService.addGroup(group, ou));</span>
+  }
+
+  /**
+   * Gets group.
+   *
+   * @param samAccountName the sam account name
+   * @param identifier the identifier
+   * @param ou the ou
+   * @param scope the scope
+   * @return the group
+   */
+  @Operation(
+      description = &quot;Get group.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = &quot;/{name}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainGroup&gt; getGroup(
+      @Parameter(
+          name = &quot;name&quot;,
+          description = &quot;The name of the group or the group ID.&quot;,
+          required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Parameter(
+          name = &quot;id-type&quot;,
+          description = &quot;The type of the given name (name|group-id|unix-group-id).&quot;,
+          schema = @Schema(
+              implementation = DomainGroupIdentifier.class,
+              defaultValue = &quot;name&quot;,
+              example = &quot;name&quot;))
+      @RequestParam(value = &quot;id-type&quot;, defaultValue = &quot;name&quot;) DomainGroupIdentifier identifier,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Groups'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope) {
+
+<span class="nc bnc" id="L259" title="All 3 branches missed.">    Optional&lt;DomainGroup&gt; domainGroup = switch (identifier) {</span>
+<span class="nc" id="L260">      case PRIMARY_GROUP_ID -&gt; domainGroupService</span>
+<span class="nc" id="L261">          .getGroupByPrimaryGroupId(getAsNumber(samAccountName));</span>
+<span class="nc" id="L262">      case UNIX_GROUP_ID -&gt; domainGroupService</span>
+<span class="nc" id="L263">          .getGroupByUnixGroupId(getAsNumber(samAccountName));</span>
+<span class="nc" id="L264">      default -&gt; domainGroupService.getGroup(samAccountName, ou, scope);</span>
+    };
+<span class="nc" id="L266">    return ResponseEntity.of(domainGroup);</span>
+  }
+
+  /**
+   * Update group response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param group the group
+   * @param newOu the new ou
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Update group.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;409&quot;, description = &quot;Already exists&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      path = &quot;/{name}&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainGroup&gt; updateGroup(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the group.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @RequestBody DomainGroup group,
+
+      @Parameter(name = &quot;move-to&quot;,
+          description = &quot;The new organizational unit like 'CN=Contact Groups,CN=Telephone Book'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = &quot;move-to&quot;, required = false)
+      Dn newOu) {
+
+<span class="nc" id="L321">    return ResponseEntity.ok(domainGroupService.updateGroup(samAccountName, group, newOu));</span>
+  }
+
+  /**
+   * Delete group response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Delete group.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @DeleteMapping(path = &quot;/{name}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;Boolean&gt; deleteGroup(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the group.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName) {
+
+<span class="nc" id="L357">    return ResponseEntity.ok(domainGroupService.deleteGroup(samAccountName));</span>
+  }
+
+  /**
+   * Gets memberships.
+   *
+   * @param samAccountName the sam account name
+   * @param resolveMemberships the resolve memberships
+   * @param ou the ou
+   * @param scope the scope
+   * @param sort the sort
+   * @return the memberships
+   */
+  @SortAsQueryParam
+  @Operation(
+      description = &quot;Get memberships of group.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = &quot;/{name}/memberships&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;List&lt;DomainGroup&gt;&gt; getMemberships(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the group.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Parameter(
+          name = &quot;resolved&quot;,
+          description = &quot;Specifies whether the memberships should be resoled or not.&quot;,
+          schema = @Schema(type = &quot;boolean&quot;, defaultValue = &quot;false&quot;))
+      @RequestParam(value = &quot;resolved&quot;, defaultValue = &quot;false&quot;) boolean resolveMemberships,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Groups'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope,
+
+      @Schema(hidden = true)
+      @SortDefault(sort = GROUP_SORT) Sort sort) {
+
+    Stream&lt;DomainGroup&gt; groupStream;
+<span class="nc bnc" id="L423" title="All 2 branches missed.">    if (resolveMemberships) {</span>
+<span class="nc" id="L424">      groupStream = domainGroupService.resolveMemberships(samAccountName, ou, scope);</span>
+    } else {
+<span class="nc" id="L426">      groupStream = domainGroupService.getMemberships(samAccountName, ou, scope);</span>
+    }
+<span class="nc" id="L428">    List&lt;DomainGroup&gt; groups = groupStream</span>
+<span class="nc" id="L429">        .sorted(ComparatorBuilder.newInstance()</span>
+<span class="nc" id="L430">            .addAll(getSortMapper().fromSort(sort))</span>
+<span class="nc" id="L431">            .build())</span>
+<span class="nc" id="L432">        .toList();</span>
+<span class="nc" id="L433">    return ResponseEntity.ok(groups);</span>
+  }
+
+  /**
+   * Gets member selection.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @param memberTypes the member types
+   * @param withPrimaryMembers the with primary members
+   * @param pageable the pageable
+   * @param query the query
+   * @return the member selection
+   */
+  @PageableAsQueryParam
+  @Operation(
+      description = &quot;Get group members.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = &quot;/{name}/members&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainGroupMemberPage&gt; getMemberSelection(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the group.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Users'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope,
+
+      @Parameter(
+          name = &quot;member-type&quot;,
+          description = &quot;The type of a group member.&quot;,
+          array = @ArraySchema(schema = @Schema(implementation = DomainGroupMemberType.class)))
+      @RequestParam(name = &quot;member-type&quot;, required = false)
+      List&lt;DomainGroupMemberType&gt; memberTypes,
+
+      @Parameter(
+          name = &quot;with-primary-members&quot;,
+          description = &quot;Specifies whether primary members should be returned or not.&quot;,
+          schema = @Schema(type = &quot;boolean&quot;, defaultValue = &quot;true&quot;))
+      @RequestParam(value = &quot;with-primary-members&quot;, defaultValue = &quot;true&quot;)
+      boolean withPrimaryMembers,
+
+      @Parameter(hidden = true)
+      @PageableDefault(size = SIZE_DEFAULT_INT, sort = &quot;displayName&quot;) Pageable pageable,
+
+      @Parameter(name = QUERY, description = &quot;A search term.&quot;)
+      @RequestParam(name = QUERY, required = false)
+      String query) {
+
+<span class="nc" id="L512">    Set&lt;DomainGroupMemberType&gt; memberTypeSet = Stream.ofNullable(memberTypes)</span>
+<span class="nc" id="L513">        .flatMap(Collection::stream)</span>
+<span class="nc" id="L514">        .filter(Objects::nonNull)</span>
+<span class="nc" id="L515">        .collect(Collectors.toSet());</span>
+<span class="nc" id="L516">    Page&lt;DomainGroupMember&gt; memberPage = domainGroupService.getMemberSelection(</span>
+        pageable, query, memberTypeSet, withPrimaryMembers, samAccountName, ou, scope);
+<span class="nc" id="L518">    return ResponseEntity.ok(new DomainGroupMemberPage(memberPage));</span>
+  }
+
+  /**
+   * Modify members response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @param modifications the modifications
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Modify group members.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      path = &quot;/{name}/members&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainGroup&gt; modifyMembers(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the group.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Users'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope,
+
+      @RequestBody DomainGroupMemberModifications modifications) {
+
+<span class="nc" id="L577">    return ResponseEntity.ok(domainGroupService.modifyMembers(</span>
+        samAccountName,
+        ou,
+        scope,
+<span class="nc" id="L581">        modifications.getMembersToAdd(),</span>
+<span class="nc" id="L582">        modifications.getMembersToRemove()));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

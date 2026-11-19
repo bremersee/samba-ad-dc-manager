@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SamAccount.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">SamAccount.java</span></div><h1>SamAccount.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Objects;
+import org.immutables.value.Value;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.
+ *
+ * @author Christian Bremer
+ */
+@Schema(
+    name = ModelConstants.SAM_ACCOUNT,
+    description = &quot;The base of a 'SamAccount' like 'User', 'Group' and 'Computer'.&quot;,
+    discriminatorProperty = ModelConstants.DISCRIMINATOR,
+    discriminatorMapping = {
+        @DiscriminatorMapping(
+            value = ModelConstants.COMPUTER,
+            schema = DomainComputer.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP,
+            schema = DomainGroup.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.GROUP_MEMBER,
+            schema = DomainGroupMember.class),
+        @DiscriminatorMapping(
+            value = ModelConstants.USER,
+            schema = DomainUser.class)
+    }
+)
+@JsonTypeInfo(
+    use = Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = ModelConstants.DISCRIMINATOR)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = SamAccount.class, name = ModelConstants.SAM_ACCOUNT),
+    @JsonSubTypes.Type(value = DomainComputer.class, name = ModelConstants.COMPUTER),
+    @JsonSubTypes.Type(value = DomainGroup.class, name = ModelConstants.GROUP),
+    @JsonSubTypes.Type(value = DomainGroupMember.class, name = ModelConstants.GROUP_MEMBER),
+    @JsonSubTypes.Type(value = DomainUser.class, name = ModelConstants.USER)
+})
+@JsonTypeName(ModelConstants.SAM_ACCOUNT)
+@JsonSerialize(as = ImmutableSamAccountIntermediate.class)
+@JsonDeserialize(as = ImmutableSamAccountIntermediate.class)
+public interface SamAccount extends AdEntry, NameProvider, Comparable&lt;SamAccount&gt; {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+<span class="fc" id="L83">    return AdEntryType.SAM_ACCOUNT;</span>
+  }
+
+  @Override
+  SamAccount withDistinguishedName(String distinguishedName);
+
+  @Override
+  SamAccount withCreated(OffsetDateTime created);
+
+  @Override
+  SamAccount withModified(OffsetDateTime modified);
+
+  /**
+   * Gets sam account name.
+   *
+   * @return the sam account name
+   */
+  @Schema(description = &quot;The unique name of the sam account.&quot;, requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = &quot;samAccountName&quot;, required = true)
+  String getSamAccountName();
+
+  /**
+   * Gets sid.
+   *
+   * @return the sid
+   */
+  @Schema(description = &quot;The SID of the sam account.&quot;)
+  @Nullable
+  Sid getSid();
+
+  /**
+   * With sid.
+   *
+   * @param sid the sid
+   * @return the sam account
+   */
+  SamAccount withSid(Sid sid);
+
+  /**
+   * Determines whether this sam account is a critical system object or not.
+   *
+   * @return the {@code true}, if this sam account is a critical system object, otherwise
+   *     {@code false}
+   */
+  @Schema(description = &quot;Determines whether this sam account is a critical system object or not.&quot;,
+      defaultValue = &quot;false&quot;)
+  @JsonProperty(value = &quot;criticalSystemObject&quot;, defaultValue = &quot;false&quot;)
+  @Value.Default
+  default boolean isCriticalSystemObject() {
+<span class="fc" id="L132">    return false;</span>
+  }
+
+  /**
+   * With critical system object.
+   *
+   * @param criticalSystemObject the critical system object
+   * @return the sam account
+   */
+  SamAccount withCriticalSystemObject(boolean criticalSystemObject);
+
+  /**
+   * Gets primary group id.
+   *
+   * @return the primary group id
+   */
+  @Nullable
+  Integer getPrimaryGroupId();
+
+  /**
+   * With primary group id.
+   *
+   * @param primaryGroupId the primary group id
+   * @return the sam account
+   */
+  SamAccount withPrimaryGroupId(Integer primaryGroupId);
+
+  /**
+   * Gets memberships.
+   *
+   * @return the memberships
+   */
+  @Value.Default
+  default List&lt;String&gt; getMemberships() {
+<span class="fc" id="L166">    return List.of();</span>
+  }
+
+  /**
+   * With memberships.
+   *
+   * @param memberships the memberships
+   * @return the sam account
+   */
+  SamAccount withMemberships(Iterable&lt;String&gt; memberships);
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default String getName() {
+<span class="fc" id="L182">    return getSamAccountName();</span>
+  }
+
+  @Override
+  default int compareTo(@NonNull SamAccount o) {
+<span class="nc" id="L187">    String s1 = Objects.requireNonNullElse(getSamAccountName(), &quot;&quot;);</span>
+<span class="nc" id="L188">    String s2 = Objects.requireNonNullElse(o.getSamAccountName(), &quot;&quot;);</span>
+<span class="nc" id="L189">    return s1.compareToIgnoreCase(s2);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
