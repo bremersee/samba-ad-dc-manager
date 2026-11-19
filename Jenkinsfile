@@ -8,7 +8,7 @@ pipeline {
     NAME = 'samba-ad-dc-manager'
     API_NAME = 'samba-ad-dc-manager-api'
     TEST = true
-    SITE = true
+    SITE = false
     BUILD_API = false
     DEPLOY_TO_DEBIAN_REPO = false
     COPY_TO_DC1 = false
