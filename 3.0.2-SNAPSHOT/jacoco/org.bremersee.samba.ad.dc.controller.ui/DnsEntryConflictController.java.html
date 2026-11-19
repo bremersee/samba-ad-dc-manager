@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsEntryConflictController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">DnsEntryConflictController.java</span></div><h1>DnsEntryConflictController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static java.util.Objects.nonNull;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryDeleteModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The dns entry conflict controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+<span class="nc" id="L52">@Slf4j</span>
+public class DnsEntryConflictController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
+
+  private final DnsService dnsService;
+
+  /**
+   * Instantiates a new dns entry conflict controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
+  public DnsEntryConflictController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+<span class="nc" id="L71">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L72">    this.dnsService = dnsService;</span>
+<span class="nc" id="L73">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L77">    return DNS_ENTRY_SORT;</span>
+  }
+
+  /**
+   * Display dns entry conflict view.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/dns-entry-conflict&quot;)
+  public String displayDnsEntryConflict(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L100">    log.debug(&quot;displayDnsEntryConflict({}, {}, {}, {})&quot;, zoneName, name, type, value);</span>
+<span class="nc" id="L101">    return dnsService.findDnsEntry(DnsEntry.builder()</span>
+<span class="nc" id="L102">            .zoneName(zoneName)</span>
+<span class="nc" id="L103">            .name(name)</span>
+<span class="nc" id="L104">            .type(type)</span>
+<span class="nc" id="L105">            .value(value)</span>
+<span class="nc" id="L106">            .build())</span>
+<span class="nc" id="L107">        .map(entry -&gt; {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">          if (!entry.isConflict()) {</span>
+<span class="nc" id="L109">            Map&lt;String, Object&gt; parameters = getParameterMap();</span>
+<span class="nc" id="L110">            parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, name);</span>
+<span class="nc" id="L111">            parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, type);</span>
+<span class="nc" id="L112">            parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, value);</span>
+<span class="nc" id="L113">            return getRedirectUri(&quot;dns-entry-edit&quot;, PAGE_AND_DNS_ENTRY_PARAMS, parameters);</span>
+          }
+<span class="nc" id="L115">          model.addAttribute(&quot;dnsEntry&quot;, entry);</span>
+<span class="nc" id="L116">          List&lt;DnsEntry&gt; dnsEntries = dnsService.findDnsEntriesConflictingWith(entry)</span>
+<span class="nc" id="L117">              .filter(e -&gt; nonNull(e.getModified()))</span>
+<span class="nc" id="L118">              .sorted(Comparator.comparing(DnsEntry::getModified).reversed())</span>
+<span class="nc" id="L119">              .toList();</span>
+<span class="nc" id="L120">          model.addAttribute(&quot;dnsEntries&quot;, dnsEntries);</span>
+<span class="nc" id="L121">          model.addAttribute(&quot;dnsEntryDeleteModel&quot;, new DnsEntryDeleteModel());</span>
+<span class="nc" id="L122">          return &quot;management/dns-entry-conflict&quot;;</span>
+        })
+<span class="nc" id="L124">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes, &quot;DNS entry&quot;, &quot;dns-entry.not-found&quot;, name,
+            PAGE_AND_ZONE_NAME_PARAMS, &quot;dns-zone-entries&quot;));
+  }
+
+  /**
+   * Delete dns entry conflict.
+   *
+   * @param zoneName the zone name
+   * @param name the name
+   * @param type the type
+   * @param value the value
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/dns-entry-conflict&quot;)
+  public String deleteDnsEntryConflict(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      @RequestParam(name = DNS_ENTRY_NAME) String name,
+      @RequestParam(name = DNS_ENTRY_TYPE) DnsEntryType type,
+      @RequestParam(name = DNS_ENTRY_VALUE) String value,
+      @ModelAttribute(name = &quot;dnsEntryDeleteModel&quot;) DnsEntryDeleteModel deleteModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L153">    log.debug(&quot;deleteDnsEntryConflict({}, {}, {}, {}, {})&quot;,</span>
+        zoneName, name, type, value, deleteModel);
+
+<span class="nc" id="L156">    return dnsService.findDnsEntry(DnsEntry.builder()</span>
+<span class="nc" id="L157">            .zoneName(zoneName)</span>
+<span class="nc" id="L158">            .name(name)</span>
+<span class="nc" id="L159">            .type(type)</span>
+<span class="nc" id="L160">            .value(value)</span>
+<span class="nc" id="L161">            .build())</span>
+<span class="nc" id="L162">        .map(entry -&gt; {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">          if (!entry.getDisplayName().equals(deleteModel.getVerificationName())) {</span>
+<span class="nc" id="L164">            bindingResult.rejectValue(&quot;verificationName&quot;, &quot;dns-entry-delete.name-does-not-match&quot;,</span>
+                &quot;The name doesn't match.&quot;);
+<span class="nc" id="L166">            model.addAttribute(&quot;dnsEntry&quot;, entry);</span>
+<span class="nc" id="L167">            List&lt;DnsEntry&gt; dnsEntries = dnsService.findDnsEntriesConflictingWith(entry)</span>
+<span class="nc" id="L168">                .filter(e -&gt; nonNull(e.getModified()))</span>
+<span class="nc" id="L169">                .sorted(Comparator.comparing(DnsEntry::getModified).reversed())</span>
+<span class="nc" id="L170">                .toList();</span>
+<span class="nc" id="L171">            model.addAttribute(&quot;dnsEntries&quot;, dnsEntries);</span>
+<span class="nc" id="L172">            return &quot;management/dns-entry-conflict&quot;;</span>
+          }
+<span class="nc" id="L174">          model.clear();</span>
+          try {
+<span class="nc" id="L176">            dnsService.deleteDnsEntry(entry);</span>
+
+<span class="nc" id="L178">            String msg = String.format(&quot;Dns entry '%s' was successfully deleted.&quot;, name);</span>
+<span class="nc" id="L179">            RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,</span>
+                &quot;dns-entry-delete.success&quot;, name);
+<span class="nc" id="L181">            redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L183">          } catch (ServiceException e) {</span>
+
+<span class="nc" id="L185">            String msg = String.format(&quot;Deletion of dns entry '%s' failed.&quot;, name);</span>
+<span class="nc" id="L186">            log.error(msg, e);</span>
+<span class="nc" id="L187">            RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,</span>
+                &quot;dns-entry-delete.failure&quot;, name);
+<span class="nc" id="L189">            redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+<span class="nc" id="L190">          }</span>
+
+<span class="nc" id="L192">          Map&lt;String, Object&gt; parameters = getParameterMap();</span>
+<span class="nc" id="L193">          parameters = putToParameterMap(parameters, ZONE_NAME, zoneName);</span>
+<span class="nc" id="L194">          String redirect = getRedirectUri(&quot;dns-zone-entries?zone-name={{zone-name}}&quot;,</span>
+              PAGE_AND_ZONE_TYPE_PARAMS, parameters);
+<span class="nc" id="L196">          logRedirectTo(&quot;Dns deletion redirect.&quot;, redirect);</span>
+<span class="nc" id="L197">          return redirect;</span>
+        })
+<span class="nc" id="L199">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes, &quot;DNS entry&quot;, &quot;dns-entry.not-found&quot;, name,
+            PAGE_AND_ZONE_NAME_PARAMS, &quot;dns-zone-entries&quot;));
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

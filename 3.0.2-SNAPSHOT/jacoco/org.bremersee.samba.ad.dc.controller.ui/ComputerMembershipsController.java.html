@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComputerMembershipsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">ComputerMembershipsController.java</span></div><h1>ComputerMembershipsController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The computer memberships controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class ComputerMembershipsController extends UiController
+    implements PageableComponent, OrganizationalUnitComponent {
+
+  private final DomainComputerService domainComputerService;
+
+  private final DomainGroupService domainGroupService;
+
+  /**
+   * Instantiates a new computer memberships controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   * @param domainGroupService the domain group service
+   */
+  public ComputerMembershipsController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainComputerService domainComputerService,
+      DomainGroupService domainGroupService) {
+<span class="nc" id="L65">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L66">    this.domainComputerService = domainComputerService;</span>
+<span class="nc" id="L67">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L68">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L72">    return COMPUTER_SORT;</span>
+  }
+
+  /**
+   * Display computer edit memberships direct view.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/computer-memberships-direct&quot;)
+  public String displayComputerEditMembershipsDirect(
+      @RequestParam(value = &quot;name&quot;, required = false) String computerName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L93">    return displayComputerEditMemberships(</span>
+        true, computerName, ou, searchScope, model, redirectAttributes);
+  }
+
+  /**
+   * Display computer edit memberships resolved view.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/computer-memberships-resolved&quot;)
+  public String displayComputerEditMembershipsResolved(
+      @RequestParam(value = &quot;name&quot;, required = false) String computerName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L115">    return displayComputerEditMemberships(</span>
+        false, computerName, ou, searchScope, model, redirectAttributes);
+  }
+
+  private String displayComputerEditMemberships(
+      boolean direct,
+      String computerName,
+      Dn ou,
+      TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L127">    return Optional.ofNullable(computerName)</span>
+<span class="nc" id="L128">        .flatMap(name -&gt; domainComputerService.getComputer(computerName, ou, searchScope))</span>
+<span class="nc" id="L129">        .map(computer -&gt; {</span>
+<span class="nc" id="L130">          model.addAttribute(COMPUTER, computer);</span>
+          Stream&lt;DomainGroup&gt; memberships;
+          String page;
+<span class="nc bnc" id="L133" title="All 2 branches missed.">          if (direct) {</span>
+<span class="nc" id="L134">            memberships = domainGroupService.getMemberships(computerName, ou, searchScope);</span>
+<span class="nc" id="L135">            page = &quot;management/computer-memberships-direct&quot;;</span>
+          } else {
+<span class="nc" id="L137">            memberships = domainGroupService.resolveMemberships(computerName, ou, searchScope);</span>
+<span class="nc" id="L138">            page = &quot;management/computer-memberships-resolved&quot;;</span>
+          }
+<span class="nc" id="L140">          model.addAttribute(&quot;memberships&quot;, memberships.toList());</span>
+<span class="nc" id="L141">          return page;</span>
+        })
+<span class="nc" id="L143">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            &quot;Computer&quot;,
+            &quot;computer.not-found&quot;,
+            computerName,
+            PAGE_AND_OU_PARAMS,
+            COMPUTERS));
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProfileController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">ProfileController.java</span></div><h1>ProfileController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.ProfileEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.AesEncValue;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.EmailChange;
+import org.bremersee.samba.ad.dc.model.event.EmailChangeEvent;
+import org.bremersee.samba.ad.dc.service.CryptoService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The profile controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class ProfileController extends UiController {
+
+  private static final String USER = &quot;user&quot;;
+
+  private static final String EDIT_MODEL = &quot;editModel&quot;;
+
+  private static final String USER_SLASH_PROFILE = &quot;user/profile&quot;;
+
+  private final DomainUserService domainUserService;
+
+  private final CryptoService&lt;EmailChange, AesEncValue&gt; cryptoService;
+
+  private final ApplicationEventPublisher eventPublisher;
+
+  /**
+   * Instantiates a new profile controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   * @param cryptoService the crypto service
+   * @param eventPublisher the event publisher
+   */
+  public ProfileController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainUserService domainUserService,
+      CryptoService&lt;EmailChange, AesEncValue&gt; cryptoService,
+      ApplicationEventPublisher eventPublisher) {
+<span class="nc" id="L88">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L89">    this.domainUserService = domainUserService;</span>
+<span class="nc" id="L90">    this.cryptoService = cryptoService;</span>
+<span class="nc" id="L91">    this.eventPublisher = eventPublisher;</span>
+<span class="nc" id="L92">  }</span>
+
+  /**
+   * Is user able to change email.
+   *
+   * @return the boolean
+   */
+  @ModelAttribute(&quot;userAbleToChangeEmail&quot;)
+  public boolean isUserAbleToChangeEmail() {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    return getProperties().getUser().isUserAbleToChangeEmail()</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        &amp;&amp; getFeatures().isMailEnabled();</span>
+  }
+
+  /**
+   * Display profile.
+   *
+   * @param model the model
+   * @return the string
+   */
+  @GetMapping(path = &quot;/user/profile&quot;)
+  public String displayProfile(ModelMap model) {
+<span class="nc" id="L113">    DomainUser user = getCurrentUser();</span>
+<span class="nc" id="L114">    model.addAttribute(USER, user);</span>
+<span class="nc" id="L115">    model.addAttribute(EDIT_MODEL, new ProfileEditModel(user));</span>
+<span class="nc" id="L116">    return USER_SLASH_PROFILE;</span>
+  }
+
+  /**
+   * Display profile.
+   *
+   * @param emailChangeEnc the email change enc
+   * @param salt the salt
+   * @param model the model
+   * @return the string
+   */
+  @GetMapping(path = &quot;/user/profile&quot;, params = {&quot;req&quot;, &quot;s&quot;})
+  public String displayProfile(
+      @RequestParam(value = &quot;req&quot;) String emailChangeEnc,
+      @RequestParam(value = &quot;s&quot;) String salt,
+      ModelMap model) {
+
+<span class="nc" id="L133">    DomainUser domainUser = getCurrentUser();</span>
+<span class="nc" id="L134">    RedirectMessage rmsg = decryptAndValidate(domainUser, emailChangeEnc, salt)</span>
+<span class="nc" id="L135">        .map(emailChange -&gt; {</span>
+<span class="nc" id="L136">          DomainUser newDomainUser = domainUserService</span>
+<span class="nc" id="L137">              .updateUser(</span>
+<span class="nc" id="L138">                  domainUser.getSamAccountName(),</span>
+<span class="nc" id="L139">                  domainUser.withEmail(emailChange.getNewEmail()),</span>
+              null);
+<span class="nc" id="L141">          model.addAttribute(USER, newDomainUser);</span>
+<span class="nc" id="L142">          model.addAttribute(EDIT_MODEL, new ProfileEditModel(newDomainUser));</span>
+<span class="nc" id="L143">          String defaultMsg = &quot;Your new email address was successfully changed.&quot;;</span>
+<span class="nc" id="L144">          return getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,</span>
+              &quot;user-profile.change-email.success&quot;);
+        })
+<span class="nc" id="L147">        .orElseGet(() -&gt; {</span>
+<span class="nc" id="L148">          model.addAttribute(USER, domainUser);</span>
+<span class="nc" id="L149">          model.addAttribute(EDIT_MODEL, new ProfileEditModel(domainUser));</span>
+<span class="nc" id="L150">          String defaultMsg = &quot;Your request to change your email address is invalid.&quot;;</span>
+<span class="nc" id="L151">          return getRedirectMessage(RedirectMessageType.WARNING, defaultMsg,</span>
+              &quot;user-profile.change-email.invalid&quot;);
+        });
+<span class="nc" id="L154">    model.addAttribute(&quot;rmsg&quot;, rmsg);</span>
+<span class="nc" id="L155">    return USER_SLASH_PROFILE;</span>
+  }
+
+  /**
+   * Process email change request.
+   *
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
+  @PostMapping(path = &quot;/user/profile&quot;)
+  public String processEmailChangeRequest(
+      @ModelAttribute(name = EDIT_MODEL) ProfileEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L174">    DomainUser domainUser = getCurrentUser();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">    if (isEmpty(editModel.getNewEmail())</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        || editModel.getNewEmail().equalsIgnoreCase(domainUser.getEmail())</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        || !isUserAbleToChangeEmail()) {</span>
+<span class="nc" id="L178">      model.clear();</span>
+<span class="nc" id="L179">      return &quot;redirect:profile&quot;;</span>
+    }
+
+<span class="nc" id="L182">    Pattern emailPattern = getProperties().getEmail().getEmailRegexFlags()</span>
+<span class="nc" id="L183">        .compile(getProperties().getEmail().getEmailRegex());</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">    if (!emailPattern.matcher(editModel.getNewEmail()).matches()) {</span>
+<span class="nc" id="L185">      bindingResult.rejectValue(</span>
+          &quot;newEmail&quot;,
+          &quot;user-profile.email.invalid&quot;,
+          null,
+          &quot;The email address is not accepted.&quot;);
+<span class="nc" id="L190">      model.addAttribute(USER, domainUser);</span>
+<span class="nc" id="L191">      return USER_SLASH_PROFILE;</span>
+    }
+
+<span class="nc" id="L194">    eventPublisher</span>
+<span class="nc" id="L195">        .publishEvent(new EmailChangeEvent(domainUser, editModel.getNewEmail(), getBaseUri()));</span>
+<span class="nc" id="L196">    model.clear();</span>
+<span class="nc" id="L197">    String defaultMsg = String</span>
+<span class="nc" id="L198">        .format(&quot;The confirmation mail was sent to %s.&quot;, editModel.getNewEmail());</span>
+<span class="nc" id="L199">    RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, defaultMsg,</span>
+<span class="nc" id="L200">        &quot;user-profile.change-email.confirmation-sent&quot;, editModel.getNewEmail());</span>
+<span class="nc" id="L201">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+<span class="nc" id="L202">    return &quot;redirect:profile&quot;;</span>
+  }
+
+  private DomainUser getCurrentUser() {
+<span class="nc" id="L206">    return Optional.of(SecurityContextHolder.getContext())</span>
+<span class="nc" id="L207">        .map(SecurityContext::getAuthentication)</span>
+<span class="nc" id="L208">        .map(Authentication::getName)</span>
+<span class="nc" id="L209">        .flatMap(username -&gt; domainUserService.getUser(username, null, null))</span>
+<span class="nc" id="L210">        .orElseThrow(ServiceException::notFound);</span>
+  }
+
+  private Optional&lt;EmailChange&gt; decryptAndValidate(DomainUser user, String env, String salt) {
+    EmailChange change;
+    try {
+<span class="nc" id="L216">      change = cryptoService.decrypt(new AesEncValue(env, salt));</span>
+<span class="nc" id="L217">    } catch (RuntimeException e) {</span>
+<span class="nc" id="L218">      getLogger().error(&quot;Decrypting email change failed.&quot;, e);</span>
+<span class="nc" id="L219">      return Optional.empty();</span>
+<span class="nc" id="L220">    }</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">    if (!change.getUsername().equalsIgnoreCase(user.getSamAccountName())) {</span>
+<span class="nc" id="L222">      return Optional.empty();</span>
+    }
+<span class="nc bnc" id="L224" title="All 2 branches missed.">    if (!change.getOldEmail().equalsIgnoreCase(user.getEmail())) {</span>
+<span class="nc" id="L225">      return Optional.empty();</span>
+    }
+<span class="nc" id="L227">    OffsetDateTime until = change.getRequestDateTime()</span>
+<span class="nc" id="L228">        .plus(getProperties().getUser().getChangeEmailRequestLifetime());</span>
+<span class="nc" id="L229">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">    if (until.isBefore(now)) {</span>
+<span class="nc" id="L231">      return Optional.empty();</span>
+    }
+<span class="nc" id="L233">    return Optional.of(change);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.service</a> &gt; <span class="el_source">DnsServiceImpl.java</span></div><h1>DnsServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import org.bremersee.comparator.ValueComparator;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.pagebuilder.PageBuilder;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.model.DhcpLease;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.repository.DhcpRepository;
+import org.bremersee.samba.ad.dc.repository.DnsEntryRepository;
+import org.bremersee.samba.ad.dc.repository.DnsZoneRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The dns service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Service
+@Validated
+public class DnsServiceImpl implements DnsService, ErrorCode {
+
+<span class="nc" id="L60">  private static final Pattern IPV4_PATTERN = Pattern.compile(</span>
+      &quot;^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$&quot;);
+
+  private final SortMapper sortMapper;
+
+  private final DnsZoneRepository dnsZoneRepository;
+
+  private final DnsEntryRepository dnsEntryRepository;
+
+  private final DhcpRepository dhcpRepository;
+
+  /**
+   * Instantiates a new dns service.
+   *
+   * @param sortMapper the sort mapper
+   * @param dnsZoneRepository the dns zone repository
+   * @param dnsEntryRepository the dns entry repository
+   * @param dhcpRepository the dhcp repository
+   */
+  public DnsServiceImpl(
+      SortMapper sortMapper,
+      DnsZoneRepository dnsZoneRepository,
+      DnsEntryRepository dnsEntryRepository,
+<span class="nc" id="L83">      DhcpRepository dhcpRepository) {</span>
+<span class="nc" id="L84">    this.sortMapper = sortMapper;</span>
+<span class="nc" id="L85">    this.dnsZoneRepository = dnsZoneRepository;</span>
+<span class="nc" id="L86">    this.dnsEntryRepository = dnsEntryRepository;</span>
+<span class="nc" id="L87">    this.dhcpRepository = dhcpRepository;</span>
+<span class="nc" id="L88">  }</span>
+
+  @Override
+  public List&lt;String&gt; getDnsZoneNames(DnsZoneType type) {
+<span class="nc" id="L92">    return dnsZoneRepository.getDnsZoneNames(Objects.requireNonNullElse(type, DnsZoneType.PRIMARY));</span>
+  }
+
+  @Override
+  public DnsZone getDnsZone(String zoneName) {
+<span class="nc" id="L97">    return dnsZoneRepository.getDnsZone(zoneName);</span>
+
+  }
+
+  @CacheEvict(value = &quot;dnsZoneListCache&quot;, allEntries = true)
+  @Override
+  public DnsZone createDnsZone(String zoneName) {
+<span class="nc" id="L104">    return dnsZoneRepository.createDnsZone(zoneName);</span>
+  }
+
+  @CacheEvict(value = &quot;dnsZoneListCache&quot;, allEntries = true)
+  @Override
+  public void deleteDnsZone(String zoneName) {
+<span class="nc" id="L110">    dnsZoneRepository.deleteDnsZone(zoneName);</span>
+<span class="nc" id="L111">  }</span>
+
+
+  private boolean isQueryResult(DnsEntry entry, String query) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (isEmpty(entry)) {</span>
+<span class="nc" id="L116">      return false;</span>
+    }
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    if (isEmpty(query)) {</span>
+<span class="nc" id="L119">      return true;</span>
+    }
+<span class="nc" id="L121">    String q = query.toLowerCase();</span>
+<span class="nc" id="L122">    StringTokenizer st = new StringTokenizer(q, &quot; &quot;);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    while (st.hasMoreTokens()) {</span>
+<span class="nc" id="L124">      String token = st.nextToken();</span>
+<span class="nc bnc" id="L125" title="All 4 branches missed.">      if (nonNull(entry.getName()) &amp;&amp; entry.getName().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L126">        return true;</span>
+      }
+<span class="nc bnc" id="L128" title="All 4 branches missed.">      if (nonNull(entry.getType()) &amp;&amp; entry.getType().name().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L129">        return true;</span>
+      }
+<span class="nc bnc" id="L131" title="All 4 branches missed.">      if (nonNull(entry.getValue()) &amp;&amp; entry.getValue().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L132">        return true;</span>
+      }
+<span class="nc" id="L134">    }</span>
+<span class="nc" id="L135">    return false;</span>
+  }
+
+  @Override
+  public Page&lt;DnsEntry&gt; getDnsEntries(
+      String zoneName,
+      Pageable pageable,
+      String query) {
+
+<span class="nc" id="L144">    return new PageBuilder&lt;DnsEntry, DnsEntry&gt;()</span>
+<span class="nc" id="L145">        .sourceEntries(dnsEntryRepository.getDnsEntries(zoneName))</span>
+<span class="nc" id="L146">        .sourceFilter(dnsEntry -&gt; isQueryResult(dnsEntry, query))</span>
+<span class="nc" id="L147">        .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="nc" id="L148">        .targetSortFn(sortOrderItem -&gt; {</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">          if (&quot;name&quot;.equalsIgnoreCase(sortOrderItem.getField())) {</span>
+<span class="nc" id="L150">            return (Comparator&lt;DnsEntry&gt;) (o1, o2) -&gt; {</span>
+<span class="nc" id="L151">              String n1 = requireNonNullElse(o1.getName(), &quot;&quot;);</span>
+<span class="nc" id="L152">              String n2 = requireNonNullElse(o2.getName(), &quot;&quot;);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">              if (DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n1)</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">                  &amp;&amp; !DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n2)) {</span>
+<span class="nc" id="L155">                return -1;</span>
+              }
+<span class="nc bnc" id="L157" title="All 2 branches missed.">              if (!DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n1)</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                  &amp;&amp; DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n2)) {</span>
+<span class="nc" id="L159">                return 1;</span>
+              }
+<span class="nc bnc" id="L161" title="All 4 branches missed.">              if (DnsEntryType.PTR.equals(o1.getType()) &amp;&amp; DnsEntryType.PTR.equals(o2.getType())) {</span>
+<span class="nc" id="L162">                return String.format(&quot;%255s&quot;, n1).compareToIgnoreCase(String.format(&quot;%255s&quot;, n2));</span>
+              }
+<span class="nc" id="L164">              return n1.compareToIgnoreCase(n2);</span>
+            };
+          }
+<span class="nc bnc" id="L167" title="All 2 branches missed.">          if (&quot;value&quot;.equalsIgnoreCase(sortOrderItem.getField())) {</span>
+<span class="nc" id="L168">            return (Comparator&lt;DnsEntry&gt;) (o1, o2) -&gt; {</span>
+<span class="nc" id="L169">              String n1 = requireNonNullElse(o1.getValue(), &quot;&quot;);</span>
+<span class="nc" id="L170">              String n2 = requireNonNullElse(o2.getValue(), &quot;&quot;);</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">              if (IPV4_PATTERN.matcher(n1).matches() &amp;&amp; IPV4_PATTERN.matcher(n2).matches()) {</span>
+<span class="nc" id="L172">                String[] a1 = n1.split(&quot;\\.&quot;);</span>
+<span class="nc" id="L173">                String[] a2 = n2.split(&quot;\\.&quot;);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                if (a1.length == a2.length) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                  for (int i = a1.length - 1; i &gt;= 0; i--) {</span>
+                    try {
+<span class="nc" id="L177">                      int i1 = Integer.parseInt(a1[i]);</span>
+<span class="nc" id="L178">                      int i2 = Integer.parseInt(a2[i]);</span>
+<span class="nc" id="L179">                      int r = Integer.compare(i1, i2);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">                      if (r != 0) {</span>
+<span class="nc" id="L181">                        return r;</span>
+                      }
+<span class="nc" id="L183">                    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L184">                      int r = a1[i].compareToIgnoreCase(a2[i]);</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">                      if (r != 0) {</span>
+<span class="nc" id="L186">                        return r;</span>
+                      }
+<span class="nc" id="L188">                    }</span>
+                  }
+                }
+              }
+<span class="nc" id="L192">              return n1.compareToIgnoreCase(n2);</span>
+            };
+          }
+<span class="nc" id="L195">          return new ValueComparator(sortOrderItem);</span>
+        })
+<span class="nc" id="L197">        .build();</span>
+  }
+
+  private Stream&lt;DnsEntry&gt; findDnsEntries(String zoneName, String name, DnsEntryType type) {
+<span class="nc" id="L201">    return dnsEntryRepository.getDnsEntries(zoneName).stream()</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        .filter(entry -&gt; DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(name)</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            || entry.getName().equalsIgnoreCase(name))</span>
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        .filter(entry -&gt; DnsEntryType.ALL.equals(type) || entry.getType().equals(type));</span>
+  }
+
+  @Override
+  public Optional&lt;DnsEntry&gt; findDnsEntry(DnsEntry dnsEntry) {
+<span class="nc" id="L209">    return findDnsEntries(dnsEntry.getZoneName(), dnsEntry.getName(), dnsEntry.getType())</span>
+<span class="nc" id="L210">        .filter(entry -&gt; entry.getType().getToSambaToolValueTransformer()</span>
+<span class="nc" id="L211">            .apply(entry.getValue()).equalsIgnoreCase(dnsEntry.getType()</span>
+<span class="nc" id="L212">                .getToSambaToolValueTransformer().apply(dnsEntry.getValue())))</span>
+<span class="nc" id="L213">        .findFirst()</span>
+<span class="nc" id="L214">        .map(dnsEntryRepository::addCommonAttributes);</span>
+  }
+
+  @Override
+  public Optional&lt;DnsEntry&gt; findDnsEntry(String ipAddress) {
+<span class="nc" id="L219">    PageRequest pageRequest = PageRequest.of(0, Integer.MAX_VALUE);</span>
+<span class="nc" id="L220">    String query = &quot;&quot;;</span>
+<span class="nc" id="L221">    return getDnsZoneNames(DnsZoneType.PRIMARY).stream()</span>
+<span class="nc" id="L222">        .map(this::getDnsZone)</span>
+<span class="nc" id="L223">        .filter(zone -&gt; Boolean.FALSE.equals(zone.getReverseZone()))</span>
+<span class="nc" id="L224">        .flatMap(zone -&gt; getDnsEntries(zone.getName(), pageRequest, query).stream())</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        .filter(dnsEntry -&gt; dnsEntry.getValue().equalsIgnoreCase(ipAddress)</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">            &amp;&amp; (DnsEntryType.A.equals(dnsEntry.getType())</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            || DnsEntryType.AAAA.equals(dnsEntry.getType())))</span>
+<span class="nc" id="L228">        .findFirst();</span>
+  }
+
+  @Override
+  public Optional&lt;DnsEntry&gt; findReverseDnsEntry(DnsEntry dnsEntry) {
+<span class="nc bnc" id="L233" title="All 4 branches missed.">    if (DnsEntryType.A.equals(dnsEntry.getType()) || DnsEntryType.AAAA.equals(dnsEntry.getType())) {</span>
+<span class="nc" id="L234">      return findReverseDnsEntryOfA(dnsEntry);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">    } else if (DnsEntryType.PTR.equals(dnsEntry.getType())) {</span>
+<span class="nc" id="L236">      return findReverseDnsEntryOfPtr(dnsEntry);</span>
+    }
+<span class="nc" id="L238">    return Optional.empty();</span>
+  }
+
+  private Optional&lt;DnsEntry&gt; findReverseDnsEntryOfA(DnsEntry dnsEntry) {
+<span class="nc" id="L242">    return getDnsZoneNames(DnsZoneType.REVERSE).stream()</span>
+<span class="nc" id="L243">        .flatMap(zone -&gt; findDnsEntries(zone, DnsEntryRepository.ZONE_ENTRIES_NODE_NAME,</span>
+            DnsEntryType.PTR))
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        .filter(entry -&gt; !entry.isConflict())</span>
+<span class="nc" id="L246">        .filter(entry -&gt; dnsEntry.getValue().toLowerCase()</span>
+<span class="nc" id="L247">            .contains(entry.getName().toLowerCase())) // '192.168.1.122' contains '122'</span>
+<span class="nc" id="L248">        .filter(entry -&gt; entry.getValue()</span>
+<span class="nc" id="L249">            .equalsIgnoreCase(</span>
+<span class="nc" id="L250">                dnsEntry.getName() + '.' + dnsEntry.getZoneName())) // 'hostname.zone-name'</span>
+<span class="nc" id="L251">        .findFirst()</span>
+<span class="nc" id="L252">        .map(dnsEntryRepository::addCommonAttributes);</span>
+  }
+
+  private Optional&lt;DnsEntry&gt; findReverseDnsEntryOfPtr(DnsEntry dnsEntry) {
+<span class="nc" id="L256">    DnsEntryType type = getDnsEntryTypeFromReverseZone(dnsEntry.getZoneName());</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">    if (isNull(type)) {</span>
+<span class="nc" id="L258">      return Optional.empty();</span>
+    }
+<span class="nc" id="L260">    return getDnsZoneNames(DnsZoneType.PRIMARY).stream()</span>
+<span class="nc" id="L261">        .map(this::getDnsZone)</span>
+<span class="nc" id="L262">        .filter(zone -&gt; Boolean.FALSE.equals(zone.getReverseZone()))</span>
+<span class="nc" id="L263">        .flatMap(</span>
+<span class="nc" id="L264">            zone -&gt; findDnsEntries(zone.getName(), DnsEntryRepository.ZONE_ENTRIES_NODE_NAME, type)</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">                .filter(entry -&gt; !entry.isConflict())</span>
+<span class="nc" id="L266">                .filter(entry -&gt; entry.getValue().toLowerCase()</span>
+<span class="nc" id="L267">                    .contains(dnsEntry.getName().toLowerCase()))</span>
+<span class="nc" id="L268">                .filter(entry -&gt; dnsEntry.getValue()</span>
+<span class="nc" id="L269">                    .equalsIgnoreCase(entry.getName() + '.' + zone.getName()))</span>
+<span class="nc" id="L270">                .findFirst()</span>
+<span class="nc" id="L271">                .map(dnsEntryRepository::addCommonAttributes)</span>
+<span class="nc" id="L272">                .stream())</span>
+<span class="nc" id="L273">        .findFirst();</span>
+  }
+
+  private DnsEntryType getDnsEntryTypeFromReverseZone(String zoneName) {
+<span class="nc bnc" id="L277" title="All 4 branches missed.">    if (isNull(zoneName) || !zoneName.toLowerCase().endsWith(REVERSE_ZONE_POSTFIX)) {</span>
+<span class="nc" id="L278">      return null;</span>
+    }
+<span class="nc" id="L280">    String tmp = zoneName.substring(0, zoneName.length() - REVERSE_ZONE_POSTFIX.length());</span>
+<span class="nc" id="L281">    String[] parts = tmp.split(Pattern.quote(&quot;.&quot;));</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">    if (parts.length &gt; 3) {</span>
+<span class="nc" id="L283">      return DnsEntryType.AAAA;</span>
+    }
+<span class="nc" id="L285">    List&lt;String&gt; ipList = new ArrayList&lt;&gt;(4);</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">    for (int i = parts.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L287">      ipList.add(parts[i]);</span>
+    }
+<span class="nc bnc" id="L289" title="All 2 branches missed.">    for (int i = 3 - parts.length; i &gt;= 0; i--) {</span>
+<span class="nc" id="L290">      ipList.add(&quot;1&quot;);</span>
+    }
+<span class="nc" id="L292">    String ip = String.join(&quot;.&quot;, ipList);</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">    if (IPV4_PATTERN.matcher(ip).matches()) {</span>
+<span class="nc" id="L294">      return DnsEntryType.A;</span>
+    }
+<span class="nc" id="L296">    return DnsEntryType.AAAA;</span>
+  }
+
+  @Override
+  public Stream&lt;DnsEntry&gt; findDnsEntriesConflictingWith(DnsEntry dnsEntry) {
+<span class="nc" id="L301">    return findDnsEntries(dnsEntry.getZoneName(), DnsEntryRepository.ZONE_ENTRIES_NODE_NAME,</span>
+<span class="nc" id="L302">        dnsEntry.getType())</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        .filter(entry -&gt; !entry.isConflict())</span>
+<span class="nc" id="L304">        .filter(entry -&gt; isQueryResult(entry, dnsEntry.getName() + &quot; &quot; + dnsEntry.getValue()))</span>
+<span class="nc" id="L305">        .map(dnsEntryRepository::addCommonAttributes);</span>
+  }
+
+  @Override
+  public void addDnsEntry(DnsEntry entry) {
+<span class="nc" id="L310">    dnsEntryRepository.addDnsEntry(entry);</span>
+<span class="nc" id="L311">  }</span>
+
+  @Override
+  public void updateDnsEntry(DnsEntry entry, String newValue) {
+<span class="nc" id="L315">    dnsEntryRepository.updateDnsEntry(entry, newValue);</span>
+<span class="nc" id="L316">  }</span>
+
+  @Override
+  public void deleteDnsEntry(DnsEntry entry) {
+<span class="nc" id="L320">    dnsEntryRepository.deleteDnsEntry(entry);</span>
+<span class="nc" id="L321">  }</span>
+
+
+  private boolean isQueryResult(DhcpLease lease, String query) {
+<span class="nc bnc" id="L325" title="All 2 branches missed.">    if (isEmpty(lease)) {</span>
+<span class="nc" id="L326">      return false;</span>
+    }
+<span class="nc bnc" id="L328" title="All 2 branches missed.">    if (isEmpty(query)) {</span>
+<span class="nc" id="L329">      return true;</span>
+    }
+<span class="nc" id="L331">    String q = query.toLowerCase();</span>
+<span class="nc" id="L332">    StringTokenizer st = new StringTokenizer(q, &quot; &quot;);</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">    while (st.hasMoreTokens()) {</span>
+<span class="nc" id="L334">      String token = st.nextToken();</span>
+<span class="nc bnc" id="L335" title="All 4 branches missed.">      if (nonNull(lease.getIp()) &amp;&amp; lease.getIp().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L336">        return true;</span>
+      }
+<span class="nc bnc" id="L338" title="All 4 branches missed.">      if (nonNull(lease.getHostname()) &amp;&amp; lease.getHostname().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L339">        return true;</span>
+      }
+<span class="nc bnc" id="L341" title="All 4 branches missed.">      if (nonNull(lease.getMac()) &amp;&amp; lease.getMac().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L342">        return true;</span>
+      }
+<span class="nc bnc" id="L344" title="All 2 branches missed.">      if (nonNull(lease.getManufacturer())</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">          &amp;&amp; lease.getManufacturer().toLowerCase().contains(token)) {</span>
+<span class="nc" id="L346">        return true;</span>
+      }
+<span class="nc" id="L348">    }</span>
+<span class="nc" id="L349">    return false;</span>
+  }
+
+  public Page&lt;DhcpLease&gt; getDhcpLeases(Pageable pageable, String query) {
+<span class="nc" id="L353">    return new PageBuilder&lt;DhcpLease, DhcpLease&gt;()</span>
+<span class="nc" id="L354">        .sourceEntries(dhcpRepository.findActive())</span>
+<span class="nc" id="L355">        .sourceFilter(dhcpLease -&gt; isQueryResult(dhcpLease, query))</span>
+<span class="nc" id="L356">        .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="nc" id="L357">        .build();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

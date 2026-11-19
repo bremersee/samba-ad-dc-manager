@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImageToolAwt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">ImageToolAwt.java</span></div><h1>ImageToolAwt.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import org.springframework.stereotype.Component;
+
+/**
+ * The internal (java.awt) image tool.
+ *
+ * @author Christian Bremer
+ */
+@Component
+public class ImageToolAwt implements ImageTool {
+
+  /**
+   * Instantiates a new awt image tool.
+   */
+  public ImageToolAwt() {
+<span class="fc" id="L37">    super();</span>
+<span class="fc" id="L38">  }</span>
+
+  @Override
+  public BufferedImage scaleImage(BufferedImage img, Dimension dimension) {
+<span class="fc" id="L42">    img = scaleByHalf(img, dimension);</span>
+<span class="fc" id="L43">    img = scaleExact(img, dimension);</span>
+<span class="fc" id="L44">    return img;</span>
+  }
+
+  private static BufferedImage scaleByHalf(BufferedImage img, Dimension dimension) {
+<span class="fc" id="L48">    int w = img.getWidth();</span>
+<span class="fc" id="L49">    int h = img.getHeight();</span>
+<span class="fc" id="L50">    float factor = getBinFactor(w, h, dimension);</span>
+
+    // make new size
+<span class="fc" id="L53">    w = (int) (w * factor);</span>
+<span class="fc" id="L54">    h = (int) (h * factor);</span>
+<span class="fc" id="L55">    BufferedImage scaled = new BufferedImage(w, h,</span>
+        BufferedImage.TYPE_INT_RGB);
+<span class="fc" id="L57">    Graphics2D g = scaled.createGraphics();</span>
+<span class="fc" id="L58">    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,</span>
+        RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+<span class="fc" id="L60">    g.drawImage(img, 0, 0, w, h, null);</span>
+<span class="fc" id="L61">    g.dispose();</span>
+<span class="fc" id="L62">    return scaled;</span>
+  }
+
+  private static BufferedImage scaleExact(BufferedImage img, Dimension dimension) {
+<span class="fc" id="L66">    float factor = getFactor(img.getWidth(), img.getHeight(), dimension);</span>
+
+    // create the image
+<span class="fc" id="L69">    int w = (int) (img.getWidth() * factor);</span>
+<span class="fc" id="L70">    int h = (int) (img.getHeight() * factor);</span>
+<span class="fc" id="L71">    BufferedImage scaled = new BufferedImage(w, h,</span>
+        BufferedImage.TYPE_INT_RGB);
+
+<span class="fc" id="L74">    Graphics2D g = scaled.createGraphics();</span>
+<span class="fc" id="L75">    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,</span>
+        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+<span class="fc" id="L77">    g.drawImage(img, 0, 0, w, h, null);</span>
+<span class="fc" id="L78">    g.dispose();</span>
+<span class="fc" id="L79">    return scaled;</span>
+  }
+
+  private static float getBinFactor(int width, int height, Dimension dimension) {
+<span class="fc" id="L83">    float factor = 1;</span>
+<span class="fc" id="L84">    float target = getFactor(width, height, dimension);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">    if (target &lt;= 1) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">      while (factor / 2 &gt; target) {</span>
+<span class="fc" id="L87">        factor /= 2;</span>
+      }
+    } else {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">      while (factor * 2 &lt; target) {</span>
+<span class="fc" id="L91">        factor *= 2;</span>
+      }
+    }
+<span class="fc" id="L94">    return factor;</span>
+  }
+
+  private static float getFactor(int width, int height, Dimension dimension) {
+<span class="fc" id="L98">    float sx = dimension.width / (float) width;</span>
+<span class="fc" id="L99">    float sy = dimension.height / (float) height;</span>
+<span class="fc" id="L100">    return Math.min(sx, sy);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
