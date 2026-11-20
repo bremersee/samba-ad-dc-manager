@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 @Setter
-@ToString(exclude = "cryptoSecret")
+@ToString(exclude = {"cryptoSecret", "cryptSalt"})
 @EqualsAndHashCode
 public class ApplicationProperties implements Serializable {
 
@@ -49,6 +49,11 @@ public class ApplicationProperties implements Serializable {
   private String companyUrl = "#";
 
   private String cryptoSecret = "change-it";
+
+  /**
+   * A salt for the symmetric key, in the form of a hex-encoded byte array.
+   */
+  private String cryptSalt = "deadbeef";
 
   @NestedConfigurationProperty
   private CliProperties cli = new CliProperties();

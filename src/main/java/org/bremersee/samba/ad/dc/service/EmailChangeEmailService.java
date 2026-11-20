@@ -22,8 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.JsonTextEncrypterFactory;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
-import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.EmailChange;
 import org.bremersee.samba.ad.dc.model.event.EmailChangeEvent;
@@ -48,8 +48,6 @@ import org.thymeleaf.context.Context;
 @ConditionalOnProperty(name = "spring.mail.host")
 public class EmailChangeEmailService extends AbstractEmailService {
 
-  private final CryptoService<EmailChange, AesEncValue> cryptoService;
-
   /**
    * Instantiates a new email-change email service.
    *
@@ -58,7 +56,7 @@ public class EmailChangeEmailService extends AbstractEmailService {
    * @param templateEngine the template engine
    * @param contextSuppliers the context suppliers
    * @param javaMailSender the java mail sender
-   * @param cryptoService the crypto service
+   * @param jsonTextEncrypterFactory the json text encrypter factory
    */
   public EmailChangeEmailService(
       ApplicationProperties properties,
@@ -66,9 +64,14 @@ public class EmailChangeEmailService extends AbstractEmailService {
       TemplateEngine templateEngine,
       List<TemplateEngineContextSupplier> contextSuppliers,
       JavaMailSender javaMailSender,
-      CryptoService<EmailChange, AesEncValue> cryptoService) {
-    super(properties, messageSource, templateEngine, contextSuppliers, javaMailSender);
-    this.cryptoService = cryptoService;
+      JsonTextEncrypterFactory jsonTextEncrypterFactory) {
+    super(
+        properties,
+        messageSource,
+        templateEngine,
+        contextSuppliers,
+        javaMailSender,
+        jsonTextEncrypterFactory);
   }
 
   /**
@@ -113,12 +116,12 @@ public class EmailChangeEmailService extends AbstractEmailService {
   }
 
   private String getConfirmationUri(DomainUser user, String newEmail, String baseUri) {
-    AesEncValue encValue = cryptoService.encrypt(EmailChange.of(user, newEmail));
+    String encValue = getJsonTextEncrypterFactory().newInstance(EmailChange.class)
+        .encrypt(EmailChange.of(user, newEmail));
     return new DefaultUriBuilderFactory(baseUri)
         .builder()
         .path("/user/profile")
-        .queryParam("req", encValue.encryptedValue())
-        .queryParam("s", encValue.salt())
+        .queryParam("req", encValue)
         .build()
         .toString();
   }

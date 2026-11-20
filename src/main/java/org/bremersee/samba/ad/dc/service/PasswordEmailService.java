@@ -22,8 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.JsonTextEncrypterFactory;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
-import org.bremersee.samba.ad.dc.model.AesEncValue;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
@@ -51,8 +51,6 @@ import org.thymeleaf.context.Context;
 @ConditionalOnProperty(name = "spring.mail.host")
 public class PasswordEmailService extends AbstractEmailService {
 
-  private final CryptoService<PasswordReset, AesEncValue> passwordResetCryptoService;
-
   /**
    * Instantiates a new password email service.
    *
@@ -61,7 +59,6 @@ public class PasswordEmailService extends AbstractEmailService {
    * @param templateEngine the template engine
    * @param contextSuppliers the context suppliers
    * @param javaMailSender the java mail sender
-   * @param passwordResetCryptoService the password reset crypto service
    */
   public PasswordEmailService(
       ApplicationProperties properties,
@@ -69,9 +66,14 @@ public class PasswordEmailService extends AbstractEmailService {
       TemplateEngine templateEngine,
       List<TemplateEngineContextSupplier> contextSuppliers,
       JavaMailSender javaMailSender,
-      CryptoService<PasswordReset, AesEncValue> passwordResetCryptoService) {
-    super(properties, messageSource, templateEngine, contextSuppliers, javaMailSender);
-    this.passwordResetCryptoService = passwordResetCryptoService;
+      JsonTextEncrypterFactory jsonTextEncrypterFactory) {
+    super(
+        properties,
+        messageSource,
+        templateEngine,
+        contextSuppliers,
+        javaMailSender,
+        jsonTextEncrypterFactory);
   }
 
   /**
@@ -157,16 +159,16 @@ public class PasswordEmailService extends AbstractEmailService {
   }
 
   private String getResetUri(DomainUser user, String baseUri, boolean isInvitation) {
-    AesEncValue encValue = passwordResetCryptoService.encrypt(PasswordReset.builder()
-        .username(user.getSamAccountName())
-        .pwdLastSetDateTime(user.getPasswordLastSet())
-        .invitation(isInvitation)
-        .build());
+    String encValue = getJsonTextEncrypterFactory().newInstance(PasswordReset.class)
+        .encrypt(PasswordReset.builder()
+            .username(user.getSamAccountName())
+            .pwdLastSetDateTime(user.getPasswordLastSet())
+            .invitation(isInvitation)
+            .build());
     return new DefaultUriBuilderFactory(baseUri)
         .builder()
         .path("/passwd/password-reset")
-        .queryParam("req", encValue.encryptedValue())
-        .queryParam("s", encValue.salt())
+        .queryParam("req", encValue)
         .build()
         .toString();
   }

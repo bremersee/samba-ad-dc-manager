@@ -31,7 +31,6 @@ import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.dn.NameValue;
 import org.ldaptive.dn.RDn;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,24 +45,20 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * The user avatar api controller.
  */
-@Profile("!api")
 @RestController
 @RequestMapping(path = "/api/users")
-@Tag(name = "ad-user-avatar-manager", description = "RESTful api for user avatars.")
+@Tag(name = "ad-user-public-manager", description = "RESTful public api for users.")
 @Validated
-public class UserAvatarApiController extends ApiController {
+public class UserApiPublicController extends ApiController {
 
-  /**
-   * The Domain user service.
-   */
-  protected final DomainUserService domainUserService;
+  private final DomainUserService domainUserService;
 
   /**
    * Instantiates a new user avatar api controller.
    *
    * @param domainUserService the domain user service
    */
-  public UserAvatarApiController(DomainUserService domainUserService) {
+  public UserApiPublicController(DomainUserService domainUserService) {
     this.domainUserService = domainUserService;
   }
 

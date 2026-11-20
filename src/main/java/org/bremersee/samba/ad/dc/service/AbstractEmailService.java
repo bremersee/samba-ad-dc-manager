@@ -26,6 +26,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
+import org.bremersee.samba.ad.dc.misc.JsonTextEncrypterFactory;
 import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.spring.security.core.NormalizedPrincipal;
@@ -56,6 +57,9 @@ public abstract class AbstractEmailService {
 
   private final JavaMailSender javaMailSender;
 
+  @Getter(AccessLevel.PROTECTED)
+  private final JsonTextEncrypterFactory jsonTextEncrypterFactory;
+
   /**
    * Instantiates a new abstract email service.
    *
@@ -64,15 +68,17 @@ public abstract class AbstractEmailService {
    * @param templateEngine the template engine
    * @param contextSuppliers the context suppliers
    * @param javaMailSender the java mail sender
+   * @param jsonTextEncrypterFactory the json text encrypter factory
    */
   protected AbstractEmailService(ApplicationProperties properties, MessageSource messageSource,
       TemplateEngine templateEngine, List<TemplateEngineContextSupplier> contextSuppliers,
-      JavaMailSender javaMailSender) {
+      JavaMailSender javaMailSender, JsonTextEncrypterFactory jsonTextEncrypterFactory) {
     this.properties = properties;
     this.messageSource = messageSource;
     this.templateEngine = templateEngine;
     this.contextSuppliers = contextSuppliers;
     this.javaMailSender = javaMailSender;
+    this.jsonTextEncrypterFactory = jsonTextEncrypterFactory;
   }
 
   /**
