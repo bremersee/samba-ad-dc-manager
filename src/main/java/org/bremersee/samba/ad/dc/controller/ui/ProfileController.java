@@ -27,11 +27,10 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.controller.ui.model.ProfileEditModel;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
 import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
-import org.bremersee.samba.ad.dc.model.AesEncValue;
+import org.bremersee.samba.ad.dc.misc.JsonTextEncrypterFactory;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.EmailChange;
 import org.bremersee.samba.ad.dc.model.event.EmailChangeEvent;
-import org.bremersee.samba.ad.dc.service.CryptoService;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,7 +63,7 @@ public class ProfileController extends UiController {
 
   private final DomainUserService domainUserService;
 
-  private final CryptoService<EmailChange, AesEncValue> cryptoService;
+  private final JsonTextEncrypterFactory jsonTextEncrypterFactory;
 
   private final ApplicationEventPublisher eventPublisher;
 
@@ -75,7 +74,7 @@ public class ProfileController extends UiController {
    * @param localeResolver the locale resolver
    * @param domainService the domain service
    * @param domainUserService the domain user service
-   * @param cryptoService the crypto service
+   * @param jsonTextEncrypterFactory the json text encrypter factory
    * @param eventPublisher the event publisher
    */
   public ProfileController(
@@ -83,11 +82,11 @@ public class ProfileController extends UiController {
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService,
-      CryptoService<EmailChange, AesEncValue> cryptoService,
+      JsonTextEncrypterFactory jsonTextEncrypterFactory,
       ApplicationEventPublisher eventPublisher) {
     super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
-    this.cryptoService = cryptoService;
+    this.jsonTextEncrypterFactory = jsonTextEncrypterFactory;
     this.eventPublisher = eventPublisher;
   }
 
@@ -120,24 +119,22 @@ public class ProfileController extends UiController {
    * Display profile.
    *
    * @param emailChangeEnc the email change enc
-   * @param salt the salt
    * @param model the model
    * @return the string
    */
-  @GetMapping(path = "/user/profile", params = {"req", "s"})
+  @GetMapping(path = "/user/profile", params = {"req"})
   public String displayProfile(
       @RequestParam(value = "req") String emailChangeEnc,
-      @RequestParam(value = "s") String salt,
       ModelMap model) {
 
     DomainUser domainUser = getCurrentUser();
-    RedirectMessage rmsg = decryptAndValidate(domainUser, emailChangeEnc, salt)
+    RedirectMessage rmsg = decryptAndValidate(domainUser, emailChangeEnc)
         .map(emailChange -> {
           DomainUser newDomainUser = domainUserService
               .updateUser(
                   domainUser.getSamAccountName(),
                   domainUser.withEmail(emailChange.getNewEmail()),
-              null);
+                  null);
           model.addAttribute(USER, newDomainUser);
           model.addAttribute(EDIT_MODEL, new ProfileEditModel(newDomainUser));
           String defaultMsg = "Your new email address was successfully changed.";
@@ -210,10 +207,11 @@ public class ProfileController extends UiController {
         .orElseThrow(ServiceException::notFound);
   }
 
-  private Optional<EmailChange> decryptAndValidate(DomainUser user, String env, String salt) {
+  private Optional<EmailChange> decryptAndValidate(DomainUser user, String env) {
     EmailChange change;
     try {
-      change = cryptoService.decrypt(new AesEncValue(env, salt));
+      change = jsonTextEncrypterFactory.newInstance(EmailChange.class)
+          .decrypt(env);
     } catch (RuntimeException e) {
       getLogger().error("Decrypting email change failed.", e);
       return Optional.empty();

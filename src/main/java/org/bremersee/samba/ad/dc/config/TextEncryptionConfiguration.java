@@ -1,5 +1,5 @@
 /*
- * Copyright 2025-2026 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package org.bremersee.samba.ad.dc.service;
+package org.bremersee.samba.ad.dc.config;
 
-import org.bremersee.samba.ad.dc.config.ApplicationProperties;
-import org.bremersee.samba.ad.dc.model.EmailChange;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 
 /**
- * The email change aes crypto service.
+ * The text encryption configuration.
  *
  * @author Christian Bremer
  */
-@Service
-public class EmailChangeAesCryptoService extends AesCryptoService<EmailChange> {
+@Configuration
+public class TextEncryptionConfiguration {
 
   /**
-   * Instantiates a new Email change aes crypto service.
+   * Creates text encryptor bean.
    *
    * @param properties the properties
+   * @return the text encryptor
    */
-  public EmailChangeAesCryptoService(ApplicationProperties properties) {
-    super(properties.getCryptoSecret());
+  @Bean
+  public TextEncryptor textEncryptor(ApplicationProperties properties) {
+    return Encryptors.text(properties.getCryptoSecret(), properties.getCryptSalt());
   }
 
-  @Override
-  protected Class<EmailChange> getSourceClass() {
-    return EmailChange.class;
-  }
 }

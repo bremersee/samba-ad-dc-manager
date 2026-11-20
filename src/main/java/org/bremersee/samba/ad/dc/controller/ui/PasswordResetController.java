@@ -30,12 +30,11 @@ import org.bremersee.samba.ad.dc.config.ApplicationProperties;
 import org.bremersee.samba.ad.dc.config.DomainUserProperties.DefaultLoginPage;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetModel;
 import org.bremersee.samba.ad.dc.controller.ui.model.PasswordResetRequestModel;
-import org.bremersee.samba.ad.dc.model.AesEncValue;
+import org.bremersee.samba.ad.dc.misc.JsonTextEncrypterFactory;
 import org.bremersee.samba.ad.dc.model.DomainUser;
 import org.bremersee.samba.ad.dc.model.PasswordReset;
 import org.bremersee.samba.ad.dc.model.event.PasswordResetEvent;
 import org.bremersee.samba.ad.dc.model.event.PasswordResetSuccessEvent;
-import org.bremersee.samba.ad.dc.service.CryptoService;
 import org.bremersee.samba.ad.dc.service.DomainService;
 import org.bremersee.samba.ad.dc.service.DomainUserService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -62,7 +61,7 @@ public class PasswordResetController extends UiController {
 
   private final DomainUserService domainUserService;
 
-  private final CryptoService<PasswordReset, AesEncValue> cryptoService;
+  private final JsonTextEncrypterFactory jsonTextEncrypterFactory;
 
   private final ApplicationEventPublisher eventPublisher;
 
@@ -77,7 +76,7 @@ public class PasswordResetController extends UiController {
    * @param localeResolver the locale resolver
    * @param domainService the domain service
    * @param domainUserService the domain user service
-   * @param cryptoService the crypto service
+   * @param jsonTextEncrypterFactory the json text encrypter factory
    * @param eventPublisher the event publisher
    */
   public PasswordResetController(
@@ -85,11 +84,11 @@ public class PasswordResetController extends UiController {
       LocaleResolver localeResolver,
       DomainService domainService,
       DomainUserService domainUserService,
-      CryptoService<PasswordReset, AesEncValue> cryptoService,
+      JsonTextEncrypterFactory jsonTextEncrypterFactory,
       ApplicationEventPublisher eventPublisher) {
     super(properties, localeResolver, domainService);
     this.domainUserService = domainUserService;
-    this.cryptoService = cryptoService;
+    this.jsonTextEncrypterFactory = jsonTextEncrypterFactory;
     this.eventPublisher = eventPublisher;
     this.usernamePattern = Pattern.compile(properties.getDomain().getNewSamAccountNameRegex());
   }
@@ -199,26 +198,24 @@ public class PasswordResetController extends UiController {
    * Display reset password.
    *
    * @param passwordResetEnc the password reset enc
-   * @param salt the salt
    * @param model the model
    * @return the string
    */
   @GetMapping(path = "/passwd/password-reset")
   public String displayResetPassword(
       @RequestParam(value = "req") String passwordResetEnc,
-      @RequestParam(value = "s") String salt,
       ModelMap model) {
 
     PasswordReset passwordReset;
     try {
-      passwordReset = cryptoService.decrypt(new AesEncValue(passwordResetEnc, salt));
+      passwordReset = jsonTextEncrypterFactory.newInstance(PasswordReset.class)
+          .decrypt(passwordResetEnc);
     } catch (RuntimeException e) {
       return HTML_TEMPLATE_INVALID;
     }
     return getValidatedDomainUser(passwordReset)
         .map(user -> {
           model.addAttribute("req", passwordResetEnc);
-          model.addAttribute("salt", salt);
           model.addAttribute("user", user);
           model.addAttribute("isInvitation", passwordReset.isInvitation());
           model.addAttribute("passwordResetModel", new PasswordResetModel(user));
@@ -231,7 +228,6 @@ public class PasswordResetController extends UiController {
    * Reset password.
    *
    * @param passwordResetEnc the password reset enc
-   * @param salt the salt
    * @param passwordResetModel the password reset model
    * @param model the model
    * @param bindingResult the binding result
@@ -240,14 +236,14 @@ public class PasswordResetController extends UiController {
   @PostMapping(path = "/passwd/password-reset")
   public String resetPassword(
       @RequestParam(value = "req") String passwordResetEnc,
-      @RequestParam(value = "s") String salt,
       @ModelAttribute(name = "passwordResetModel") PasswordResetModel passwordResetModel,
       ModelMap model,
       BindingResult bindingResult) {
 
     PasswordReset passwordReset;
     try {
-      passwordReset = cryptoService.decrypt(new AesEncValue(passwordResetEnc, salt));
+      passwordReset = jsonTextEncrypterFactory.newInstance(PasswordReset.class)
+          .decrypt(passwordResetEnc);
     } catch (RuntimeException e) {
       return HTML_TEMPLATE_INVALID;
     }
@@ -280,10 +276,7 @@ public class PasswordResetController extends UiController {
               : user;
           updatePassword(newUser, passwordResetModel.getNewPassword(), bindingResult);
           if (bindingResult.hasErrors()) {
-            AesEncValue encValue = updateAesEncValue(
-                user, newUser, new AesEncValue(passwordResetEnc, salt), passwordReset);
-            model.addAttribute("req", encValue.encryptedValue());
-            model.addAttribute("salt", encValue.salt());
+            model.addAttribute("req", passwordResetEnc);
             model.addAttribute("user", newUser);
             model.addAttribute("isInvitation", passwordReset.isInvitation());
             return "passwd/password-reset";
@@ -400,21 +393,6 @@ public class PasswordResetController extends UiController {
         throw serviceException;
       }
     }
-  }
-
-  private AesEncValue updateAesEncValue(
-      DomainUser oldUser,
-      DomainUser newUser,
-      AesEncValue oldAesEncValue,
-      PasswordReset passwordReset) {
-
-    if (oldUser.getSamAccountName().equals(newUser.getSamAccountName())) {
-      return oldAesEncValue;
-    }
-    return cryptoService.encrypt(PasswordReset.builder()
-        .from(passwordReset)
-        .username(newUser.getSamAccountName())
-        .build());
   }
 
 }

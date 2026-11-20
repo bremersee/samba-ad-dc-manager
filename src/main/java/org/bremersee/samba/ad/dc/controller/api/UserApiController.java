@@ -69,13 +69,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/users")
 @Tag(name = "ad-user-manager", description = "RESTful api for users.")
 @Validated
-public class UserApiController extends UserAvatarApiController {
+public class UserApiController extends ApiController {
 
   private final ApplicationProperties properties;
 
   private final ApplicationEventPublisher eventPublisher;
 
   private final DomainService domainService;
+
+  private final DomainUserService domainUserService;
 
   /**
    * Instantiates a new user api controller.
@@ -90,10 +92,10 @@ public class UserApiController extends UserAvatarApiController {
       ApplicationEventPublisher eventPublisher,
       DomainService domainService,
       DomainUserService domainUserService) {
-    super(domainUserService);
     this.properties = properties;
     this.eventPublisher = eventPublisher;
     this.domainService = domainService;
+    this.domainUserService = domainUserService;
   }
 
   /**
