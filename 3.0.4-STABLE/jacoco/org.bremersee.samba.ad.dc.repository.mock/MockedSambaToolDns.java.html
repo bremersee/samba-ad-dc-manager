@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MockedSambaToolDns.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mock</a> &gt; <span class="el_source">MockedSambaToolDns.java</span></div><h1>MockedSambaToolDns.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mock;
+
+import static java.util.Objects.nonNull;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsZone;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.repository.SambaToolDns;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+/**
+ * The mocked samba tool dns.
+ *
+ * @author Christian Bremer
+ */
+@Primary
+@Component
+@Profile(&quot;mock&quot;)
+class MockedSambaToolDns implements SambaToolDns {
+
+<span class="nc" id="L47">  private static final AtomicInteger serial = new AtomicInteger(10000);</span>
+
+  private final SambaStore store;
+
+  /**
+   * Instantiates a new mocked samba tool dns.
+   *
+   * @param store the store
+   */
+<span class="nc" id="L56">  MockedSambaToolDns(SambaStore store) {</span>
+<span class="nc" id="L57">    this.store = store;</span>
+<span class="nc" id="L58">  }</span>
+
+  @Override
+  public List&lt;String&gt; getDnsZoneNames(String hostName, DnsZoneType zoneType) {
+<span class="nc" id="L62">    DnsZoneType type = Objects.requireNonNullElse(zoneType, DnsZoneType.PRIMARY);</span>
+<span class="nc" id="L63">    return store.getDns().keySet().stream()</span>
+<span class="nc" id="L64">        .filter(dnsZone -&gt; isDnsZoneOfType(dnsZone, type))</span>
+<span class="nc" id="L65">        .map(DnsZone::getName)</span>
+<span class="nc" id="L66">        .toList();</span>
+  }
+
+  private boolean isDnsZoneOfType(DnsZone dnsZone, DnsZoneType type) {
+<span class="nc" id="L70">    boolean isReverseType = DnsZoneType.REVERSE.equals(type);</span>
+<span class="nc bnc" id="L71" title="All 4 branches missed.">    return (isReverseType &amp;&amp; Boolean.TRUE.equals(dnsZone.getReverseZone())) || Optional</span>
+<span class="nc" id="L72">        .ofNullable(dnsZone.getZoneType())</span>
+<span class="nc" id="L73">        .map(dnsZoneType -&gt; dnsZoneType.equalsIgnoreCase(type.name()))</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        .orElse(false);</span>
+  }
+
+  @Override
+  public Optional&lt;DnsZone&gt; findDnsZone(String hostName, String zoneName) {
+<span class="nc" id="L79">    return store.getDns().keySet().stream()</span>
+<span class="nc" id="L80">        .filter(dnsZone -&gt; dnsZone.getName().equalsIgnoreCase(zoneName))</span>
+<span class="nc" id="L81">        .findFirst();</span>
+  }
+
+  @Override
+  public void createDnsZone(String hostName, String zoneName) {
+<span class="nc" id="L86">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L87">    DnsZone dnsZone = DnsZone.builder()</span>
+<span class="nc" id="L88">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L89">        .created(now)</span>
+<span class="nc" id="L90">        .modified(now)</span>
+<span class="nc" id="L91">        .name(zoneName)</span>
+<span class="nc" id="L92">        .zoneType(DnsZoneType.PRIMARY.name())</span>
+<span class="nc" id="L93">        .reverseZone(zoneName.toLowerCase().endsWith(&quot;.in-addr.arpa&quot;))</span>
+<span class="nc" id="L94">        .fqdn(&quot;DomainDnsZones.&quot; + zoneName)</span>
+<span class="nc" id="L95">        .allowUpdate(&quot;DNS_ZONE_UPDATE_SECURE&quot;)</span>
+<span class="nc" id="L96">        .build();</span>
+<span class="nc" id="L97">    store.getDns().put(dnsZone, new CopyOnWriteArrayList&lt;&gt;());</span>
+<span class="nc" id="L98">  }</span>
+
+  @Override
+  public void deleteDnsZone(String hostName, String zoneName) {
+<span class="nc" id="L102">    findDnsZone(hostName, zoneName)</span>
+<span class="nc" id="L103">        .ifPresent(dnsZone -&gt; store.getDns().remove(dnsZone));</span>
+<span class="nc" id="L104">  }</span>
+
+  @Override
+  public List&lt;DnsEntry&gt; getDnsEntries(String hostName, String zoneName) {
+<span class="nc" id="L108">    return store.getDns().entrySet()</span>
+<span class="nc" id="L109">        .stream()</span>
+<span class="nc" id="L110">        .filter(entry -&gt; entry.getKey().getName().equalsIgnoreCase(zoneName))</span>
+<span class="nc" id="L111">        .findFirst()</span>
+<span class="nc" id="L112">        .map(Entry::getValue)</span>
+<span class="nc" id="L113">        .orElseGet(List::of);</span>
+  }
+
+  @Override
+  public void addDnsEntry(String hostName, DnsEntry entry) {
+<span class="nc" id="L118">    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);</span>
+<span class="nc" id="L119">    DnsEntry dnsEntry = DnsEntry.builder()</span>
+<span class="nc" id="L120">        .from(entry)</span>
+<span class="nc" id="L121">        .distinguishedName(&quot;&quot;)</span>
+<span class="nc" id="L122">        .created(now)</span>
+<span class="nc" id="L123">        .modified(now)</span>
+<span class="nc" id="L124">        .flags(&quot;f0&quot;)</span>
+<span class="nc" id="L125">        .serial(serial.getAndIncrement())</span>
+<span class="nc" id="L126">        .ttlSeconds(3600)</span>
+<span class="nc" id="L127">        .build();</span>
+<span class="nc" id="L128">    store.getDns().entrySet().stream()</span>
+<span class="nc" id="L129">        .filter(mapEntry -&gt; mapEntry.getKey().getName()</span>
+<span class="nc" id="L130">            .equalsIgnoreCase(entry.getZoneName()))</span>
+<span class="nc" id="L131">        .findFirst()</span>
+<span class="nc" id="L132">        .map(Entry::getValue)</span>
+<span class="nc" id="L133">        .ifPresent(dnsEntries -&gt; dnsEntries.add(dnsEntry));</span>
+<span class="nc" id="L134">  }</span>
+
+  @Override
+  public void updateDnsEntry(String hostName, DnsEntry entry, String newValue) {
+<span class="nc" id="L138">    deleteDnsEntry(hostName, entry);</span>
+<span class="nc" id="L139">    addDnsEntry(hostName, DnsEntry.builder()</span>
+<span class="nc" id="L140">        .from(entry)</span>
+<span class="nc" id="L141">        .value(newValue)</span>
+<span class="nc" id="L142">        .build());</span>
+<span class="nc" id="L143">  }</span>
+
+  @Override
+  public void deleteDnsEntry(String hostName, DnsEntry entry) {
+<span class="nc" id="L147">    store.getDns().entrySet()</span>
+<span class="nc" id="L148">        .stream()</span>
+<span class="nc" id="L149">        .filter(mapEntry -&gt; mapEntry.getKey().getName()</span>
+<span class="nc" id="L150">            .equalsIgnoreCase(entry.getZoneName()))</span>
+<span class="nc" id="L151">        .findFirst()</span>
+<span class="nc" id="L152">        .map(Entry::getValue)</span>
+<span class="nc" id="L153">        .ifPresent(dnsEntries -&gt; dnsEntries</span>
+<span class="nc" id="L154">            .removeIf(dnsEntry -&gt; areEqual(dnsEntry, entry)));</span>
+
+<span class="nc" id="L156">  }</span>
+
+  private boolean areEqual(DnsEntry e1, DnsEntry e2) {
+<span class="nc bnc" id="L159" title="All 2 branches missed.">    return nonNull(e2)</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        &amp;&amp; nonNull(e1)</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        &amp;&amp; nonNull(e1.getName())</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        &amp;&amp; nonNull(e1.getValue())</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        &amp;&amp; nonNull(e1.getType())</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        &amp;&amp; e1.getName().equalsIgnoreCase(e2.getName())</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        &amp;&amp; e1.getValue().equalsIgnoreCase(e2.getValue())</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        &amp;&amp; e1.getType().equals(e2.getType());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

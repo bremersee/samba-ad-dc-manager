@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GravatarProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">GravatarProvider.java</span></div><h1>GravatarProvider.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.requireNonNullElse;
+import static java.util.Objects.requireNonNullElseGet;
+
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.jspecify.annotations.Nullable;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The Gravatar provider.
+ *
+ * @author Christian Bremer
+ */
+@Component
+@Order(AvatarProvider.GRAVATAR_PROVIDER_ORDER)
+@Validated
+<span class="fc" id="L45">@Slf4j</span>
+public class GravatarProvider implements AvatarProvider {
+
+  private final ApplicationProperties properties;
+
+  /**
+   * Instantiates a new Gravatar provider.
+   *
+   * @param properties the properties
+   */
+<span class="fc" id="L55">  public GravatarProvider(ApplicationProperties properties) {</span>
+<span class="fc" id="L56">    this.properties = properties;</span>
+<span class="fc" id="L57">  }</span>
+
+  @Override
+  public Optional&lt;byte[]&gt; findAvatar(
+      String user,
+      @Nullable AvatarDefault avatarDefault,
+      @Nullable Integer size) {
+
+<span class="fc" id="L65">    String source = requireNonNullElseGet(user, () -&gt; String.valueOf(UUID.randomUUID()));</span>
+<span class="fc" id="L66">    byte[] md5 = DigestUtils.md5Digest(source.getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L67">    String hex = new String(Hex.encode(md5));</span>
+<span class="fc" id="L68">    AvatarDefault defaultAvatar = requireNonNullElse(avatarDefault, AvatarDefault.NOT_FOUND);</span>
+<span class="fc" id="L69">    int avatarSize = getAvatarSize(size);</span>
+<span class="fc" id="L70">    String url = properties.getUser().getGravatarUrl()</span>
+<span class="fc" id="L71">        .replace(&quot;{hash}&quot;, hex)</span>
+<span class="fc" id="L72">        .replace(&quot;{default}&quot;, String.valueOf(defaultAvatar))</span>
+<span class="fc" id="L73">        .replace(&quot;{size}&quot;, String.valueOf(avatarSize));</span>
+    try {
+<span class="fc" id="L75">      return Optional.ofNullable(IOUtils.toByteArray(new URI(url)))</span>
+<span class="fc" id="L76">          .filter(this::isNotEmpty);</span>
+
+<span class="fc" id="L78">    } catch (Exception e) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">      if (!AvatarDefault.NOT_FOUND.equals(defaultAvatar)) {</span>
+<span class="nc" id="L80">        log.error(&quot;Getting avatar from gravatar (url = '{}') failed. This should not happen.&quot;,</span>
+            url, e);
+      }
+    }
+<span class="fc" id="L84">    return Optional.empty();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

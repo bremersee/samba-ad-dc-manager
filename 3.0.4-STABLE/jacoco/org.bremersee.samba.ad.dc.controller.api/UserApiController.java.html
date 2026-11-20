@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserApiController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.api</a> &gt; <span class="el_source">UserApiController.java</span></div><h1>UserApiController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.api;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.exception.model.RestApiException;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.DomainUserIdentifier;
+import org.bremersee.samba.ad.dc.model.DomainUserPage;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.model.event.InvitationEvent;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.DomainUserService;
+import org.ldaptive.dn.Dn;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * The user api controller.
+ */
+@Profile(&quot;api&quot;)
+@RestController
+@RequestMapping(path = &quot;/api/users&quot;)
+@Tag(name = &quot;ad-user-manager&quot;, description = &quot;RESTful api for users.&quot;)
+@Validated
+public class UserApiController extends ApiController {
+
+  private final ApplicationProperties properties;
+
+  private final ApplicationEventPublisher eventPublisher;
+
+  private final DomainService domainService;
+
+  private final DomainUserService domainUserService;
+
+  /**
+   * Instantiates a new user api controller.
+   *
+   * @param properties the properties
+   * @param eventPublisher the event publisher
+   * @param domainService the domain service
+   * @param domainUserService the domain user service
+   */
+  public UserApiController(
+      ApplicationProperties properties,
+      ApplicationEventPublisher eventPublisher,
+      DomainService domainService,
+<span class="nc" id="L94">      DomainUserService domainUserService) {</span>
+<span class="nc" id="L95">    this.properties = properties;</span>
+<span class="nc" id="L96">    this.eventPublisher = eventPublisher;</span>
+<span class="nc" id="L97">    this.domainService = domainService;</span>
+<span class="nc" id="L98">    this.domainUserService = domainUserService;</span>
+<span class="nc" id="L99">  }</span>
+
+  /**
+   * Gets users.
+   *
+   * @param pageable the pageable
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @return the users
+   */
+  @PageableAsQueryParam
+  @Operation(
+      description = &quot;Get user page.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)
+      }
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainUserPage&gt; getUsers(
+
+      @Parameter(hidden = true)
+      @PageableDefault(
+          size = SIZE_DEFAULT_INT,
+          sort = {USER_SORT_LAST_NAME, USER_SORT_FIRST_NAME, USER_SORT_USERNAME})
+      Pageable pageable,
+
+      @Parameter(name = QUERY, description = &quot;A search term.&quot;)
+      @RequestParam(name = QUERY, required = false)
+      String query,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Users'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope) {
+
+<span class="nc" id="L158">    Page&lt;DomainUser&gt; userPage = domainUserService</span>
+<span class="nc" id="L159">        .getUsers(pageable, query, ou, scope);</span>
+<span class="nc" id="L160">    return ResponseEntity.ok(new DomainUserPage(userPage));</span>
+  }
+
+  /**
+   * Add user response entity.
+   *
+   * @param user the user
+   * @param clearPassword the clear password
+   * @param ou the ou
+   * @param useUsernameAsCn the use username as cn
+   * @param sendInvitationEmail the send invitation email
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Add user.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;409&quot;, description = &quot;Already exists&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainUser&gt; addUser(
+      @RequestBody DomainUser user,
+
+      @Parameter(name = &quot;pwd&quot;, description = &quot;The password of the user.&quot;)
+      @RequestParam(name = &quot;pwd&quot;, required = false)
+      String clearPassword,
+
+      @Parameter(name = OU,
+          description = &quot;Add user to organizational unit (like 'CN=Users').&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(
+          name = &quot;username-as-cn&quot;,
+          description = &quot;Specifies whether the username should be used as common name or not.&quot;)
+      @RequestParam(name = &quot;username-as-cn&quot;, required = false)
+      Boolean useUsernameAsCn,
+
+      @Parameter(
+          name = &quot;invitation-email&quot;,
+          description = &quot;Specifies whether an invitation email should be sent or not.&quot;,
+          schema = @Schema(type = &quot;boolean&quot;, defaultValue = &quot;false&quot;))
+      @RequestParam(name = &quot;invitation-email&quot;, defaultValue = &quot;false&quot;)
+      boolean sendInvitationEmail) {
+
+<span class="nc bnc" id="L230" title="All 4 branches missed.">    if (sendInvitationEmail &amp;&amp; isEmpty(user.getEmail())) {</span>
+<span class="nc" id="L231">      throw ServiceException</span>
+<span class="nc" id="L232">          .badRequest(&quot;User has no email address. Sending invitation email is not possible.&quot;);</span>
+    }
+<span class="nc" id="L234">    DomainUser addedUser = domainUserService.addUser(user, clearPassword, ou, useUsernameAsCn);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">    if (sendInvitationEmail) {</span>
+<span class="nc" id="L236">      String baseUri = getBaseUri(properties.getEmail().getBaseUri());</span>
+<span class="nc" id="L237">      InvitationEvent event = new InvitationEvent(addedUser, baseUri);</span>
+<span class="nc" id="L238">      eventPublisher.publishEvent(event);</span>
+    }
+<span class="nc" id="L240">    return ResponseEntity.ok(addedUser);</span>
+  }
+
+  /**
+   * Gets user.
+   *
+   * @param samAccountName the sam account name
+   * @param identifier the identifier
+   * @param ou the ou
+   * @param scope the scope
+   * @return the user
+   */
+  @Operation(
+      description = &quot;Get user.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = &quot;/{name}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainUser&gt; getUser(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Parameter(
+          name = &quot;id-type&quot;,
+          description = &quot;The type of the given name (name|principal|uid|uid-number).&quot;,
+          schema = @Schema(
+              implementation = DomainUserIdentifier.class,
+              defaultValue = &quot;name&quot;,
+              example = &quot;name&quot;))
+      @RequestParam(value = &quot;id-type&quot;, defaultValue = &quot;name&quot;) DomainUserIdentifier identifier,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Users'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope) {
+
+<span class="nc bnc" id="L302" title="All 4 branches missed.">    Optional&lt;DomainUser&gt; domainUser = switch (identifier) {</span>
+<span class="nc" id="L303">      case PRINCIPAL -&gt; domainUserService.getUserByPrincipalName(samAccountName);</span>
+<span class="nc" id="L304">      case UID -&gt; domainUserService.getUserByUid(samAccountName);</span>
+<span class="nc" id="L305">      case UID_NUMBER -&gt; domainUserService.getUserByUidNumber(getAsNumber(samAccountName));</span>
+<span class="nc" id="L306">      default -&gt; domainUserService.getUser(samAccountName, ou, scope);</span>
+    };
+<span class="nc" id="L308">    return ResponseEntity.of(domainUser);</span>
+  }
+
+  /**
+   * Update user response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param user the user
+   * @param newOu the new ou
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Update user.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;409&quot;, description = &quot;Already exists&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      path = &quot;/{name}&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;DomainUser&gt; updateUser(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @RequestBody DomainUser user,
+
+      @Parameter(name = &quot;move-to&quot;,
+          description = &quot;The new organizational unit of the user like 'CN=Users,CN=Marketing'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = &quot;move-to&quot;, required = false)
+      Dn newOu) {
+
+<span class="nc" id="L363">    return ResponseEntity.ok(domainUserService.updateUser(samAccountName, user, newOu));</span>
+  }
+
+  /**
+   * Delete user response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Delete user.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @DeleteMapping(path = &quot;/{name}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;Boolean&gt; deleteUser(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName) {
+
+<span class="nc" id="L399">    return ResponseEntity.ok(domainUserService.deleteUser(samAccountName));</span>
+  }
+
+  /**
+   * Update user password response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param clearPassword the clear password
+   * @param sendInvitationEmail the send invitation email
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Update user password.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      path = &quot;/{name}/pwd&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity&lt;Void&gt; updateUserPassword(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Schema(
+          description = &quot;The clear password of the user. If it is empty or null, a random &quot;
+              + &quot;password will be generated.&quot;,
+          requiredMode = RequiredMode.NOT_REQUIRED,
+          example = &quot;voF7J!0$kPsfk$fz&quot;)
+      @RequestBody(required = false) String clearPassword,
+
+      @Parameter(
+          name = &quot;invitation-email&quot;,
+          description = &quot;Specifies whether an invitation email should be sent or not.&quot;,
+          schema = @Schema(type = &quot;boolean&quot;, defaultValue = &quot;false&quot;))
+      @RequestParam(name = &quot;invitation-email&quot;, defaultValue = &quot;false&quot;)
+      boolean sendInvitationEmail) {
+
+    String newPassword;
+<span class="nc bnc" id="L458" title="All 2 branches missed.">    if (isEmpty(clearPassword)) {</span>
+<span class="nc" id="L459">      newPassword = domainService.createRandomPassword();</span>
+    } else {
+<span class="nc" id="L461">      newPassword = clearPassword;</span>
+    }
+<span class="nc" id="L463">    domainUserService.updateUserPassword(samAccountName, newPassword);</span>
+<span class="nc bnc" id="L464" title="All 2 branches missed.">    if (sendInvitationEmail) {</span>
+<span class="nc" id="L465">      domainUserService.getUser(samAccountName, null, null)</span>
+<span class="nc" id="L466">          .ifPresentOrElse(</span>
+              user -&gt; {
+<span class="nc bnc" id="L468" title="All 2 branches missed.">                if (isEmpty(user.getEmail())) {</span>
+<span class="nc" id="L469">                  throw ServiceException.badRequest(</span>
+                      &quot;User has no email address. Sending invitation email is not possible.&quot;);
+                }
+<span class="nc" id="L472">                String baseUri = getBaseUri(properties.getEmail().getBaseUri());</span>
+<span class="nc" id="L473">                InvitationEvent event = new InvitationEvent(user, baseUri);</span>
+<span class="nc" id="L474">                eventPublisher.publishEvent(event);</span>
+<span class="nc" id="L475">              },</span>
+              () -&gt; {
+<span class="nc" id="L477">                throw ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L478">                    DomainUser.class.getSimpleName(),</span>
+                    samAccountName,
+                    ErrorCode.EC_SAM_ACCOUNT_NOT_FOUND);
+              });
+    }
+<span class="nc" id="L483">    return ResponseEntity.ok().build();</span>
+  }
+
+  /**
+   * Update user avatar response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param avatar the avatar
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Update user avatar.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @PutMapping(
+      path = &quot;/{name}/avatar&quot;,
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      consumes = MediaType.IMAGE_JPEG_VALUE)
+  public ResponseEntity&lt;Void&gt; updateUserAvatar(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Schema(description = &quot;The avatar as jpeg.&quot;, type = &quot;string&quot;, format = &quot;binary&quot;)
+      @RequestBody Resource avatar) {
+
+<span class="nc" id="L529">    try (InputStream in = avatar.getInputStream()) {</span>
+<span class="nc" id="L530">      domainUserService.updateUserAvatar(samAccountName, in);</span>
+
+<span class="nc" id="L532">    } catch (IOException e) {</span>
+<span class="nc" id="L533">      throw ServiceException.internalServerError(&quot;Uploading avatar failed.&quot;, e);</span>
+<span class="nc" id="L534">    }</span>
+<span class="nc" id="L535">    return ResponseEntity.ok().build();</span>
+  }
+
+  /**
+   * Remove user avatar response entity.
+   *
+   * @param samAccountName the sam account name
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Remove user avatar.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @DeleteMapping(path = &quot;/{name}/avatar&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;Void&gt; removeUserAvatar(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName) {
+
+<span class="nc" id="L574">    domainUserService.removeUserAvatar(samAccountName);</span>
+<span class="nc" id="L575">    return ResponseEntity.ok().build();</span>
+  }
+
+  /**
+   * Exists avatar in active directory response entity.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param scope the scope
+   * @return the response entity
+   */
+  @Operation(
+      description = &quot;Checks whether the avatar of the user is present in the active directory.&quot;,
+      security = {
+          @SecurityRequirement(name = &quot;bearer-jwt&quot;)}
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = &quot;200&quot;, description = &quot;OK&quot;),
+          @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Bad request&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;401&quot;, description = &quot;Unauthorized&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;403&quot;, description = &quot;Forbidden&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Not found&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          }),
+          @ApiResponse(responseCode = &quot;500&quot;, description = &quot;Internal server error&quot;, content = {
+              @Content(schema = @Schema(implementation = RestApiException.class))
+          })
+      }
+  )
+  @GetMapping(path = &quot;/{name}/avatar/existence&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity&lt;Boolean&gt; existsAvatarInActiveDirectory(
+      @Parameter(name = &quot;name&quot;, description = &quot;The name of the user.&quot;, required = true)
+      @PathVariable(&quot;name&quot;) String samAccountName,
+
+      @Parameter(name = OU,
+          description = &quot;The search base (organizational unit) like 'CN=Users'.&quot;,
+          schema = @Schema(type = &quot;string&quot;))
+      @RequestParam(name = OU, required = false)
+      Dn ou,
+
+      @Parameter(name = SCOPE, description = &quot;The search scope (one-level|subtree).&quot;,
+          schema = @Schema(implementation = TreeSearchScope.class, example = &quot;subtree&quot;))
+      @RequestParam(name = SCOPE, required = false)
+      TreeSearchScope scope) {
+
+<span class="nc" id="L627">    return ResponseEntity</span>
+<span class="nc" id="L628">        .ok(domainUserService.existsAvatarInActiveDirectory(samAccountName, ou, scope));</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

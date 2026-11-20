@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Sid.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">Sid.java</span></div><h1>Sid.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.io.Serializable;
+import java.util.Optional;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The windows/samba SID. Well known (system) SIDs are listed &lt;a
+ * href=&quot;https://support.microsoft.com/en-us/help/243330/well-known-security-identifiers-in-windows-operating-systems&quot;&gt;here&lt;/a&gt;.
+ *
+ * @author Christian Bremer
+ */
+@Schema(description = &quot;The SID of the entity.&quot;)
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableSid.class)
+@JsonDeserialize(as = ImmutableSid.class)
+public interface Sid extends Serializable {
+
+  /**
+   * The constant DEFAULT_SID_PREFIX.
+   */
+  String DEFAULT_SID_PREFIX = &quot;S-1-5-21-&quot;;
+
+  /**
+   * The constant MAX_SYSTEM_SID_SUFFIX.
+   */
+  int MAX_SYSTEM_SID_SUFFIX = 999;
+
+  /**
+   * Gets the string value of this SID.
+   *
+   * @return the value
+   */
+  @Schema(description = &quot;The SID of the entity.&quot;, requiredMode = RequiredMode.REQUIRED)
+  String getValue();
+
+  /**
+   * Determines whether this SID belongs to a system entity or not.
+   *
+   * @return the {@code true}, if this SID belongs to a system entity, otherwise {@code false}
+   */
+  @Schema(description = &quot;Determines whether this SID belongs to a system entity or not.&quot;,
+      defaultValue = &quot;false&quot;, accessMode = AccessMode.READ_ONLY)
+  @JsonProperty(value = &quot;systemEntity&quot;, defaultValue = &quot;false&quot;, access = Access.READ_ONLY)
+  @Value.Lazy
+  default boolean isSystemEntity() {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    if (!getValue().startsWith(DEFAULT_SID_PREFIX)) {</span>
+<span class="fc" id="L83">      return true;</span>
+    }
+<span class="fc" id="L85">    return Optional.ofNullable(getSuffix())</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        .map(suffix -&gt; MAX_SYSTEM_SID_SUFFIX &gt;= suffix)</span>
+<span class="fc" id="L87">        .orElse(false);</span>
+  }
+
+  /**
+   * Gets the suffix of this SID.
+   *
+   * @return the suffix
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Nullable
+  default Integer getSuffix() {
+<span class="fc" id="L100">    return Optional.ofNullable(getValue())</span>
+<span class="fc" id="L101">        .map(v -&gt; {</span>
+<span class="fc" id="L102">          int index = v.lastIndexOf('-');</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">          if (index == -1) {</span>
+<span class="nc" id="L104">            return null;</span>
+          }
+          try {
+<span class="fc" id="L107">            return Integer.parseInt(v.substring(index + 1));</span>
+<span class="nc" id="L108">          } catch (RuntimeException e) {</span>
+<span class="nc" id="L109">            return null;</span>
+          }
+        })
+<span class="fc" id="L112">        .orElse(null);</span>
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+<span class="fc" id="L121">    return new Builder();</span>
+  }
+
+  /**
+   * The immutable builder.
+   *
+   * @author Christian Bremer
+   */
+  class Builder extends ImmutableSid.Builder {
+
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+<span class="fc" id="L135">      super();</span>
+<span class="fc" id="L136">    }</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
