@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FallbackAvatarProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">FallbackAvatarProvider.java</span></div><h1>FallbackAvatarProvider.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.requireNonNullElse;
+
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Optional;
+import javax.imageio.ImageIO;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.jspecify.annotations.Nullable;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The fallback avatar provider.
+ *
+ * @author Christian Bremer
+ */
+@Component
+@Order(AvatarProvider.FALLBACK_AVATAR_PROVIDER_ORDER)
+@Validated
+public class FallbackAvatarProvider implements AvatarProvider {
+
+<span class="fc" id="L46">  private static final ResourceLoader RESOURCE_LOADER = new DefaultResourceLoader();</span>
+
+  private static final String AVATAR_LOCATION = &quot;classpath:static/mp.jpg&quot;;
+
+  private final ImageTool imageTool;
+
+  /**
+   * Instantiates a new fallback avatar provider.
+   *
+   * @param imageTool the image tool
+   */
+<span class="fc" id="L57">  public FallbackAvatarProvider(ImageTool imageTool) {</span>
+<span class="fc" id="L58">    this.imageTool = imageTool;</span>
+<span class="fc" id="L59">  }</span>
+
+  /**
+   * Get fallback avatar.
+   *
+   * @param size the size
+   * @return the fallback avatar
+   */
+  public byte[] getFallbackAvatar(Integer size) {
+<span class="pc bpc" id="L68" title="3 of 6 branches missed.">    int s = size == null || size &lt; 1 || size &gt; MAX_AVATAR_SIZE ? DEFAULT_AVATAR_SIZE : size;</span>
+    try {
+<span class="fc" id="L70">      BufferedImage img = ImageIO</span>
+<span class="fc" id="L71">          .read(RESOURCE_LOADER.getResource(AVATAR_LOCATION).getInputStream());</span>
+<span class="fc" id="L72">      BufferedImage scaledImg = imageTool.scaleImage(img, new Dimension(s, s));</span>
+<span class="fc" id="L73">      ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L74">      ImageIO.write(scaledImg, &quot;JPG&quot;, out);</span>
+<span class="fc" id="L75">      return out.toByteArray();</span>
+
+<span class="nc" id="L77">    } catch (IOException e) {</span>
+<span class="nc" id="L78">      throw ServiceException.internalServerError(</span>
+          &quot;Getting default avatar failed.&quot;,
+          &quot;org.bremersee:dc-con-app:1ec0dda8-7358-4e1c-a8f2-f4bd64e439f0&quot;,
+          e);
+    }
+  }
+
+  @Override
+  public Optional&lt;byte[]&gt; findAvatar(
+      String user,
+      @Nullable AvatarDefault avatarDefault,
+      @Nullable Integer size) {
+
+<span class="fc" id="L91">    AvatarDefault defaultAvatar = requireNonNullElse(avatarDefault, AvatarDefault.NOT_FOUND);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">    if (AvatarDefault.NOT_FOUND.equals(defaultAvatar)) {</span>
+<span class="fc" id="L93">      return Optional.empty();</span>
+    }
+<span class="fc" id="L95">    return Optional.of(getFallbackAvatar(getAvatarSize(size)))</span>
+<span class="fc" id="L96">        .filter(this::isNotEmpty);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

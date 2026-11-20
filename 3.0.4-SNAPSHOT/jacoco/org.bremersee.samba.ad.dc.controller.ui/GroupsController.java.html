@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">GroupsController.java</span></div><h1>GroupsController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import lombok.Getter;
+import org.bremersee.comparator.model.SortOrder;
+import org.bremersee.comparator.spring.web.SortOrderRequestParam;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitDropdown;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitNavigationComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.model.DomainGroupPage;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+
+/**
+ * The group list controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class GroupsController extends UiController
+    implements PageableComponent, OrganizationalUnitNavigationComponent {
+
+  private final DomainGroupService domainGroupService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new group list controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public GroupsController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainGroupService domainGroupService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L69">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L70">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L71">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L72">  }</span>
+
+  @Override
+  public TreeSearchScope getDefaultSearchScope() {
+<span class="nc" id="L76">    return getProperties().getGroup().getDefaultSearchScope();</span>
+  }
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L81">    return GROUP_SORT;</span>
+  }
+
+  @Override
+  public String getCurrentPageName() {
+<span class="nc" id="L86">    return &quot;groups&quot;;</span>
+  }
+
+  /**
+   * Display groups view.
+   *
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param ou the ou
+   * @param scope the scope
+   * @param model the model
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/groups&quot;)
+  public String displayGroups(
+      @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
+      @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
+      @SortOrderRequestParam(defaultSort = GROUP_SORT) SortOrder sort,
+      @RequestParam(name = QUERY, required = false) String query,
+      @RequestParam(name = OU, required = false) Dn ou,
+      @RequestParam(name = SCOPE, required = false) TreeSearchScope scope,
+      ModelMap model) {
+
+<span class="nc" id="L111">    OrganizationalUnitDropdown ouDropdown = getOrganizationalUnitDropdown(ou, scope);</span>
+<span class="nc" id="L112">    addOrganizationalUnitDropdown(model, ouDropdown);</span>
+<span class="nc" id="L113">    Pageable pageable = PageRequest.of(page, size, getSortMapper().toSort(sort));</span>
+<span class="nc" id="L114">    DomainGroupPage groupPage = new DomainGroupPage(domainGroupService.getGroups(</span>
+<span class="nc" id="L115">        pageable, query, ou, ouDropdown.getSelectedScope()));</span>
+<span class="nc" id="L116">    model.addAttribute(&quot;groups&quot;, groupPage);</span>
+<span class="nc" id="L117">    return &quot;management/groups&quot;;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

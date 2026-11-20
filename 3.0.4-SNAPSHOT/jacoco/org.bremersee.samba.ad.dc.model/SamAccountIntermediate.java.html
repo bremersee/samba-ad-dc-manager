@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SamAccountIntermediate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">SamAccountIntermediate.java</span></div><h1>SamAccountIntermediate.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.requireNonNullElse;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Objects;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The base of a 'SamAccount' like 'User', 'Group' and 'Computer' with immutable builder.
+ *
+ * @author Christian Bremer
+ */
+@Value.Style(
+    visibility = Value.Style.ImplementationVisibility.PACKAGE,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonSerialize(as = ImmutableSamAccountIntermediate.class)
+@JsonDeserialize(as = ImmutableSamAccountIntermediate.class)
+public interface SamAccountIntermediate extends SamAccount {
+
+  @Override
+  default SamAccountIntermediate withDistinguishedName(String distinguishedName) {
+<span class="nc" id="L51">    return builder()</span>
+<span class="nc" id="L52">        .from(this)</span>
+<span class="nc" id="L53">        .distinguishedName(requireNonNullElse(distinguishedName, &quot;&quot;))</span>
+<span class="nc" id="L54">        .build();</span>
+  }
+
+  @Schema(description = &quot;The creation date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
+  @Override
+  default SamAccountIntermediate withCreated(OffsetDateTime created) {
+<span class="nc" id="L64">    return builder()</span>
+<span class="nc" id="L65">        .from(this)</span>
+<span class="nc" id="L66">        .created(created)</span>
+<span class="nc" id="L67">        .build();</span>
+  }
+
+  @Schema(description = &quot;The last modification date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
+  @Override
+  default SamAccountIntermediate withModified(OffsetDateTime modified) {
+<span class="nc" id="L77">    return builder()</span>
+<span class="nc" id="L78">        .from(this)</span>
+<span class="nc" id="L79">        .modified(modified)</span>
+<span class="nc" id="L80">        .build();</span>
+  }
+
+  @Schema(description = &quot;The SID of the sam account.&quot;)
+  @Nullable
+  @Override
+  Sid getSid();
+
+  @Override
+  default SamAccountIntermediate withSid(Sid sid) {
+<span class="nc" id="L90">    return builder()</span>
+<span class="nc" id="L91">        .from(this)</span>
+<span class="nc" id="L92">        .sid(sid)</span>
+<span class="nc" id="L93">        .build();</span>
+  }
+
+  @Override
+  default SamAccountIntermediate withCriticalSystemObject(boolean criticalSystemObject) {
+<span class="nc" id="L98">    return builder()</span>
+<span class="nc" id="L99">        .from(this)</span>
+<span class="nc" id="L100">        .criticalSystemObject(criticalSystemObject)</span>
+<span class="nc" id="L101">        .build();</span>
+  }
+
+  @Override
+  default SamAccountIntermediate withPrimaryGroupId(Integer primaryGroupId) {
+<span class="nc" id="L106">    return builder()</span>
+<span class="nc" id="L107">        .from(this)</span>
+<span class="nc" id="L108">        .primaryGroupId(primaryGroupId)</span>
+<span class="nc" id="L109">        .build();</span>
+  }
+
+  @Override
+  default SamAccountIntermediate withMemberships(Iterable&lt;String&gt; memberships) {
+<span class="nc" id="L114">    return builder()</span>
+<span class="nc" id="L115">        .from(this)</span>
+<span class="nc" id="L116">        .memberships(Objects.requireNonNullElseGet(memberships, List::of))</span>
+<span class="nc" id="L117">        .build();</span>
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static Builder builder() {
+<span class="fc" id="L126">    return new Builder();</span>
+  }
+
+  /**
+   * The immutable builder.
+   *
+   * @author Christian Bremer
+   */
+  class Builder extends ImmutableSamAccountIntermediate.Builder {
+
+    /**
+     * Instantiates a new builder.
+     */
+    public Builder() {
+<span class="fc" id="L140">      super();</span>
+<span class="fc" id="L141">    }</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

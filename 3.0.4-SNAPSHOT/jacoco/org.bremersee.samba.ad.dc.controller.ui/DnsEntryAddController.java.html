@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsEntryAddController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">DnsEntryAddController.java</span></div><h1>DnsEntryAddController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.DnsEntryAddModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.DnsEntry;
+import org.bremersee.samba.ad.dc.model.DnsEntryType;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The dns entry add controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+<span class="nc" id="L49">@Slf4j</span>
+public class DnsEntryAddController extends UiController
+    implements PageableComponent, DnsZoneTypeComponent {
+
+  private final DnsService dnsService;
+
+  /**
+   * Instantiates a new dns entry add controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
+  public DnsEntryAddController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+<span class="nc" id="L68">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L69">    this.dnsService = dnsService;</span>
+<span class="nc" id="L70">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L74">    return DNS_ENTRY_SORT;</span>
+  }
+
+  /**
+   * Display add dns entry view.
+   *
+   * @param zoneName the zone name
+   * @param model the model
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/dns-entry-add&quot;)
+  public String displayAddDnsEntry(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      ModelMap model) {
+
+<span class="nc" id="L89">    log.debug(&quot;displayAddDnsEntry({})&quot;, zoneName);</span>
+<span class="nc" id="L90">    model.addAttribute(&quot;zoneName&quot;, zoneName);</span>
+<span class="nc" id="L91">    model.addAttribute(&quot;types&quot;, DnsEntryType.getSupportedAddOrDeleteTypes());</span>
+<span class="nc" id="L92">    DnsEntryAddModel addModel = new DnsEntryAddModel(zoneName);</span>
+<span class="nc" id="L93">    List&lt;String&gt; reverseZones = dnsService.getDnsZoneNames(DnsZoneType.REVERSE);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">    if (!reverseZones.isEmpty()) {</span>
+<span class="nc" id="L95">      addModel.setReverseZoneName(reverseZones.getFirst());</span>
+    }
+<span class="nc" id="L97">    model.addAttribute(&quot;dnsReverseZones&quot;, reverseZones);</span>
+<span class="nc" id="L98">    model.addAttribute(&quot;dnsEntryAddModel&quot;, addModel);</span>
+<span class="nc" id="L99">    return &quot;management/dns-entry-add&quot;;</span>
+  }
+
+  /**
+   * Add dns entry.
+   *
+   * @param zoneName the zone name
+   * @param addModel the add model
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/dns-entry-add&quot;)
+  public String addDnsEntry(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      @ModelAttribute(name = &quot;dnsEntryAddModel&quot;) DnsEntryAddModel addModel,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L118">    log.debug(&quot;addDnsEntry({}, {})&quot;, zoneName, addModel);</span>
+<span class="nc" id="L119">    DnsEntry dnsEntry = addModel.toDnsEntry(zoneName);</span>
+
+<span class="nc" id="L121">    model.clear();</span>
+<span class="nc" id="L122">    Map&lt;String, Object&gt; parameters = getParameterMap();</span>
+
+    try {
+<span class="nc" id="L125">      dnsService.addDnsEntry(dnsEntry);</span>
+<span class="nc" id="L126">      addModel.toReverseDnsEntry().ifPresent(dnsService::addDnsEntry);</span>
+
+<span class="nc" id="L128">      String msg = String.format(&quot;Dns entry '%s' was successfully added.&quot;,</span>
+<span class="nc" id="L129">          dnsEntry.getDisplayName());</span>
+<span class="nc" id="L130">      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,</span>
+<span class="nc" id="L131">          &quot;dns-entry-add.success&quot;, dnsEntry.getDisplayName());</span>
+<span class="nc" id="L132">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L134">      parameters = putToParameterMap(parameters, DNS_ENTRY_NAME, dnsEntry.getName());</span>
+<span class="nc" id="L135">      parameters = putToParameterMap(parameters, DNS_ENTRY_TYPE, dnsEntry.getType());</span>
+<span class="nc" id="L136">      parameters = putToParameterMap(parameters, DNS_ENTRY_VALUE, dnsEntry.getValue());</span>
+<span class="nc" id="L137">      String redirect = getRedirectUri(&quot;dns-entry-edit&quot;,</span>
+          PAGE_AND_DNS_ENTRY_PARAMS, parameters);
+<span class="nc" id="L139">      logRedirectTo(&quot;Dns entry successfully added.&quot;, redirect);</span>
+<span class="nc" id="L140">      return redirect;</span>
+
+<span class="nc" id="L142">    } catch (ServiceException e) {</span>
+
+<span class="nc" id="L144">      String msg = String.format(&quot;Adding of dns entry '%s' failed.&quot;, addModel.getName());</span>
+<span class="nc" id="L145">      log.error(msg, e);</span>
+<span class="nc" id="L146">      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.WARNING, msg,</span>
+<span class="nc" id="L147">          &quot;dns-entry-add.failure&quot;, addModel.getName());</span>
+<span class="nc" id="L148">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+<span class="nc" id="L149">      String redirect = getRedirectUri(&quot;dns-zone-entries&quot;,</span>
+          PAGE_AND_ZONE_NAME_PARAMS, parameters);
+<span class="nc" id="L151">      logRedirectTo(&quot;Adding dns entry failed.&quot;, redirect);</span>
+<span class="nc" id="L152">      return redirect;</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

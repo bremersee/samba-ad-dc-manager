@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonTextEncryptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.misc</a> &gt; <span class="el_source">JsonTextEncryptor.java</span></div><h1>JsonTextEncryptor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.misc;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.util.Assert;
+import tools.jackson.databind.json.JsonMapper;
+
+/**
+ * The json text encryptor.
+ *
+ * @param &lt;M&gt; the type parameter
+ */
+public class JsonTextEncryptor&lt;M&gt; {
+
+  private final Class&lt;M&gt; modelClass;
+
+  private final TextEncryptor textEncryptor;
+
+  private final JsonMapper jsonMapper;
+
+  /**
+   * Instantiates a new Json text encryptor.
+   *
+   * @param textEncryptor the text encryptor
+   * @param modelClass the model class
+   */
+  public JsonTextEncryptor(TextEncryptor textEncryptor, Class&lt;M&gt; modelClass) {
+<span class="nc" id="L45">    this(textEncryptor, modelClass, (JsonMapper.Builder) null);</span>
+<span class="nc" id="L46">  }</span>
+
+  /**
+   * Instantiates a new Json text encryptor.
+   *
+   * @param textEncryptor the text encryptor
+   * @param modelClass the model class
+   * @param jsonMapperBuilder the json mapper builder
+   */
+  public JsonTextEncryptor(
+      TextEncryptor textEncryptor,
+      Class&lt;M&gt; modelClass,
+      JsonMapper.Builder jsonMapperBuilder) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">    this(textEncryptor, modelClass, isEmpty(jsonMapperBuilder) ? null : jsonMapperBuilder.build());</span>
+<span class="nc" id="L60">  }</span>
+
+  /**
+   * Instantiates a new Json text encryptor.
+   *
+   * @param textEncryptor the text encryptor
+   * @param modelClass the model class
+   * @param jsonMapper the json mapper
+   */
+  public JsonTextEncryptor(
+      TextEncryptor textEncryptor,
+      Class&lt;M&gt; modelClass,
+<span class="nc" id="L72">      JsonMapper jsonMapper) {</span>
+<span class="nc" id="L73">    Assert.notNull(textEncryptor, &quot;Text encryptor must not be null!&quot;);</span>
+<span class="nc" id="L74">    Assert.notNull(modelClass, &quot;Model class must not be null!&quot;);</span>
+<span class="nc" id="L75">    this.textEncryptor = textEncryptor;</span>
+<span class="nc" id="L76">    this.modelClass = modelClass;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">    this.jsonMapper = isEmpty(jsonMapper)</span>
+<span class="nc" id="L78">        ? JsonMapper.builder().build()</span>
+<span class="nc" id="L79">        : jsonMapper;</span>
+<span class="nc" id="L80">  }</span>
+
+  /**
+   * Encrypt.
+   *
+   * @param source the source
+   * @return the string
+   */
+  public String encrypt(M source) {
+<span class="nc" id="L89">    return textEncryptor.encrypt(toJson(source));</span>
+  }
+
+  /**
+   * Decrypt.
+   *
+   * @param encoded the encoded
+   * @return the model
+   */
+  public M decrypt(String encoded) {
+<span class="nc" id="L99">    return fromJson(textEncryptor.decrypt(encoded));</span>
+  }
+
+  private String toJson(M source) {
+<span class="nc" id="L103">    return jsonMapper.writeValueAsString(source);</span>
+  }
+
+  private M fromJson(String json) {
+<span class="nc" id="L107">    return jsonMapper.readValue(json, modelClass);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

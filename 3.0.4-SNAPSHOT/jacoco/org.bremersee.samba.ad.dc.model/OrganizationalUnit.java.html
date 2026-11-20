@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">OrganizationalUnit.java</span></div><h1>OrganizationalUnit.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.requireNonNullElse;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The organizational unit.
+ *
+ * @author Christian Bremer
+ */
+@Schema(
+    name = ModelConstants.ORGANIZATIONAL_UNIT,
+    description = &quot;The organizational unit in an active directory.&quot;)
+@Value.Style(
+    visibility = ImplementationVisibility.PUBLIC,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonTypeName(ModelConstants.ORGANIZATIONAL_UNIT)
+@JsonSerialize(as = ImmutableOrganizationalUnit.class)
+@JsonDeserialize(as = ImmutableOrganizationalUnit.class)
+public interface OrganizationalUnit extends AdEntry, NameProvider, Comparable&lt;OrganizationalUnit&gt; {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+<span class="fc" id="L68">    return AdEntryType.ORGANIZATIONAL_UNIT;</span>
+  }
+
+  @Override
+  default OrganizationalUnit withDistinguishedName(String distinguishedName) {
+<span class="nc" id="L73">    return builder()</span>
+<span class="nc" id="L74">        .from(this)</span>
+<span class="nc" id="L75">        .distinguishedName(requireNonNullElse(distinguishedName, &quot;&quot;))</span>
+<span class="nc" id="L76">        .build();</span>
+  }
+
+  @Schema(description = &quot;The creation date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
+  @Override
+  default OrganizationalUnit withCreated(OffsetDateTime created) {
+<span class="nc" id="L86">    return builder()</span>
+<span class="nc" id="L87">        .from(this)</span>
+<span class="nc" id="L88">        .created(created)</span>
+<span class="nc" id="L89">        .build();</span>
+  }
+
+  @Schema(description = &quot;The last modification date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
+  @Override
+  default OrganizationalUnit withModified(OffsetDateTime modified) {
+<span class="nc" id="L99">    return builder()</span>
+<span class="nc" id="L100">        .from(this)</span>
+<span class="nc" id="L101">        .modified(modified)</span>
+<span class="nc" id="L102">        .build();</span>
+  }
+
+  /**
+   * Gets description.
+   *
+   * @return the description
+   */
+  @Nullable
+  String getDescription();
+
+  @Schema(description = &quot;The name of this organizational unit.&quot;,
+      requiredMode = RequiredMode.REQUIRED)
+  @JsonProperty(value = &quot;name&quot;, required = true)
+  @Override
+  String getName();
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default String getNameTree() {
+<span class="fc" id="L124">    String nameTree = Optional.ofNullable(getDn())</span>
+<span class="fc" id="L125">        .map(dn -&gt; new ArrayList&lt;&gt;(dn.getRDns()))</span>
+<span class="fc" id="L126">        .map(list -&gt; {</span>
+<span class="fc" id="L127">          Collections.reverse(list);</span>
+<span class="fc" id="L128">          return list;</span>
+        })
+<span class="fc" id="L130">        .orElseGet(ArrayList::new)</span>
+<span class="fc" id="L131">        .stream()</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        .filter(rdn -&gt; !rdn.getNameValue().hasName(&quot;dc&quot;))</span>
+<span class="fc" id="L133">        .map(rdn -&gt; rdn.getNameValue().getStringValue())</span>
+<span class="fc" id="L134">        .collect(Collectors.joining(&quot; → &quot;));</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">    if (nameTree.isEmpty()) {</span>
+<span class="nc" id="L136">      return getName();</span>
+    }
+<span class="fc" id="L138">    return nameTree;</span>
+  }
+
+  /**
+   * Is system ou boolean.
+   *
+   * @return the boolean
+   */
+  @Schema(description = &quot;Determines whether this organizational unit is a system one or not.&quot;,
+      defaultValue = &quot;false&quot;)
+  @JsonProperty(value = &quot;systemOu&quot;, defaultValue = &quot;false&quot;)
+  @Value.Default
+  default boolean isSystemOu() {
+<span class="fc" id="L151">    return false;</span>
+  }
+
+  @Override
+  default int compareTo(@NonNull OrganizationalUnit o) {
+<span class="nc" id="L156">    String s0 = Objects.requireNonNullElse(getDistinguishedName(), &quot;&quot;);</span>
+<span class="nc" id="L157">    String s1 = Objects.requireNonNullElse(o.getDistinguishedName(), &quot;&quot;);</span>
+<span class="nc" id="L158">    return s0.compareToIgnoreCase(s1);</span>
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static ImmutableOrganizationalUnit.Builder builder() {
+<span class="fc" id="L167">    return ImmutableOrganizationalUnit.builder();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

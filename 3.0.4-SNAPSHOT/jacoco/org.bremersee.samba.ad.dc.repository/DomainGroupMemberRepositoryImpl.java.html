@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainGroupMemberRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">DomainGroupMemberRepositoryImpl.java</span></div><h1>DomainGroupMemberRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool.DnPair;
+import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupMember;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
+import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.repository.mapper.DomainGroupMemberLdapMapper;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.NotFilter;
+import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.SubstringFilter;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The domain group member repository.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;domainGroupMemberRepository&quot;)
+@Validated
+<span class="fc" id="L65">@Slf4j</span>
+public class DomainGroupMemberRepositoryImpl extends SamAccountRepository
+    implements DomainGroupMemberRepository {
+
+  private final DomainGroupRepository domainGroupRepository;
+
+  private final DomainGroupMemberLdapMapper domainGroupMemberLdapMapper;
+
+  /**
+   * Instantiates a new domain group member repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param domainGroupRepository the domain group repository
+   */
+  public DomainGroupMemberRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      DomainGroupRepository domainGroupRepository) {
+<span class="fc" id="L84">    super(properties, ldapOperations);</span>
+<span class="fc" id="L85">    this.domainGroupRepository = domainGroupRepository;</span>
+<span class="fc" id="L86">    this.domainGroupMemberLdapMapper = new DomainGroupMemberLdapMapper();</span>
+<span class="fc" id="L87">  }</span>
+
+  @Override
+  protected Dn getDefaultOu() {
+<span class="fc" id="L91">    return new Dn(getProperties().getGroup().getDefaultOu());</span>
+  }
+
+  @Override
+  protected String getObjectClassValue() {
+<span class="fc" id="L96">    return AdConstants.OBJECT_CLASS_GROUP;</span>
+  }
+
+  @Override
+  protected String[] getBinaryAttributes() {
+<span class="fc" id="L101">    return domainGroupMemberLdapMapper.getBinaryAttributeNames();</span>
+  }
+
+  @Override
+  protected String[] getReturnAttributes() {
+<span class="fc" id="L106">    return domainGroupMemberLdapMapper.getMappedAttributeNames();</span>
+  }
+
+  @Override
+  public Stream&lt;DomainGroup&gt; getMemberships(
+      String samAccountName, Dn ou, TreeSearchScope searchScope) {
+
+<span class="fc" id="L113">    log.debug(&quot;getMemberships({}, {}, {})&quot;, samAccountName, ou, searchScope);</span>
+<span class="fc" id="L114">    SamAccount samAccount = findSamAccount(samAccountName, ou, searchScope)</span>
+<span class="pc" id="L115">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L116">            SamAccount.class.getSimpleName(), samAccountName, EC_SAM_ACCOUNT_NOT_FOUND));</span>
+<span class="fc" id="L117">    Stream&lt;DomainGroup&gt; groups = samAccount.getMemberships().stream()</span>
+<span class="fc" id="L118">        .flatMap(dn -&gt; domainGroupRepository.findOne(dn, null, null).stream())</span>
+<span class="fc" id="L119">        .sorted();</span>
+<span class="fc" id="L120">    Optional&lt;DomainGroup&gt; primaryGroup = Optional.ofNullable(samAccount.getPrimaryGroupId())</span>
+<span class="fc" id="L121">        .flatMap(domainGroupRepository::findOneByPrimaryGroupId);</span>
+<span class="fc" id="L122">    return Stream.concat(</span>
+<span class="fc" id="L123">        primaryGroup.stream(),</span>
+        groups);
+  }
+
+  /**
+   * Find sam account optional.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @return the optional
+   */
+  Optional&lt;SamAccount&gt; findSamAccount(String samAccountName, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L136">    String[] returnAttributes = getReturnAttributes();</span>
+    SearchRequest searchRequest;
+<span class="fc bfc" id="L138" title="All 2 branches covered.">    if (getDnTool().isValidDnWithBaseDn(samAccountName)) {</span>
+<span class="fc" id="L139">      searchRequest = SearchRequest.objectScopeSearchRequest(samAccountName, returnAttributes);</span>
+    } else {
+      Dn ouDn;
+      SearchScope scope;
+<span class="fc bfc" id="L143" title="All 2 branches covered.">      if (!DnTool.isValidDn(ou)) {</span>
+<span class="fc" id="L144">        ouDn = getDnTool().getBaseDn();</span>
+<span class="fc" id="L145">        scope = SearchScope.SUBTREE;</span>
+      } else {
+<span class="fc" id="L147">        ouDn = getDnTool().addBaseDn(ou);</span>
+<span class="fc" id="L148">        scope = requireNonNullElse(TreeSearchScopeConverter</span>
+<span class="fc" id="L149">            .toSearchScope(searchScope), SearchScope.SUBTREE);</span>
+      }
+<span class="fc" id="L151">      Filter filter = new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), samAccountName);</span>
+<span class="fc" id="L152">      searchRequest = searchOneRequest(samAccountName, ouDn, filter, scope, returnAttributes);</span>
+    }
+<span class="fc" id="L154">    return getLdapOperations().findOne(searchRequest, domainGroupMemberLdapMapper)</span>
+<span class="fc" id="L155">        .filter(getIgnoredObjectFilter())</span>
+<span class="fc" id="L156">        .map(SamAccount.class::cast);</span>
+  }
+
+  @Override
+  public Stream&lt;DomainGroup&gt; resolveMemberships(
+      String samAccountName, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L162">    log.debug(&quot;resolveMemberships({}, {}, {})&quot;, samAccountName, ou, searchScope);</span>
+<span class="fc" id="L163">    Set&lt;String&gt; groupDns = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L164">    UnaryOperator&lt;DomainGroup&gt; addGroupDn = group -&gt; {</span>
+<span class="fc" id="L165">      groupDns.add(group.getDistinguishedNameNormalized());</span>
+<span class="fc" id="L166">      return group;</span>
+    };
+<span class="fc" id="L168">    return getMemberships(samAccountName, ou, searchScope)</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        .filter(group -&gt; !groupDns.contains(group.getDistinguishedNameNormalized()))</span>
+<span class="fc" id="L170">        .map(addGroupDn)</span>
+<span class="fc" id="L171">        .flatMap(group -&gt; Stream</span>
+<span class="fc" id="L172">            .concat(Stream.of(group), resolveMemberships(group.getMemberships(), groupDns)));</span>
+  }
+
+  private Stream&lt;DomainGroup&gt; resolveMemberships(List&lt;String&gt; memberOf, Set&lt;String&gt; groupDns) {
+<span class="fc" id="L176">    UnaryOperator&lt;DomainGroup&gt; addGroupDn = group -&gt; {</span>
+<span class="fc" id="L177">      groupDns.add(group.getDistinguishedNameNormalized());</span>
+<span class="fc" id="L178">      return group;</span>
+    };
+<span class="fc" id="L180">    return memberOf.stream()</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        .filter(dn -&gt; !groupDns.contains(new Dn(dn).format()))</span>
+<span class="fc" id="L182">        .flatMap(dn -&gt; domainGroupRepository.findOne(dn, null, null).stream())</span>
+<span class="fc" id="L183">        .map(addGroupDn)</span>
+<span class="fc" id="L184">        .flatMap(nextGroup -&gt; Stream.concat(</span>
+<span class="fc" id="L185">            Stream.of(nextGroup),</span>
+<span class="fc" id="L186">            resolveMemberships(nextGroup.getMemberships(), groupDns)));</span>
+  }
+
+  @Override
+  public Stream&lt;DomainGroupMember&gt; getMemberSelection(
+      String groupName,
+      Dn ou,
+      TreeSearchScope searchScope,
+      String query,
+      Collection&lt;DomainGroupMemberType&gt; memberTypes,
+      boolean withPrimaryMembers) {
+
+<span class="fc" id="L198">    DomainGroup group = domainGroupRepository.findOne(groupName, ou, searchScope)</span>
+<span class="pc" id="L199">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L200">            DomainGroup.class.getSimpleName(), groupName, EC_SAM_ACCOUNT_NOT_FOUND));</span>
+<span class="fc" id="L201">    Set&lt;String&gt; memberDns = group.getMembers().stream()</span>
+<span class="fc" id="L202">        .map(Dn::new)</span>
+<span class="fc" id="L203">        .map(Dn::format)</span>
+<span class="fc" id="L204">        .collect(Collectors.toSet());</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">    Set&lt;DomainGroupMemberType&gt; types = isEmpty(memberTypes)</span>
+<span class="fc" id="L206">        ? Set.of(DomainGroupMemberType.values())</span>
+<span class="fc" id="L207">        : Set.copyOf(memberTypes);</span>
+<span class="fc" id="L208">    String[] returnAttributes = getReturnAttributes();</span>
+    Filter findAllMembersFilter;
+<span class="fc" id="L210">    Filter objectClassFilter = getObjectClassFilter(types);</span>
+<span class="pc bpc" id="L211" title="1 of 4 branches missed.">    if (isEmpty(query) || query.length() &lt;= 2) {</span>
+<span class="fc" id="L212">      findAllMembersFilter = objectClassFilter;</span>
+    } else {
+<span class="fc" id="L214">      Filter queryFilter = new OrFilter(</span>
+<span class="fc" id="L215">          new SubstringFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L216">          new SubstringFilter(AdConstants.USER_GIVEN_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L217">          new SubstringFilter(AdConstants.USER_SN.getName(), null, null, query),</span>
+<span class="fc" id="L218">          new SubstringFilter(AdConstants.USER_DISPLAY_NAME.getName(), null, null, query),</span>
+<span class="fc" id="L219">          new SubstringFilter(AdConstants.NAME.getName(), null, null, query)</span>
+      );
+<span class="fc" id="L221">      findAllMembersFilter = new AndFilter(objectClassFilter, queryFilter);</span>
+    }
+<span class="fc" id="L223">    SearchRequest searchRequest = searchAllRequest(getDnTool().getBaseDn(),</span>
+        findAllMembersFilter, SearchScope.SUBTREE, returnAttributes);
+<span class="fc" id="L225">    return getLdapOperations().findAll(searchRequest, domainGroupMemberLdapMapper)</span>
+<span class="fc" id="L226">        .filter(getIgnoredObjectFilter())</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        .filter(member -&gt; !member.getSamAccountName().equals(group.getSamAccountName()))</span>
+<span class="fc" id="L228">        .map(member -&gt; member.withMember(isMember(member, memberDns, group.getGroupId())))</span>
+<span class="fc" id="L229">        .map(member -&gt; member.withPrimaryMember(isPrimaryMember(member, group.getGroupId())))</span>
+<span class="pc bpc" id="L230" title="3 of 4 branches missed.">        .filter(member -&gt; withPrimaryMembers || !member.isPrimaryMember());</span>
+  }
+
+  private Filter getObjectClassFilter(Set&lt;DomainGroupMemberType&gt; types) {
+<span class="fc" id="L234">    OrFilter orFilter = new OrFilter();</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">    if (types.contains(DomainGroupMemberType.USER)</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">        &amp;&amp; types.contains(DomainGroupMemberType.COMPUTER)) {</span>
+<span class="fc" id="L237">      orFilter.add(new EqualityFilter(</span>
+<span class="fc" id="L238">          AdConstants.OBJECT_CLASS.getName(),</span>
+          AdConstants.OBJECT_CLASS_USER));
+<span class="nc bnc" id="L240" title="All 2 branches missed.">    } else if (types.contains(DomainGroupMemberType.COMPUTER)) {</span>
+<span class="nc" id="L241">      orFilter.add(new EqualityFilter(</span>
+<span class="nc" id="L242">          AdConstants.OBJECT_CLASS.getName(),</span>
+          AdConstants.OBJECT_CLASS_COMPUTER));
+<span class="nc bnc" id="L244" title="All 2 branches missed.">    } else if (types.contains(DomainGroupMemberType.USER)) {</span>
+<span class="nc" id="L245">      Filter userFilter = new EqualityFilter(</span>
+<span class="nc" id="L246">          AdConstants.OBJECT_CLASS.getName(),</span>
+          AdConstants.OBJECT_CLASS_USER);
+<span class="nc" id="L248">      Filter computerFilter = new EqualityFilter(</span>
+<span class="nc" id="L249">          AdConstants.OBJECT_CLASS.getName(),</span>
+          AdConstants.OBJECT_CLASS_COMPUTER);
+<span class="nc" id="L251">      orFilter.add(new AndFilter(userFilter, new NotFilter(computerFilter)));</span>
+    }
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">    if (types.contains(DomainGroupMemberType.GROUP)) {</span>
+<span class="fc" id="L254">      orFilter.add(new EqualityFilter(</span>
+<span class="fc" id="L255">          AdConstants.OBJECT_CLASS.getName(),</span>
+          AdConstants.OBJECT_CLASS_GROUP));
+    }
+<span class="fc" id="L258">    return orFilter;</span>
+  }
+
+  private boolean isMember(DomainGroupMember member, Set&lt;String&gt; memberDns, Integer groupId) {
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">    return memberDns.contains(member.getDistinguishedNameNormalized())</span>
+<span class="pc bpc" id="L263" title="3 of 4 branches missed.">        || (!isEmpty(groupId) &amp;&amp; groupId.equals(member.getPrimaryGroupId()));</span>
+  }
+
+  private boolean isPrimaryMember(DomainGroupMember member, Integer groupId) {
+<span class="pc bpc" id="L267" title="3 of 4 branches missed.">    return !isEmpty(groupId) &amp;&amp; groupId.equals(member.getPrimaryGroupId());</span>
+  }
+
+  @Override
+  public DomainGroup modifyMembers(
+      String groupName,
+      Dn ou,
+      TreeSearchScope searchScope,
+      Set&lt;String&gt; membersToAdd,
+      Set&lt;String&gt; membersToRemove) {
+
+<span class="fc" id="L278">    return domainGroupRepository.findOne(groupName, ou, searchScope)</span>
+<span class="fc" id="L279">        .map(group -&gt; modifyMembers(group, membersToAdd, membersToRemove))</span>
+<span class="fc" id="L280">        .map(domainGroupRepository::save)</span>
+<span class="pc" id="L281">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L282">            DomainGroup.class.getSimpleName(),</span>
+            groupName,
+            EC_SAM_ACCOUNT_NOT_FOUND));
+  }
+
+  private DomainGroup modifyMembers(
+      DomainGroup group,
+      Set&lt;String&gt; membersToAdd,
+      Set&lt;String&gt; membersToRemove) {
+
+<span class="pc bpc" id="L292" title="1 of 4 branches missed.">    if (isEmpty(membersToAdd) &amp;&amp; isEmpty(membersToRemove)) {</span>
+<span class="fc" id="L293">      return group;</span>
+    }
+<span class="fc" id="L295">    Set&lt;DnPair&gt; members = group.getMembers().stream()</span>
+<span class="fc" id="L296">        .map(DnTool::getDnPair)</span>
+<span class="fc" id="L297">        .collect(Collectors.toCollection(LinkedHashSet::new));</span>
+<span class="fc" id="L298">    Set&lt;DnPair&gt; add = toDnPairs(group, membersToAdd);</span>
+<span class="fc" id="L299">    members.addAll(add);</span>
+<span class="fc" id="L300">    Set&lt;DnPair&gt; remove = toDnPairs(group, membersToRemove);</span>
+<span class="fc" id="L301">    members.removeAll(remove);</span>
+<span class="fc" id="L302">    return DomainGroup.builder()</span>
+<span class="fc" id="L303">        .from(group)</span>
+<span class="fc" id="L304">        .members(members.stream().map(DnPair::dn).toList())</span>
+<span class="fc" id="L305">        .build();</span>
+  }
+
+  private Set&lt;DnPair&gt; toDnPairs(DomainGroup group, Set&lt;String&gt; samAccounts) {
+<span class="fc" id="L309">    return Stream.ofNullable(samAccounts)</span>
+<span class="fc" id="L310">        .flatMap(Collection::stream)</span>
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">        .filter(member -&gt; !isEmpty(member))</span>
+<span class="fc" id="L312">        .flatMap(member -&gt; findSamAccount(member, null, null).stream())</span>
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">        .filter(member -&gt; !isEmpty(member))</span>
+<span class="fc" id="L314">        .filter(member -&gt; !Objects</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">            .equals(member.getPrimaryGroupId(), group.getGroupId()))</span>
+<span class="fc" id="L316">        .map(AdEntry::getDn)</span>
+<span class="fc" id="L317">        .map(DnTool::getDnPair)</span>
+<span class="fc" id="L318">        .collect(Collectors.toSet());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainUserLdapMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mapper</a> &gt; <span class="el_source">DomainUserLdapMapper.java</span></div><h1>DomainUserLdapMapper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mapper;
+
+import static java.util.Objects.nonNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import lombok.Getter;
+import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.LdaptiveEntryImmutableMapper;
+import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.DomainUserAccountControl;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.LdapEntry;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+/**
+ * The domain user ldap mapper.
+ *
+ * @author Christian Bremer
+ */
+@Component
+public class DomainUserLdapMapper extends LdaptiveEntryImmutableMapper&lt;DomainUser&gt; implements
+    AdEntryLdapMapperDelegate&lt;DomainUser&gt; {
+
+  // Will be encoded as '0'.
+<span class="fc" id="L54">  private static final OffsetDateTime NEVER_EXPIRES = OffsetDateTime.parse(&quot;1601-01-01T00:00:00Z&quot;);</span>
+
+  // Actually max is Long.MAX_VALUE, year &gt; 30000. Year 9999 should be great enough.
+<span class="fc" id="L57">  private static final OffsetDateTime MAX_EXPIRES = OffsetDateTime.parse(&quot;9999-01-01T00:00:00Z&quot;);</span>
+
+  private final Supplier&lt;Boolean&gt; rfc2307EnabledSupplier;
+
+  private final SamAccountLdapMapper samAccountLdapMapper;
+
+  /**
+   * --- GETTER ---
+   * Gets the unmodifiable set of mapped attributes.
+   *
+   * @return the unmodifiable set of mapped attributes
+   */
+  @Getter
+  private final Set&lt;LdaptiveAttribute&lt;?&gt;&gt; mappedAttributes;
+
+  /**
+   * Instantiates a new domain user ldap mapper.
+   *
+   * @param domainRepository the domain repository
+   */
+<span class="fc" id="L77">  public DomainUserLdapMapper(DomainRepository domainRepository) {</span>
+<span class="fc" id="L78">    rfc2307EnabledSupplier = domainRepository::isRfc2307Enabled;</span>
+<span class="fc" id="L79">    samAccountLdapMapper = new SamAccountLdapMapper();</span>
+<span class="fc" id="L80">    mappedAttributes = initMappedAttributesOfDomainUser();</span>
+<span class="fc" id="L81">  }</span>
+
+  private Set&lt;LdaptiveAttribute&lt;?&gt;&gt; initMappedAttributesOfDomainUser() {
+<span class="fc" id="L84">    var attributeNames = new LinkedHashSet&lt;&gt;(samAccountLdapMapper.getMappedAttributes());</span>
+<span class="fc" id="L85">    attributeNames.add(AdConstants.USER_ACCOUNT_EXPIRES);</span>
+<span class="fc" id="L86">    attributeNames.add(AdConstants.USER_COMPANY);</span>
+<span class="fc" id="L87">    attributeNames.add(AdConstants.USER_DEPARTMENT);</span>
+<span class="fc" id="L88">    attributeNames.add(AdConstants.DESCRIPTION);</span>
+<span class="fc" id="L89">    attributeNames.add(AdConstants.USER_DISPLAY_NAME);</span>
+<span class="fc" id="L90">    attributeNames.add(AdConstants.USER_GECOS);</span>
+<span class="fc" id="L91">    attributeNames.add(AdConstants.GID_NUMBER);</span>
+<span class="fc" id="L92">    attributeNames.add(AdConstants.USER_GIVEN_NAME);</span>
+<span class="fc" id="L93">    attributeNames.add(AdConstants.USER_HOME_DIRECTORY);</span>
+<span class="fc" id="L94">    attributeNames.add(AdConstants.USER_HOME_DRIVE);</span>
+<span class="fc" id="L95">    attributeNames.add(AdConstants.USER_INITIALS);</span>
+<span class="fc" id="L96">    attributeNames.add(AdConstants.USER_LAST_LOGON);</span>
+<span class="fc" id="L97">    attributeNames.add(AdConstants.USER_LOGIN_SHELL);</span>
+<span class="fc" id="L98">    attributeNames.add(AdConstants.USER_LOGON_COUNT);</span>
+<span class="fc" id="L99">    attributeNames.add(AdConstants.MAIL);</span>
+<span class="fc" id="L100">    attributeNames.add(AdConstants.USER_MOBILE);</span>
+<span class="fc" id="L101">    attributeNames.add(AdConstants.NIS_DOMAIN);</span>
+<span class="fc" id="L102">    attributeNames.add(AdConstants.USER_OFFICE_NAME);</span>
+<span class="fc" id="L103">    attributeNames.add(AdConstants.USER_PREFERRED_LANGUAGE);</span>
+<span class="fc" id="L104">    attributeNames.add(AdConstants.USER_PROFILE_PATH);</span>
+<span class="fc" id="L105">    attributeNames.add(AdConstants.USER_PWD_LAST_SET);</span>
+<span class="fc" id="L106">    attributeNames.add(AdConstants.USER_SCRIPT_PATH);</span>
+<span class="fc" id="L107">    attributeNames.add(AdConstants.USER_SN);</span>
+<span class="fc" id="L108">    attributeNames.add(AdConstants.USER_TELEPHONE_NUMBER);</span>
+<span class="fc" id="L109">    attributeNames.add(AdConstants.USER_TITLE);</span>
+<span class="fc" id="L110">    attributeNames.add(AdConstants.USER_UID);</span>
+<span class="fc" id="L111">    attributeNames.add(AdConstants.USER_UID_NUMBER);</span>
+<span class="fc" id="L112">    attributeNames.add(AdConstants.NIS_NAME);</span>
+<span class="fc" id="L113">    attributeNames.add(AdConstants.USER_UNIX_HOME_DIRECTORY);</span>
+<span class="fc" id="L114">    attributeNames.add(AdConstants.USER_PRINCIPAL_NAME);</span>
+<span class="fc" id="L115">    attributeNames.add(AdConstants.USER_USER_ACCOUNT_CONTROL);</span>
+<span class="fc" id="L116">    return Collections.unmodifiableSet(attributeNames);</span>
+  }
+
+  @Override
+  public String[] getObjectClasses() {
+<span class="fc" id="L121">    return new String[]{</span>
+        &quot;organizationalPerson&quot;,
+        &quot;person&quot;,
+        &quot;top&quot;,
+        AdConstants.OBJECT_CLASS_USER
+    };
+  }
+
+  @Override
+  public String[] getMappedAttributeNames() {
+<span class="fc" id="L131">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L132">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L133">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String[] getBinaryAttributeNames() {
+<span class="fc" id="L138">    return getMappedAttributes().stream()</span>
+<span class="fc" id="L139">        .filter(LdaptiveAttribute::isBinary)</span>
+<span class="fc" id="L140">        .map(LdaptiveAttribute::getName)</span>
+<span class="fc" id="L141">        .toArray(String[]::new);</span>
+  }
+
+  @Override
+  public String mapDn(DomainUser domainObject) {
+<span class="fc" id="L146">    Assert.hasText(domainObject.getDistinguishedName(),</span>
+        &quot;Distinguished name of domain user required.&quot;);
+<span class="fc" id="L148">    return domainObject.getDistinguishedName();</span>
+  }
+
+  @Override
+  public DomainUser map(LdapEntry source) {
+<span class="fc bfc" id="L153" title="All 2 branches covered.">    if (!canMap(source)) {</span>
+<span class="fc" id="L154">      return null;</span>
+    }
+<span class="fc" id="L156">    var builder = DomainUser.builder()</span>
+<span class="fc" id="L157">        .from(samAccountLdapMapper.map(source));</span>
+<span class="fc" id="L158">    AdConstants.USER_ACCOUNT_EXPIRES</span>
+<span class="fc" id="L159">        .getValue(source)</span>
+<span class="fc" id="L160">        .filter(expires -&gt; expires.isBefore(MAX_EXPIRES))</span>
+<span class="fc" id="L161">        .ifPresent(builder::accountExpires);</span>
+<span class="fc" id="L162">    AdConstants.USER_COMPANY</span>
+<span class="fc" id="L163">        .getValue(source)</span>
+<span class="fc" id="L164">        .ifPresent(builder::company);</span>
+<span class="fc" id="L165">    AdConstants.USER_DEPARTMENT</span>
+<span class="fc" id="L166">        .getValue(source)</span>
+<span class="fc" id="L167">        .ifPresent(builder::department);</span>
+<span class="fc" id="L168">    AdConstants.DESCRIPTION</span>
+<span class="fc" id="L169">        .getValue(source)</span>
+<span class="fc" id="L170">        .ifPresent(builder::description);</span>
+<span class="fc" id="L171">    AdConstants.USER_DISPLAY_NAME</span>
+<span class="fc" id="L172">        .getValue(source)</span>
+<span class="fc" id="L173">        .ifPresent(builder::displayName);</span>
+<span class="fc" id="L174">    AdConstants.USER_GECOS</span>
+<span class="fc" id="L175">        .getValue(source)</span>
+<span class="fc" id="L176">        .ifPresent(builder::gecos);</span>
+<span class="fc" id="L177">    AdConstants.GID_NUMBER</span>
+<span class="fc" id="L178">        .getValue(source)</span>
+<span class="fc" id="L179">        .ifPresent(builder::gidNumber);</span>
+<span class="fc" id="L180">    AdConstants.USER_GIVEN_NAME</span>
+<span class="fc" id="L181">        .getValue(source)</span>
+<span class="fc" id="L182">        .ifPresent(builder::firstName);</span>
+<span class="fc" id="L183">    AdConstants.USER_HOME_DIRECTORY</span>
+<span class="fc" id="L184">        .getValue(source)</span>
+<span class="fc" id="L185">        .ifPresent(builder::homeDirectory);</span>
+<span class="fc" id="L186">    AdConstants.USER_HOME_DRIVE</span>
+<span class="fc" id="L187">        .getValue(source)</span>
+<span class="fc" id="L188">        .ifPresent(builder::homeDrive);</span>
+<span class="fc" id="L189">    AdConstants.USER_INITIALS</span>
+<span class="fc" id="L190">        .getValue(source)</span>
+<span class="fc" id="L191">        .ifPresent(builder::initials);</span>
+<span class="fc" id="L192">    AdConstants.USER_LAST_LOGON</span>
+<span class="fc" id="L193">        .getValue(source)</span>
+<span class="fc" id="L194">        .ifPresent(builder::lastLogon);</span>
+<span class="fc" id="L195">    AdConstants.USER_LOGIN_SHELL</span>
+<span class="fc" id="L196">        .getValue(source)</span>
+<span class="fc" id="L197">        .ifPresent(builder::loginShell);</span>
+<span class="fc" id="L198">    AdConstants.USER_LOGON_COUNT</span>
+<span class="fc" id="L199">        .getValue(source)</span>
+<span class="fc" id="L200">        .ifPresent(builder::logonCount);</span>
+<span class="fc" id="L201">    AdConstants.MAIL</span>
+<span class="fc" id="L202">        .getValue(source)</span>
+<span class="fc" id="L203">        .ifPresent(builder::email);</span>
+<span class="fc" id="L204">    AdConstants.USER_MOBILE</span>
+<span class="fc" id="L205">        .getValue(source)</span>
+<span class="fc" id="L206">        .ifPresent(builder::mobile);</span>
+<span class="fc" id="L207">    AdConstants.NIS_DOMAIN</span>
+<span class="fc" id="L208">        .getValue(source)</span>
+<span class="fc" id="L209">        .ifPresent(builder::nisDomain);</span>
+<span class="fc" id="L210">    AdConstants.USER_OFFICE_NAME</span>
+<span class="fc" id="L211">        .getValue(source)</span>
+<span class="fc" id="L212">        .ifPresent(builder::physicalDeliveryOfficeName);</span>
+<span class="fc" id="L213">    AdConstants.USER_PREFERRED_LANGUAGE</span>
+<span class="fc" id="L214">        .getValue(source)</span>
+<span class="fc" id="L215">        .ifPresent(builder::preferredLanguage);</span>
+<span class="fc" id="L216">    AdConstants.USER_PROFILE_PATH</span>
+<span class="fc" id="L217">        .getValue(source)</span>
+<span class="fc" id="L218">        .ifPresent(builder::profilePath);</span>
+<span class="fc" id="L219">    AdConstants.USER_PWD_LAST_SET</span>
+<span class="fc" id="L220">        .getValue(source)</span>
+<span class="fc" id="L221">        .ifPresent(builder::passwordLastSet);</span>
+<span class="fc" id="L222">    AdConstants.USER_SCRIPT_PATH</span>
+<span class="fc" id="L223">        .getValue(source)</span>
+<span class="fc" id="L224">        .ifPresent(builder::scriptPath);</span>
+<span class="fc" id="L225">    AdConstants.USER_SN</span>
+<span class="fc" id="L226">        .getValue(source)</span>
+<span class="fc" id="L227">        .ifPresent(builder::lastName);</span>
+<span class="fc" id="L228">    AdConstants.USER_TELEPHONE_NUMBER</span>
+<span class="fc" id="L229">        .getValue(source)</span>
+<span class="fc" id="L230">        .ifPresent(builder::telephoneNumber);</span>
+<span class="fc" id="L231">    AdConstants.USER_TITLE</span>
+<span class="fc" id="L232">        .getValue(source)</span>
+<span class="fc" id="L233">        .ifPresent(builder::title);</span>
+<span class="fc" id="L234">    AdConstants.USER_UID</span>
+<span class="fc" id="L235">        .getValue(source, AdConstants.NIS_NAME.getValue(source).orElse(null))</span>
+<span class="fc" id="L236">        .ifPresent(builder::uid);</span>
+<span class="fc" id="L237">    AdConstants.USER_UID_NUMBER</span>
+<span class="fc" id="L238">        .getValue(source)</span>
+<span class="fc" id="L239">        .ifPresent(builder::uidNumber);</span>
+<span class="fc" id="L240">    AdConstants.USER_UNIX_HOME_DIRECTORY</span>
+<span class="fc" id="L241">        .getValue(source)</span>
+<span class="fc" id="L242">        .ifPresent(builder::unixHomeDirectory);</span>
+<span class="fc" id="L243">    AdConstants.USER_PRINCIPAL_NAME</span>
+<span class="fc" id="L244">        .getValue(source)</span>
+<span class="fc" id="L245">        .ifPresent(builder::userPrincipalName);</span>
+<span class="fc" id="L246">    AdConstants.USER_USER_ACCOUNT_CONTROL</span>
+<span class="fc" id="L247">        .getValue(source)</span>
+<span class="fc" id="L248">        .ifPresent(accountControl -&gt; builder</span>
+<span class="fc" id="L249">            .accountControl(DomainUserAccountControl.from(accountControl)));</span>
+<span class="fc" id="L250">    return builder.build();</span>
+  }
+
+  @Override
+  public AttributeModification[] mapAndComputeModifications(
+      DomainUser source,
+      LdapEntry destination) {
+
+<span class="pc bpc" id="L258" title="1 of 4 branches missed.">    if (isEmpty(source) || isEmpty(destination)) {</span>
+<span class="fc" id="L259">      return new AttributeModification[0];</span>
+    }
+<span class="fc" id="L261">    var modifications = new ArrayList&lt;&gt;(Arrays.asList(samAccountLdapMapper</span>
+<span class="fc" id="L262">        .mapAndComputeModifications(source, destination)));</span>
+
+<span class="pc bpc" id="L264" title="2 of 4 branches missed.">    if (isEmpty(source.getAccountExpires()) || source.getAccountExpires().isAfter(MAX_EXPIRES)) {</span>
+<span class="nc" id="L265">      AdConstants.USER_ACCOUNT_EXPIRES</span>
+<span class="nc" id="L266">          .setValue(</span>
+              destination,
+              NEVER_EXPIRES,
+              // The value decoder interprets '0' as null. But null would remove the attribute
+              // and that is not allowed.
+<span class="nc" id="L271">              (oldValue, newValue) -&gt; nonNull(oldValue))</span>
+<span class="nc" id="L272">          .ifPresent(modifications::add);</span>
+    } else {
+<span class="fc" id="L274">      AdConstants.USER_ACCOUNT_EXPIRES.setValue(destination, source.getAccountExpires())</span>
+<span class="fc" id="L275">          .ifPresent(modifications::add);</span>
+    }
+
+<span class="fc" id="L278">    AdConstants.USER_COMPANY.setValue(destination, source.getCompany())</span>
+<span class="fc" id="L279">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L281">    AdConstants.USER_DEPARTMENT.setValue(destination, source.getDepartment())</span>
+<span class="fc" id="L282">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L284">    AdConstants.DESCRIPTION.setValue(destination, source.getDescription())</span>
+<span class="fc" id="L285">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L287">    String displayName = source.getDisplayName();</span>
+<span class="pc bpc" id="L288" title="5 of 6 branches missed.">    if (isEmpty(displayName) &amp;&amp; !isEmpty(source.getFirstName()) &amp;&amp; !isEmpty(source.getLastName())) {</span>
+<span class="nc" id="L289">      displayName = source.getFirstName() + &quot; &quot; + source.getLastName();</span>
+    }
+<span class="fc" id="L291">    AdConstants.USER_DISPLAY_NAME.setValue(destination, displayName)</span>
+<span class="fc" id="L292">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L294">    AdConstants.USER_GIVEN_NAME.setValue(destination, source.getFirstName())</span>
+<span class="fc" id="L295">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L297">    AdConstants.USER_HOME_DIRECTORY.setValue(destination, source.getHomeDirectory())</span>
+<span class="fc" id="L298">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L300">    AdConstants.USER_HOME_DRIVE.setValue(destination, source.getHomeDrive())</span>
+<span class="fc" id="L301">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L303">    AdConstants.USER_INITIALS.setValue(destination, source.getInitials())</span>
+<span class="fc" id="L304">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L306">    AdConstants.MAIL.setValue(destination, source.getEmail())</span>
+<span class="fc" id="L307">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L309">    AdConstants.USER_MOBILE.setValue(destination, source.getMobile())</span>
+<span class="fc" id="L310">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L312">    AdConstants.USER_OFFICE_NAME.setValue(destination, source.getPhysicalDeliveryOfficeName())</span>
+<span class="fc" id="L313">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L315">    AdConstants.USER_PREFERRED_LANGUAGE.setValue(destination, source.getPreferredLanguage())</span>
+<span class="fc" id="L316">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L318">    AdConstants.USER_PROFILE_PATH.setValue(destination, source.getProfilePath())</span>
+<span class="fc" id="L319">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L321">    AdConstants.USER_SCRIPT_PATH.setValue(destination, source.getScriptPath())</span>
+<span class="fc" id="L322">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L324">    AdConstants.USER_SN.setValue(destination, source.getLastName())</span>
+<span class="fc" id="L325">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L327">    AdConstants.USER_TELEPHONE_NUMBER.setValue(destination, source.getTelephoneNumber())</span>
+<span class="fc" id="L328">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L330">    AdConstants.USER_TITLE.setValue(destination, source.getTitle())</span>
+<span class="fc" id="L331">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L333">    AdConstants.USER_PRINCIPAL_NAME.setValue(destination, source.getUserPrincipalName())</span>
+<span class="fc" id="L334">        .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L336">    UserAccountControl userAccountControl = Optional.ofNullable(source.getAccountControl())</span>
+<span class="fc" id="L337">        .map(DomainUserAccountControl::getUserAccountControl)</span>
+<span class="fc" id="L338">        .orElseGet(UserAccountControl::new);</span>
+<span class="fc" id="L339">    AdConstants.USER_USER_ACCOUNT_CONTROL.setValue(destination, userAccountControl)</span>
+<span class="fc" id="L340">        .ifPresent(modifications::add);</span>
+
+<span class="fc bfc" id="L342" title="All 2 branches covered.">    if (Boolean.TRUE.equals(rfc2307EnabledSupplier.get())) {</span>
+<span class="fc" id="L343">      String gecos = Optional.ofNullable(source.getGecos()).orElse(displayName);</span>
+<span class="fc" id="L344">      AdConstants.USER_GECOS.setValue(destination, gecos)</span>
+<span class="fc" id="L345">          .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L347">      AdConstants.GID_NUMBER.setValue(destination, source.getGidNumber())</span>
+<span class="fc" id="L348">          .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L350">      AdConstants.USER_LOGIN_SHELL.setValue(destination, source.getLoginShell())</span>
+<span class="fc" id="L351">          .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L353">      AdConstants.NIS_DOMAIN.setValue(destination, source.getNisDomain())</span>
+<span class="fc" id="L354">          .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L356">      String uid = source.getUid();</span>
+<span class="fc" id="L357">      AdConstants.USER_UID.setValue(destination, uid)</span>
+<span class="fc" id="L358">          .ifPresent(modifications::add);</span>
+<span class="fc" id="L359">      AdConstants.NIS_NAME.setValue(destination, uid)</span>
+<span class="fc" id="L360">          .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L362">      AdConstants.USER_UID_NUMBER.setValue(destination, source.getUidNumber())</span>
+<span class="fc" id="L363">          .ifPresent(modifications::add);</span>
+
+<span class="fc" id="L365">      AdConstants.USER_UNIX_HOME_DIRECTORY.setValue(destination, source.getUnixHomeDirectory())</span>
+<span class="fc" id="L366">          .ifPresent(modifications::add);</span>
+    }
+
+<span class="fc" id="L369">    return modifications.toArray(new AttributeModification[0]);</span>
+  }
+
+  @Override
+  public boolean canMap(LdapEntry ldapEntry) {
+<span class="fc bfc" id="L374" title="All 2 branches covered.">    if (isEmpty(ldapEntry)) {</span>
+<span class="fc" id="L375">      return false;</span>
+    }
+<span class="fc" id="L377">    Set&lt;String&gt; objectClasses = AdConstants.OBJECT_CLASS</span>
+<span class="fc" id="L378">        .getValues(ldapEntry)</span>
+<span class="fc" id="L379">        .map(String::toLowerCase)</span>
+<span class="fc" id="L380">        .collect(Collectors.toSet());</span>
+<span class="fc bfc" id="L381" title="All 2 branches covered.">    return objectClasses.contains(AdConstants.OBJECT_CLASS_USER.toLowerCase())</span>
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">        &amp;&amp; !objectClasses.contains(AdConstants.OBJECT_CLASS_COMPUTER.toLowerCase());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

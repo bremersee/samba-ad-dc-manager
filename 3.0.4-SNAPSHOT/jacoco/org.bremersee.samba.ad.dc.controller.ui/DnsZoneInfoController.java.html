@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnsZoneInfoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">DnsZoneInfoController.java</span></div><h1>DnsZoneInfoController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.DnsZoneTypeComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The dns zone info controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class DnsZoneInfoController extends UiController
+    implements CurrentPageNameProvider, PageableComponent, DnsZoneTypeComponent {
+
+  private final DnsService dnsService;
+
+  /**
+   * Instantiates a new dns zone info controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
+  public DnsZoneInfoController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+<span class="nc" id="L57">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L58">    this.dnsService = dnsService;</span>
+<span class="nc" id="L59">  }</span>
+
+  @Override
+  public String getCurrentPageName() {
+<span class="nc" id="L63">    return &quot;dns-zone-info&quot;;</span>
+  }
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L68">    return DNS_ENTRY_SORT;</span>
+  }
+
+  /**
+   * Display dns zone info view.
+   *
+   * @param zoneName the zone name
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/dns-zone-info&quot;)
+  public String displayDnsZoneInfo(
+      @RequestParam(name = ZONE_NAME) String zoneName,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+    try {
+<span class="nc" id="L86">      model.addAttribute(&quot;zone&quot;, dnsService.getDnsZone(zoneName));</span>
+<span class="nc" id="L87">      return &quot;management/dns-zone-info&quot;;</span>
+
+<span class="nc" id="L89">    } catch (ServiceException serviceException) {</span>
+
+<span class="nc" id="L91">      return entityNotFoundRedirect(</span>
+          redirectAttributes, &quot;DNS Zone&quot;, &quot;dns-zone.not-found&quot;, zoneName,
+          PAGE_AND_ZONE_TYPE_PARAMS, &quot;dns-zones&quot;);
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainComputerRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">DomainComputerRepositoryImpl.java</span></div><h1>DomainComputerRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.isNull;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.SubstringFilter;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The domain computer repository implementation.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;domainComputerRepository&quot;)
+@Validated
+<span class="fc" id="L52">@Slf4j</span>
+public class DomainComputerRepositoryImpl extends SamAccountRepository
+    implements DomainComputerRepository {
+
+  private final LdaptiveEntryMapper&lt;DomainComputer&gt; domainComputerLdapMapper;
+
+  /**
+   * Instantiates a new domain computer repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param domainComputerLdapMapper the domain computer ldap mapper
+   */
+  public DomainComputerRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      LdaptiveEntryMapper&lt;DomainComputer&gt; domainComputerLdapMapper) {
+<span class="fc" id="L69">    super(properties, ldapOperations);</span>
+<span class="fc" id="L70">    this.domainComputerLdapMapper = domainComputerLdapMapper;</span>
+<span class="fc" id="L71">  }</span>
+
+  @Override
+  protected Dn getDefaultOu() {
+<span class="fc" id="L75">    return new Dn(getProperties().getComputer().getDefaultOu());</span>
+  }
+
+  @Override
+  protected String getObjectClassValue() {
+<span class="fc" id="L80">    return AdConstants.OBJECT_CLASS_COMPUTER;</span>
+  }
+
+  @Override
+  protected String[] getBinaryAttributes() {
+<span class="fc" id="L85">    return domainComputerLdapMapper.getBinaryAttributeNames();</span>
+  }
+
+  @Override
+  protected String[] getReturnAttributes() {
+<span class="fc" id="L90">    return domainComputerLdapMapper.getMappedAttributeNames();</span>
+  }
+
+  /**
+   * Gets find all filter.
+   *
+   * @param query the query
+   * @return the find all filter
+   */
+  private Filter getFindAllFilter(String query) {
+<span class="fc" id="L100">    Filter objectClassFilter = objectClassFilter();</span>
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">    if (isNull(query) || query.length() &lt; getProperties().getComputer().getMinQueryLength()) {</span>
+<span class="fc" id="L102">      return objectClassFilter;</span>
+    }
+<span class="fc" id="L104">    Filter orFilter = new OrFilter(</span>
+        new SubstringFilter(
+<span class="fc" id="L106">            AdConstants.DESCRIPTION.getName(), null, null, query),</span>
+        new SubstringFilter(
+<span class="fc" id="L108">            AdConstants.SAM_ACCOUNT_NAME.getName(), null, null, query),</span>
+        new SubstringFilter(
+<span class="fc" id="L110">            AdConstants.NAME.getName(), null, null, query),</span>
+        new SubstringFilter(
+<span class="fc" id="L112">            AdConstants.COMPUTER_NETWORK_ADDRESS.getName(), null, null, query),</span>
+        new SubstringFilter(
+<span class="fc" id="L114">            AdConstants.COMPUTER_OPERATING_SYSTEM.getName(), null, null, query),</span>
+        new SubstringFilter(
+<span class="fc" id="L116">            AdConstants.COMPUTER_OPERATING_SYSTEM_VERSION.getName(), null, null, query)</span>
+    );
+<span class="fc" id="L118">    return new AndFilter(objectClassFilter, orFilter);</span>
+  }
+
+  @Override
+  public Stream&lt;DomainComputer&gt; findAll(String query, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L123">    log.debug(&quot;findAll({}, {}, {})&quot;, query, ou, searchScope);</span>
+<span class="fc" id="L124">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L125">    SearchRequest searchRequest = searchAllRequest(</span>
+        ou,
+<span class="fc" id="L127">        getFindAllFilter(query),</span>
+        scope,
+<span class="fc" id="L129">        getReturnAttributes());</span>
+<span class="fc" id="L130">    return getLdapOperations()</span>
+<span class="fc" id="L131">        .findAll(searchRequest, domainComputerLdapMapper)</span>
+<span class="fc" id="L132">        .filter(getIgnoredObjectFilter(ou, scope));</span>
+  }
+
+  @Override
+  public Optional&lt;DomainComputer&gt; findOne(String name, Dn ou, TreeSearchScope searchScope) {
+<span class="fc" id="L137">    log.debug(&quot;findOne({})&quot;, name);</span>
+    String samAccountName;
+<span class="fc bfc" id="L139" title="All 2 branches covered.">    if (!name.endsWith(&quot;$&quot;)) {</span>
+<span class="fc" id="L140">      samAccountName = name + &quot;$&quot;;</span>
+    } else {
+<span class="fc" id="L142">      samAccountName = name;</span>
+    }
+<span class="fc" id="L144">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L145">    SearchRequest searchRequest = searchOneRequest(samAccountName, ou, scope);</span>
+<span class="fc" id="L146">    log.debug(&quot;findOne, searchRequest = {}&quot;, searchRequest);</span>
+<span class="fc" id="L147">    return getLdapOperations()</span>
+<span class="fc" id="L148">        .findOne(searchRequest, domainComputerLdapMapper)</span>
+<span class="fc" id="L149">        .filter(getIgnoredObjectFilter(ou, scope));</span>
+  }
+
+  @Override
+  public DomainComputer update(DomainComputer domainComputer, Dn newOu) {
+<span class="fc" id="L154">    log.debug(&quot;update({}, {})&quot;, domainComputer.getSamAccountName(), newOu);</span>
+<span class="fc" id="L155">    DomainComputer existingComputer = findOne(</span>
+<span class="fc" id="L156">        domainComputer.getSamAccountName(), null, null)</span>
+<span class="fc" id="L157">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="fc" id="L158">            DomainComputer.class.getSimpleName(),</span>
+<span class="fc" id="L159">            domainComputer.getSamAccountName(),</span>
+            EC_SAM_ACCOUNT_NOT_FOUND));
+<span class="fc" id="L161">    DomainComputer computer = domainComputer</span>
+<span class="fc" id="L162">        .withDistinguishedName(existingComputer.getDistinguishedName())</span>
+<span class="fc" id="L163">        .withCreated(existingComputer.getCreated())</span>
+<span class="fc" id="L164">        .withModified(OffsetDateTime.now(ZoneOffset.UTC))</span>
+<span class="fc" id="L165">        .withSid(existingComputer.getSid())</span>
+<span class="fc" id="L166">        .withCriticalSystemObject(existingComputer.isCriticalSystemObject());</span>
+<span class="fc" id="L167">    Dn oldDn = new Dn(existingComputer.getDistinguishedName());</span>
+<span class="fc" id="L168">    Dn newDn = new Dn(oldDn.getRDn());</span>
+<span class="fc" id="L169">    newDn.add(validateParentDn(newOu, oldDn::getParent));</span>
+<span class="pc bpc" id="L170" title="1 of 4 branches missed.">    if (!oldDn.isSame(newDn) &amp;&amp; dnExistsWithAnyObjectClass(newDn.format())) {</span>
+<span class="fc" id="L171">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="fc" id="L172">          DomainComputer.class.getSimpleName(),</span>
+<span class="fc" id="L173">          getDnTool().removeBaseDn(newDn),</span>
+          EC_DN_ALREADY_EXISTS);
+    }
+<span class="fc" id="L176">    moveAndRename(oldDn, newDn);</span>
+<span class="fc" id="L177">    String newDnStr = DnTool.toString(newDn);</span>
+<span class="fc" id="L178">    return getLdapOperations()</span>
+<span class="fc" id="L179">        .save(computer.withDistinguishedName(newDnStr), domainComputerLdapMapper);</span>
+  }
+
+  @Override
+  public boolean delete(String name) {
+<span class="fc" id="L184">    log.debug(&quot;delete({})&quot;, name);</span>
+<span class="fc" id="L185">    return findOne(name, null, null)</span>
+<span class="fc" id="L186">        .map(domainComputer -&gt; {</span>
+<span class="fc" id="L187">          getLdapOperations().delete(DeleteRequest.builder()</span>
+<span class="fc" id="L188">              .dn(domainComputer.getDistinguishedName())</span>
+<span class="fc" id="L189">              .build());</span>
+<span class="fc" id="L190">          return true;</span>
+        })
+<span class="fc" id="L192">        .orElse(false);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

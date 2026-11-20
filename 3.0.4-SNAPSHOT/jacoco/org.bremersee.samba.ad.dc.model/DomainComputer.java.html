@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainComputer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">DomainComputer.java</span></div><h1>DomainComputer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.requireNonNullElse;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Objects;
+import org.immutables.serial.Serial;
+import org.immutables.value.Value;
+import org.immutables.value.Value.Style.ImplementationVisibility;
+import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+
+/**
+ * The domain computer.
+ *
+ * @author Christian Bremer
+ */
+@Schema(
+    name = ModelConstants.COMPUTER,
+    description = &quot;The domain computer.&quot;)
+@Value.Style(
+    visibility = ImplementationVisibility.PUBLIC,
+    overshadowImplementation = true,
+    depluralize = true,
+    jdk9Collections = true,
+    get = {&quot;get*&quot;, &quot;is*&quot;},
+    withUnaryOperator = &quot;with*&quot;)
+@Value.Immutable
+@Serial.Version(1L)
+@JsonTypeName(ModelConstants.COMPUTER)
+@JsonSerialize(as = ImmutableDomainComputer.class)
+@JsonDeserialize(as = ImmutableDomainComputer.class)
+public interface DomainComputer extends SamAccount {
+
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  @Override
+  default AdEntryType getAdEntryType() {
+<span class="fc" id="L64">    return AdEntryType.COMPUTER;</span>
+  }
+
+  @Override
+  default DomainComputer withDistinguishedName(String distinguishedName) {
+<span class="nc" id="L69">    return builder()</span>
+<span class="nc" id="L70">        .from(this)</span>
+<span class="nc" id="L71">        .distinguishedName(requireNonNullElse(distinguishedName, &quot;&quot;))</span>
+<span class="nc" id="L72">        .build();</span>
+  }
+
+  @Schema(description = &quot;The creation date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getCreated();
+
+  @Override
+  default DomainComputer withCreated(OffsetDateTime created) {
+<span class="nc" id="L82">    return builder()</span>
+<span class="nc" id="L83">        .from(this)</span>
+<span class="nc" id="L84">        .created(created)</span>
+<span class="nc" id="L85">        .build();</span>
+  }
+
+  @Schema(description = &quot;The last modification date.&quot;)
+  @Nullable
+  @Override
+  OffsetDateTime getModified();
+
+  @Override
+  default DomainComputer withModified(OffsetDateTime modified) {
+<span class="nc" id="L95">    return builder()</span>
+<span class="nc" id="L96">        .from(this)</span>
+<span class="nc" id="L97">        .modified(modified)</span>
+<span class="nc" id="L98">        .build();</span>
+  }
+
+  @Schema(description = &quot;The SID of the sam account.&quot;)
+  @Nullable
+  @Override
+  Sid getSid();
+
+  @Override
+  default DomainComputer withSid(Sid sid) {
+<span class="nc" id="L108">    return builder()</span>
+<span class="nc" id="L109">        .from(this)</span>
+<span class="nc" id="L110">        .sid(sid)</span>
+<span class="nc" id="L111">        .build();</span>
+  }
+
+  @Override
+  default DomainComputer withMemberships(Iterable&lt;String&gt; memberships) {
+<span class="nc" id="L116">    return builder()</span>
+<span class="nc" id="L117">        .from(this)</span>
+<span class="nc" id="L118">        .memberships(Objects.requireNonNullElseGet(memberships, List::of))</span>
+<span class="nc" id="L119">        .build();</span>
+  }
+
+  @Override
+  default DomainComputer withCriticalSystemObject(boolean criticalSystemObject) {
+<span class="nc" id="L124">    return builder()</span>
+<span class="nc" id="L125">        .from(this)</span>
+<span class="nc" id="L126">        .criticalSystemObject(criticalSystemObject)</span>
+<span class="nc" id="L127">        .build();</span>
+  }
+
+  @Override
+  default DomainComputer withPrimaryGroupId(Integer primaryGroupId) {
+<span class="nc" id="L132">    return builder()</span>
+<span class="nc" id="L133">        .from(this)</span>
+<span class="nc" id="L134">        .primaryGroupId(primaryGroupId)</span>
+<span class="nc" id="L135">        .build();</span>
+  }
+
+  @Schema(description = &quot;The name of the computer.&quot;)
+  @JsonProperty(value = &quot;name&quot;)
+  @Nullable
+  @Override
+  String getName();
+
+  @Schema(description = &quot;The primary group ID of the computer.&quot;)
+  @JsonProperty(value = &quot;primaryGroupId&quot;)
+  @Nullable
+  @Override
+  Integer getPrimaryGroupId();
+
+  /**
+   * Gets dns host name.
+   *
+   * @return the dns host name
+   */
+  @Schema(description = &quot;The dns host name of the computer.&quot;)
+  @Nullable
+  String getDnsHostName();
+
+  /**
+   * Gets network addresses.
+   *
+   * @return the network addresses
+   */
+  @Schema(description = &quot;The network addresses of the computer.&quot;)
+  @Value.Default
+  default List&lt;String&gt; getNetworkAddresses() {
+<span class="fc" id="L167">    return List.of();</span>
+  }
+
+  /**
+   * Gets operating system.
+   *
+   * @return the operating system
+   */
+  @Schema(description = &quot;The operating system of the computer.&quot;)
+  @Nullable
+  String getOperatingSystem();
+
+  /**
+   * Gets operating system version.
+   *
+   * @return the operating system version
+   */
+  @Schema(description = &quot;The version operating system.&quot;)
+  @Nullable
+  String getOperatingSystemVersion();
+
+  /**
+   * Gets description.
+   *
+   * @return the description
+   */
+  @Schema(description = &quot;The description of the computer.&quot;)
+  @Nullable
+  String getDescription();
+
+  /**
+   * Gets service principal names.
+   *
+   * @return the service principal names
+   */
+  @Schema(description = &quot;The service principal names of the computer.&quot;)
+  @Value.Default
+  default List&lt;String&gt; getServicePrincipalNames() {
+<span class="fc" id="L205">    return List.of();</span>
+  }
+
+  /**
+   * Gets sam account name without trailing dollar sign.
+   *
+   * @return the sam account name without trailing dollar sign
+   */
+  @Hidden
+  @JsonIgnore
+  @Value.Lazy
+  default String getSamAccountNameWithoutTrailingDollarSign() {
+<span class="fc" id="L217">    String tmpName = getSamAccountName();</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">    if (isEmpty(tmpName)) {</span>
+<span class="nc" id="L219">      return tmpName;</span>
+    }
+<span class="fc" id="L221">    return tmpName.substring(0, tmpName.length() - 1);</span>
+  }
+
+  /**
+   * Gets the immutable builder.
+   *
+   * @return the builder
+   */
+  static ImmutableDomainComputer.Builder builder() {
+<span class="fc" id="L230">    return ImmutableDomainComputer.builder();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

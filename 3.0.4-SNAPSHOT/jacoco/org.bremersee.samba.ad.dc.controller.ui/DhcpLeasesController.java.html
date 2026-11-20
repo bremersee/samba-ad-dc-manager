@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DhcpLeasesController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">DhcpLeasesController.java</span></div><h1>DhcpLeasesController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import org.bremersee.comparator.model.SortOrder;
+import org.bremersee.comparator.spring.web.SortOrderRequestParam;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.shared.CurrentPageNameProvider;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.DhcpLeasePage;
+import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.service.DnsService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+
+/**
+ * The dhcp leases controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class DhcpLeasesController extends UiController
+    implements PageableComponent, CurrentPageNameProvider, RedirectComponent {
+
+  private final DnsService dnsService;
+
+  /**
+   * Instantiates a new dhcp leases controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param dnsService the dns service
+   */
+  public DhcpLeasesController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DnsService dnsService) {
+<span class="nc" id="L68">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L69">    this.dnsService = dnsService;</span>
+<span class="nc" id="L70">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L74">    return DHCP_LEASE_SORT;</span>
+  }
+
+  @Override
+  public String getCurrentPageName() {
+<span class="nc" id="L79">    return &quot;dhcp-leases&quot;;</span>
+  }
+
+  /**
+   * Display dhcp leases view.
+   *
+   * @param page the page
+   * @param size the size
+   * @param sort the sort
+   * @param query the query
+   * @param ipAddress the ip address
+   * @param model the model
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/dhcp-leases&quot;)
+  public String displayDhcpLeases(
+      @RequestParam(name = PAGE, defaultValue = PAGE_DEFAULT) int page,
+      @RequestParam(name = SIZE, defaultValue = SIZE_DEFAULT) int size,
+      @SortOrderRequestParam(defaultSort = DHCP_LEASE_SORT) SortOrder sort,
+      @RequestParam(name = QUERY, required = false) String query,
+      @RequestParam(name = &quot;ip&quot;, required = false) String ipAddress,
+      ModelMap model) {
+
+<span class="nc" id="L102">    return Optional.ofNullable(ipAddress)</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        .filter(ip -&gt; !ip.isEmpty())</span>
+<span class="nc" id="L104">        .flatMap(dnsService::findDnsEntry)</span>
+<span class="nc" id="L105">        .map(dnsEntry -&gt; {</span>
+<span class="nc" id="L106">          Map&lt;String, Object&gt; parameters = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L107">          parameters.put(PAGE, 0);</span>
+<span class="nc" id="L108">          parameters.put(SIZE, SIZE_DEFAULT_INT);</span>
+<span class="nc" id="L109">          parameters.put(SORT, DNS_ENTRY_SORT);</span>
+<span class="nc" id="L110">          parameters.put(QUERY, &quot;&quot;);</span>
+<span class="nc" id="L111">          parameters.put(ZONE_TYPE, DnsZoneType.PRIMARY);</span>
+<span class="nc" id="L112">          parameters.put(ZONE_NAME, dnsEntry.getZoneName());</span>
+<span class="nc" id="L113">          parameters.put(DNS_ENTRY_NAME, dnsEntry.getName());</span>
+<span class="nc" id="L114">          parameters.put(DNS_ENTRY_TYPE, dnsEntry.getType());</span>
+<span class="nc" id="L115">          parameters.put(DNS_ENTRY_VALUE, dnsEntry.getValue());</span>
+<span class="nc" id="L116">          return getRedirectUri(&quot;dns-entry-edit&quot;, PAGE_AND_DNS_ENTRY_PARAMS, parameters);</span>
+        })
+<span class="nc" id="L118">        .orElseGet(() -&gt; {</span>
+<span class="nc" id="L119">          Pageable pageable = PageRequest.of(page, size, getSortMapper().toSort(sort));</span>
+<span class="nc" id="L120">          DhcpLeasePage dhcpLeasePage = new DhcpLeasePage(</span>
+<span class="nc" id="L121">              dnsService.getDhcpLeases(pageable, query));</span>
+<span class="nc" id="L122">          model.addAttribute(&quot;dhcpLeasePage&quot;, dhcpLeasePage);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">          if (!isEmpty(ipAddress)) {</span>
+<span class="nc" id="L124">            String defaultMessage = String</span>
+<span class="nc" id="L125">                .format(&quot;No dns entry with ip address '%s' was found.&quot;, ipAddress);</span>
+<span class="nc" id="L126">            String message = getMessage(defaultMessage, &quot;dhcp-leases.ip.not-found&quot;, ipAddress);</span>
+<span class="nc" id="L127">            model.addAttribute(&quot;rmsg&quot;,</span>
+                new RedirectMessage(message, RedirectMessageType.WARNING));
+          }
+<span class="nc" id="L130">          return &quot;management/dhcp-leases&quot;;</span>
+        });
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

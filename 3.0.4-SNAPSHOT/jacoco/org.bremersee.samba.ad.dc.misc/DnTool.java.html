@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DnTool.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.misc</a> &gt; <span class="el_source">DnTool.java</span></div><h1>DnTool.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.misc;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
+import java.util.Optional;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.ldaptive.dn.DefaultAttributeValueEscaper;
+import org.ldaptive.dn.DefaultRDnNormalizer;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.RDnNormalizer;
+
+/**
+ * The dn tool.
+ *
+ * @author Christian Bremer
+ */
+public interface DnTool {
+
+  /**
+   * The constant CASE_SENSITIVE_RDN_NORMALIZER.
+   */
+<span class="fc" id="L41">  RDnNormalizer CASE_SENSITIVE_RDN_NORMALIZER = new DefaultRDnNormalizer(</span>
+<span class="fc" id="L42">      new DefaultAttributeValueEscaper(), name -&gt; name, value -&gt; value);</span>
+
+  /**
+   * To string.
+   *
+   * @param dn the dn
+   * @return the string
+   */
+  static String toString(Dn dn) {
+<span class="fc" id="L51">    return Optional.ofNullable(dn)</span>
+<span class="fc" id="L52">        .map(d -&gt; d.format(CASE_SENSITIVE_RDN_NORMALIZER))</span>
+<span class="fc" id="L53">        .orElse(&quot;null&quot;);</span>
+  }
+
+  /**
+   * Is valid dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
+  static boolean isValidDn(String dn) {
+    try {
+<span class="fc" id="L64">      return Optional.ofNullable(dn)</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">          .filter(v -&gt; !isEmpty(v))</span>
+<span class="fc" id="L66">          .map(Dn::new)</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">          .filter(v -&gt; !isEmpty(v))</span>
+<span class="fc" id="L68">          .isPresent();</span>
+<span class="fc" id="L69">    } catch (RuntimeException ignored) {</span>
+<span class="fc" id="L70">      return false;</span>
+    }
+  }
+
+  /**
+   * Is valid dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
+  static boolean isValidDn(Dn dn) {
+<span class="fc" id="L81">    return Optional.ofNullable(dn)</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        .filter(v -&gt; !isEmpty(v))</span>
+<span class="fc" id="L83">        .isPresent();</span>
+  }
+
+  /**
+   * Is valid dn with base dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
+  default boolean isValidDnWithBaseDn(String dn) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (isValidDn(dn)) {</span>
+<span class="fc" id="L94">      return isValidDnWithBaseDn(new Dn(dn));</span>
+    }
+<span class="fc" id="L96">    return false;</span>
+  }
+
+  /**
+   * Is valid dn with base dn boolean.
+   *
+   * @param dn the dn
+   * @return the boolean
+   */
+  default boolean isValidDnWithBaseDn(Dn dn) {
+<span class="pc bpc" id="L106" title="1 of 6 branches missed.">    return isValidDn(dn) &amp;&amp; (dn.isSame(getBaseDn()) || getBaseDn().isAncestor(dn));</span>
+  }
+
+  /**
+   * Is same dn boolean.
+   *
+   * @param dn1 the dn 1
+   * @param dn2 the dn 2
+   * @return the boolean
+   */
+  static boolean isSameDn(String dn1, String dn2) {
+<span class="pc bpc" id="L117" title="2 of 4 branches missed.">    if (!isValidDn(dn1) || !isValidDn(dn2)) {</span>
+<span class="nc" id="L118">      return false;</span>
+    }
+<span class="fc" id="L120">    return isSameDn(new Dn(dn1), new Dn(dn2));</span>
+  }
+
+  /**
+   * Is same dn boolean.
+   *
+   * @param dn1 the dn 1
+   * @param dn2 the dn 2
+   * @return the boolean
+   */
+  static boolean isSameDn(Dn dn1, String dn2) {
+<span class="pc bpc" id="L131" title="2 of 4 branches missed.">    if (!isValidDn(dn1) || !isValidDn(dn2)) {</span>
+<span class="nc" id="L132">      return false;</span>
+    }
+<span class="fc" id="L134">    return isSameDn(dn1, new Dn(dn2));</span>
+  }
+
+  /**
+   * Is same dn boolean.
+   *
+   * @param dn1 the dn 1
+   * @param dn2 the dn 2
+   * @return the boolean
+   */
+  static boolean isSameDn(Dn dn1, Dn dn2) {
+<span class="pc bpc" id="L145" title="2 of 4 branches missed.">    if (!isValidDn(dn1) || !isValidDn(dn2)) {</span>
+<span class="nc" id="L146">      return false;</span>
+    }
+<span class="fc" id="L148">    return dn1.format().equalsIgnoreCase(dn2.format());</span>
+  }
+
+  /**
+   * Gets base dn.
+   *
+   * @return the base dn
+   */
+  @NotNull
+  Dn getBaseDn();
+
+  /**
+   * Add base dn.
+   *
+   * @param dn the dn
+   * @return the dn
+   */
+  @NotNull
+  default Dn addBaseDn(String dn) {
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">    if (!isValidDn(dn)) {</span>
+<span class="nc" id="L168">      return getBaseDn();</span>
+    }
+<span class="fc" id="L170">    return addBaseDn(new Dn(dn));</span>
+  }
+
+  /**
+   * Add base dn.
+   *
+   * @param dn the dn
+   * @return the dn
+   */
+  @NotNull
+  default Dn addBaseDn(Dn dn) {
+<span class="fc bfc" id="L181" title="All 2 branches covered.">    if (!isValidDn(dn)) {</span>
+<span class="fc" id="L182">      return getBaseDn();</span>
+    }
+<span class="fc bfc" id="L184" title="All 2 branches covered.">    if (isValidDnWithBaseDn(dn)) {</span>
+<span class="fc" id="L185">      return dn;</span>
+    }
+<span class="fc" id="L187">    Dn newDn = new Dn(dn.getRDns());</span>
+<span class="fc" id="L188">    newDn.add(getBaseDn());</span>
+<span class="fc" id="L189">    return newDn;</span>
+  }
+
+  /**
+   * Remove base dn.
+   *
+   * @param dn the dn
+   * @return the dn
+   */
+  @Nullable
+  default Dn removeBaseDn(Dn dn) {
+<span class="fc" id="L200">    Dn adBaseDn = getBaseDn();</span>
+<span class="pc bpc" id="L201" title="2 of 4 branches missed.">    if (!isValidDn(dn) || dn.isSame(adBaseDn)) {</span>
+<span class="nc" id="L202">      return null;</span>
+    }
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">    if (adBaseDn.isAncestor(dn)) {</span>
+<span class="fc" id="L205">      return dn.subDn(0, dn.size() - adBaseDn.size());</span>
+    }
+<span class="nc" id="L207">    return dn;</span>
+  }
+
+  /**
+   * Remove ancestor dn.
+   *
+   * @param dn the dn
+   * @param ancestor the ancestor
+   * @return the dn
+   */
+  static Dn removeAncestor(Dn dn, Dn ancestor) {
+<span class="nc bnc" id="L218" title="All 4 branches missed.">    if (!isValidDn(dn) || !isValidDn(ancestor)) {</span>
+<span class="nc" id="L219">      return dn;</span>
+    }
+<span class="nc bnc" id="L221" title="All 2 branches missed.">    if (ancestor.isSame(dn)) {</span>
+<span class="nc" id="L222">      return new Dn(&quot;&quot;);</span>
+    }
+<span class="nc bnc" id="L224" title="All 2 branches missed.">    if (ancestor.isAncestor(dn)) {</span>
+<span class="nc" id="L225">      return dn.subDn(0, dn.size() - ancestor.size());</span>
+    }
+<span class="nc" id="L227">    return dn;</span>
+  }
+
+  /**
+   * Replace ancestor dn.
+   *
+   * @param dn the dn
+   * @param ancestor the ancestor
+   * @param newAncestor the new ancestor
+   * @return the dn
+   */
+  static Dn replaceAncestor(Dn dn, Dn ancestor, Dn newAncestor) {
+<span class="nc" id="L239">    Dn newDn = removeAncestor(dn, ancestor);</span>
+<span class="nc bnc" id="L240" title="All 4 branches missed.">    if (isValidDn(newAncestor) &amp;&amp; !dn.isSame(newDn)) {</span>
+<span class="nc" id="L241">      newDn.add(newAncestor);</span>
+    }
+<span class="nc" id="L243">    return newDn;</span>
+  }
+
+  /**
+   * Gets dn pair.
+   *
+   * @param dn the dn
+   * @return the dn pair
+   */
+  static DnPair getDnPair(String dn) {
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">    if (isValidDn(dn)) {</span>
+<span class="fc" id="L254">      return getDnPair(new Dn(dn));</span>
+    }
+<span class="nc" id="L256">    return null;</span>
+  }
+
+  /**
+   * Gets dn pair.
+   *
+   * @param dn the dn
+   * @return the dn pair
+   */
+  static DnPair getDnPair(Dn dn) {
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">    if (isValidDn(dn)) {</span>
+<span class="fc" id="L267">      return new DnPair(dn.format(CASE_SENSITIVE_RDN_NORMALIZER), dn.format());</span>
+    }
+<span class="nc" id="L269">    return null;</span>
+  }
+
+  /**
+   * The dn pair.
+   *
+   * @param dn the dn
+   * @param normalizedDn the normalized dn
+   *
+   * @author Christian Bremer
+   */
+<span class="fc" id="L280">  record DnPair(String dn, String normalizedDn) {</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L284" title="2 of 4 branches missed.">      if (o == null || getClass() != o.getClass()) {</span>
+<span class="nc" id="L285">        return false;</span>
+      }
+<span class="fc" id="L287">      DnPair dnPair = (DnPair) o;</span>
+<span class="fc" id="L288">      return Objects.equals(normalizedDn, dnPair.normalizedDn);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L293">      return Objects.hashCode(normalizedDn);</span>
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+<span class="nc" id="L299">      return &quot;DnPair{&quot;</span>
+          + &quot;dn='&quot; + dn + '\''
+          + &quot;, normalizedDn='&quot; + normalizedDn + '\''
+          + '}';
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

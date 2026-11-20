@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommandExecutor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.cli</a> &gt; <span class="el_source">CommandExecutor.java</span></div><h1>CommandExecutor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.cli;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.stream.Stream;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+
+/**
+ * The command executor.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L45">@Slf4j</span>
+public class CommandExecutor {
+
+  @Getter(AccessLevel.PROTECTED)
+  private final ApplicationProperties properties;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final DnTool dnTool;
+
+  /**
+   * Instantiates a new command executor.
+   *
+   * @param properties the properties
+   */
+<span class="fc" id="L59">  public CommandExecutor(ApplicationProperties properties) {</span>
+<span class="fc" id="L60">    this.properties = properties;</span>
+<span class="fc" id="L61">    this.dnTool = new DefaultDnTool(this.properties);</span>
+<span class="fc" id="L62">  }</span>
+
+  /**
+   * Execute command.
+   *
+   * @param commands the commands
+   * @return the command executor response
+   */
+  public CommandExecutorResponse execute(List&lt;String&gt; commands) {
+<span class="nc" id="L71">    List&lt;String&gt; extendedCommands = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">    if (getProperties().getCli().getSsh().isUsingSsh()) {</span>
+<span class="nc" id="L73">      extendedCommands.add(properties.getCli().getSsh().getSshCommand());</span>
+    }
+<span class="nc bnc" id="L75" title="All 2 branches missed.">    if (getProperties().getCli().getSudo().isUsingSudo()) {</span>
+<span class="nc" id="L76">      extendedCommands.add(properties.getCli().getSudo().getSudoCommand());</span>
+    }
+<span class="nc" id="L78">    extendedCommands.addAll(commands);</span>
+<span class="nc" id="L79">    List&lt;String&gt; commandTokens = parseCommands(extendedCommands);</span>
+    try {
+<span class="nc" id="L81">      ProcessBuilder pb = new ProcessBuilder(commandTokens);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">      if (!isEmpty(properties.getCli().getExecDir())) {</span>
+<span class="nc" id="L83">        pb.directory(new File(properties.getCli().getExecDir()));</span>
+      }
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">      if (log.isDebugEnabled()) {</span>
+<span class="nc" id="L87">        log.debug(&quot;Executing commands = {}&quot;, String.join(&quot; &quot;, commandTokens));</span>
+      }
+<span class="nc" id="L89">      Process p = pb.start();</span>
+<span class="nc" id="L90">      StringWriter out = new StringWriter();</span>
+<span class="nc" id="L91">      StringWriter err = new StringWriter();</span>
+<span class="nc" id="L92">      IOUtils.copy(p.getInputStream(), out, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L93">      IOUtils.copy(p.getErrorStream(), err, StandardCharsets.UTF_8);</span>
+<span class="nc" id="L94">      p.waitFor();</span>
+<span class="nc" id="L95">      String output = out.toString();</span>
+<span class="nc" id="L96">      String error = err.toString();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">      if (log.isTraceEnabled()) {</span>
+<span class="nc" id="L98">        log.trace(&quot;Program output:\n{}&quot;, output);</span>
+<span class="nc" id="L99">        log.trace(&quot;Program error output:\n{}&quot;, error);</span>
+      }
+<span class="nc" id="L101">      return new CommandExecutorResponse(output, error);</span>
+
+<span class="nc" id="L103">    } catch (IOException | InterruptedException e) {</span>
+<span class="nc" id="L104">      ServiceException se = ServiceException.internalServerError(</span>
+          &quot;Running commands failed.&quot;,
+<span class="nc" id="L106">          ErrorCode.prefixErrorCode(&quot;6fa0f473-6204-4f75-9130-a1049910d8fd&quot;),</span>
+          e);
+<span class="nc" id="L108">      log.error(&quot;Executing commands [{}] failed.&quot;, commandTokens, se);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">      if (e instanceof InterruptedException) {</span>
+<span class="nc" id="L110">        Thread.currentThread().interrupt();</span>
+      }
+<span class="nc" id="L112">      throw se;</span>
+    }
+  }
+
+  /**
+   * Execute.
+   *
+   * @param commands the commands
+   * @param responseValidator the response validator
+   */
+  public void execute(List&lt;String&gt; commands,
+      CommandExecutorResponseValidator responseValidator) {
+<span class="fc" id="L124">    executeAndGet(commands, (CommandExecutorResponseParser&lt;?&gt;) responseValidator);</span>
+<span class="fc" id="L125">  }</span>
+
+  /**
+   * Execute and get parsed response.
+   *
+   * @param &lt;T&gt; the type parameter
+   * @param commands the commands
+   * @param responseParser the response parser
+   * @return the parsed response
+   */
+  public &lt;T&gt; T executeAndGet(List&lt;String&gt; commands,
+      CommandExecutorResponseParser&lt;T&gt; responseParser) {
+<span class="fc" id="L137">    return responseParser.parse(execute(commands));</span>
+  }
+
+  private static List&lt;String&gt; parseCommands(List&lt;String&gt; commands) {
+<span class="nc" id="L141">    return Stream.ofNullable(commands)</span>
+<span class="nc" id="L142">        .flatMap(Collection::stream)</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        .filter(command -&gt; !isEmpty(command))</span>
+<span class="nc" id="L144">        .flatMap(command -&gt; {</span>
+<span class="nc" id="L145">          Stream&lt;String&gt; stream = Stream.empty();</span>
+<span class="nc" id="L146">          StringTokenizer tokenizer = new StringTokenizer(command, &quot; &quot;);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">          while (tokenizer.hasMoreTokens()) {</span>
+<span class="nc" id="L148">            stream = Stream.concat(stream, Stream.of(tokenizer.nextToken()));</span>
+          }
+<span class="nc" id="L150">          return stream;</span>
+        })
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        .filter(command -&gt; !isEmpty(command))</span>
+<span class="nc" id="L153">        .toList();</span>
+  }
+
+  /**
+   * Quote string.
+   *
+   * @param value the value
+   * @return the string
+   */
+  public static String quote(String value) {
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">    if (isEmpty(value)) {</span>
+<span class="nc" id="L164">      return &quot;\&quot;\&quot;&quot;;</span>
+    }
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">    if (value.contains(&quot;\&quot;&quot;)) {</span>
+<span class="nc" id="L167">      return '\'' + value + '\'';</span>
+    }
+<span class="fc" id="L169">    return '&quot;' + value + '&quot;';</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

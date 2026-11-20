@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">AdConstants.java</span></div><h1>AdConstants.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static org.bremersee.ldaptive.LdaptiveAttribute.define;
+
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import org.bremersee.ldaptive.LdaptiveAttribute;
+import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.ldaptive.transcoder.ValueTranscoderFactory;
+import org.bremersee.samba.ad.dc.model.Sid;
+import org.ldaptive.ad.SecurityIdentifier;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.transcode.AbstractBinaryValueTranscoder;
+
+/**
+ * The ad constants.
+ *
+ * @author Christian Bremer
+ */
+public abstract class AdConstants {
+
+  private AdConstants() {
+    super();
+  }
+
+  /**
+   * The constant OBJECT_CLASS.
+   */
+<span class="fc" id="L45">  public static final LdaptiveAttribute&lt;String&gt; OBJECT_CLASS = define(&quot;objectClass&quot;);</span>
+
+  /**
+   * The constant OBJECT_CLASS_COMPUTER.
+   */
+  public static final String OBJECT_CLASS_COMPUTER = &quot;computer&quot;;
+
+  /**
+   * The constant OBJECT_CLASS_GROUP.
+   */
+  public static final String OBJECT_CLASS_GROUP = &quot;group&quot;;
+
+  /**
+   * The constant OBJECT_CLASS_CONTAINER.
+   */
+  public static final String OBJECT_CLASS_CONTAINER = &quot;container&quot;;
+
+  /**
+   * The constant OBJECT_CLASS_OU.
+   */
+  public static final String OBJECT_CLASS_OU = &quot;organizationalUnit&quot;;
+
+  /**
+   * The constant OBJECT_CLASS_USER.
+   */
+  public static final String OBJECT_CLASS_USER = &quot;user&quot;;
+
+  /**
+   * The constant RDN_ATTR_NAME_OU.
+   */
+  public static final String RDN_ATTR_NAME_OU = &quot;OU&quot;;
+
+  /**
+   * The constant BASE_DN_COMPUTERS.
+   */
+  public static final String BASE_DN_COMPUTERS = &quot;CN=Computers&quot;;
+
+  /**
+   * The constant BASE_DN_USERS.
+   */
+  public static final String BASE_DN_USERS = &quot;CN=Users&quot;;
+
+  /**
+   * The constant YELLOW_PAGES.
+   */
+  public static final String YELLOW_PAGES = &quot;CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System&quot;;
+
+  /**
+   * The constant DN.
+   */
+<span class="fc" id="L95">  public static final LdaptiveAttribute&lt;Dn&gt; DN = define(</span>
+      &quot;distinguishedName&quot;,
+      false,
+<span class="fc" id="L98">      ValueTranscoderFactory.getDnValueTranscoderCaseSensitive());</span>
+
+  /**
+   * The constant WHEN_CREATED.
+   */
+<span class="fc" id="L103">  public static final LdaptiveAttribute&lt;OffsetDateTime&gt; WHEN_CREATED = define(</span>
+      &quot;whenCreated&quot;,
+      false,
+<span class="fc" id="L106">      ValueTranscoderFactory.getGeneralizedTimeToOffsetDateTimeValueTranscoder());</span>
+
+  /**
+   * The constant WHEN_CHANGED.
+   */
+<span class="fc" id="L111">  public static final LdaptiveAttribute&lt;OffsetDateTime&gt; WHEN_CHANGED = define(</span>
+      &quot;whenChanged&quot;,
+      false,
+<span class="fc" id="L114">      ValueTranscoderFactory.getGeneralizedTimeToOffsetDateTimeValueTranscoder());</span>
+
+  /**
+   * The constant CN.
+   */
+<span class="fc" id="L119">  public static final LdaptiveAttribute&lt;String&gt; CN = define(&quot;CN&quot;);</span>
+
+  /**
+   * The constant DESCRIPTION.
+   */
+<span class="fc" id="L124">  public static final LdaptiveAttribute&lt;String&gt; DESCRIPTION = define(&quot;description&quot;);</span>
+
+  /**
+   * The constant GID_NUMBER.
+   */
+<span class="fc" id="L129">  public static final LdaptiveAttribute&lt;Integer&gt; GID_NUMBER = define(</span>
+      &quot;gidNumber&quot;,
+      false,
+<span class="fc" id="L132">      ValueTranscoderFactory.getIntegerValueTranscoder());</span>
+
+  /**
+   * The constant MAIL.
+   */
+<span class="fc" id="L137">  public static final LdaptiveAttribute&lt;String&gt; MAIL = define(&quot;mail&quot;);</span>
+
+  /**
+   * The constant MEMBER_OF_GROUP.
+   */
+<span class="fc" id="L142">  public static final LdaptiveAttribute&lt;Dn&gt; MEMBER_OF_GROUP = define(</span>
+      &quot;memberOf&quot;,
+      false,
+<span class="fc" id="L145">      ValueTranscoderFactory.getDnValueTranscoderCaseSensitive());</span>
+
+  /**
+   * The constant NAME.
+   */
+<span class="fc" id="L150">  public static final LdaptiveAttribute&lt;String&gt; NAME = define(&quot;name&quot;);</span>
+
+  /**
+   * The constant NIS_DOMAIN (rfc2307).
+   */
+<span class="fc" id="L155">  public static final LdaptiveAttribute&lt;String&gt; NIS_DOMAIN = define(&quot;msSFU30NisDomain&quot;);</span>
+
+  /**
+   * The constant NIS_NAME. Attribute of the username / group name (rfc2307).
+   */
+<span class="fc" id="L160">  public static final LdaptiveAttribute&lt;String&gt; NIS_NAME = define(&quot;msSFU30Name&quot;);</span>
+
+  /**
+   * The constant OBJECT_SID.
+   */
+<span class="fc" id="L165">  public static final LdaptiveAttribute&lt;Sid&gt; OBJECT_SID = define(</span>
+      &quot;objectSid&quot;, true, new SidValueTranscoder());
+
+  /**
+   * The constant PRIMARY_GROUP_ID.
+   */
+<span class="fc" id="L171">  public static final LdaptiveAttribute&lt;Integer&gt; PRIMARY_GROUP_ID = define(</span>
+      &quot;primaryGroupID&quot;,
+      false,
+<span class="fc" id="L174">      ValueTranscoderFactory.getIntegerValueTranscoder());</span>
+
+  /**
+   * The constant SAM_ACCOUNT_NAME.
+   */
+<span class="fc" id="L179">  public static final LdaptiveAttribute&lt;String&gt; SAM_ACCOUNT_NAME = define(&quot;sAMAccountName&quot;);</span>
+
+  /**
+   * The constant IS_CRITICAL_SYSTEM_OBJECT.
+   */
+<span class="fc" id="L184">  public static final LdaptiveAttribute&lt;Boolean&gt; IS_CRITICAL_SYSTEM_OBJECT = define(</span>
+<span class="fc" id="L185">      &quot;isCriticalSystemObject&quot;, false, ValueTranscoderFactory.getBooleanValueTranscoder());</span>
+
+  /**
+   * The constant COMPUTER_DNS_HOST_NAME.
+   */
+<span class="fc" id="L190">  public static final LdaptiveAttribute&lt;String&gt; COMPUTER_DNS_HOST_NAME = define(&quot;dNSHostName&quot;);</span>
+
+  /**
+   * The constant COMPUTER_NETWORK_ADDRESS.
+   */
+<span class="fc" id="L195">  public static final LdaptiveAttribute&lt;String&gt; COMPUTER_NETWORK_ADDRESS = define(&quot;networkAddress&quot;);</span>
+
+  /**
+   * The constant COMPUTER_OPERATING_SYSTEM.
+   */
+<span class="fc" id="L200">  public static final LdaptiveAttribute&lt;String&gt; COMPUTER_OPERATING_SYSTEM = define(</span>
+      &quot;operatingSystem&quot;);
+
+  /**
+   * The constant COMPUTER_OPERATING_SYSTEM_VERSION.
+   */
+<span class="fc" id="L206">  public static final LdaptiveAttribute&lt;String&gt; COMPUTER_OPERATING_SYSTEM_VERSION = define(</span>
+      &quot;operatingSystemVersion&quot;);
+
+  /**
+   * The constant COMPUTER_SERVICE_PRINCIPAL_NAME.
+   */
+<span class="fc" id="L212">  public static final LdaptiveAttribute&lt;String&gt; COMPUTER_SERVICE_PRINCIPAL_NAME = define(</span>
+      &quot;servicePrincipalName&quot;);
+
+  /**
+   * The constant GROUP_TYPE.
+   */
+<span class="fc" id="L218">  public static final LdaptiveAttribute&lt;Integer&gt; GROUP_TYPE = define(</span>
+      &quot;groupType&quot;,
+      false,
+<span class="fc" id="L221">      ValueTranscoderFactory.getIntegerValueTranscoder());</span>
+
+  /**
+   * The constant GROUP_MEMBER.
+   */
+<span class="fc" id="L226">  public static final LdaptiveAttribute&lt;Dn&gt; GROUP_MEMBER = define(</span>
+      &quot;member&quot;,
+      false,
+<span class="fc" id="L229">      ValueTranscoderFactory.getDnValueTranscoderCaseSensitive());</span>
+
+  /**
+   * The constant USER_ACCOUNT_EXPIRES.
+   */
+<span class="fc" id="L234">  public static final LdaptiveAttribute&lt;OffsetDateTime&gt; USER_ACCOUNT_EXPIRES = define(</span>
+      &quot;accountExpires&quot;,
+      false,
+<span class="fc" id="L237">      ValueTranscoderFactory.getFileTimeToOffsetDateTimeValueTranscoder()</span>
+  );
+
+  /**
+   * The constant USER_COMPANY.
+   */
+<span class="fc" id="L243">  public static final LdaptiveAttribute&lt;String&gt; USER_COMPANY = define(&quot;company&quot;);</span>
+
+  /**
+   * The constant USER_DEPARTMENT.
+   */
+<span class="fc" id="L248">  public static final LdaptiveAttribute&lt;String&gt; USER_DEPARTMENT = define(&quot;department&quot;);</span>
+
+  /**
+   * The constant USER_DISPLAY_NAME.
+   */
+<span class="fc" id="L253">  public static final LdaptiveAttribute&lt;String&gt; USER_DISPLAY_NAME = define(&quot;displayName&quot;);</span>
+
+  /**
+   * The constant USER_GECOS.
+   */
+<span class="fc" id="L258">  public static final LdaptiveAttribute&lt;String&gt; USER_GECOS = define(&quot;gecos&quot;);</span>
+
+  /**
+   * The constant USER_GIVEN_NAME.
+   */
+<span class="fc" id="L263">  public static final LdaptiveAttribute&lt;String&gt; USER_GIVEN_NAME = define(&quot;givenName&quot;);</span>
+
+  /**
+   * The constant USER_HOME_DIRECTORY.
+   */
+<span class="fc" id="L268">  public static final LdaptiveAttribute&lt;String&gt; USER_HOME_DIRECTORY = define(&quot;homeDirectory&quot;);</span>
+
+  /**
+   * The constant USER_HOME_DRIVE.
+   */
+<span class="fc" id="L273">  public static final LdaptiveAttribute&lt;String&gt; USER_HOME_DRIVE = define(&quot;homeDrive&quot;);</span>
+
+  /**
+   * The constant USER_INITIALS.
+   */
+<span class="fc" id="L278">  public static final LdaptiveAttribute&lt;String&gt; USER_INITIALS = define(&quot;initials&quot;);</span>
+
+  /**
+   * The constant USER_LAST_LOGON.
+   */
+<span class="fc" id="L283">  public static final LdaptiveAttribute&lt;OffsetDateTime&gt; USER_LAST_LOGON = define(</span>
+      &quot;lastLogon&quot;,
+      false,
+<span class="fc" id="L286">      ValueTranscoderFactory.getFileTimeToOffsetDateTimeValueTranscoder());</span>
+
+  /**
+   * The constant USER_LOGIN_SHELL.
+   */
+<span class="fc" id="L291">  public static final LdaptiveAttribute&lt;String&gt; USER_LOGIN_SHELL = define(&quot;loginShell&quot;);</span>
+
+  /**
+   * The constant USER_LOGON_COUNT.
+   */
+<span class="fc" id="L296">  public static final LdaptiveAttribute&lt;Integer&gt; USER_LOGON_COUNT = define(</span>
+<span class="fc" id="L297">      &quot;logonCount&quot;, false, ValueTranscoderFactory.getIntegerValueTranscoder());</span>
+
+  /**
+   * The constant USER_MOBILE.
+   */
+<span class="fc" id="L302">  public static final LdaptiveAttribute&lt;String&gt; USER_MOBILE = define(&quot;mobile&quot;);</span>
+
+  /**
+   * The constant USER_OFFICE_NAME.
+   */
+<span class="fc" id="L307">  public static final LdaptiveAttribute&lt;String&gt; USER_OFFICE_NAME = define(</span>
+      &quot;physicalDeliveryOfficeName&quot;);
+
+  /**
+   * The constant USER_PREFERRED_LANGUAGE.
+   */
+<span class="fc" id="L313">  public static final LdaptiveAttribute&lt;String&gt; USER_PREFERRED_LANGUAGE = define(</span>
+      &quot;preferredLanguage&quot;);
+
+  /**
+   * The constant USER_PROFILE_PATH.
+   */
+<span class="fc" id="L319">  public static final LdaptiveAttribute&lt;String&gt; USER_PROFILE_PATH = define(&quot;profilePath&quot;);</span>
+
+  /**
+   * The constant USER_PWD_LAST_SET.
+   */
+<span class="fc" id="L324">  public static final LdaptiveAttribute&lt;OffsetDateTime&gt; USER_PWD_LAST_SET = define(</span>
+<span class="fc" id="L325">      &quot;pwdLastSet&quot;, false, ValueTranscoderFactory.getFileTimeToOffsetDateTimeValueTranscoder());</span>
+
+  /**
+   * The constant USER_SCRIPT_PATH.
+   */
+<span class="fc" id="L330">  public static final LdaptiveAttribute&lt;String&gt; USER_SCRIPT_PATH = define(&quot;scriptPath&quot;);</span>
+
+  /**
+   * The constant USER_SN.
+   */
+<span class="fc" id="L335">  public static final LdaptiveAttribute&lt;String&gt; USER_SN = define(&quot;sn&quot;);</span>
+
+  /**
+   * The constant USER_TELEPHONE_NUMBER.
+   */
+<span class="fc" id="L340">  public static final LdaptiveAttribute&lt;String&gt; USER_TELEPHONE_NUMBER = define(&quot;telephoneNumber&quot;);</span>
+
+  /**
+   * The constant USER_TITLE.
+   */
+<span class="fc" id="L345">  public static final LdaptiveAttribute&lt;String&gt; USER_TITLE = define(&quot;title&quot;);</span>
+
+  /**
+   * The constant USER_UID.
+   */
+<span class="fc" id="L350">  public static final LdaptiveAttribute&lt;String&gt; USER_UID = define(&quot;uid&quot;);</span>
+
+  /**
+   * The constant USER_UID_NUMBER.
+   */
+<span class="fc" id="L355">  public static final LdaptiveAttribute&lt;Integer&gt; USER_UID_NUMBER = define(</span>
+      &quot;uidNumber&quot;,
+      false,
+<span class="fc" id="L358">      ValueTranscoderFactory.getIntegerValueTranscoder());</span>
+
+  /**
+   * The constant USER_UNIX_HOME_DIRECTORY.
+   */
+<span class="fc" id="L363">  public static final LdaptiveAttribute&lt;String&gt; USER_UNIX_HOME_DIRECTORY = define(</span>
+      &quot;unixHomeDirectory&quot;);
+
+  /**
+   * The constant USER_PRINCIPAL_NAME.
+   */
+<span class="fc" id="L369">  public static final LdaptiveAttribute&lt;String&gt; USER_PRINCIPAL_NAME = define(</span>
+      &quot;userPrincipalName&quot;);
+
+  /**
+   * The constant USER_USER_ACCOUNT_CONTROL.
+   */
+<span class="fc" id="L375">  public static final LdaptiveAttribute&lt;UserAccountControl&gt; USER_USER_ACCOUNT_CONTROL = define(</span>
+      &quot;userAccountControl&quot;,
+      false,
+<span class="fc" id="L378">      ValueTranscoderFactory.getUserAccountControlValueTranscoder());</span>
+
+  /**
+   * The constant USER_UNICODE_PWD.
+   */
+<span class="fc" id="L383">  public static final LdaptiveAttribute&lt;String&gt; USER_UNICODE_PWD = define(</span>
+      &quot;unicodePwd&quot;,
+      true,
+<span class="fc" id="L386">      ValueTranscoderFactory.getUnicodePwdValueTranscoder());</span>
+
+  /**
+   * The constant USER_JPEG_PHOTO.
+   */
+<span class="fc" id="L391">  public static final LdaptiveAttribute&lt;byte[]&gt; USER_JPEG_PHOTO = define(</span>
+      &quot;jpegPhoto&quot;,
+      true,
+<span class="fc" id="L394">      ValueTranscoderFactory.getByteArrayValueTranscoder());</span>
+
+  /**
+   * The sid value transcoder.
+   *
+   * @author Christian Bremer
+   */
+<span class="fc" id="L401">  static class SidValueTranscoder extends AbstractBinaryValueTranscoder&lt;Sid&gt; {</span>
+
+    @Override
+    public Sid decodeBinaryValue(byte[] value) {
+<span class="fc" id="L405">      return Optional.ofNullable(value)</span>
+<span class="fc" id="L406">          .map(SecurityIdentifier::toString)</span>
+<span class="fc" id="L407">          .map(objectSid -&gt; Sid.builder()</span>
+<span class="fc" id="L408">              .value(objectSid)</span>
+<span class="fc" id="L409">              .build())</span>
+<span class="fc" id="L410">          .orElse(null);</span>
+    }
+
+    @Override
+    public byte[] encodeBinaryValue(Sid value) {
+<span class="fc" id="L415">      return Optional.ofNullable(value)</span>
+<span class="fc" id="L416">          .map(Sid::getValue)</span>
+<span class="fc" id="L417">          .map(SecurityIdentifier::toBytes)</span>
+<span class="fc" id="L418">          .orElse(null);</span>
+    }
+
+    @Override
+    public Class&lt;Sid&gt; getType() {
+<span class="fc" id="L423">      return Sid.class;</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
