@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Profile;
         title = "Samba AD DC Manager API",
         summary = "The Samba AD DC Manager API",
         description = "RESTful service for Samba AD DC Manager.",
-        version = "3.0.4-SNAPSHOT",
+        version = "3.0.4-STABLE",
         license = @License(
             name = "Apache 2.0",
             url = "https://www.apache.org/licenses/LICENSE-2.0.html"
