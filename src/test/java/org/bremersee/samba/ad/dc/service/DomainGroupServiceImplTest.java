@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.bremersee.comparator.spring.mapper.SortMapper;
@@ -87,7 +88,7 @@ class DomainGroupServiceImplTest {
     DomainGroup a = group("a");
     DomainGroup b = group("b");
     DomainGroup c = group("c");
-    doAnswer(invocation -> List.of(b, c, a).stream())
+    doAnswer(invocation -> Stream.of(b, c, a))
         .when(groupRepository)
         .findAll("q", OU, TreeSearchScope.ONELEVEL);
     Page<DomainGroup> actual = target.getGroups(
@@ -103,7 +104,7 @@ class DomainGroupServiceImplTest {
   @Test
   void getMemberships() {
     DomainGroup a = group("a");
-    doAnswer(invocation -> List.of(a).stream())
+    doAnswer(invocation -> Stream.of(a))
         .when(memberRepository)
         .getMemberships("user", OU, TreeSearchScope.SUBTREE);
     assertThat(target.getMemberships("user", OU, TreeSearchScope.SUBTREE))
@@ -117,7 +118,7 @@ class DomainGroupServiceImplTest {
   void resolveMemberships() {
     DomainGroup a = group("a");
     DomainGroup b = group("b");
-    doAnswer(invocation -> List.of(a, b).stream())
+    doAnswer(invocation -> Stream.of(a, b))
         .when(memberRepository)
         .resolveMemberships("user", OU, TreeSearchScope.SUBTREE);
     assertThat(target.resolveMemberships("user", OU, TreeSearchScope.SUBTREE))
@@ -142,7 +143,7 @@ class DomainGroupServiceImplTest {
         .memberType(DomainGroupMemberType.USER)
         .build();
     List<DomainGroupMemberType> types = List.of(DomainGroupMemberType.USER);
-    doAnswer(invocation -> List.of(m2, m1).stream())
+    doAnswer(invocation -> Stream.of(m2, m1))
         .when(memberRepository)
         .getMemberSelection("group", OU, TreeSearchScope.ONELEVEL, "q", types, true);
     Page<DomainGroupMember> actual = target.getMemberSelection(

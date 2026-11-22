@@ -24,8 +24,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.bremersee.comparator.spring.mapper.SortMapper;
@@ -81,7 +81,7 @@ class DomainComputerServiceImplTest {
     DomainComputer a = computer("a");
     DomainComputer b = computer("b");
     DomainComputer c = computer("c");
-    doAnswer(invocation -> List.of(c, a, b).stream())
+    doAnswer(invocation -> Stream.of(c, a, b))
         .when(repository)
         .findAll("q", OU, TreeSearchScope.ONELEVEL);
 

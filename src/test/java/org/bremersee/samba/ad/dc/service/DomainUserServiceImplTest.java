@@ -30,8 +30,8 @@ import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.bremersee.comparator.spring.mapper.SortMapper;
@@ -100,7 +100,7 @@ class DomainUserServiceImplTest {
     DomainUser a = user("anna");
     DomainUser b = user("bert");
     DomainUser c = user("carl");
-    doAnswer(invocation -> List.of(c, a, b).stream())
+    doAnswer(invocation -> Stream.of(c, a, b))
         .when(userRepository)
         .findAll("q", OU, TreeSearchScope.ONELEVEL);
     Page<DomainUser> actual = target.getUsers(
@@ -160,7 +160,7 @@ class DomainUserServiceImplTest {
    */
   @Test
   void getUserAvatar() {
-    byte[] expected = new byte[]{1, 2, 3};
+    byte[] expected = {1, 2, 3};
     doReturn(Optional.of(expected))
         .when(avatarRepository)
         .findAvatar("anna", OU, TreeSearchScope.SUBTREE, AvatarDefault.MP, 80);

@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.bremersee.comparator.spring.mapper.SortMapper;
@@ -128,7 +129,7 @@ class OrganizationalUnitServiceImplTest {
    */
   @Test
   void getOrganizationalUnitsWithPaging(SoftAssertions softly) {
-    doAnswer(invocation -> List.of(users, sales, marketing).stream())
+    doAnswer(invocation -> Stream.of(users, sales, marketing))
         .when(repository)
         .findAll();
 
@@ -156,7 +157,7 @@ class OrganizationalUnitServiceImplTest {
    */
   @Test
   void getOrganizationalUnits() {
-    doAnswer(invocation -> List.of(marketing, sales).stream())
+    doAnswer(invocation -> Stream.of(marketing, sales))
         .when(repository)
         .findCustomOus();
     assertThat(target.getOrganizationalUnits())
@@ -170,7 +171,7 @@ class OrganizationalUnitServiceImplTest {
    */
   @Test
   void getOrganizationalUnitsWithSystemOusAndBase(SoftAssertions softly) {
-    doAnswer(invocation -> List.of(users, marketing, sales).stream())
+    doAnswer(invocation -> Stream.of(users, marketing, sales))
         .when(repository)
         .findAll();
     softly.assertThat(target.getOrganizationalUnitsWithSystemOus())
@@ -245,13 +246,13 @@ class OrganizationalUnitServiceImplTest {
         .distinguishedName("CN=anna,OU=Sales," + BASE_DN)
         .samAccountName("anna")
         .build();
-    doAnswer(invocation -> List.<AdEntry>of(anna, marketing).stream())
+    doAnswer(invocation -> Stream.<AdEntry>of(anna, marketing))
         .when(repository)
         .getChildren(salesDn);
 
     Page<AdEntry> actual = target.getChildren(
         salesDn, PageRequest.of(0, 10, Sort.by(ModelConstants.DISCRIMINATOR)));
-    List<AdEntry> expected = List.<AdEntry>of(anna, marketing).stream()
+    List<AdEntry> expected = Stream.<AdEntry>of(anna, marketing)
         .sorted(Comparator.comparingInt(e -> e.getAdEntryType().getSortOrder()))
         .toList();
     softly.assertThat(actual.getContent())
