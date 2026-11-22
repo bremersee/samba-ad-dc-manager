@@ -18,11 +18,9 @@ package org.bremersee.samba.ad.dc.service;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNullElse;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +36,8 @@ import org.bremersee.samba.ad.dc.model.DnsEntry;
 import org.bremersee.samba.ad.dc.model.DnsEntryType;
 import org.bremersee.samba.ad.dc.model.DnsZone;
 import org.bremersee.samba.ad.dc.model.DnsZoneType;
+import org.bremersee.samba.ad.dc.model.comparator.DnsEntryNameComparator;
+import org.bremersee.samba.ad.dc.model.comparator.DnsEntryValueComparator;
 import org.bremersee.samba.ad.dc.repository.DhcpRepository;
 import org.bremersee.samba.ad.dc.repository.DnsEntryRepository;
 import org.bremersee.samba.ad.dc.repository.DnsZoneRepository;
@@ -56,9 +56,6 @@ import org.springframework.validation.annotation.Validated;
 @Service
 @Validated
 public class DnsServiceImpl implements DnsService, ErrorCode {
-
-  private static final Pattern IPV4_PATTERN = Pattern.compile(
-      "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
 
   private final SortMapper sortMapper;
 
@@ -147,50 +144,10 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
         .pageable(sortMapper.applyDefaults(pageable, null, true, null))
         .targetSortFn(sortOrderItem -> {
           if ("name".equalsIgnoreCase(sortOrderItem.getField())) {
-            return (Comparator<DnsEntry>) (o1, o2) -> {
-              String n1 = requireNonNullElse(o1.getName(), "");
-              String n2 = requireNonNullElse(o2.getName(), "");
-              if (DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n1)
-                  && !DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n2)) {
-                return -1;
-              }
-              if (!DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n1)
-                  && DnsEntryRepository.ZONE_ENTRIES_NODE_NAME.equals(n2)) {
-                return 1;
-              }
-              if (DnsEntryType.PTR.equals(o1.getType()) && DnsEntryType.PTR.equals(o2.getType())) {
-                return String.format("%255s", n1).compareToIgnoreCase(String.format("%255s", n2));
-              }
-              return n1.compareToIgnoreCase(n2);
-            };
+            return new DnsEntryNameComparator();
           }
           if ("value".equalsIgnoreCase(sortOrderItem.getField())) {
-            return (Comparator<DnsEntry>) (o1, o2) -> {
-              String n1 = requireNonNullElse(o1.getValue(), "");
-              String n2 = requireNonNullElse(o2.getValue(), "");
-              if (IPV4_PATTERN.matcher(n1).matches() && IPV4_PATTERN.matcher(n2).matches()) {
-                String[] a1 = n1.split("\\.");
-                String[] a2 = n2.split("\\.");
-                if (a1.length == a2.length) {
-                  for (int i = a1.length - 1; i >= 0; i--) {
-                    try {
-                      int i1 = Integer.parseInt(a1[i]);
-                      int i2 = Integer.parseInt(a2[i]);
-                      int r = Integer.compare(i1, i2);
-                      if (r != 0) {
-                        return r;
-                      }
-                    } catch (NumberFormatException e) {
-                      int r = a1[i].compareToIgnoreCase(a2[i]);
-                      if (r != 0) {
-                        return r;
-                      }
-                    }
-                  }
-                }
-              }
-              return n1.compareToIgnoreCase(n2);
-            };
+            return new DnsEntryValueComparator();
           }
           return new ValueComparator(sortOrderItem);
         })
@@ -290,7 +247,7 @@ public class DnsServiceImpl implements DnsService, ErrorCode {
       ipList.add("1");
     }
     String ip = String.join(".", ipList);
-    if (IPV4_PATTERN.matcher(ip).matches()) {
+    if (DnsEntry.IPV4_PATTERN.matcher(ip).matches()) {
       return DnsEntryType.A;
     }
     return DnsEntryType.AAAA;
