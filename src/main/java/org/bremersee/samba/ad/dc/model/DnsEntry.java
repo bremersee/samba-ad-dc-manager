@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNullElse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Style.ImplementationVisibility;
@@ -58,6 +58,12 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(as = ImmutableDnsEntry.class)
 @JsonDeserialize(as = ImmutableDnsEntry.class)
 public interface DnsEntry extends AdEntry {
+
+  /**
+   * The constant IPV4_PATTERN.
+   */
+  Pattern IPV4_PATTERN = Pattern.compile(
+      "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
 
   /**
    * The constant CONFLICT_IDENTIFIER.
