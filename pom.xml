@@ -7,13 +7,13 @@
   <parent>
     <groupId>org.bremersee</groupId>
     <artifactId>common-service-parent</artifactId>
-    <version>6.1.8-SNAPSHOT</version>
+    <version>6.1.8</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <artifactId>samba-ad-dc-manager</artifactId>
   <!--> Use -STABLE for releases, so that dpkg knows, that there is a newer version. -->
-  <version>3.0.5-SNAPSHOT</version>
+  <version>3.0.5-STABLE</version>
   <packaging>jar</packaging>
 
   <name>Samba AD DC Manager</name>
