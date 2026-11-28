@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.service</a> &gt; <span class="el_source">DomainServiceImpl.java</span></div><h1>DomainServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import java.util.Map;
+import org.bremersee.samba.ad.dc.misc.TemplateEngineContextSupplier;
+import org.bremersee.samba.ad.dc.model.DomainInfo;
+import org.bremersee.samba.ad.dc.model.PasswordInformation;
+import org.bremersee.samba.ad.dc.repository.DomainRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The domain service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Service(&quot;domainService&quot;)
+@Validated
+public class DomainServiceImpl implements DomainService, TemplateEngineContextSupplier {
+
+  private final DomainRepository domainRepository;
+
+  /**
+   * Instantiates a new domain service.
+   *
+   * @param domainRepository the domain repository
+   */
+  public DomainServiceImpl(
+<span class="fc" id="L44">      DomainRepository domainRepository) {</span>
+<span class="fc" id="L45">    this.domainRepository = domainRepository;</span>
+<span class="fc" id="L46">  }</span>
+
+  @Override
+  public Map&lt;String, Object&gt; getTemplateEngineContext() {
+<span class="fc" id="L50">    return Map.of(&quot;domain&quot;, domainRepository);</span>
+  }
+
+  @Override
+  public DomainInfo getDomainInfo() {
+<span class="fc" id="L55">    return domainRepository.getDomainInfo();</span>
+  }
+
+  @Override
+  public DomainInfo getDomainInfo(String ipOrHostname) {
+<span class="fc" id="L60">    return domainRepository.getDomainInfo(ipOrHostname);</span>
+  }
+
+  @Override
+  public boolean isRfc2307Enabled() {
+<span class="fc" id="L65">    return domainRepository.isRfc2307Enabled();</span>
+  }
+
+  @Override
+  public PasswordInformation getPasswordInformation() {
+<span class="fc" id="L70">    return domainRepository.getPasswordInformation();</span>
+  }
+
+  @Override
+  public String createRandomPassword() {
+<span class="fc" id="L75">    return domainRepository.createRandomPassword();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

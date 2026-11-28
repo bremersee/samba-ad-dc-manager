@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnitNavigationComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui.shared</a> &gt; <span class="el_source">OrganizationalUnitNavigationComponent.java</span></div><h1>OrganizationalUnitNavigationComponent.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui.shared;
+
+import java.util.List;
+import java.util.Optional;
+import org.bremersee.samba.ad.dc.controller.DnToolProvider;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.ui.ModelMap;
+
+/**
+ * The organizational unit selector.
+ *
+ * @author Christian Bremer
+ */
+public interface OrganizationalUnitNavigationComponent extends DnToolProvider,
+    CurrentPageNameProvider, PageableComponent, MessageProvider {
+
+  /**
+   * Gets organizational unit service.
+   *
+   * @return the organizational unit service
+   */
+  OrganizationalUnitService getOrganizationalUnitService();
+
+  /**
+   * Gets default search scope.
+   *
+   * @return the default search scope
+   */
+  TreeSearchScope getDefaultSearchScope();
+
+  /**
+   * Add organizational unit dropdown to model.
+   *
+   * @param model the model
+   * @param selector the selector
+   */
+  default void addOrganizationalUnitDropdown(ModelMap model, OrganizationalUnitDropdown selector) {
+<span class="nc" id="L58">    model.addAttribute(&quot;ouDropdown&quot;, selector);</span>
+<span class="nc" id="L59">  }</span>
+
+  /**
+   * Gets organizational unit dropdown.
+   *
+   * @param ou the ou
+   * @param scope the scope
+   * @return the organizational unit dropdown
+   */
+  default OrganizationalUnitDropdown getOrganizationalUnitDropdown(
+      Dn ou,
+      TreeSearchScope scope) {
+
+<span class="nc" id="L72">    Dn selectedOuDn = getDnTool().addBaseDn(Optional.ofNullable(ou)</span>
+<span class="nc" id="L73">        .filter(dn -&gt; getOrganizationalUnitService().organisationUnitExists(dn))</span>
+<span class="nc" id="L74">        .orElse(null));</span>
+<span class="nc" id="L75">    List&lt;OrganizationalUnit&gt; orgUnits = getOrganizationalUnitService()</span>
+<span class="nc" id="L76">        .getOrganizationalUnitsWithSystemOusAndBase()</span>
+<span class="nc" id="L77">        .toList();</span>
+<span class="nc" id="L78">    OrganizationalUnitDropdown ouDropdown = new OrganizationalUnitDropdown();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">    for (OrganizationalUnit orgUnit : orgUnits) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">      if (selectedOuDn.isSame(new Dn(orgUnit.getDistinguishedName()))) {</span>
+<span class="nc" id="L81">        ouDropdown.setSelectedOu(orgUnit);</span>
+      } else {
+<span class="nc" id="L83">        ouDropdown.getSelectableOus().add(orgUnit);</span>
+      }
+<span class="nc" id="L85">    }</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">    if (isBaseOu(ouDropdown.getSelectedOu())) {</span>
+<span class="nc" id="L87">      ouDropdown.setSelectedScope(TreeSearchScope.SUBTREE);</span>
+<span class="nc" id="L88">      ouDropdown.setSelectedScopeDisplayValue(getDisplayValue(TreeSearchScope.SUBTREE));</span>
+<span class="nc" id="L89">      ouDropdown.setSelectableScope(TreeSearchScope.ONELEVEL);</span>
+<span class="nc" id="L90">      ouDropdown.setSelectableScopeDisplayValue(getDisplayValue(TreeSearchScope.ONELEVEL));</span>
+<span class="nc" id="L91">      ouDropdown.setScopeSelectable(false);</span>
+    } else {
+<span class="nc" id="L93">      TreeSearchScope selectedScope = Optional.ofNullable(scope)</span>
+<span class="nc" id="L94">          .or(() -&gt; Optional.ofNullable(getDefaultSearchScope()))</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">          .filter(s -&gt; s == TreeSearchScope.SUBTREE || s == TreeSearchScope.ONELEVEL)</span>
+<span class="nc" id="L96">          .orElse(TreeSearchScope.ONELEVEL);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">      TreeSearchScope selectableScope = selectedScope == TreeSearchScope.SUBTREE</span>
+<span class="nc" id="L98">          ? TreeSearchScope.ONELEVEL</span>
+<span class="nc" id="L99">          : TreeSearchScope.SUBTREE;</span>
+<span class="nc" id="L100">      ouDropdown.setSelectedScope(selectedScope);</span>
+<span class="nc" id="L101">      ouDropdown.setSelectedScopeDisplayValue(getDisplayValue(selectedScope));</span>
+<span class="nc" id="L102">      ouDropdown.setSelectableScope(selectableScope);</span>
+<span class="nc" id="L103">      ouDropdown.setSelectableScopeDisplayValue(getDisplayValue(selectableScope));</span>
+<span class="nc" id="L104">      ouDropdown.setScopeSelectable(true);</span>
+    }
+<span class="nc" id="L106">    return ouDropdown;</span>
+  }
+
+  /**
+   * Determines whether the given organization unit is the base.
+   *
+   * @param ou the organization unit
+   * @return {@code true} if the organizational unit is the base, otherwise {@code false}
+   */
+  default boolean isBaseOu(OrganizationalUnit ou) {
+<span class="nc" id="L116">    return DnTool.isSameDn(getDnTool().getBaseDn(), new Dn(ou.getDistinguishedName()));</span>
+  }
+
+  /**
+   * Gets the display value of the given search scope.
+   *
+   * @param scope the search scope
+   * @return the display value
+   */
+  default String getDisplayValue(TreeSearchScope scope) {
+<span class="nc" id="L126">    return getMessage(scope.getDefaultDisplayName(), scope.getI18nCode());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

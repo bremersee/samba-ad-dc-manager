@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainGroupServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.service</a> &gt; <span class="el_source">DomainGroupServiceImpl.java</span></div><h1>DomainGroupServiceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.service;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.comparator.spring.mapper.SortMapper;
+import org.bremersee.pagebuilder.PageBuilder;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.DomainGroupMember;
+import org.bremersee.samba.ad.dc.model.DomainGroupMemberType;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.repository.DomainGroupMemberRepository;
+import org.bremersee.samba.ad.dc.repository.DomainGroupRepository;
+import org.ldaptive.dn.Dn;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The domain group service implementation.
+ *
+ * @author Christian Bremer
+ */
+@Service(&quot;domainGroupService&quot;)
+@Validated
+<span class="fc" id="L45">@Slf4j</span>
+public class DomainGroupServiceImpl implements DomainGroupService {
+
+  private final SortMapper sortMapper;
+
+  private final DomainGroupRepository domainGroupRepository;
+
+  private final DomainGroupMemberRepository domainGroupMemberRepository;
+
+  /**
+   * Instantiates a new domain group service.
+   *
+   * @param sortMapper the sort mapper
+   * @param domainGroupRepository the domain group repository
+   * @param domainGroupMemberRepository the domain group member repository
+   */
+  public DomainGroupServiceImpl(
+      SortMapper sortMapper,
+      DomainGroupRepository domainGroupRepository,
+<span class="fc" id="L64">      DomainGroupMemberRepository domainGroupMemberRepository) {</span>
+<span class="fc" id="L65">    this.sortMapper = sortMapper;</span>
+<span class="fc" id="L66">    this.domainGroupRepository = domainGroupRepository;</span>
+<span class="fc" id="L67">    this.domainGroupMemberRepository = domainGroupMemberRepository;</span>
+<span class="fc" id="L68">  }</span>
+
+  @Override
+  public Page&lt;DomainGroup&gt; getGroups(Pageable pageable, String query, Dn ou,
+      TreeSearchScope scope) {
+<span class="fc" id="L73">    return new PageBuilder&lt;DomainGroup, DomainGroup&gt;()</span>
+<span class="fc" id="L74">        .sourceEntries(domainGroupRepository.findAll(query, ou, scope))</span>
+<span class="fc" id="L75">        .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="fc" id="L76">        .build();</span>
+  }
+
+  @Override
+  public Stream&lt;DomainGroup&gt; getMemberships(String samAccountName, Dn ou,
+      TreeSearchScope searchScope) {
+<span class="fc" id="L82">    return domainGroupMemberRepository.getMemberships(samAccountName, ou, searchScope);</span>
+  }
+
+  @Override
+  public Stream&lt;DomainGroup&gt; resolveMemberships(String samAccountName, Dn ou,
+      TreeSearchScope searchScope) {
+<span class="fc" id="L88">    return domainGroupMemberRepository.resolveMemberships(samAccountName, ou, searchScope);</span>
+  }
+
+  @Override
+  public Page&lt;DomainGroupMember&gt; getMemberSelection(
+      Pageable pageable,
+      String query,
+      Collection&lt;DomainGroupMemberType&gt; memberTypes,
+      boolean withPrimaryMembers,
+      String groupName,
+      Dn ou,
+      TreeSearchScope searchScope) {
+
+<span class="fc" id="L101">    return new PageBuilder&lt;DomainGroupMember, DomainGroupMember&gt;()</span>
+<span class="fc" id="L102">        .sourceEntries(domainGroupMemberRepository</span>
+<span class="fc" id="L103">            .getMemberSelection(groupName, ou, searchScope, query, memberTypes, withPrimaryMembers))</span>
+<span class="fc" id="L104">        .pageable(sortMapper.applyDefaults(pageable, null, true, null))</span>
+<span class="fc" id="L105">        .build();</span>
+  }
+
+  @Override
+  public DomainGroup modifyMembers(String groupName, Dn ou, TreeSearchScope searchScope,
+      Set&lt;String&gt; membersToAdd, Set&lt;String&gt; membersToRemove) {
+<span class="fc" id="L111">    return domainGroupMemberRepository</span>
+<span class="fc" id="L112">        .modifyMembers(groupName, ou, searchScope, membersToAdd, membersToRemove);</span>
+  }
+
+
+  @Override
+  public DomainGroup addGroup(DomainGroup domainGroup, Dn dn) {
+<span class="fc" id="L118">    return domainGroupRepository.add(domainGroup, dn);</span>
+  }
+
+  @Override
+  public Optional&lt;DomainGroup&gt; getGroup(String groupName, Dn ou, TreeSearchScope scope) {
+<span class="fc" id="L123">    return domainGroupRepository.findOne(groupName, ou, scope);</span>
+  }
+
+  @Override
+  public Optional&lt;DomainGroup&gt; getGroupByPrimaryGroupId(Integer primaryGroupId) {
+<span class="fc" id="L128">    return domainGroupRepository.findOneByPrimaryGroupId(primaryGroupId);</span>
+  }
+
+  @Override
+  public Optional&lt;DomainGroup&gt; getGroupByUnixGroupId(Integer unixGroupId) {
+<span class="fc" id="L133">    return domainGroupRepository.findOneByGidNumber(unixGroupId);</span>
+  }
+
+  @Override
+  public DomainGroup updateGroup(String groupName, DomainGroup domainGroup, Dn newOu) {
+<span class="fc" id="L138">    log.debug(&quot;updateGroup({}, {}, {})&quot;, groupName, domainGroup.getSamAccountName(), newOu);</span>
+<span class="fc" id="L139">    return domainGroupRepository.update(groupName, domainGroup, newOu);</span>
+  }
+
+  @Override
+  public Boolean deleteGroup(String groupName) {
+<span class="fc" id="L144">    return domainGroupRepository.delete(groupName);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

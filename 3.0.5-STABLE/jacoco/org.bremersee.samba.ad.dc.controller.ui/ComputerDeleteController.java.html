@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComputerDeleteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">ComputerDeleteController.java</span></div><h1>ComputerDeleteController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Optional;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.ui.model.SamAccountDeleteModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The computer delete controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class ComputerDeleteController extends UiController implements PageableComponent,
+    OrganizationalUnitComponent {
+
+  private final DomainComputerService domainComputerService;
+
+  /**
+   * Instantiates a new computer delete controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   */
+  public ComputerDeleteController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainComputerService domainComputerService) {
+<span class="nc" id="L67">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L68">    this.domainComputerService = domainComputerService;</span>
+<span class="nc" id="L69">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L73">    return COMPUTER_SORT;</span>
+  }
+
+  /**
+   * Display computer delete.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
+  @GetMapping(path = &quot;/management/computer-delete&quot;)
+  public String displayComputerDelete(
+      @RequestParam(value = &quot;name&quot;, required = false) String computerName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L94">    return Optional.ofNullable(computerName)</span>
+<span class="nc" id="L95">        .flatMap(name -&gt; domainComputerService.getComputer(computerName, ou, searchScope))</span>
+<span class="nc" id="L96">        .map(computer -&gt; {</span>
+<span class="nc" id="L97">          model.addAttribute(COMPUTER, computer);</span>
+<span class="nc" id="L98">          model.addAttribute(&quot;deleteModel&quot;, new SamAccountDeleteModel(computer));</span>
+<span class="nc" id="L99">          return &quot;management/computer-delete&quot;;</span>
+        })
+<span class="nc" id="L101">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            &quot;Computer&quot;,
+            &quot;computer.not-found&quot;,
+            computerName,
+            PAGE_AND_OU_PARAMS,
+            COMPUTERS));
+  }
+
+  /**
+   * Delete computer.
+   *
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param deleteModel the delete model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
+  @PostMapping(path = &quot;/management/computer-delete&quot;)
+  public String deleteComputer(
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      @ModelAttribute(&quot;deleteModel&quot;) SamAccountDeleteModel deleteModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L130">    getLogger().debug(&quot;deleteComputer({})&quot;, deleteModel);</span>
+<span class="nc" id="L131">    return Optional.ofNullable(deleteModel.getSamAccountName())</span>
+<span class="nc" id="L132">        .flatMap(name -&gt; domainComputerService.getComputer(name, ou, searchScope))</span>
+<span class="nc" id="L133">        .map(computer -&gt; {</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">          if (isVerified(computer, deleteModel)) {</span>
+<span class="nc" id="L135">            return deleteComputer(computer, model, redirectAttributes);</span>
+          }
+<span class="nc" id="L137">          bindingResult.rejectValue(</span>
+              &quot;verificationName&quot;,
+              &quot;computer-delete.name-does-not-match&quot;,
+              &quot;The name doesn't match.&quot;);
+<span class="nc" id="L141">          model.addAttribute(COMPUTER, computer);</span>
+<span class="nc" id="L142">          return &quot;management/computer-delete&quot;;</span>
+        })
+<span class="nc" id="L144">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            COMPUTER,
+            &quot;computer.not-found&quot;,
+<span class="nc" id="L148">            deleteModel.getSamAccountName(),</span>
+            PAGE_AND_OU_PARAMS,
+            COMPUTERS));
+  }
+
+  private String deleteComputer(
+      DomainComputer computer,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L158">    boolean result = domainComputerService.deleteComputer(computer.getSamAccountName());</span>
+<span class="nc" id="L159">    model.clear();</span>
+    RedirectMessage redirectMessage;
+<span class="nc bnc" id="L161" title="All 2 branches missed.">    if (result) {</span>
+<span class="nc" id="L162">      redirectMessage = getRedirectMessage(</span>
+          RedirectMessageType.SUCCESS,
+<span class="nc" id="L164">          String.format(&quot;Computer '%s' was successfully deleted.&quot;, computer.getName()),</span>
+          &quot;computer-delete.success&quot;,
+<span class="nc" id="L166">          computer.getName());</span>
+    } else {
+<span class="nc" id="L168">      redirectMessage = getRedirectMessage(</span>
+          RedirectMessageType.WARNING,
+<span class="nc" id="L170">          String.format(&quot;Somehow the computer '%s' was not deleted.&quot;, computer.getName()),</span>
+          &quot;computer-delete.failure&quot;,
+<span class="nc" id="L172">          computer.getName());</span>
+    }
+<span class="nc" id="L174">    redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, redirectMessage);</span>
+<span class="nc" id="L175">    String redirect = getRedirectUri(</span>
+        COMPUTERS,
+        PAGE_AND_OU_PARAMS,
+<span class="nc" id="L178">        getParameterMap());</span>
+<span class="nc" id="L179">    logRedirectTo(&quot;Computer deletion message.&quot;, redirect);</span>
+<span class="nc" id="L180">    return redirect;</span>
+  }
+
+  private boolean isVerified(DomainComputer computer, SamAccountDeleteModel deleteModel) {
+<span class="nc bnc" id="L184" title="All 4 branches missed.">    if (isEmpty(computer) || isEmpty(deleteModel)) {</span>
+<span class="nc" id="L185">      return false;</span>
+    }
+<span class="nc" id="L187">    return Optional.ofNullable(computer.getName())</span>
+<span class="nc" id="L188">        .filter(name -&gt; name.equalsIgnoreCase(deleteModel.getVerificationName()))</span>
+<span class="nc" id="L189">        .isPresent();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

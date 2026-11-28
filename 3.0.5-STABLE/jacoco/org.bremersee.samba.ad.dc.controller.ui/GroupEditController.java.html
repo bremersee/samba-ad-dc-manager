@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupEditController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">GroupEditController.java</span></div><h1>GroupEditController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import static java.util.Objects.requireNonNullElse;
+
+import java.util.Map;
+import java.util.Optional;
+import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.GroupEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.GroupEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainGroup;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The group edit controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class GroupEditController extends UiController implements PageableComponent,
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
+
+  private final DomainGroupService domainGroupService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new group edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public GroupEditController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainGroupService domainGroupService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L81">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L82">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L83">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L84">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L88">    return GROUP_SORT;</span>
+  }
+
+  /**
+   * Determines whether rfc 2307 is enabled or not.
+   *
+   * @return {@code true} if rfc 2307 is enabled, otherwise {@code false}
+   */
+  @ModelAttribute(&quot;rfc2307Enabled&quot;)
+  public boolean isRfc2307Enabled() {
+<span class="nc" id="L98">    return getDomainService().isRfc2307Enabled();</span>
+  }
+
+  /**
+   * Display group edit view.
+   *
+   * @param groupName the group name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @GetMapping(path = &quot;/management/group-edit&quot;)
+  public String displayGroupEdit(
+      @RequestParam(value = &quot;name&quot;, required = false) String groupName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L119">    return Optional.ofNullable(groupName)</span>
+<span class="nc" id="L120">        .flatMap(name -&gt; domainGroupService.getGroup(name, ou, searchScope))</span>
+<span class="nc" id="L121">        .map(group -&gt; {</span>
+<span class="nc" id="L122">          model.addAttribute(GROUP, group);</span>
+<span class="nc" id="L123">          GroupEditModel editModel = GroupEditModelMapper.INSTANCE.map(group);</span>
+<span class="nc" id="L124">          model.addAttribute(&quot;editModel&quot;, editModel);</span>
+<span class="nc" id="L125">          return &quot;management/group-edit&quot;;</span>
+        })
+<span class="nc" id="L127">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            &quot;Group&quot;,
+            &quot;group.not-found&quot;,
+            groupName,
+            PAGE_AND_OU_PARAMS,
+            GROUPS));
+  }
+
+  /**
+   * Update group.
+   *
+   * @param oldSamAccountName the old sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the view
+   */
+  @PostMapping(path = &quot;/management/group-edit&quot;)
+  public String updateGroup(
+      @RequestParam(value = &quot;name&quot;, required = false) String oldSamAccountName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      @ModelAttribute(name = &quot;editModel&quot;) GroupEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L158">    getLogger().debug(&quot;updateGroup({}, {})&quot;, oldSamAccountName, editModel);</span>
+
+<span class="nc" id="L160">    return Optional.ofNullable(oldSamAccountName)</span>
+<span class="nc" id="L161">        .or(() -&gt; Optional.ofNullable(editModel.getSamAccountName()))</span>
+<span class="nc" id="L162">        .flatMap(oldName -&gt; domainGroupService.getGroup(oldName, ou, searchScope))</span>
+<span class="nc" id="L163">        .map(existingGroup -&gt; updateGroup(</span>
+            existingGroup, editModel, model, bindingResult, redirectAttributes))
+<span class="nc" id="L165">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            &quot;Group&quot;,
+            &quot;group.not-found&quot;,
+            oldSamAccountName,
+            PAGE_AND_OU_PARAMS,
+            GROUPS));
+  }
+
+  private String updateGroup(
+      DomainGroup existingGroup,
+      GroupEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L181">    String oldSamAccountName = existingGroup.getSamAccountName();</span>
+<span class="nc" id="L182">    DomainGroup newGroup = GroupEditModelMapper.INSTANCE.merge(editModel, existingGroup);</span>
+    try {
+<span class="nc" id="L184">      Dn newOu = editModel.getNewOuDn()</span>
+<span class="nc" id="L185">          .map(ou -&gt; getDnTool().addBaseDn(ou))</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">          .filter(ou -&gt; !DnTool.isSameDn(ou, existingGroup.getDn().getParent()))</span>
+<span class="nc" id="L187">          .orElse(null);</span>
+<span class="nc" id="L188">      DomainGroup updatedGroup = domainGroupService</span>
+<span class="nc" id="L189">          .updateGroup(oldSamAccountName, newGroup, newOu);</span>
+<span class="nc" id="L190">      model.clear();</span>
+<span class="nc" id="L191">      String msg = String.format(&quot;Group '%s' was successfully updated.&quot;, updatedGroup.getName());</span>
+<span class="nc" id="L192">      RedirectMessage rmsg = getRedirectMessage(RedirectMessageType.SUCCESS, msg,</span>
+<span class="nc" id="L193">          &quot;group-edit.success&quot;, updatedGroup.getName());</span>
+<span class="nc" id="L194">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L196">      Map&lt;String, Object&gt; parameters = getParameterMap(updatedGroup.getDn().getParent());</span>
+<span class="nc" id="L197">      String redirect = getRedirectUri(&quot;group-edit?name={{group.samAccountName}}&quot;,</span>
+          PAGE_AND_OU_PARAMS,
+<span class="nc" id="L199">          putToParameterMap(parameters, GROUP, updatedGroup));</span>
+<span class="nc" id="L200">      logRedirectTo(&quot;Group successfully updated.&quot;, redirect);</span>
+<span class="nc" id="L201">      return redirect;</span>
+
+<span class="nc" id="L203">    } catch (ServiceException e) {</span>
+<span class="nc" id="L204">      handleException(bindingResult, e);</span>
+<span class="nc" id="L205">      String newSamAccountName = newGroup.getSamAccountName();</span>
+<span class="nc" id="L206">      DomainGroup partialUpdatedGroup = domainGroupService.getGroup(oldSamAccountName, null, null)</span>
+<span class="nc" id="L207">          .or(() -&gt; domainGroupService.getGroup(newSamAccountName, null, null))</span>
+<span class="nc" id="L208">          .orElse(existingGroup);</span>
+<span class="nc" id="L209">      model.addAttribute(</span>
+          AbstractController.OU,
+<span class="nc" id="L211">          partialUpdatedGroup.getDn().getParent().format());</span>
+<span class="nc" id="L212">      model.addAttribute(GROUP, partialUpdatedGroup);</span>
+<span class="nc" id="L213">      return &quot;management/group-edit&quot;;</span>
+    }
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L219">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L220">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L221">    Assert.isTrue(bindTarget instanceof GroupEditModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L222">    String errorCode = requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L223" title="All 9 branches missed.">    switch (errorCode) {</span>
+      case EC_SAM_ACCOUNT_NAME_REQUIRED: {
+<span class="nc" id="L225">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.required&quot;,</span>
+            &quot;Group name is required.&quot;);
+<span class="nc" id="L227">        break;</span>
+      }
+      case EC_ILLEGAL_SAM_ACCOUNT_NAME: {
+<span class="nc" id="L230">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.illegal&quot;,</span>
+            &quot;Group name contains illegal characters.&quot;);
+<span class="nc" id="L232">        break;</span>
+      }
+      case EC_SAM_ACCOUNT_ALREADY_EXISTS: {
+<span class="nc" id="L235">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.already-exists&quot;,</span>
+            &quot;Group already exists.&quot;);
+<span class="nc" id="L237">        break;</span>
+      }
+      case EC_GID_NUMBER_ALREADY_EXISTS: {
+<span class="nc" id="L240">        bindingResult.rejectValue(&quot;gidNumber&quot;, &quot;group.gid-number.already-exists&quot;,</span>
+            &quot;Unix GID number already exists.&quot;);
+<span class="nc" id="L242">        break;</span>
+      }
+      case EC_DN_ALREADY_EXISTS: {
+<span class="nc" id="L245">        bindingResult.rejectValue(SAM_ACCOUNT_NAME, &quot;group.name.already-exists&quot;,</span>
+            &quot;Distinguished name already exists.&quot;);
+<span class="nc" id="L247">        break;</span>
+      }
+      case EC_EMAIL_INVALID: {
+<span class="nc" id="L250">        bindingResult.rejectValue(&quot;email&quot;, &quot;common.email.invalid&quot;,</span>
+            &quot;Email is invalid.&quot;);
+<span class="nc" id="L252">        break;</span>
+      }
+      case EC_EMPTY_OU_RDN: {
+<span class="nc" id="L255">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;common.ou.required&quot;,</span>
+            &quot;Organizational unit is empty.&quot;);
+<span class="nc" id="L257">        break;</span>
+      }
+      case EC_OU_NOT_FOUND: {
+<span class="nc" id="L260">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;common.ou.not-found&quot;,</span>
+            &quot;Organizational unit was not found.&quot;);
+<span class="nc" id="L262">        break;</span>
+      }
+      default: {
+<span class="nc" id="L265">        getLogger().error(&quot;Editing group failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L266">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L269">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

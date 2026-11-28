@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SamAccountRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">SamAccountRepository.java</span></div><h1>SamAccountRepository.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static java.util.Objects.requireNonNullElseGet;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Optional;
+import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.model.SamAccount;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+
+/**
+ * The sam account repository.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L44">@Slf4j</span>
+public abstract class SamAccountRepository extends AdRepository {
+
+<span class="fc" id="L47">  private static final Pattern samAccountNamePattern = Pattern</span>
+<span class="fc" id="L48">      .compile(&quot;^[^/\\\\\\[\\]:;|=,+?&lt;&gt;@â€\u009D]+$&quot;);</span>
+
+  @Getter(AccessLevel.PROTECTED)
+  private final Pattern newSamAccountNamePattern;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final Pattern emailPattern;
+
+  /**
+   * Instantiates a new sam account repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   */
+  protected SamAccountRepository(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations) {
+<span class="fc" id="L65">    super(properties, ldapOperations);</span>
+<span class="fc" id="L66">    this.newSamAccountNamePattern = Pattern</span>
+<span class="fc" id="L67">        .compile(getProperties().getDomain().getNewSamAccountNameRegex());</span>
+<span class="fc" id="L68">    this.emailPattern = getProperties().getEmail().getEmailRegexFlags()</span>
+<span class="fc" id="L69">        .compile(getProperties().getEmail().getEmailRegex());</span>
+<span class="fc" id="L70">  }</span>
+
+  /**
+   * Gets default ou.
+   *
+   * @return the default ou
+   */
+  protected abstract Dn getDefaultOu();
+
+  /**
+   * Gets object class value.
+   *
+   * @return the object class value
+   */
+  protected abstract String getObjectClassValue();
+
+  /**
+   * Get binary attributes string [ ].
+   *
+   * @return the string [ ]
+   */
+  protected abstract String[] getBinaryAttributes();
+
+  /**
+   * Get return attributes string [ ].
+   *
+   * @return the string [ ]
+   */
+  protected abstract String[] getReturnAttributes();
+
+  /**
+   * Gets unique name attribute name.
+   *
+   * @return the unique name attribute name
+   */
+  protected String getUniqueNameAttributeName() {
+<span class="fc" id="L106">    return AdConstants.SAM_ACCOUNT_NAME.getName();</span>
+  }
+
+  /**
+   * Object class filter filter.
+   *
+   * @return the filter
+   */
+  protected Filter objectClassFilter() {
+<span class="fc" id="L115">    return new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue());</span>
+  }
+
+  /**
+   * Find one filter filter.
+   *
+   * @param uniqueName the unique name
+   * @return the filter
+   */
+  protected Filter findOneFilter(String uniqueName) {
+<span class="fc" id="L125">    return new AndFilter(</span>
+<span class="fc" id="L126">        objectClassFilter(),</span>
+<span class="fc" id="L127">        new EqualityFilter(getUniqueNameAttributeName(), uniqueName));</span>
+  }
+
+  /**
+   * Search one request search request.
+   *
+   * @param uniqueName the unique name
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
+  protected SearchRequest searchOneRequest(
+      String uniqueName,
+      String... returnAttributes) {
+<span class="fc" id="L140">    return searchOneRequest(uniqueName, null, null, returnAttributes);</span>
+  }
+
+  /**
+   * Search one request search request.
+   *
+   * @param uniqueName the unique name
+   * @param ouRdn the ou rdn
+   * @param scope the scope
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
+  protected SearchRequest searchOneRequest(
+      String uniqueName,
+      Dn ouRdn,
+      SearchScope scope,
+      String... returnAttributes) {
+<span class="fc" id="L157">    return searchOneRequest(uniqueName, ouRdn, null, scope, returnAttributes);</span>
+  }
+
+  /**
+   * Search one request search request.
+   *
+   * @param uniqueName the unique name
+   * @param ouRdn the ou rdn
+   * @param filter the filter
+   * @param scope the scope
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
+  protected SearchRequest searchOneRequest(
+      String uniqueName,
+      Dn ouRdn,
+      Filter filter,
+      SearchScope scope,
+      String... returnAttributes) {
+
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    if (getDnTool().isValidDnWithBaseDn(uniqueName)) {</span>
+<span class="nc" id="L178">      return SearchRequest.builder()</span>
+<span class="nc" id="L179">          .dn(uniqueName)</span>
+<span class="nc" id="L180">          .filter(objectClassFilter())</span>
+<span class="nc" id="L181">          .scope(SearchScope.OBJECT)</span>
+<span class="nc" id="L182">          .binaryAttributes(getBinaryAttributes())</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">          .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)</span>
+<span class="nc" id="L184">          .sizeLimit(1)</span>
+<span class="nc" id="L185">          .build();</span>
+    }
+<span class="fc" id="L187">    Dn ouDn = getDnTool().addBaseDn(ouRdn);</span>
+<span class="fc" id="L188">    return SearchRequest.builder()</span>
+<span class="fc" id="L189">        .dn(ouDn.format())</span>
+<span class="fc" id="L190">        .filter(requireNonNullElseGet(filter, () -&gt; findOneFilter(uniqueName)))</span>
+<span class="fc" id="L191">        .scope(Optional.ofNullable(scope)</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            .filter(searchScope -&gt; !ouDn.isSame(getDnTool().getBaseDn()))</span>
+<span class="fc" id="L193">            .orElse(SearchScope.SUBTREE))</span>
+<span class="fc" id="L194">        .binaryAttributes(getBinaryAttributes())</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)</span>
+<span class="fc" id="L196">        .sizeLimit(1)</span>
+<span class="fc" id="L197">        .build();</span>
+  }
+
+  /**
+   * Search all request search request.
+   *
+   * @param ouRdn the ou rdn
+   * @param filter the filter
+   * @param scope the scope
+   * @param returnAttributes the return attributes
+   * @return the search request
+   */
+  protected SearchRequest searchAllRequest(
+      Dn ouRdn,
+      Filter filter,
+      SearchScope scope,
+      String... returnAttributes) {
+<span class="fc" id="L214">    Dn ouDn = getDnTool().addBaseDn(ouRdn);</span>
+<span class="fc" id="L215">    return SearchRequest.builder()</span>
+<span class="fc" id="L216">        .dn(ouDn.format())</span>
+<span class="fc" id="L217">        .filter(filter)</span>
+<span class="fc" id="L218">        .scope(Optional.ofNullable(scope)</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">            .filter(searchScope -&gt; !ouDn.isSame(getDnTool().getBaseDn()))</span>
+<span class="fc" id="L220">            .orElse(SearchScope.SUBTREE))</span>
+<span class="fc" id="L221">        .binaryAttributes(getBinaryAttributes())</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">        .returnAttributes(isEmpty(returnAttributes) ? getReturnAttributes() : returnAttributes)</span>
+<span class="fc" id="L223">        .build();</span>
+  }
+
+  /**
+   * Validate email.
+   *
+   * @param email the email
+   */
+  protected void validateEmail(String email) {
+<span class="fc" id="L232">    Optional.ofNullable(email)</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        .filter(mail -&gt; !isEmpty(mail))</span>
+<span class="fc" id="L234">        .ifPresent(mail -&gt; {</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">          if (!emailPattern.matcher(mail).matches()) {</span>
+<span class="nc" id="L236">            throw ServiceException.badRequest(</span>
+<span class="nc" id="L237">                String.format(&quot;Invalid email address: '%s'.&quot;, email),</span>
+                EC_EMAIL_INVALID);
+          }
+<span class="fc" id="L240">        });</span>
+<span class="fc" id="L241">  }</span>
+
+  /**
+   * Validate sam account name.
+   *
+   * @param samAccount the sam account
+   */
+  protected void validateSamAccountName(SamAccount samAccount) {
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">    if (isEmpty(samAccount.getSamAccountName())) {</span>
+<span class="nc" id="L250">      throw ServiceException.badRequest(</span>
+          &quot;SamAccountName is required.&quot;, EC_SAM_ACCOUNT_NAME_REQUIRED);
+    }
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">    if (!samAccountNamePattern.matcher(samAccount.getSamAccountName()).matches()) {</span>
+<span class="nc" id="L254">      throw ServiceException.badRequest(</span>
+          &quot;SamAccountName contains illegal characters.&quot;, EC_ILLEGAL_SAM_ACCOUNT_NAME);
+    }
+<span class="fc" id="L257">  }</span>
+
+  /**
+   * Validate new sam account name.
+   *
+   * @param samAccount the sam account
+   */
+  protected void validateNewSamAccountName(SamAccount samAccount) {
+<span class="fc" id="L265">    validateSamAccountName(samAccount);</span>
+<span class="fc" id="L266">    boolean isInvalidNewSamAccountName = !newSamAccountNamePattern</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">        .matcher(samAccount.getSamAccountName()).matches();</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">    if (isInvalidNewSamAccountName) {</span>
+<span class="nc" id="L269">      throw ServiceException.badRequest(</span>
+          &quot;SamAccountName contains illegal characters.&quot;, EC_ILLEGAL_SAM_ACCOUNT_NAME);
+    }
+<span class="fc" id="L272">    boolean isForbidden = getProperties().getDomain().getForbiddenNewSamAccountNames().stream()</span>
+<span class="pc" id="L273">        .anyMatch(forbidden -&gt; samAccount.getSamAccountName().equalsIgnoreCase(forbidden));</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">    if (isForbidden) {</span>
+<span class="nc" id="L275">      throw ServiceException.badRequest(</span>
+          &quot;SamAccountName is forbidden.&quot;, EC_ILLEGAL_SAM_ACCOUNT_NAME);
+    }
+<span class="fc" id="L278">  }</span>
+
+  /**
+   * Sam account exists boolean.
+   *
+   * @param samAccount the sam account
+   * @return the boolean
+   */
+  protected boolean samAccountExists(SamAccount samAccount) {
+<span class="fc" id="L287">    return findDnOfSamAccount(samAccount).isPresent();</span>
+  }
+
+  /**
+   * Sam account name exists boolean.
+   *
+   * @param samAccountName the sam account name
+   * @return the boolean
+   */
+  protected boolean samAccountNameExists(String samAccountName) {
+<span class="fc" id="L297">    return findDnOfSamAccountName(samAccountName).isPresent();</span>
+  }
+
+  /**
+   * Find dn of sam account optional.
+   *
+   * @param samAccount the sam account
+   * @return the optional
+   */
+  protected Optional&lt;String&gt; findDnOfSamAccount(SamAccount samAccount) {
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">    if (isEmpty(samAccount)) {</span>
+<span class="nc" id="L308">      return Optional.empty();</span>
+    }
+<span class="fc" id="L310">    return findDnOfSamAccountName(samAccount.getSamAccountName());</span>
+  }
+
+  /**
+   * Find dn of sam account name optional.
+   *
+   * @param samAccountName the sam account name
+   * @return the optional
+   */
+  protected Optional&lt;String&gt; findDnOfSamAccountName(String samAccountName) {
+<span class="fc" id="L320">    log.debug(&quot;findDnOfSamAccountName({})&quot;, samAccountName);</span>
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">    if (isEmpty(samAccountName)) {</span>
+<span class="nc" id="L322">      log.debug(&quot;Dn of '{}' does not exist&quot;, samAccountName);</span>
+<span class="nc" id="L323">      return Optional.empty();</span>
+    }
+<span class="fc" id="L325">    String[] returnAttributes = {</span>
+<span class="fc" id="L326">        AdConstants.DN.getName()</span>
+    };
+<span class="fc" id="L328">    return getLdapOperations()</span>
+<span class="fc" id="L329">        .findOne(searchOneRequest(samAccountName, returnAttributes))</span>
+<span class="fc" id="L330">        .map(LdapEntry::getDn)</span>
+<span class="fc" id="L331">        .filter(getIgnoredDnFilter());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

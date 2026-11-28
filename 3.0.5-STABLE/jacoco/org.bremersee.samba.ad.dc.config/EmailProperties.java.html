@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.config</a> &gt; <span class="el_source">EmailProperties.java</span></div><h1>EmailProperties.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.config;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
+import lombok.Data;
+import org.bremersee.spring.core.regex.RegexFlags;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+
+/**
+ * The email properties.
+ *
+ * @author Christian Bremer
+ */
+@Data
+public class EmailProperties implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Email regex from &lt;a href=&quot;https://emailregex.com/&quot;&gt;emailregex.com&lt;/a&gt; (RFC 5322 Official
+   * Standard).
+   *
+   * &lt;p&gt;RFC 6530 is not supported.
+   */
+  public static final String EMAIL_REGEX = &quot;(?:[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+&quot;
+      + &quot;(?:\\.[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+)*&quot;
+      + &quot;|\&quot;(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]&quot;
+      + &quot;|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\&quot;)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+&quot;
+      + &quot;[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}&quot;
+      + &quot;(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:&quot;
+      + &quot;(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]&quot;
+      + &quot;|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)])&quot;;
+
+<span class="fc" id="L52">  private String emailRegex = EMAIL_REGEX;</span>
+
+<span class="fc" id="L54">  @NestedConfigurationProperty</span>
+  private RegexFlags emailRegexFlags = new RegexFlags();
+
+<span class="fc" id="L57">  private String sender = &quot;&quot;;</span>
+
+<span class="fc" id="L59">  private String baseUri = &quot;&quot;;</span>
+
+  /**
+   * Instantiates new email properties.
+   */
+  public EmailProperties() {
+<span class="fc" id="L65">    super();</span>
+<span class="fc" id="L66">  }</span>
+
+  /**
+   * Gets email regex flags.
+   *
+   * @return the email regex flags
+   */
+  public RegexFlags getEmailRegexFlags() {
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">    if (Objects.equals(getEmailRegex(), EMAIL_REGEX) &amp;&amp; !emailRegexFlags.isCaseInsensitive()) {</span>
+<span class="fc" id="L75">      emailRegexFlags.setCaseInsensitive(true);</span>
+    }
+<span class="fc" id="L77">    return emailRegexFlags;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

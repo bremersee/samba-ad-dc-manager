@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComputerEditController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.controller.ui</a> &gt; <span class="el_source">ComputerEditController.java</span></div><h1>ComputerEditController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.controller.ui;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import lombok.Getter;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.controller.AbstractController;
+import org.bremersee.samba.ad.dc.controller.ui.mapper.ComputerEditModelMapper;
+import org.bremersee.samba.ad.dc.controller.ui.model.ComputerEditModel;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.OrganizationalUnitsComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.PageableComponent;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessage;
+import org.bremersee.samba.ad.dc.controller.ui.shared.RedirectMessageType;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.DomainComputer;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.bremersee.samba.ad.dc.service.DomainComputerService;
+import org.bremersee.samba.ad.dc.service.DomainGroupService;
+import org.bremersee.samba.ad.dc.service.DomainService;
+import org.bremersee.samba.ad.dc.service.OrganizationalUnitService;
+import org.ldaptive.dn.Dn;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+/**
+ * The computer edit controller.
+ *
+ * @author Christian Bremer
+ */
+@Controller
+public class ComputerEditController extends UiController implements PageableComponent,
+    OrganizationalUnitComponent, OrganizationalUnitsComponent {
+
+  private final DomainComputerService domainComputerService;
+
+  private final DomainGroupService domainGroupService;
+
+  @Getter
+  private final OrganizationalUnitService organizationalUnitService;
+
+  /**
+   * Instantiates a new computer edit controller.
+   *
+   * @param properties the properties
+   * @param localeResolver the locale resolver
+   * @param domainService the domain service
+   * @param domainComputerService the domain computer service
+   * @param domainGroupService the domain group service
+   * @param organizationalUnitService the organizational unit service
+   */
+  public ComputerEditController(
+      ApplicationProperties properties,
+      LocaleResolver localeResolver,
+      DomainService domainService,
+      DomainComputerService domainComputerService,
+      DomainGroupService domainGroupService,
+      OrganizationalUnitService organizationalUnitService) {
+<span class="nc" id="L85">    super(properties, localeResolver, domainService);</span>
+<span class="nc" id="L86">    this.domainComputerService = domainComputerService;</span>
+<span class="nc" id="L87">    this.domainGroupService = domainGroupService;</span>
+<span class="nc" id="L88">    this.organizationalUnitService = organizationalUnitService;</span>
+<span class="nc" id="L89">  }</span>
+
+  @Override
+  public String getDefaultSort() {
+<span class="nc" id="L93">    return COMPUTER_SORT;</span>
+  }
+
+  /**
+   * Display computer edit view.
+   *
+   * @param computerName the computer name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param model the model
+   * @param redirectAttributes the redirect attributes
+   * @return the string
+   */
+  @GetMapping(path = &quot;/management/computer-edit&quot;)
+  public String displayComputerEdit(
+      @RequestParam(value = &quot;name&quot;, required = false) String computerName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      ModelMap model,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L114">    return Optional.ofNullable(computerName)</span>
+<span class="nc" id="L115">        .flatMap(name -&gt; domainComputerService.getComputer(name, ou, searchScope))</span>
+<span class="nc" id="L116">        .map(computer -&gt; {</span>
+<span class="nc" id="L117">          model.addAttribute(COMPUTER, computer);</span>
+<span class="nc" id="L118">          addPrimaryGroupToModel(model, computer);</span>
+<span class="nc" id="L119">          ComputerEditModel editModel = ComputerEditModelMapper.INSTANCE.map(computer);</span>
+<span class="nc" id="L120">          model.addAttribute(&quot;editModel&quot;, editModel);</span>
+<span class="nc" id="L121">          return &quot;management/computer-edit&quot;;</span>
+        })
+<span class="nc" id="L123">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            &quot;Computer&quot;,
+            &quot;computer.not-found&quot;,
+            computerName,
+            PAGE_AND_OU_PARAMS,
+            COMPUTERS));
+  }
+
+  /**
+   * Update computer.
+   *
+   * @param samAccountName the sam account name
+   * @param ou the ou
+   * @param searchScope the search scope
+   * @param editModel the edit model
+   * @param model the model
+   * @param bindingResult the binding result
+   * @param redirectAttributes the redirect attributes
+   * @return the new view
+   */
+  @PostMapping(path = &quot;/management/computer-edit&quot;)
+  public String updateComputer(
+      @RequestParam(value = &quot;samAccountName&quot;, required = false) String samAccountName,
+      @RequestParam(value = OU, required = false) Dn ou,
+      @RequestParam(value = SCOPE, required = false) TreeSearchScope searchScope,
+      @ModelAttribute(name = &quot;editModel&quot;) ComputerEditModel editModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L154">    getLogger().debug(&quot;updateComputer({}, {})&quot;, samAccountName, editModel);</span>
+
+<span class="nc" id="L156">    return Optional.ofNullable(samAccountName)</span>
+<span class="nc" id="L157">        .flatMap(name -&gt; domainComputerService.getComputer(name, ou, searchScope))</span>
+<span class="nc" id="L158">        .map(existingComputer -&gt; updateComputer(</span>
+            existingComputer, editModel, model, bindingResult, redirectAttributes))
+<span class="nc" id="L160">        .orElseGet(() -&gt; entityNotFoundRedirect(</span>
+            redirectAttributes,
+            &quot;Computer&quot;,
+            &quot;computer.not-found&quot;,
+            samAccountName,
+            PAGE_AND_OU_PARAMS,
+            COMPUTERS));
+  }
+
+  private String updateComputer(
+      DomainComputer existingComputer,
+      ComputerEditModel computerEditModel,
+      ModelMap model,
+      BindingResult bindingResult,
+      RedirectAttributes redirectAttributes) {
+
+<span class="nc" id="L176">    Dn newOu = computerEditModel.getNewOuDn()</span>
+<span class="nc" id="L177">        .map(ou -&gt; getDnTool().addBaseDn(ou))</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        .filter(ou -&gt; !DnTool.isSameDn(ou, existingComputer.getDn().getParent()))</span>
+<span class="nc" id="L179">        .orElse(null);</span>
+    try {
+<span class="nc" id="L181">      DomainComputer newComputer = ComputerEditModelMapper.INSTANCE</span>
+<span class="nc" id="L182">          .merge(computerEditModel, existingComputer);</span>
+<span class="nc" id="L183">      DomainComputer updatedComputer = domainComputerService</span>
+<span class="nc" id="L184">          .updateComputer(newComputer, newOu);</span>
+
+<span class="nc" id="L186">      model.clear();</span>
+<span class="nc" id="L187">      String msg = String.format(&quot;Computer '%s' was successfully updated.&quot;,</span>
+<span class="nc" id="L188">          updatedComputer.getName());</span>
+<span class="nc" id="L189">      RedirectMessage rmsg = getRedirectMessage(</span>
+          RedirectMessageType.SUCCESS,
+          msg,
+          &quot;computer-edit.success&quot;,
+<span class="nc" id="L193">          updatedComputer.getName());</span>
+<span class="nc" id="L194">      redirectAttributes.addFlashAttribute(RedirectMessage.ATTRIBUTE_NAME, rmsg);</span>
+
+<span class="nc" id="L196">      Map&lt;String, Object&gt; parameters = getParameterMap(updatedComputer.getDn().getParent());</span>
+<span class="nc" id="L197">      String redirect = getRedirectUri(&quot;computer-edit?name={{computer.samAccountName}}&quot;,</span>
+          PAGE_AND_OU_PARAMS,
+<span class="nc" id="L199">          putToParameterMap(</span>
+              parameters,
+              COMPUTER,
+              updatedComputer));
+<span class="nc" id="L203">      logRedirectTo(&quot;Computer successfully updated.&quot;, redirect);</span>
+<span class="nc" id="L204">      return redirect;</span>
+
+<span class="nc" id="L206">    } catch (ServiceException e) {</span>
+<span class="nc" id="L207">      handleException(bindingResult, e);</span>
+<span class="nc" id="L208">      DomainComputer partialUpdatedComputer = Optional.ofNullable(newOu)</span>
+<span class="nc" id="L209">          .flatMap(ou -&gt; domainComputerService</span>
+<span class="nc" id="L210">              .getComputer(existingComputer.getSamAccountName(), null, null))</span>
+<span class="nc" id="L211">          .orElse(existingComputer);</span>
+<span class="nc" id="L212">      model.addAttribute(</span>
+          AbstractController.OU,
+<span class="nc" id="L214">          partialUpdatedComputer.getDn().getParent().format());</span>
+<span class="nc" id="L215">      model.addAttribute(COMPUTER, partialUpdatedComputer);</span>
+<span class="nc" id="L216">      addPrimaryGroupToModel(model, partialUpdatedComputer);</span>
+<span class="nc" id="L217">      return &quot;management/computer-edit&quot;;</span>
+    }
+  }
+
+  private void handleException(BindingResult bindingResult, ServiceException serviceException) {
+
+<span class="nc" id="L223">    Object bindTarget = bindingResult.getTarget();</span>
+<span class="nc" id="L224">    getLogger().debug(&quot;handleException of bind target '{}'&quot;, bindTarget, serviceException);</span>
+<span class="nc" id="L225">    Assert.isTrue(bindTarget instanceof ComputerEditModel, &quot;Illegal bind target.&quot;);</span>
+<span class="nc" id="L226">    String errorCode = Objects.requireNonNullElse(serviceException.getErrorCode(), &quot;&quot;);</span>
+<span class="nc bnc" id="L227" title="All 3 branches missed.">    switch (errorCode) {</span>
+      case EC_EMPTY_OU_RDN: {
+<span class="nc" id="L229">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;ec.ou.required&quot;,</span>
+            &quot;Organizational unit is empty.&quot;);
+<span class="nc" id="L231">        break;</span>
+      }
+      case EC_OU_NOT_FOUND: {
+<span class="nc" id="L234">        bindingResult.rejectValue(&quot;newOu&quot;, &quot;ec.ou.not-found&quot;,</span>
+            &quot;Organizational unit was not found.&quot;);
+<span class="nc" id="L236">        break;</span>
+      }
+      default: {
+<span class="nc" id="L239">        getLogger().error(&quot;Editing computer failed with a not mapped exception.&quot;, serviceException);</span>
+<span class="nc" id="L240">        throw serviceException;</span>
+      }
+    }
+<span class="nc" id="L243">  }</span>
+
+  private void addPrimaryGroupToModel(ModelMap model, DomainComputer computer) {
+<span class="nc" id="L246">    Optional.ofNullable(computer)</span>
+<span class="nc" id="L247">        .map(DomainComputer::getPrimaryGroupId)</span>
+<span class="nc" id="L248">        .flatMap(domainGroupService::getGroupByPrimaryGroupId)</span>
+<span class="nc" id="L249">        .ifPresent(group -&gt; model.addAttribute(&quot;primaryGroup&quot;, group));</span>
+<span class="nc" id="L250">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainGroupMemberType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.model</a> &gt; <span class="el_source">DomainGroupMemberType.java</span></div><h1>DomainGroupMemberType.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.model;
+
+import static java.util.Objects.isNull;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Stream;
+import lombok.Getter;
+
+/**
+ * The domain group member type.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L34">@Schema(description = &quot;The type of o group member.&quot;, enumAsRef = true)</span>
+@Getter
+public enum DomainGroupMemberType {
+
+  /**
+   * The Unknown.
+   */
+<span class="fc" id="L41">  UNKNOWN(</span>
+      &quot;text-danger&quot;,
+      &quot;fas fa-question-circle&quot;,
+      &quot;Unknown&quot;,
+      &quot;domain-group-member-type.unknown&quot;),
+
+  /**
+   * The User.
+   */
+<span class="fc" id="L50">  USER(</span>
+      &quot;text-primary&quot;,
+      &quot;fas fa-user&quot;,
+      &quot;User&quot;,
+      &quot;domain-group-member-type.user&quot;),
+
+  /**
+   * The Group.
+   */
+<span class="fc" id="L59">  GROUP(</span>
+      &quot;text-success&quot;,
+      &quot;fas fa-user-group&quot;,
+      &quot;Group&quot;,
+      &quot;domain-group-member-type.group&quot;),
+
+  /**
+   * The Computer.
+   */
+<span class="fc" id="L68">  COMPUTER(</span>
+      &quot;text-warning&quot;,
+      &quot;fas fa-computer&quot;,
+      &quot;Computer&quot;,
+      &quot;domain-group-member-type.computer&quot;);
+
+  private final String cssClass;
+
+  private final String cssClassIcon;
+
+  private final String displayName;
+
+  private final String i18nCode;
+
+<span class="fc" id="L82">  DomainGroupMemberType(String cssClass, String cssClassIcon, String displayName, String i18nCode) {</span>
+<span class="fc" id="L83">    this.cssClass = cssClass;</span>
+<span class="fc" id="L84">    this.cssClassIcon = cssClassIcon;</span>
+<span class="fc" id="L85">    this.displayName = displayName;</span>
+<span class="fc" id="L86">    this.i18nCode = i18nCode;</span>
+<span class="fc" id="L87">  }</span>
+
+  @JsonValue
+  @Override
+  public String toString() {
+<span class="fc" id="L92">    return name().toLowerCase();</span>
+  }
+
+  /**
+   * From string domain group member type.
+   *
+   * @param type the type
+   * @return the domain group member type
+   */
+  @JsonCreator
+  public static DomainGroupMemberType fromString(String type) {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">    if (isNull(type)) {</span>
+<span class="nc" id="L104">      return null;</span>
+    }
+    try {
+<span class="fc" id="L107">      return DomainGroupMemberType.valueOf(type.toUpperCase());</span>
+<span class="nc" id="L108">    } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L109">      return null;</span>
+    }
+  }
+
+  /**
+   * From object classes domain group member type.
+   *
+   * @param objectClasses the object classes
+   * @return the domain group member type
+   */
+  public static DomainGroupMemberType fromObjectClasses(Collection&lt;String&gt; objectClasses) {
+<span class="fc" id="L120">    return Stream.ofNullable(objectClasses)</span>
+<span class="fc" id="L121">        .flatMap(Collection::stream)</span>
+<span class="fc" id="L122">        .sorted()</span>
+<span class="fc" id="L123">        .map(DomainGroupMemberType::fromString)</span>
+<span class="fc" id="L124">        .filter(Objects::nonNull)</span>
+<span class="fc" id="L125">        .findFirst()</span>
+<span class="fc" id="L126">        .orElse(UNKNOWN);</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

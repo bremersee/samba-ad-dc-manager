@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MockedAuthenticationManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository.mock</a> &gt; <span class="el_source">MockedAuthenticationManager.java</span></div><h1>MockedAuthenticationManager.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository.mock;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.ldaptive.transcoder.UserAccountControl;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.config.MockProperties;
+import org.bremersee.samba.ad.dc.misc.DefaultDnTool;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.repository.AdConstants;
+import org.bremersee.spring.security.ldaptive.authentication.LdaptiveAuthenticationToken;
+import org.bremersee.spring.security.ldaptive.userdetails.LdaptiveUserDetails;
+import org.jspecify.annotations.NonNull;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.OrFilter;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
+
+/**
+ * The mocked authentication manager.
+ *
+ * @author Christian Bremer
+ */
+@Component
+@Profile(&quot;mock&quot;)
+class MockedAuthenticationManager implements AuthenticationManager, AuthenticationProvider {
+
+  private final DnTool dnTool;
+
+  private final LdaptiveOperations ldaptiveOperations;
+
+  /**
+   * Instantiates a new Mocked authentication manager.
+   *
+   * @param properties the properties
+   * @param ldaptiveOperations the ldaptive operations
+   */
+  MockedAuthenticationManager(
+      ApplicationProperties properties,
+<span class="nc" id="L72">      LdaptiveOperations ldaptiveOperations) {</span>
+<span class="nc" id="L73">    this.dnTool = new DefaultDnTool(properties);</span>
+<span class="nc" id="L74">    this.ldaptiveOperations = ldaptiveOperations;</span>
+<span class="nc" id="L75">  }</span>
+
+  @Override
+  public boolean supports(@NonNull Class&lt;?&gt; authentication) {
+<span class="nc" id="L79">    return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);</span>
+  }
+
+  @Override
+  public Authentication authenticate(@NonNull Authentication authentication)
+      throws AuthenticationException {
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">    if (!supports(authentication.getClass())) {</span>
+<span class="nc" id="L87">      return null;</span>
+    }
+<span class="nc" id="L89">    String username = authentication.getName();</span>
+<span class="nc" id="L90">    String password = String.valueOf(authentication.getCredentials());</span>
+<span class="nc" id="L91">    SearchRequest request = SearchRequest.builder()</span>
+<span class="nc" id="L92">        .dn(dnTool.getBaseDn().format())</span>
+<span class="nc" id="L93">        .filter(new AndFilter(</span>
+<span class="nc" id="L94">            new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_USER),</span>
+            new OrFilter(
+<span class="nc" id="L96">                new EqualityFilter(AdConstants.SAM_ACCOUNT_NAME.getName(), username),</span>
+<span class="nc" id="L97">                new EqualityFilter(AdConstants.MAIL.getName(), username))))</span>
+<span class="nc" id="L98">        .sizeLimit(1)</span>
+<span class="nc" id="L99">        .build();</span>
+<span class="nc" id="L100">    return ldaptiveOperations.findAll(request).stream()</span>
+<span class="nc" id="L101">        .findFirst()</span>
+<span class="nc" id="L102">        .map(entry -&gt; authenticate(entry, password))</span>
+<span class="nc" id="L103">        .orElseThrow(() -&gt; new UsernameNotFoundException(String.format(&quot;Not found %s&quot;, username)));</span>
+  }
+
+  private Authentication authenticate(LdapEntry entry, String password) {
+<span class="nc" id="L107">    return AdConstants.USER_UNICODE_PWD.getValue(entry)</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        .filter(pwd -&gt; Objects.equals(pwd, password)</span>
+<span class="nc bnc" id="L109" title="All 4 branches missed.">            || (isAdmin(entry) &amp;&amp; MockProperties.ADMIN_FALLBACK_PASSWORD.equals(password)))</span>
+<span class="nc" id="L110">        .map(noop -&gt; authenticated(entry))</span>
+<span class="nc" id="L111">        .orElseThrow(() -&gt; new BadCredentialsException(&quot;Bad credentials&quot;));</span>
+  }
+
+  private Authentication authenticated(LdapEntry entry) {
+<span class="nc" id="L115">    return new LdaptiveAuthenticationToken(getUserDetails(entry));</span>
+  }
+
+  private LdaptiveUserDetails getUserDetails(LdapEntry entry) {
+<span class="nc" id="L119">    UserAccountControl control = AdConstants.USER_USER_ACCOUNT_CONTROL.getValue(entry)</span>
+<span class="nc" id="L120">        .orElseGet(UserAccountControl::new);</span>
+<span class="nc" id="L121">    AdConstants.USER_LAST_LOGON.setValue(entry, OffsetDateTime.now(ZoneOffset.UTC));</span>
+<span class="nc" id="L122">    AdConstants.USER_LOGON_COUNT.getValue(entry)</span>
+<span class="nc" id="L123">        .ifPresentOrElse(</span>
+<span class="nc" id="L124">            counter -&gt; AdConstants.USER_LOGON_COUNT.setValue(entry, counter + 1),</span>
+<span class="nc" id="L125">            () -&gt; AdConstants.USER_LOGON_COUNT.setValue(entry, 1));</span>
+<span class="nc" id="L126">    var userDetailsBuilder = LdaptiveUserDetails.builder()</span>
+<span class="nc" id="L127">        .dn(entry.getDn())</span>
+<span class="nc" id="L128">        .username(AdConstants.SAM_ACCOUNT_NAME.getValue(entry).orElse(&quot;&quot;))</span>
+<span class="nc" id="L129">        .accountNonExpired(true)</span>
+<span class="nc" id="L130">        .accountNonLocked(true)</span>
+<span class="nc" id="L131">        .credentialsNonExpired(true)</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">        .enabled(control.isEnabled() || isAdmin(entry))</span>
+<span class="nc" id="L133">        .authorities(getAuthorities(entry));</span>
+<span class="nc" id="L134">    AdConstants.USER_GIVEN_NAME.getValue(entry)</span>
+<span class="nc" id="L135">        .ifPresent(userDetailsBuilder::firstName);</span>
+<span class="nc" id="L136">    AdConstants.USER_SN.getValue(entry)</span>
+<span class="nc" id="L137">        .ifPresent(userDetailsBuilder::lastName);</span>
+<span class="nc" id="L138">    AdConstants.MAIL.getValue(entry)</span>
+<span class="nc" id="L139">        .ifPresent(userDetailsBuilder::email);</span>
+<span class="nc" id="L140">    return userDetailsBuilder.build();</span>
+  }
+
+  private List&lt;GrantedAuthority&gt; getAuthorities(LdapEntry entry) {
+<span class="nc" id="L144">    List&lt;GrantedAuthority&gt; authorities = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L145">    authorities.add(new SimpleGrantedAuthority(&quot;ROLE_LOCAL_USER&quot;));</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">    if (isAdmin(entry)) {</span>
+<span class="nc" id="L147">      authorities.add(new SimpleGrantedAuthority(&quot;ROLE_ADMIN&quot;));</span>
+<span class="nc" id="L148">      authorities.add(new SimpleGrantedAuthority(&quot;ROLE_ACTUATOR_ADMIN&quot;));</span>
+    }
+<span class="nc" id="L150">    return authorities;</span>
+  }
+
+  private static boolean isAdmin(LdapEntry entry) {
+<span class="nc" id="L154">    return AdConstants.SAM_ACCOUNT_NAME.getValue(entry)</span>
+<span class="nc" id="L155">        .map(MockProperties.ADMIN_NAME::equalsIgnoreCase)</span>
+<span class="nc" id="L156">        .orElse(false);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

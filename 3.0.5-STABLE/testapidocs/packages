@@ -1,0 +1,9 @@
+org.bremersee.samba.ad.dc.service
+org.bremersee.samba.ad.dc.repository
+org.bremersee.samba.ad.dc.repository.mapper
+org.bremersee.samba.ad.dc.repository.cli
+org.bremersee.samba.ad.dc.repository.cli.validator
+org.bremersee.samba.ad.dc.repository.cli.parser
+org.bremersee.samba.ad.dc.model
+org.bremersee.samba.ad.dc.misc.ehcache
+org.bremersee.samba.ad.dc.misc

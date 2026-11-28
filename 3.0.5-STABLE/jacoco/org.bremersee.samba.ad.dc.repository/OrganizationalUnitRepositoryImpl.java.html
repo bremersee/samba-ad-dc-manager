@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationalUnitRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">OrganizationalUnitRepositoryImpl.java</span></div><h1>OrganizationalUnitRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026  the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveEntryMapper;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.ErrorCode;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.DnTool;
+import org.bremersee.samba.ad.dc.model.AdEntry;
+import org.bremersee.samba.ad.dc.model.OrganizationalUnit;
+import org.bremersee.samba.ad.dc.repository.mapper.GenericLdapMapper;
+import org.ldaptive.DeleteRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.NameValue;
+import org.ldaptive.dn.RDn;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.OrFilter;
+import org.ldaptive.filter.PresenceFilter;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The organizational unit repository implementation.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;organizationalUnitRepository&quot;)
+@Validated
+<span class="fc" id="L53">@Slf4j</span>
+class OrganizationalUnitRepositoryImpl extends AdRepository
+    implements OrganizationalUnitRepository {
+
+  private final LdaptiveEntryMapper&lt;OrganizationalUnit&gt; ouLdapMapper;
+
+  private final GenericLdapMapper genericLdapMapper;
+
+  /**
+   * Instantiates a new Organizational unit repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param ouLdapMapper the ou ldap mapper
+   * @param genericLdapMapper the generic ldap mapper
+   */
+  OrganizationalUnitRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      LdaptiveEntryMapper&lt;OrganizationalUnit&gt; ouLdapMapper,
+      GenericLdapMapper genericLdapMapper) {
+<span class="fc" id="L74">    super(properties, ldapOperations);</span>
+<span class="fc" id="L75">    this.ouLdapMapper = ouLdapMapper;</span>
+<span class="fc" id="L76">    this.genericLdapMapper = genericLdapMapper;</span>
+<span class="fc" id="L77">  }</span>
+
+  /**
+   * Gets default ou.
+   *
+   * @return the default ou
+   */
+  Dn getDefaultOu() {
+<span class="fc" id="L85">    return getDnTool().getBaseDn();</span>
+  }
+
+  /**
+   * Gets object class value.
+   *
+   * @return the object class value
+   */
+  String getObjectClassValue() {
+<span class="fc" id="L94">    return AdConstants.OBJECT_CLASS_OU;</span>
+  }
+
+  /**
+   * Get binary attributes string [ ].
+   *
+   * @return the string [ ]
+   */
+  String[] getBinaryAttributes() {
+<span class="fc" id="L103">    return ouLdapMapper.getBinaryAttributeNames();</span>
+  }
+
+  /**
+   * Get return attributes string [ ].
+   *
+   * @return the string [ ]
+   */
+  String[] getReturnAttributes() {
+<span class="fc" id="L112">    return ouLdapMapper.getMappedAttributeNames();</span>
+  }
+
+  /**
+   * Object class filter filter.
+   *
+   * @return the filter
+   */
+  Filter objectClassFilter() {
+<span class="fc" id="L121">    return new OrFilter(</span>
+<span class="fc" id="L122">        new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), getObjectClassValue()),</span>
+<span class="fc" id="L123">        new EqualityFilter(AdConstants.DN.getName(),</span>
+<span class="fc" id="L124">            getDnTool().addBaseDn(AdConstants.BASE_DN_USERS).format()),</span>
+<span class="fc" id="L125">        new EqualityFilter(AdConstants.DN.getName(),</span>
+<span class="fc" id="L126">            getDnTool().addBaseDn(AdConstants.BASE_DN_COMPUTERS).format()));</span>
+  }
+
+  @Override
+  public Stream&lt;OrganizationalUnit&gt; findCustomOus() {
+<span class="fc" id="L131">    SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L132">        .dn(getProperties().getBaseDn())</span>
+<span class="fc" id="L133">        .filter(new EqualityFilter(AdConstants.OBJECT_CLASS.getName(), AdConstants.OBJECT_CLASS_OU))</span>
+<span class="fc" id="L134">        .scope(SearchScope.SUBTREE)</span>
+<span class="fc" id="L135">        .binaryAttributes(getBinaryAttributes())</span>
+<span class="fc" id="L136">        .returnAttributes(getReturnAttributes())</span>
+<span class="fc" id="L137">        .build();</span>
+<span class="fc" id="L138">    return getLdapOperations().findAll(searchRequest, ouLdapMapper)</span>
+<span class="fc" id="L139">        .filter(getIgnoredObjectFilter());</span>
+  }
+
+  @Override
+  public Stream&lt;OrganizationalUnit&gt; findAll() {
+<span class="fc" id="L144">    SearchRequest computersSearchRequest = SearchRequest</span>
+<span class="fc" id="L145">        .objectScopeSearchRequest(</span>
+<span class="fc" id="L146">            getDnTool().addBaseDn(AdConstants.BASE_DN_COMPUTERS).format(),</span>
+<span class="fc" id="L147">            getReturnAttributes());</span>
+<span class="fc" id="L148">    Stream&lt;OrganizationalUnit&gt; stream = getLdapOperations()</span>
+<span class="fc" id="L149">        .findOne(computersSearchRequest, ouLdapMapper)</span>
+<span class="fc" id="L150">        .stream();</span>
+
+<span class="fc" id="L152">    SearchRequest usersSearchRequest = SearchRequest</span>
+<span class="fc" id="L153">        .objectScopeSearchRequest(</span>
+<span class="fc" id="L154">            getDnTool().addBaseDn(AdConstants.BASE_DN_USERS).format(),</span>
+<span class="fc" id="L155">            getReturnAttributes());</span>
+<span class="fc" id="L156">    stream = Stream.concat(</span>
+        stream,
+<span class="fc" id="L158">        getLdapOperations().findOne(usersSearchRequest, ouLdapMapper).stream());</span>
+
+<span class="fc" id="L160">    return Stream.concat(stream, findCustomOus());</span>
+  }
+
+  @Override
+  public Optional&lt;OrganizationalUnit&gt; findOne(Dn ou) {
+<span class="fc" id="L165">    log.debug(&quot;findOne({})&quot;, ou);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">    if (ou.isEmpty()) {</span>
+<span class="fc" id="L167">      return Optional.empty();</span>
+    }
+<span class="fc" id="L169">    String dn = getDnTool().addBaseDn(ou).format();</span>
+<span class="fc" id="L170">    log.debug(&quot;findOne, dn = {}&quot;, dn);</span>
+<span class="fc" id="L171">    SearchRequest searchRequest = SearchRequest.objectScopeSearchRequest(dn, getReturnAttributes(),</span>
+<span class="fc" id="L172">        objectClassFilter());</span>
+<span class="fc" id="L173">    return getLdapOperations()</span>
+<span class="fc" id="L174">        .findOne(searchRequest, ouLdapMapper);</span>
+  }
+
+  @Override
+  public boolean exists(Dn ou) {
+<span class="fc" id="L179">    return findOne(ou).isPresent();</span>
+  }
+
+  @Override
+  public boolean hasChildren(Dn ou) {
+    Dn dn;
+<span class="pc bpc" id="L185" title="3 of 6 branches missed.">    if (isEmpty(ou) || ou.isEmpty() || ou.isAncestor(getDnTool().getBaseDn())) {</span>
+<span class="nc" id="L186">      dn = getDnTool().getBaseDn();</span>
+    } else {
+<span class="fc" id="L188">      dn = getDnTool().addBaseDn(ou);</span>
+    }
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">    if (!getDnTool().isValidDnWithBaseDn(dn)) {</span>
+<span class="nc" id="L191">      return false;</span>
+    }
+<span class="fc" id="L193">    SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L194">        .dn(dn.format())</span>
+<span class="fc" id="L195">        .filter(new PresenceFilter(AdConstants.OBJECT_CLASS.getName()))</span>
+<span class="fc" id="L196">        .scope(SearchScope.ONELEVEL)</span>
+<span class="fc" id="L197">        .returnAttributes(AdConstants.DN.getName())</span>
+<span class="fc" id="L198">        .build();</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">    return !getLdapOperations().findAll(searchRequest).isEmpty();</span>
+  }
+
+  @Override
+  public Stream&lt;AdEntry&gt; getChildren(Dn ou) {
+    Dn dn;
+<span class="pc bpc" id="L205" title="3 of 6 branches missed.">    if (isEmpty(ou) || ou.isEmpty() || ou.isAncestor(getDnTool().getBaseDn())) {</span>
+<span class="nc" id="L206">      dn = getDnTool().getBaseDn();</span>
+    } else {
+<span class="fc" id="L208">      dn = getDnTool().addBaseDn(ou);</span>
+    }
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">    if (!getDnTool().isValidDnWithBaseDn(dn)) {</span>
+<span class="nc" id="L211">      return Stream.empty();</span>
+    }
+<span class="fc" id="L213">    SearchRequest searchRequest = SearchRequest.builder()</span>
+<span class="fc" id="L214">        .dn(dn.format())</span>
+<span class="fc" id="L215">        .filter(new PresenceFilter(AdConstants.OBJECT_CLASS.getName()))</span>
+<span class="fc" id="L216">        .scope(SearchScope.ONELEVEL)</span>
+<span class="fc" id="L217">        .returnAttributes(genericLdapMapper.getMappedAttributeNames())</span>
+<span class="fc" id="L218">        .binaryAttributes(genericLdapMapper.getBinaryAttributeNames())</span>
+<span class="fc" id="L219">        .build();</span>
+<span class="fc" id="L220">    return getLdapOperations().findAll(searchRequest).stream()</span>
+<span class="fc" id="L221">        .flatMap(ldapEntry -&gt; genericLdapMapper.map(ldapEntry).stream());</span>
+  }
+
+  @Override
+  public OrganizationalUnit add(OrganizationalUnit organizationalUnit, Dn parentOu) {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">    if (isEmpty(organizationalUnit.getName())) {</span>
+<span class="nc" id="L227">      throw ServiceException.badRequest(</span>
+          &quot;Name of organizational unit is required.&quot;, EC_OU_NAME_REQUIRED);
+    }
+<span class="pc bpc" id="L230" title="2 of 4 branches missed.">    if (organizationalUnit.getName().contains(&quot;,&quot;) || organizationalUnit.getName().contains(&quot;=&quot;)) {</span>
+<span class="nc" id="L231">      throw ServiceException.badRequest(</span>
+          &quot;Name of organizational unit contains illegal characters.&quot;, EC_ILLEGAL_OU_NAME);
+    }
+<span class="fc" id="L234">    Dn dn = new Dn(new RDn(new NameValue(</span>
+        AdConstants.RDN_ATTR_NAME_OU,
+<span class="fc" id="L236">        organizationalUnit.getName())));</span>
+<span class="fc" id="L237">    dn.add(validateParentDn(parentOu, this::getDefaultOu));</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">    if (exists(dn)) {</span>
+<span class="nc" id="L239">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L240">          OrganizationalUnit.class.getSimpleName(),</span>
+<span class="nc" id="L241">          organizationalUnit.getName(),</span>
+          EC_OU_ALREADY_EXISTS);
+    }
+<span class="fc" id="L244">    String dnStr = dn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER);</span>
+<span class="fc" id="L245">    return getLdapOperations()</span>
+<span class="fc" id="L246">        .save(organizationalUnit.withDistinguishedName(dnStr), ouLdapMapper);</span>
+  }
+
+  @Override
+  public OrganizationalUnit update(
+      OrganizationalUnit organizationalUnit,
+      Dn newParentOu) {
+
+<span class="fc" id="L254">    log.debug(&quot;update({}, {})&quot;, organizationalUnit.getName(), newParentOu);</span>
+
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">    if (isEmpty(organizationalUnit.getName())) {</span>
+<span class="nc" id="L257">      throw ServiceException.badRequest(</span>
+          &quot;Name of organizational unit is required.&quot;, EC_OU_NAME_REQUIRED);
+    }
+<span class="pc bpc" id="L260" title="2 of 4 branches missed.">    if (organizationalUnit.getName().contains(&quot;,&quot;) || organizationalUnit.getName().contains(&quot;=&quot;)) {</span>
+<span class="nc" id="L261">      throw ServiceException.badRequest(</span>
+          &quot;Name of organizational unit contains illegal characters.&quot;, EC_ILLEGAL_OU_NAME);
+    }
+
+<span class="fc" id="L265">    OrganizationalUnit existing = findOne(new Dn(organizationalUnit.getDistinguishedName()))</span>
+<span class="pc" id="L266">        .orElseThrow(() -&gt; ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L267">            OrganizationalUnit.class.getSimpleName(),</span>
+<span class="nc" id="L268">            organizationalUnit.getDistinguishedName(),</span>
+            EC_OU_NOT_FOUND));
+
+<span class="fc bfc" id="L271" title="All 2 branches covered.">    if (existing.isSystemOu()) {</span>
+<span class="fc" id="L272">      return getLdapOperations().save(</span>
+<span class="fc" id="L273">          OrganizationalUnit.builder()</span>
+<span class="fc" id="L274">              .from(existing)</span>
+<span class="fc" id="L275">              .description(organizationalUnit.getDescription())</span>
+<span class="fc" id="L276">              .build(),</span>
+          ouLdapMapper);
+    }
+
+<span class="fc" id="L280">    Dn existingDn = new Dn(existing.getDistinguishedName());</span>
+<span class="fc" id="L281">    Dn wantedDn = new Dn(new RDn(new NameValue(</span>
+        AdConstants.RDN_ATTR_NAME_OU,
+<span class="fc" id="L283">        organizationalUnit.getName())));</span>
+<span class="pc bpc" id="L284" title="1 of 4 branches missed.">    if (isEmpty(newParentOu) || newParentOu.isEmpty()) {</span>
+<span class="fc" id="L285">      wantedDn.add(existingDn.getParent());</span>
+    } else {
+<span class="fc" id="L287">      wantedDn.add(validateParentDn(newParentOu, this::getDefaultOu));</span>
+    }
+<span class="pc bpc" id="L289" title="2 of 4 branches missed.">    if (!existingDn.isSame(wantedDn) &amp;&amp; exists(wantedDn)) {</span>
+<span class="nc" id="L290">      throw ServiceException.alreadyExistsWithErrorCode(</span>
+<span class="nc" id="L291">          OrganizationalUnit.class.getSimpleName(),</span>
+<span class="nc" id="L292">          organizationalUnit.getName(),</span>
+          EC_OU_ALREADY_EXISTS);
+    }
+<span class="fc" id="L295">    moveAndRename(existingDn, wantedDn);</span>
+<span class="fc" id="L296">    return findOne(wantedDn)</span>
+<span class="fc" id="L297">        .map(ou -&gt; OrganizationalUnit.builder()</span>
+<span class="fc" id="L298">            .from(ou)</span>
+<span class="fc" id="L299">            .description(organizationalUnit.getDescription())</span>
+<span class="fc" id="L300">            .build())</span>
+<span class="fc" id="L301">        .map(ou -&gt; getLdapOperations().save(ou, ouLdapMapper))</span>
+<span class="pc" id="L302">        .orElseThrow(() -&gt; ServiceException.internalServerError(</span>
+<span class="nc" id="L303">            String.format(</span>
+                &quot;Updating organization unit '%s' failed.&quot;,
+<span class="nc" id="L305">                wantedDn.format(DnTool.CASE_SENSITIVE_RDN_NORMALIZER)),</span>
+            ErrorCode.EC_UPDATING_OU_FAILED));
+  }
+
+  @Override
+  public boolean delete(Dn ou) {
+<span class="fc" id="L311">    return findOne(ou)</span>
+<span class="fc" id="L312">        .filter(this::isDeletable)</span>
+<span class="fc" id="L313">        .map(o -&gt; {</span>
+<span class="fc" id="L314">          getLdapOperations().delete(DeleteRequest.builder()</span>
+<span class="fc" id="L315">              .dn(o.getDistinguishedName())</span>
+<span class="fc" id="L316">              .build());</span>
+<span class="fc" id="L317">          return true;</span>
+        })
+<span class="fc" id="L319">        .orElse(false);</span>
+  }
+
+  /**
+   * Is deletable boolean.
+   *
+   * @param o the o
+   * @return the boolean
+   */
+  boolean isDeletable(OrganizationalUnit o) {
+<span class="fc bfc" id="L329" title="All 2 branches covered.">    return !o.isSystemOu();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

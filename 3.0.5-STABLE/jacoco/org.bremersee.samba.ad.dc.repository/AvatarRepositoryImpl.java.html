@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AvatarRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Samba AD DC Manager</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.samba.ad.dc.repository</a> &gt; <span class="el_source">AvatarRepositoryImpl.java</span></div><h1>AvatarRepositoryImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2025-2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.samba.ad.dc.repository;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import javax.imageio.ImageIO;
+import lombok.extern.slf4j.Slf4j;
+import org.bremersee.exception.ServiceException;
+import org.bremersee.ldaptive.LdaptiveOperations;
+import org.bremersee.samba.ad.dc.config.ApplicationProperties;
+import org.bremersee.samba.ad.dc.misc.TreeSearchScopeConverter;
+import org.bremersee.samba.ad.dc.model.AvatarDefault;
+import org.bremersee.samba.ad.dc.model.DomainUser;
+import org.bremersee.samba.ad.dc.model.TreeSearchScope;
+import org.ldaptive.AttributeModification;
+import org.ldaptive.AttributeModification.Type;
+import org.ldaptive.LdapAttribute;
+import org.ldaptive.LdapEntry;
+import org.ldaptive.ModifyRequest;
+import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.filter.AndFilter;
+import org.ldaptive.filter.EqualityFilter;
+import org.ldaptive.filter.Filter;
+import org.ldaptive.filter.OrFilter;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
+
+/**
+ * The avatar repository.
+ *
+ * @author Christian Bremer
+ */
+@Repository(&quot;avatarRepository&quot;)
+@Validated
+<span class="fc" id="L60">@Slf4j</span>
+public class AvatarRepositoryImpl extends SamAccountRepository
+    implements AvatarRepository {
+
+  private final List&lt;AvatarProvider&gt; avatarProviders;
+
+  private final ImageTool imageTool;
+
+  /**
+   * Instantiates a new avatar repository.
+   *
+   * @param properties the properties
+   * @param ldapOperations the ldap operations
+   * @param avatarProviders the avatar providers
+   * @param imageTool the image tool
+   */
+  public AvatarRepositoryImpl(
+      ApplicationProperties properties,
+      LdaptiveOperations ldapOperations,
+      List&lt;AvatarProvider&gt; avatarProviders,
+      ImageTool imageTool) {
+<span class="fc" id="L81">    super(properties, ldapOperations);</span>
+<span class="fc" id="L82">    this.avatarProviders = avatarProviders;</span>
+<span class="fc" id="L83">    this.imageTool = imageTool;</span>
+<span class="fc" id="L84">  }</span>
+
+  @Override
+  protected Dn getDefaultOu() {
+<span class="fc" id="L88">    return new Dn(getProperties().getUser().getDefaultOu());</span>
+  }
+
+  @Override
+  protected String getObjectClassValue() {
+<span class="fc" id="L93">    return AdConstants.OBJECT_CLASS_USER;</span>
+  }
+
+  @Override
+  protected String[] getBinaryAttributes() {
+<span class="fc" id="L98">    return new String[]{AdConstants.USER_JPEG_PHOTO.getName()};</span>
+  }
+
+  @Override
+  protected String[] getReturnAttributes() {
+<span class="fc" id="L103">    return new String[]{</span>
+<span class="fc" id="L104">        AdConstants.USER_JPEG_PHOTO.getName(),</span>
+<span class="fc" id="L105">        AdConstants.MAIL.getName(),</span>
+    };
+  }
+
+  @Override
+  public boolean existsAvatarInActiveDirectory(
+      String user,
+      Dn ou,
+      TreeSearchScope searchScope) {
+
+<span class="fc" id="L115">    log.debug(&quot;existsAvatarInActiveDirectory({}, {}, {})&quot;, user, ou, searchScope);</span>
+<span class="fc" id="L116">    return findLdapEntryForAvatar(user, ou, searchScope)</span>
+<span class="fc" id="L117">        .flatMap(AdConstants.USER_JPEG_PHOTO::getValue)</span>
+<span class="fc" id="L118">        .map(this::isAvatarNotEmpty)</span>
+<span class="fc" id="L119">        .orElse(false);</span>
+  }
+
+  @Override
+  public Optional&lt;byte[]&gt; findAvatar(
+      String userNameOrEmail,
+      Dn ou,
+      TreeSearchScope searchScope,
+      AvatarDefault avatarDefault,
+      Integer size) {
+
+<span class="fc" id="L130">    log.debug(&quot;findAvatar({}, {}, {})&quot;, userNameOrEmail, avatarDefault, size);</span>
+<span class="fc" id="L131">    int avatarSize = getAvatarSize(size);</span>
+<span class="fc" id="L132">    return findLdapEntryForAvatar(userNameOrEmail, ou, searchScope)</span>
+<span class="fc" id="L133">        .flatMap(ldapEntry -&gt; AdConstants.USER_JPEG_PHOTO.getValue(ldapEntry)</span>
+<span class="fc" id="L134">            .filter(this::isAvatarNotEmpty)</span>
+<span class="fc" id="L135">            .map(avatar -&gt; scaleAvatarForDisplaying(avatar, avatarSize))</span>
+<span class="fc" id="L136">            .filter(this::isAvatarNotEmpty)</span>
+<span class="fc" id="L137">            .or(() -&gt; {</span>
+<span class="fc" id="L138">              String mail = getEmail(ldapEntry, userNameOrEmail);</span>
+<span class="fc" id="L139">              return findAvatarsOfProviders(mail, avatarDefault, avatarSize)</span>
+<span class="fc" id="L140">                  .findFirst();</span>
+            }))
+<span class="fc" id="L142">        .or(() -&gt; findAvatarsOfProviders(userNameOrEmail, avatarDefault, avatarSize)</span>
+<span class="fc" id="L143">            .findFirst());</span>
+  }
+
+  private Stream&lt;byte[]&gt; findAvatarsOfProviders(
+      String user,
+      AvatarDefault avatarDefault,
+      Integer size) {
+
+<span class="fc" id="L151">    log.debug(&quot;findAvatarsOfProviders({}, {}, {})&quot;, user, avatarDefault, size);</span>
+<span class="fc" id="L152">    return avatarProviders.stream()</span>
+<span class="fc" id="L153">        .flatMap(provider -&gt; provider.findAvatar(user, avatarDefault, size).stream())</span>
+<span class="fc" id="L154">        .filter(this::isAvatarNotEmpty);</span>
+  }
+
+  private byte[] scaleAvatarForDisplaying(byte[] avatar, int avatarSize) {
+    try {
+<span class="fc" id="L159">      BufferedImage img = imageTool.toSquareImage(avatar);</span>
+<span class="fc" id="L160">      BufferedImage scaledImg = imageTool</span>
+<span class="fc" id="L161">          .scaleImage(img, new Dimension(avatarSize, avatarSize));</span>
+<span class="fc" id="L162">      ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L163">      ImageIO.write(scaledImg, &quot;JPG&quot;, out);</span>
+<span class="fc" id="L164">      return out.toByteArray();</span>
+
+<span class="nc" id="L166">    } catch (IOException e) {</span>
+<span class="nc" id="L167">      log.error(&quot;Creating image from ldap attribute {} failed.&quot;,</span>
+<span class="nc" id="L168">          AdConstants.USER_JPEG_PHOTO.getName(), e);</span>
+<span class="nc" id="L169">      return new byte[0];</span>
+    }
+  }
+
+  private byte[] scaleAvatarForWriting(InputStream avatar) {
+<span class="fc" id="L174">    try (InputStream in = avatar) {</span>
+<span class="fc" id="L175">      BufferedImage img = ImageIO.read(in);</span>
+<span class="fc" id="L176">      int width = img.getWidth();</span>
+<span class="fc" id="L177">      int height = img.getHeight();</span>
+<span class="fc" id="L178">      int max = Math.max(width, height);</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">      if (max &gt; MAX_AVATAR_SIZE) {</span>
+<span class="nc" id="L180">        float factor = (float) MAX_AVATAR_SIZE / max;</span>
+<span class="nc" id="L181">        width = Math.min(Math.round(factor * width), MAX_AVATAR_SIZE);</span>
+<span class="nc" id="L182">        height = Math.min(Math.round(factor * height), MAX_AVATAR_SIZE);</span>
+<span class="nc" id="L183">        img = imageTool.scaleImage(img, new Dimension(width, height));</span>
+      }
+<span class="fc" id="L185">      ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L186">      ImageIO.write(img, &quot;jpg&quot;, out);</span>
+<span class="fc" id="L187">      return out.toByteArray();</span>
+<span class="nc" id="L188">    } catch (IOException e) {</span>
+<span class="nc" id="L189">      throw ServiceException.internalServerError(</span>
+          &quot;Saving avatar failed.&quot;,
+          EC_SAVING_AVATAR_FAILED,
+          e);
+    }
+  }
+
+  private String getEmail(LdapEntry ldapEntry, String defaultEmail) {
+<span class="fc" id="L197">    return AdConstants.MAIL.getValue(ldapEntry).orElse(defaultEmail);</span>
+  }
+
+  private Optional&lt;LdapEntry&gt; findLdapEntryForAvatar(
+      String userNameOrEmail,
+      Dn ou,
+      TreeSearchScope searchScope) {
+
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">    if (isEmpty(userNameOrEmail)) {</span>
+<span class="nc" id="L206">      log.debug(&quot;Avatar not found because userNameOrEmail is empty.&quot;);</span>
+<span class="nc" id="L207">      return Optional.empty();</span>
+    }
+<span class="fc" id="L209">    Filter objectClassFilter = new EqualityFilter(</span>
+<span class="fc" id="L210">        AdConstants.OBJECT_CLASS.getName(),</span>
+<span class="fc" id="L211">        getObjectClassValue());</span>
+<span class="fc" id="L212">    Filter nameFilter = new EqualityFilter(getUniqueNameAttributeName(), userNameOrEmail);</span>
+<span class="fc" id="L213">    Filter emailFilter = new EqualityFilter(AdConstants.MAIL.getName(), userNameOrEmail);</span>
+<span class="fc" id="L214">    Filter orFilter = new OrFilter(nameFilter, emailFilter);</span>
+<span class="fc" id="L215">    Filter filter = new AndFilter(objectClassFilter, orFilter);</span>
+<span class="fc" id="L216">    SearchScope scope = TreeSearchScopeConverter.toSearchScope(searchScope);</span>
+<span class="fc" id="L217">    SearchRequest searchRequest = searchOneRequest(</span>
+        userNameOrEmail,
+        ou,
+        filter,
+        scope);
+<span class="fc" id="L222">    log.debug(&quot;findAvatar, searchRequest = {}&quot;, searchRequest);</span>
+<span class="fc" id="L223">    return getLdapOperations()</span>
+<span class="fc" id="L224">        .findOne(searchRequest)</span>
+<span class="fc" id="L225">        .filter(getIgnoredEntryFilter(ou, scope));</span>
+  }
+
+  @Override
+  public void saveAvatar(String userName, InputStream avatar) {
+<span class="fc" id="L230">    log.debug(&quot;saveAvatar({}, InputStream)&quot;, userName);</span>
+<span class="fc" id="L231">    LdapAttribute ldapAttribute = AdConstants.USER_JPEG_PHOTO</span>
+<span class="fc" id="L232">        .createAttribute(scaleAvatarForWriting(avatar));</span>
+<span class="fc" id="L233">    modifyAvatar(userName, ldapAttribute, Type.REPLACE);</span>
+<span class="fc" id="L234">  }</span>
+
+  @Override
+  public void removeAvatar(String userName) {
+<span class="fc" id="L238">    log.debug(&quot;removeAvatar({})&quot;, userName);</span>
+<span class="fc" id="L239">    modifyAvatar(userName, AdConstants.USER_JPEG_PHOTO.createAttribute(), Type.DELETE);</span>
+<span class="fc" id="L240">  }</span>
+
+  private void modifyAvatar(
+      String userName,
+      LdapAttribute ldapAttribute,
+      AttributeModification.Type modificationType) {
+
+<span class="fc" id="L247">    AttributeModification mod = new AttributeModification(modificationType, ldapAttribute);</span>
+<span class="fc" id="L248">    findDnOfSamAccountName(userName).ifPresentOrElse(dn -&gt; {</span>
+<span class="fc" id="L249">          ModifyRequest modifyRequest = ModifyRequest.builder()</span>
+<span class="fc" id="L250">              .dn(dn)</span>
+<span class="fc" id="L251">              .modifications(mod)</span>
+<span class="fc" id="L252">              .build();</span>
+<span class="fc" id="L253">          getLdapOperations().modify(modifyRequest);</span>
+<span class="fc" id="L254">        },</span>
+        () -&gt; {
+<span class="nc" id="L256">          throw ServiceException.notFoundWithErrorCode(</span>
+<span class="nc" id="L257">              DomainUser.class.getSimpleName(),</span>
+              userName,
+              EC_SAM_ACCOUNT_NOT_FOUND);
+        });
+<span class="fc" id="L261">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
